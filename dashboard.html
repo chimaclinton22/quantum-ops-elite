@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantum OPS - AI Business OS Dashboard</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js for UI Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#0B0B14',
+              card: '#121225',
+              sidebar: '#0E0E1B',
+              purple: '#6C5CE7',
+              accent: '#8B5CF6',
+              border: 'rgba(139, 92, 246, 0.15)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0B0B14; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+    .led-glow { box-shadow: 0 0 15px rgba(108, 92, 231, 0.2); }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden text-sm">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="w-64 bg-brand-sidebar border-r border-brand-border flex flex-col justify-between p-4 flex-shrink-0">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 px-2 py-3 mb-6">
+        <div class="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-purple-500/30">Q</div>
+        <div>
+          <h1 class="font-bold text-base tracking-wide text-white leading-tight">QUANTUM OPS</h1>
+          <p class="text-[10px] text-purple-400 font-semibold tracking-wider">AI BUSINESS OS</p>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="space-y-1 custom-scrollbar overflow-y-auto max-h-[calc(100vh-280px)] pr-1">
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-purple-600/20 text-purple-400 font-medium border border-purple-500/30">
+          <i class="fa-solid fa-gauge-high text-base"></i> Dashboard
+        </a>
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-robot text-purple-400"></i> AI CEO Command Center</span>
+          <span class="bg-purple-500/20 text-purple-300 text-[10px] px-1.5 py-0.5 rounded font-semibold border border-purple-500/30">New</span>
+        </a>
+        <a href="#" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition">
+          <span class="flex items-center gap-3"><i class="fa-solid fa-camera"></i> Smart Camera</span>
+          <span class="text-[10px] text-emerald-400 font-semibold">AI Recognition</span>
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-cash-register"></i> POS / Sales</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-cart-shopping"></i> Purchases</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-users"></i> Customers (CRM)</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-hand-holding-dollar"></i> Debtors</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-user-gear"></i> Staff & Payroll</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-code-branch"></i> Multi-Branch</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-calculator"></i> Accounting</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-receipt"></i> Expenses</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-bullhorn"></i> Marketing</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-list-check"></i> Tasks & Projects</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-regular fa-calendar"></i> Calendar</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-regular fa-file-lines"></i> Documents</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-bolt"></i> Automation</a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-400 hover:bg-gray-800/50 hover:text-white transition"><i class="fa-solid fa-gear"></i> Settings</a>
+      </nav>
+    </div>
+
+    <!-- Storage Card Bottom -->
+    <div class="bg-brand-card p-3 rounded-xl border border-brand-border space-y-2 mt-4">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-cloud text-purple-400 text-lg"></i>
+        <div>
+          <h4 class="text-xs font-semibold text-white">Quantum Cloud</h4>
+          <p class="text-[10px] text-gray-400">Secure, Reliable, Always Synced</p>
+        </div>
+      </div>
+      <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+        <div class="bg-purple-500 h-full w-[0%]"></div>
+      </div>
+      <div class="flex justify-between text-[10px] text-gray-400">
+        <span>0.0 GB / 100 GB</span>
+      </div>
+      <button class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold py-1.5 rounded-lg transition">Upgrade Plan</button>
+    </div>
+  </aside>
+
+  <!-- MAIN BODY AREA -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    
+    <!-- TOP HEADER -->
+    <header class="h-16 bg-brand-sidebar border-b border-brand-border flex items-center justify-between px-6 flex-shrink-0">
+      <!-- Search Input -->
+      <div class="relative w-96">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-500 text-xs"></i>
+        <input type="text" placeholder="Search anything... (Products, Customers, Invoices...)" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-8 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-purple-500">
+        <span class="absolute right-2.5 top-2 text-[10px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded border border-gray-700">⌘ K</span>
+      </div>
+
+      <!-- Top Right Actions -->
+      <div class="flex items-center gap-4">
+        <button class="flex items-center gap-1.5 bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-purple-600/30">
+          <i class="fa-solid fa-sparkles text-purple-400"></i> AI CEO
+        </button>
+        <button class="relative text-gray-400 hover:text-white"><i class="fa-regular fa-bell text-base"></i><span class="absolute -top-1 -right-1 w-2 h-2 bg-purple-500 rounded-full"></span></button>
+        <button class="relative text-gray-400 hover:text-white"><i class="fa-regular fa-envelope text-base"></i></button>
+        <button class="text-gray-400 hover:text-white"><i class="fa-regular fa-moon text-base"></i></button>
+        
+        <!-- User Profile Pill -->
+        <div class="flex items-center gap-2 border-l border-gray-800 pl-4">
+          <div class="w-8 h-8 rounded-full bg-purple-600/30 flex items-center justify-center font-bold text-xs text-purple-300 border border-purple-500/40" id="user-avatar-text">U</div>
+          <div class="text-left">
+            <h5 class="text-xs font-semibold text-white leading-tight" id="user-display-name">Loading...</h5>
+            <p class="text-[10px] text-gray-400 leading-tight">Owner</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD SCROLLABLE CONTENT -->
+    <main class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+      
+      <!-- GREETING & QUICK STATUS BAR -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">Good day, <span id="welcome-name">User</span> 👋</h2>
+          <p class="text-xs text-gray-400">Here's what's happening with your business today.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 bg-brand-card px-3 py-1.5 rounded-lg border border-brand-border text-xs">
+            <i class="fa-solid fa-heart-pulse text-emerald-400"></i>
+            <span class="text-gray-400">Business Health:</span>
+            <span class="text-emerald-400 font-semibold">100%</span>
+          </div>
+          <div class="flex items-center gap-2 bg-brand-card px-3 py-1.5 rounded-lg border border-brand-border text-xs">
+            <i class="fa-solid fa-store text-purple-400"></i>
+            <span class="text-gray-400">Active Branch:</span>
+            <span class="text-white font-medium">Main Branch</span>
+          </div>
+          <div class="flex items-center gap-2 bg-brand-card px-3 py-1.5 rounded-lg border border-brand-border text-xs">
+            <i class="fa-solid fa-crown text-amber-400"></i>
+            <span class="text-gray-400">Plan:</span>
+            <span class="text-amber-400 font-semibold">Quantum Pro</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN TOP GRID (4 METRIC CARDS + AI CEO SIDEBAR) -->
+      <div class="grid grid-cols-12 gap-6">
+        
+        <!-- LEFT 9 COLS: METRIC CARDS & OVERVIEW -->
+        <div class="col-span-9 space-y-6">
+          
+          <!-- 5 TOP STAT CARDS (ALL ZERO DEFAULT) -->
+          <div class="grid grid-cols-5 gap-3">
+            <div class="bg-brand-card p-3 rounded-xl border border-brand-border space-y-2">
+              <div class="flex justify-between items-start text-xs text-gray-400">
+                <span>TOTAL SALES (TODAY)</span>
+                <i class="fa-solid fa-cart-shopping text-purple-400"></i>
+              </div>
+              <h3 class="text-lg font-bold text-white" id="val-today-sales">₦0</h3>
+              <p class="text-[10px] text-emerald-400">↑ 0.0% vs yesterday</p>
+            </div>
+
+            <div class="bg-brand-card p-3 rounded-xl border border-brand-border space-y-2">
+              <div class="flex justify-between items-start text-xs text-gray-400">
+                <span>TOTAL PROFIT (TODAY)</span>
+                <i class="fa-solid fa-wallet text-emerald-400"></i>
+              </div>
+              <h3 class="text-lg font-bold text-white" id="val-today-profit">₦0</h3>
+              <p class="text-[10px] text-emerald-400">↑ 0.0% vs yesterday</p>
+            </div>
+
+            <div class="bg-brand-card p-3 rounded-xl border border-brand-border space-y-2">
+              <div class="flex justify-between items-start text-xs text-gray-400">
+                <span>TRANSACTIONS</span>
+                <i class="fa-solid fa-receipt text-amber-400"></i>
+              </div>
+              <h3 class="text-lg font-bold text-white" id="val-today-transactions">0</h3>
+              <p class="text-[10px] text-emerald-400">↑ 0.0% vs yesterday</p>
+            </div>
+
+            <div class="bg-brand-card p-3 rounded-xl border border-brand-border space-y-2">
+              <div class="flex justify-between items-start text-xs text-gray-400">
+                <span>OUTSTANDING DEBT</span>
+                <i class="fa-solid fa-circle-exclamation text-rose-400"></i>
+              </div>
+              <h3 class="text-lg font-bold text-white" id="val-today-debt">₦0</h3>
+              <p class="text-[10px] text-gray-400">0 Customers</p>
+            </div>
+
+            <div class="bg-brand-card p-3 rounded-xl border border-brand-border space-y-2">
+              <div class="flex justify-between items-start text-xs text-gray-400">
+                <span>LOW STOCK ALERTS</span>
+                <i class="fa-solid fa-box text-amber-500"></i>
+              </div>
+              <h3 class="text-lg font-bold text-white" id="val-stock-alerts">0 Items</h3>
+              <p class="text-[10px] text-gray-400">Need attention</p>
+            </div>
+          </div>
+
+          <!-- SALES OVERVIEW & CATEGORY BREAKDOWN -->
+          <div class="grid grid-cols-3 gap-6">
+            <div class="col-span-2 bg-brand-card p-4 rounded-xl border border-brand-border space-y-3">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h4 class="text-xs font-semibold text-gray-400">SALES OVERVIEW</h4>
+                  <h3 class="text-xl font-bold text-white" id="val-total-overview">₦0</h3>
+                </div>
+                <select class="bg-gray-900 border border-gray-800 text-xs rounded px-2 py-1 text-gray-300">
+                  <option>This Week</option>
+                  <option>This Month</option>
+                </select>
+              </div>
+              <div class="h-40">
+                <canvas id="salesChart"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-brand-card p-4 rounded-xl border border-brand-border space-y-3">
+              <div class="flex justify-between items-center">
+                <h4 class="text-xs font-semibold text-gray-400">SALES BY CATEGORY</h4>
+                <a href="#" class="text-[10px] text-purple-400 hover:underline">View Report</a>
+              </div>
+              <div class="h-32 flex items-center justify-center">
+                <canvas id="categoryChart"></canvas>
+              </div>
+              <div class="text-[11px] space-y-1 text-gray-400 pt-2 border-t border-gray-800">
+                <div class="flex justify-between"><span>• General Products</span><span>0% (₦0)</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIVE BUSINESS ACTIVITIES & QUICK ACTIONS -->
+          <div class="grid grid-cols-3 gap-6">
+            
+            <!-- TABLES & LISTS (TOP SELLING, DEBTORS) -->
+            <div class="col-span-2 bg-brand-card p-4 rounded-xl border border-brand-border space-y-3">
+              <h4 class="text-xs font-semibold text-gray-400">TOP SELLING PRODUCTS</h4>
+              <div class="text-center py-8 text-gray-500 text-xs" id="top-products-container">
+                No sales recorded yet. Start adding items to see records.
+              </div>
+            </div>
+
+            <!-- QUICK ACTIONS PANEL -->
+            <div class="bg-brand-card p-4 rounded-xl border border-brand-border space-y-3">
+              <h4 class="text-xs font-semibold text-gray-400">QUICK ACTIONS</h4>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="alert('Quick Sale feature ready!')" class="p-3 bg-gray-900 border border-gray-800 hover:border-purple-500 rounded-lg flex flex-col items-center justify-center gap-1.5 transition">
+                  <i class="fa-solid fa-cart-plus text-purple-400"></i>
+                  <span class="text-[11px]">New Sale</span>
+                </button>
+                <button onclick="alert('Add Product feature ready!')" class="p-3 bg-gray-900 border border-gray-800 hover:border-purple-500 rounded-lg flex flex-col items-center justify-center gap-1.5 transition">
+                  <i class="fa-solid fa-plus text-emerald-400"></i>
+                  <span class="text-[11px]">Add Product</span>
+                </button>
+                <button onclick="alert('Add Customer feature ready!')" class="p-3 bg-gray-900 border border-gray-800 hover:border-purple-500 rounded-lg flex flex-col items-center justify-center gap-1.5 transition">
+                  <i class="fa-solid fa-user-plus text-sky-400"></i>
+                  <span class="text-[11px]">Add Customer</span>
+                </button>
+                <button onclick="alert('New Purchase feature ready!')" class="p-3 bg-gray-900 border border-gray-800 hover:border-purple-500 rounded-lg flex flex-col items-center justify-center gap-1.5 transition">
+                  <i class="fa-solid fa-bag-shopping text-amber-400"></i>
+                  <span class="text-[11px]">New Purchase</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- RIGHT 3 COLS: AI CEO ASSISTANT PANEL -->
+        <div class="col-span-3 bg-brand-card border border-brand-border rounded-xl p-4 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <div class="flex items-center gap-2 text-purple-400 font-bold text-xs tracking-wider">
+              <i class="fa-solid fa-sparkles"></i> AI CEO ASSISTANT
+            </div>
+            
+            <!-- AI Mascot Avatar -->
+            <div class="w-full h-44 bg-purple-950/40 rounded-xl border border-purple-500/20 flex flex-col items-center justify-center relative overflow-hidden">
+              <div class="w-20 h-20 rounded-full bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-3xl text-purple-300 led-glow">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <p class="text-xs font-semibold text-white mt-3">Hello <span id="ai-user-name">User</span>!</p>
+              <p class="text-[10px] text-gray-400">Standing by to analyze your store data.</p>
+            </div>
+
+            <!-- Insights Box -->
+            <div class="space-y-2 text-xs">
+              <h5 class="text-[11px] font-semibold text-gray-400">LIVE AI INSIGHTS</h5>
+              <div class="p-3 bg-gray-900/80 border border-gray-800 rounded-lg text-gray-300 text-[11px] space-y-1">
+                <p class="text-purple-300 font-medium">⚡ System Initialized</p>
+                <p class="text-gray-400 text-[10px]">Your business database is clean and connected to Supabase. Start recording sales to activate AI predictions.</p>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="alert('AI CEO Chat ready to interact!')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-purple-500/20">
+            <i class="fa-solid fa-comments"></i> Chat with AI CEO
+          </button>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- SUPABASE INTEGRATION & CHART INITIALIZATION SCRIPT -->
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadUserProfile() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        const userName = user.user_metadata.full_name || user.email.split('@')[0];
+        document.getElementById("user-display-name").textContent = userName;
+        document.getElementById("welcome-name").textContent = userName;
+        document.getElementById("ai-user-name").textContent = userName;
+        document.getElementById("user-avatar-text").textContent = userName.charAt(0).toUpperCase();
+      } else {
+        // Redirect to auth if not logged in
+        window.location.href = "index.html";
+      }
+    }
+
+    function initCharts() {
+      // Sales Overview Chart (Blank Default)
+      const ctx1 = document.getElementById('salesChart').getContext('2d');
+      new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Sales (₦)',
+            data: [0, 0, 0, 0, 0, 0, 0],
+            borderColor: '#8B5CF6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } }
+          }
+        }
+      });
+
+      // Category Donut Chart
+      const ctx2 = document.getElementById('categoryChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: ['No Data'],
+          datasets: [{
+            data: [100],
+            backgroundColor: ['#2D2D48']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          cutout: '70%'
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadUserProfile();
+      initCharts();
+    });
+  </script>
+</body>
+</html>
