@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantum OPS Elite - Auth</title>
+  <!-- Tailwind CSS for Dark LED Styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-950 text-white flex items-center justify-center min-h-screen p-4">
+
+  <div class="w-full max-w-md bg-gray-900 border border-purple-500/30 rounded-xl p-6 shadow-2xl">
+    <h1 class="text-2xl font-bold text-center text-purple-400 mb-2">QUANTUM OPS ELITE</h1>
+    <p id="form-title" class="text-sm text-gray-400 text-center mb-6">Sign in to your account</p>
+
+    <!-- ALERT MESSAGE -->
+    <div id="alert" class="hidden mb-4 p-3 rounded text-sm bg-purple-900/50 text-purple-200 border border-purple-500"></div>
+
+    <!-- SIGN IN / SIGN UP FORM -->
+    <form id="auth-form" class="space-y-4">
+      <div id="name-field" class="hidden">
+        <label class="block text-xs font-semibold text-gray-400 mb-1">Full Name</label>
+        <input type="text" id="full_name" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm focus:border-purple-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 mb-1">Email Address</label>
+        <input type="email" id="email" required class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm focus:border-purple-500 outline-none">
+      </div>
+
+      <div id="password-field">
+        <label class="block text-xs font-semibold text-gray-400 mb-1">Password</label>
+        <input type="password" id="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm focus:border-purple-500 outline-none">
+      </div>
+
+      <button type="submit" id="submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 font-semibold py-2 rounded text-sm transition">
+        Sign In
+      </button>
+    </form>
+
+    <!-- NAVIGATION LINKS -->
+    <div class="mt-4 text-center text-xs text-gray-400 space-y-2">
+      <p id="toggle-signup">Don't have an account? <a href="#" onclick="showSignUp()" class="text-purple-400 underline">Sign Up</a></p>
+      <p id="toggle-login" class="hidden">Already have an account? <a href="#" onclick="showLogin()" class="text-purple-400 underline">Sign In</a></p>
+      <p><a href="#" onclick="showForgotPassword()" class="text-gray-400 hover:text-white underline">Forgot Password?</a></p>
+    </div>
+  </div>
+
+  <script>
+    // SUPABASE CREDENTIALS CONNECTED
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentMode = "login"; // "login", "signup", or "forgot"
+
+    const alertBox = document.getElementById("alert");
+    const formTitle = document.getElementById("form-title");
+    const nameField = document.getElementById("name-field");
+    const passwordField = document.getElementById("password-field");
+    const submitBtn = document.getElementById("submit-btn");
+
+    function showAlert(msg) {
+      alertBox.textContent = msg;
+      alertBox.classList.remove("hidden");
+    }
+
+    function showSignUp() {
+      currentMode = "signup";
+      formTitle.textContent = "Create an Elite Account";
+      nameField.classList.remove("hidden");
+      passwordField.classList.remove("hidden");
+      submitBtn.textContent = "Sign Up";
+      document.getElementById("toggle-signup").classList.add("hidden");
+      document.getElementById("toggle-login").classList.remove("hidden");
+    }
+
+    function showLogin() {
+      currentMode = "login";
+      formTitle.textContent = "Sign in to your account";
+      nameField.classList.add("hidden");
+      passwordField.classList.remove("hidden");
+      submitBtn.textContent = "Sign In";
+      document.getElementById("toggle-signup").classList.remove("hidden");
+      document.getElementById("toggle-login").classList.add("hidden");
+    }
+
+    function showForgotPassword() {
+      currentMode = "forgot";
+      formTitle.textContent = "Reset Your Password";
+      nameField.classList.add("hidden");
+      passwordField.classList.add("hidden");
+      submitBtn.textContent = "Send Reset Link";
+    }
+
+    // FORM SUBMISSION HANDLER
+    document.getElementById("auth-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      alertBox.classList.add("hidden");
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const fullName = document.getElementById("full_name").value;
+
+      if (currentMode === "signup") {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName } }
+        });
+        if (error) showAlert(error.message);
+        else showAlert("Account created! Check your email to verify.");
+      } 
+      else if (currentMode === "login") {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) showAlert(error.message);
+        else showAlert("Login Successful! Redirecting...");
+      } 
+      else if (currentMode === "forgot") {
+        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email);
+        if (error) showAlert(error.message);
+        else showAlert("Password reset link sent to your email!");
+      }
+    });
+  </script>
+</body>
+</html>
