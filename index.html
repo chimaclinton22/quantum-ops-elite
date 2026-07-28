@@ -3,100 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quantum OPS Elite - Auth</title>
-  <!-- Tailwind CSS for Dark LED Styling -->
+  <title>Quantum OPS - Login & Authentication</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#0B0B14',
+              card: '#121225',
+              purple: '#6C5CE7',
+              border: 'rgba(139, 92, 246, 0.2)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0B0B14; font-family: system-ui, -apple-system, sans-serif; }
+    .led-glow { box-shadow: 0 0 20px rgba(108, 92, 231, 0.25); }
+  </style>
 </head>
-<body class="bg-gray-950 text-white flex items-center justify-center min-h-screen p-4">
+<body class="text-gray-200 flex items-center justify-center min-h-screen p-4">
 
-  <div class="w-full max-w-md bg-gray-900 border border-purple-500/30 rounded-xl p-6 shadow-2xl">
-    <h1 class="text-2xl font-bold text-center text-purple-400 mb-2">QUANTUM OPS ELITE</h1>
-    <p id="form-title" class="text-sm text-gray-400 text-center mb-6">Sign in to your account</p>
+  <div class="w-full max-w-md bg-brand-card border border-brand-border rounded-2xl p-8 shadow-2xl led-glow relative overflow-hidden">
+    
+    <!-- BRAND LOGO HEADER -->
+    <div class="flex flex-col items-center mb-6">
+      <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center font-bold text-2xl text-white shadow-lg shadow-purple-500/40 mb-3">
+        Q
+      </div>
+      <h1 class="text-xl font-bold tracking-wider text-white">QUANTUM OPS</h1>
+      <p class="text-xs text-purple-400 font-semibold tracking-widest mt-0.5">AI BUSINESS OS</p>
+    </div>
 
-    <!-- ALERT MESSAGE -->
-    <div id="alert" class="hidden mb-4 p-3 rounded text-sm bg-purple-900/50 text-purple-200 border border-purple-500"></div>
+    <!-- FORM TITLE & SUBTITLE -->
+    <div class="text-center mb-6">
+      <h2 id="form-title" class="text-lg font-semibold text-white">Sign in to your account</h2>
+      <p id="form-subtitle" class="text-xs text-gray-400 mt-1">Enter your credentials to access your dashboard</p>
+    </div>
 
-    <!-- SIGN IN / SIGN UP FORM -->
+    <!-- DYNAMIC ALERT MESSAGE BOX -->
+    <div id="alert" class="hidden mb-5 p-3 rounded-xl text-xs border transition-all flex items-center gap-2">
+      <i id="alert-icon" class="fa-solid fa-circle-info text-sm"></i>
+      <span id="alert-text"></span>
+    </div>
+
+    <!-- MAIN FORM -->
     <form id="auth-form" class="space-y-4">
+      
+      <!-- FULL NAME FIELD (SIGNUP ONLY) -->
       <div id="name-field" class="hidden">
-        <label class="block text-xs font-semibold text-gray-400 mb-1">Full Name</label>
-        <input type="text" id="full_name" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm focus:border-purple-500 outline-none">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Full Name</label>
+        <div class="relative">
+          <i class="fa-regular fa-user absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+          <input type="text" id="full_name" placeholder="John Doe" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+        </div>
       </div>
 
+      <!-- EMAIL ADDRESS FIELD -->
       <div>
-        <label class="block text-xs font-semibold text-gray-400 mb-1">Email Address</label>
-        <input type="email" id="email" required class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm focus:border-purple-500 outline-none">
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Email Address</label>
+        <div class="relative">
+          <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+          <input type="email" id="email" required placeholder="owner@company.com" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+        </div>
       </div>
 
+      <!-- PASSWORD FIELD -->
       <div id="password-field">
-        <label class="block text-xs font-semibold text-gray-400 mb-1">Password</label>
-        <input type="password" id="password" class="w-full bg-gray-800 border border-gray-700 rounded p-2 text-sm focus:border-purple-500 outline-none">
+        <div class="flex justify-between items-center mb-1.5">
+          <label class="block text-xs font-medium text-gray-400">Password</label>
+          <a href="#" id="forgot-link" onclick="showForgotPassword()" class="text-[11px] text-purple-400 hover:underline">Forgot Password?</a>
+        </div>
+        <div class="relative">
+          <i class="fa-solid fa-lock absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+          <input type="password" id="password" placeholder="••••••••" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+        </div>
       </div>
 
-      <button type="submit" id="submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 font-semibold py-2 rounded text-sm transition">
-        Sign In
+      <!-- SUBMIT BUTTON -->
+      <button type="submit" id="submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 mt-2">
+        <span>Sign In</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
       </button>
+
     </form>
 
-    <!-- NAVIGATION LINKS -->
-    <div class="mt-4 text-center text-xs text-gray-400 space-y-2">
-      <p id="toggle-signup">Don't have an account? <a href="#" onclick="showSignUp()" class="text-purple-400 underline">Sign Up</a></p>
-      <p id="toggle-login" class="hidden">Already have an account? <a href="#" onclick="showLogin()" class="text-purple-400 underline">Sign In</a></p>
-      <p><a href="#" onclick="showForgotPassword()" class="text-gray-400 hover:text-white underline">Forgot Password?</a></p>
+    <!-- NAVIGATION TOGGLES -->
+    <div class="mt-6 text-center text-xs text-gray-400 border-t border-gray-800/80 pt-4">
+      <p id="toggle-signup">Don't have an account? <a href="#" onclick="showSignUp()" class="text-purple-400 font-medium hover:underline ml-1">Create Account</a></p>
+      <p id="toggle-login" class="hidden">Already have an account? <a href="#" onclick="showLogin()" class="text-purple-400 font-medium hover:underline ml-1">Sign In</a></p>
     </div>
+
   </div>
 
   <script>
-    // SUPABASE CREDENTIALS CONNECTED
+    // SUPABASE CONFIGURATION
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentMode = "login"; // "login", "signup", or "forgot"
+    let currentMode = "login"; // Modes: "login", "signup", "forgot"
 
+    // UI ELEMENTS
     const alertBox = document.getElementById("alert");
+    const alertText = document.getElementById("alert-text");
+    const alertIcon = document.getElementById("alert-icon");
     const formTitle = document.getElementById("form-title");
+    const formSubtitle = document.getElementById("form-subtitle");
     const nameField = document.getElementById("name-field");
     const passwordField = document.getElementById("password-field");
     const submitBtn = document.getElementById("submit-btn");
+    const forgotLink = document.getElementById("forgot-link");
 
-    function showAlert(msg) {
-      alertBox.textContent = msg;
-      alertBox.classList.remove("hidden");
+    // AUTO CHECK SESSION ON LOAD
+    async function checkExistingSession() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        window.location.href = "dashboard.html";
+      }
+    }
+    checkExistingSession();
+
+    // ALERT MESSAGING SYSTEM
+    function showAlert(msg, isError = true) {
+      alertText.textContent = msg;
+      alertBox.classList.remove("hidden", "bg-rose-950/60", "border-rose-500/40", "text-rose-300", "bg-emerald-950/60", "border-emerald-500/40", "text-emerald-300");
+      
+      if (isError) {
+        alertBox.classList.add("bg-rose-950/60", "border-rose-500/40", "text-rose-300");
+        alertIcon.className = "fa-solid fa-circle-exclamation text-sm";
+      } else {
+        alertBox.classList.add("bg-emerald-950/60", "border-emerald-500/40", "text-emerald-300");
+        alertIcon.className = "fa-solid fa-circle-check text-sm";
+      }
     }
 
+    // MODE SWITCHING LOGIC
     function showSignUp() {
       currentMode = "signup";
       formTitle.textContent = "Create an Elite Account";
+      formSubtitle.textContent = "Get started with Quantum OPS Business OS";
       nameField.classList.remove("hidden");
       passwordField.classList.remove("hidden");
-      submitBtn.textContent = "Sign Up";
+      forgotLink.classList.add("hidden");
+      submitBtn.querySelector("span").textContent = "Create Account";
       document.getElementById("toggle-signup").classList.add("hidden");
       document.getElementById("toggle-login").classList.remove("hidden");
+      alertBox.classList.add("hidden");
     }
 
     function showLogin() {
       currentMode = "login";
       formTitle.textContent = "Sign in to your account";
+      formSubtitle.textContent = "Enter your credentials to access your dashboard";
       nameField.classList.add("hidden");
       passwordField.classList.remove("hidden");
-      submitBtn.textContent = "Sign In";
+      forgotLink.classList.remove("hidden");
+      submitBtn.querySelector("span").textContent = "Sign In";
       document.getElementById("toggle-signup").classList.remove("hidden");
       document.getElementById("toggle-login").classList.add("hidden");
+      alertBox.classList.add("hidden");
     }
 
     function showForgotPassword() {
       currentMode = "forgot";
       formTitle.textContent = "Reset Your Password";
+      formSubtitle.textContent = "We will send a reset link to your email address";
       nameField.classList.add("hidden");
       passwordField.classList.add("hidden");
-      submitBtn.textContent = "Send Reset Link";
+      submitBtn.querySelector("span").textContent = "Send Reset Link";
+      document.getElementById("toggle-signup").classList.add("hidden");
+      document.getElementById("toggle-login").classList.remove("hidden");
+      alertBox.classList.add("hidden");
     }
 
-    // FORM SUBMISSION HANDLER
+    // FORM SUBMIT HANDLER
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       alertBox.classList.add("hidden");
@@ -105,24 +195,45 @@
       const password = document.getElementById("password").value;
       const fullName = document.getElementById("full_name").value;
 
-      if (currentMode === "signup") {
-        const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: fullName } }
-        });
-        if (error) showAlert(error.message);
-        else showAlert("Account created! Check your email to verify.");
-      } 
-      else if (currentMode === "login") {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) showAlert(error.message);
-        else showAlert("Login Successful! Redirecting...");
-      } 
-      else if (currentMode === "forgot") {
-        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email);
-        if (error) showAlert(error.message);
-        else showAlert("Password reset link sent to your email!");
+      // Disable button while processing
+      submitBtn.disabled = true;
+      submitBtn.classList.add("opacity-70");
+
+      try {
+        if (currentMode === "signup") {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName } }
+          });
+          
+          if (error) throw error;
+          showAlert("Account created! Check your email to verify before logging in.", false);
+        } 
+        else if (currentMode === "login") {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          
+          if (error) throw error;
+          showAlert("Login Successful! Redirecting to Dashboard...", false);
+          
+          // Redirect to dashboard after 1 second
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1000);
+        } 
+        else if (currentMode === "forgot") {
+          const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/index.html',
+          });
+          
+          if (error) throw error;
+          showAlert("Password reset link sent! Check your inbox.", false);
+        }
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("opacity-70");
       }
     });
   </script>
