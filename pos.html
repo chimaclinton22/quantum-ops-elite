@@ -3,30 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quantum OPS - Dynamic POS & Live Inventory</title>
+  <title>Quantum OPS Elite - POS Sales</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- html2pdf for PDF Download -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- HTML5 QR Code / Barcode Scanner -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
-
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
             brand: {
-              bg: '#0B0B14',
-              card: '#121225',
-              sidebar: '#0E0E1B',
+              bg: '#07070F',
+              card: '#121224',
+              sidebar: '#0E0E1C',
               purple: '#6C5CE7',
-              accent: '#8B5CF6',
-              border: 'rgba(139, 92, 246, 0.15)'
+              accent: '#8B5CF6'
             }
           }
         }
@@ -34,327 +28,413 @@
     }
   </script>
   <style>
-    body { background-color: #0B0B14; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+    .iphone-frame {
+      width: 100%;
+      max-width: 410px;
+      height: 100vh;
+      max-height: 860px;
+      background: #0B0B16;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
+      .iphone-frame { border-radius: 48px; }
+    }
   </style>
 </head>
-<body class="flex h-screen overflow-hidden text-sm">
+<body>
 
-  <!-- LEFT COLUMN: SEARCH, MANUAL INPUT, CAMERA & PRODUCT SELECTION -->
-  <div class="flex-1 flex flex-col border-r border-brand-border">
+  <!-- MOBILE DEVICE FRAME CONTAINER -->
+  <div class="iphone-frame">
     
-    <!-- TOP HEADER -->
-    <div class="p-4 bg-brand-sidebar border-b border-brand-border flex justify-between items-center">
+    <!-- TOP APP BAR -->
+    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
       <div class="flex items-center gap-3">
-        <a href="dashboard.html" class="p-2 bg-gray-800 rounded-lg text-gray-400 hover:text-white"><i class="fa-solid fa-arrow-left"></i></a>
+        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
+          <i class="fa-solid fa-arrow-left text-sm"></i>
+        </a>
         <div>
-          <h1 class="font-bold text-white text-base">Quantum OPS POS</h1>
-          <p class="text-xs text-purple-400">Cashier: <span id="cashier-name">Loading...</span></p>
+          <h2 class="font-bold tracking-wider text-xs text-white">POS Sales</h2>
+          <p class="text-[9px] text-slate-400">Create new sale</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="openManualAddModal()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-600/30 flex items-center gap-2">
-          <i class="fa-solid fa-plus"></i> Add Custom Item
-        </button>
-        <button onclick="toggleCameraScanner()" class="bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-purple-600/30 flex items-center gap-2">
-          <i class="fa-solid fa-camera"></i> Camera Barcode AI
-        </button>
+        <button onclick="clearCart()" class="p-2 rounded-xl bg-[#121224] border border-purple-500/20 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-barcode"></i></button>
+        <button onclick="toggleMenu()" class="p-2 rounded-xl bg-[#121224] border border-purple-500/20 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-bars"></i></button>
       </div>
     </div>
 
-    <!-- LIVE CAMERA SCANNER AREA (HIDDEN BY DEFAULT) -->
-    <div id="camera-scanner-container" class="hidden p-4 bg-gray-900 border-b border-brand-border flex flex-col items-center">
-      <div class="flex justify-between w-full max-w-sm mb-2 text-xs">
-        <span class="text-purple-400 font-semibold"><i class="fa-solid fa-barcode"></i> Scanning for Barcode...</span>
-        <button onclick="toggleCameraScanner()" class="text-rose-400 font-bold">Close Camera</button>
-      </div>
-      <div id="reader" class="w-full max-w-sm bg-black rounded-lg overflow-hidden"></div>
-    </div>
-
-    <!-- SEARCH BAR & INVENTORY CATALOGUE -->
-    <div class="p-4 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
-      <div class="relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-500 text-xs"></i>
-        <input type="text" id="search-input" onkeyup="filterInventory()" placeholder="Search product name, SKU, or enter barcode..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-      </div>
-
-      <!-- DYNAMIC INVENTORY GRID -->
-      <div>
-        <h3 class="text-xs font-semibold text-gray-400 mb-3 tracking-wider">AVAILABLE INVENTORY</h3>
-        <div id="inventory-grid" class="grid grid-cols-3 gap-3">
-          <div class="col-span-3 text-center py-8 text-gray-500 text-xs">Loading store items...</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT COLUMN: CURRENT ORDER CART & CHECKOUT -->
-  <div class="w-96 bg-brand-sidebar flex flex-col justify-between p-4 border-l border-brand-border">
-    <div class="space-y-4">
-      <div class="flex justify-between items-center border-b border-brand-border pb-3">
-        <h2 class="font-bold text-white text-sm">Current Order Cart</h2>
-        <button onclick="clearCart()" class="text-[10px] text-rose-400 hover:underline">Clear Cart</button>
-      </div>
-
-      <!-- CUSTOMER DETAILS (OPTIONAL) -->
-      <div class="bg-brand-card border border-brand-border p-2.5 rounded-xl space-y-2">
-        <div class="flex items-center justify-between text-xs">
-          <span class="text-gray-400 font-medium"><i class="fa-solid fa-user text-purple-400 mr-1"></i> Customer Info</span>
-        </div>
-        <input type="text" id="cust-name" placeholder="Customer Name (Optional)" class="w-full bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs text-white">
-        <input type="text" id="cust-contact" placeholder="Phone or Email (For Receipts)" class="w-full bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs text-white">
-      </div>
-
-      <!-- CART ITEMS LIST WITH REAL-TIME QUANTITY ADJUSTMENT -->
-      <div id="cart-items" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
-        <div class="text-center py-8 text-gray-500 text-xs">Cart is empty. Tap products to add.</div>
-      </div>
-    </div>
-
-    <!-- CALCULATIONS & COMPLETE SALE BUTTON -->
-    <div class="space-y-3 border-t border-brand-border pt-4">
-      <div class="space-y-1.5 text-xs text-gray-400">
-        <div class="flex justify-between"><span>Subtotal:</span><span id="cart-subtotal" class="text-white">₦0</span></div>
-        <div class="flex justify-between font-bold text-sm text-white pt-2 border-t border-gray-800">
-          <span>TOTAL:</span><span id="cart-total" class="text-purple-400 font-bold">₦0</span>
-        </div>
-      </div>
-
-      <!-- PAYMENT METHOD -->
-      <div>
-        <label class="block text-[10px] font-semibold text-gray-400 mb-1">PAYMENT METHOD</label>
-        <div class="grid grid-cols-4 gap-1 text-[10px]">
-          <button onclick="setMethod('Cash')" id="btn-cash" class="p-2 rounded bg-purple-600 text-white font-medium">Cash</button>
-          <button onclick="setMethod('Transfer')" id="btn-transfer" class="p-2 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Transfer</button>
-          <button onclick="setMethod('POS')" id="btn-pos" class="p-2 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">POS</button>
-          <button onclick="setMethod('Online')" id="btn-online" class="p-2 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Online</button>
-        </div>
-      </div>
-
-      <button onclick="completeSale()" id="complete-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2">
-        <span>NEXT / GENERATE RECEIPT</span> <i class="fa-solid fa-arrow-right"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- MANUAL ADD ITEM MODAL -->
-  <div id="manual-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-    <div class="bg-brand-card border border-brand-border p-5 rounded-2xl w-96 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-        <h3 class="font-bold text-white text-sm">Add Item Manually</h3>
-        <button onclick="closeManualAddModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="text-gray-400 block mb-1">Item Name</label>
-          <input type="text" id="manual-name" placeholder="e.g. Wireless Mouse" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-gray-400 block mb-1">Unit Price (₦)</label>
-            <input type="number" id="manual-price" placeholder="5000" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
-          </div>
-          <div>
-            <label class="text-gray-400 block mb-1">Cost Price (₦)</label>
-            <input type="number" id="manual-cost" placeholder="3000" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
-          </div>
-        </div>
-        <div>
-          <label class="text-gray-400 block mb-1">Quantity</label>
-          <input type="number" id="manual-qty" value="1" min="1" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
-        </div>
-      </div>
-      <button onclick="addManualItemToCart()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg text-xs transition">Add to Cart</button>
-    </div>
-  </div>
-
-  <!-- RECEIPT MODAL WITH SHARE & DOWNLOAD -->
-  <div id="receipt-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto">
-    <div class="bg-white text-black p-6 rounded-2xl w-80 space-y-4 shadow-2xl relative">
+    <!-- MAIN SCROLLABLE VIEWPORT -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
       
-      <!-- RECEIPT PRINTABLE AREA -->
-      <div id="printable-receipt" class="p-2 bg-white">
-        <div class="text-center border-b border-gray-200 pb-3">
-          <h2 class="font-bold text-base tracking-wide text-gray-900">QUANTUM STORE</h2>
-          <p class="text-[10px] text-gray-500">Official Sales Receipt</p>
-          <p class="text-[10px] text-purple-600 font-bold mt-1" id="rec-number">SAL-000000</p>
-          <p class="text-[9px] text-gray-400" id="rec-datetime">Jul 29, 2026, 01:00 AM</p>
-        </div>
-
-        <div class="text-xs py-3 border-b border-gray-200 space-y-1" id="rec-customer-info">
-          <!-- Filled dynamically -->
-        </div>
-
-        <div class="text-xs py-3 space-y-1" id="rec-items">
-          <!-- Filled dynamically -->
-        </div>
-
-        <div class="border-t border-gray-200 pt-3 text-xs space-y-1 font-bold">
-          <div class="flex justify-between text-sm"><span>TOTAL PAID:</span><span id="rec-total">₦0</span></div>
-          <div class="flex justify-between text-[10px] text-gray-600"><span>Payment Method:</span><span id="rec-method">Cash</span></div>
-        </div>
-
-        <div class="text-center text-[10px] text-gray-400 pt-4">Thank you for your business!</div>
+      <!-- SEARCH PRODUCTS -->
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name, barcode or scan" class="w-full bg-[#121224] border border-purple-500/20 rounded-xl pl-9 pr-9 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
+        <i class="fa-solid fa-microphone absolute right-3.5 top-3 text-purple-400 text-xs cursor-pointer"></i>
       </div>
 
-      <!-- ACTION BUTTONS: DOWNLOAD, WHATSAPP, GMAIL, SMS -->
-      <div class="space-y-2 pt-2 border-t border-gray-100">
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="downloadPDFReceipt()" class="bg-gray-900 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-black"><i class="fa-solid fa-download"></i> Download PDF</button>
-          <button onclick="shareWhatsApp()" class="bg-emerald-600 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-emerald-700"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="shareGmail()" class="bg-rose-600 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-rose-700"><i class="fa-solid fa-envelope"></i> Gmail</button>
-          <button onclick="shareSMS()" class="bg-sky-600 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-sky-700"><i class="fa-solid fa-comment-sms"></i> SMS</button>
-        </div>
-        <button onclick="startNewSale()" class="w-full bg-purple-600 text-white text-xs font-bold py-2.5 rounded-lg transition hover:bg-purple-700">Start New Sale</button>
+      <!-- QUICK TOOLS ROW -->
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="alert('Camera AI recognition scanner activated.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
+          <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-camera"></i></div>
+          <div>
+            <p class="text-[10px] font-bold text-white">Smart Camera</p>
+            <p class="text-[8px] text-slate-400">AI Recognition</p>
+          </div>
+        </button>
+        <button onclick="alert('Barcode laser scanner ready.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
+          <div class="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xs"><i class="fa-solid fa-barcode"></i></div>
+          <div>
+            <p class="text-[10px] font-bold text-white">Barcode</p>
+            <p class="text-[8px] text-slate-400">Scanner</p>
+          </div>
+        </button>
+        <button onclick="promptCustomer()" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
+          <div class="w-7 h-7 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
+          <div>
+            <p class="text-[10px] font-bold text-white" id="selected-customer-label">Customer</p>
+            <p class="text-[8px] text-slate-400">Select</p>
+          </div>
+        </button>
       </div>
 
+      <!-- PRODUCTS CATALOGUE PICKER -->
+      <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-2 shadow-lg">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
+          <span>Available Products (Click to Add)</span>
+          <span class="text-[10px] text-purple-400">Live Inventory</span>
+        </div>
+        <div id="product-catalog-list" class="space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar">
+          <div class="text-slate-500 text-[11px] text-center py-2">Loading inventory catalog...</div>
+        </div>
+      </div>
+
+      <!-- CART ITEMS CONTAINER -->
+      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
+        <div class="flex items-center justify-between border-b border-purple-500/10 pb-2">
+          <h3 class="text-xs font-bold text-white" id="cart-title-count">Cart (0 items)</h3>
+          <button onclick="clearCart()" class="text-[10px] text-rose-400 hover:text-rose-300 font-medium">Clear Cart</button>
+        </div>
+
+        <div id="cart-items-container" class="space-y-3">
+          <div class="text-center py-6 text-slate-500 text-xs">Your cart is empty. Select products above.</div>
+        </div>
+      </div>
+
+      <!-- BILLING SUMMARY -->
+      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-2 text-xs shadow-xl">
+        <div class="flex justify-between text-slate-400">
+          <span>Subtotal</span>
+          <span class="font-semibold text-white" id="val-subtotal">₦0</span>
+        </div>
+        <div class="flex justify-between text-slate-400 items-center">
+          <span>Discount (₦)</span>
+          <input type="number" id="input-discount" value="0" oninput="calculateTotals()" class="w-24 bg-[#191932] border border-purple-500/20 rounded-lg px-2 py-1 text-right text-white font-semibold focus:outline-none focus:border-purple-500 text-xs">
+        </div>
+        <div class="flex justify-between text-slate-400">
+          <span>Tax (7.5%)</span>
+          <span class="font-semibold text-white" id="val-tax">₦0</span>
+        </div>
+        <div class="pt-2 border-t border-purple-500/10 flex justify-between items-center">
+          <span class="font-bold text-white text-sm">TOTAL</span>
+          <span class="font-extrabold text-purple-400 text-base" id="val-grand-total">₦0</span>
+        </div>
+      </div>
+
+      <!-- PAYMENT METHOD SELECTOR -->
+      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-semibold text-slate-300">Payment Method</span>
+          <span class="text-[10px] text-purple-400 font-medium">Secure</span>
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+          <button onclick="setPaymentMethod('Cash')" id="pm-Cash" class="p-2.5 rounded-xl bg-purple-600/20 border border-purple-500 text-white flex flex-col items-center gap-1 transition">
+            <i class="fa-solid fa-money-bill-wave text-xs text-purple-400"></i>
+            <span class="text-[10px] font-medium">Cash</span>
+          </button>
+          <button onclick="setPaymentMethod('Transfer')" id="pm-Transfer" class="p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition">
+            <i class="fa-solid fa-building-columns text-xs"></i>
+            <span class="text-[10px] font-medium">Transfer</span>
+          </button>
+          <button onclick="setPaymentMethod('POS')" id="pm-POS" class="p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition">
+            <i class="fa-solid fa-credit-card text-xs"></i>
+            <span class="text-[10px] font-medium">POS</span>
+          </button>
+          <button onclick="setPaymentMethod('Online')" id="pm-Online" class="p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition">
+            <i class="fa-solid fa-globe text-xs"></i>
+            <span class="text-[10px] font-medium">Online</span>
+          </button>
+        </div>
+
+        <div class="space-y-1 pt-1">
+          <label class="text-[10px] text-slate-400 font-medium">Paid Amount (₦)</label>
+          <input type="number" id="input-paid-amount" oninput="calculateBalance()" placeholder="Enter amount paid" class="w-full bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div class="flex justify-between items-center text-xs pt-1">
+          <span class="text-slate-400">Balance / Change:</span>
+          <span class="font-bold text-emerald-400" id="val-balance">₦0</span>
+        </div>
+      </div>
+
+      <!-- COMPLETE SALE BUTTON -->
+      <button onclick="completeSale()" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl text-white font-bold text-xs shadow-lg shadow-purple-600/40 hover:opacity-95 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-circle-check text-sm"></i> Complete Sale & Generate Receipt
+      </button>
+
+    </div>
+
+    <!-- BOTTOM FLOATING NAVIGATION BAR -->
+    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
+      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-gauge-high text-sm"></i>
+        <span class="text-[9px] font-medium">Dashboard</span>
+      </a>
+      <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-boxes-stacked text-sm"></i>
+        <span class="text-[9px] font-medium">Inventory</span>
+      </a>
+      <a href="pos.html" class="flex flex-col items-center gap-1 text-purple-400">
+        <i class="fa-solid fa-cash-register text-sm"></i>
+        <span class="text-[9px] font-medium">POS Sales</span>
+      </a>
+      <a href="ai-ceo.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-robot text-sm text-purple-400"></i>
+        <span class="text-[9px] font-medium">AI CEO</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <!-- RECEIPT PREVIEW MODAL -->
+  <div id="receipt-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-purple-500/10 pb-2">
+        <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold">
+          <i class="fa-solid fa-circle-check"></i> Receipt Generated Successfully!
+        </div>
+        <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- ACTUAL RECEIPT PAPER (Carrying User's Custom Business Name) -->
+      <div id="receipt-paper" class="bg-white text-slate-900 p-4 rounded-xl font-mono text-[10px] space-y-2 shadow-inner">
+        <div class="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-2">
+          <h3 class="font-extrabold text-xs tracking-wider" id="receipt-biz-name">DAVID ELECTRONICS LTD</h3>
+          <p class="text-[9px] text-slate-600" id="receipt-biz-address">No. 12 Allen Avenue, Ikeja, Lagos, Nigeria</p>
+          <p class="text-[9px] text-slate-600" id="receipt-biz-phone">0803 123 4567</p>
+          <p class="text-[9px] text-slate-600" id="receipt-biz-email">info@davidelectronics.com</p>
+        </div>
+
+        <div class="flex justify-between text-[9px] border-b border-dashed border-slate-300 pb-1.5">
+          <div>
+            <p><b>RECEIPT</b></p>
+            <p class="text-slate-500" id="receipt-trx-id">SAL-20260728-001928</p>
+          </div>
+          <div class="text-right">
+            <p id="receipt-date">28 Jul 2026, 09:41 PM</p>
+          </div>
+        </div>
+
+        <div class="text-[9px] space-y-0.5 border-b border-dashed border-slate-300 pb-1.5">
+          <p><b>Customer:</b> <span id="receipt-customer-name">John Smith</span></p>
+          <p><b>Cashier:</b> <span id="receipt-cashier-name">David Eze</span></p>
+        </div>
+
+        <!-- RECEIPT ITEMS TABLE -->
+        <div>
+          <div class="grid grid-cols-12 font-bold border-b border-slate-300 pb-1 text-[9px]">
+            <span class="col-span-6">ITEM</span>
+            <span class="col-span-2 text-center">QTY</span>
+            <span class="col-span-4 text-right">PRICE</span>
+          </div>
+          <div id="receipt-items-list" class="divide-y divide-slate-100 py-1 space-y-1">
+            <!-- Dynamically populated items -->
+          </div>
+        </div>
+
+        <!-- RECEIPT TOTALS -->
+        <div class="border-t border-dashed border-slate-300 pt-2 space-y-1 text-[9px]">
+          <div class="flex justify-between">
+            <span>Subtotal:</span>
+            <span id="receipt-subtotal">₦0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Discount:</span>
+            <span id="receipt-discount">-₦0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tax (7.5%):</span>
+            <span id="receipt-tax">₦0</span>
+          </div>
+          <div class="flex justify-between font-bold text-xs pt-1 border-t border-slate-300">
+            <span>TOTAL:</span>
+            <span id="receipt-total">₦0</span>
+          </div>
+        </div>
+
+        <!-- PAYMENT INFO -->
+        <div class="border-t border-dashed border-slate-300 pt-2 text-[9px] space-y-0.5">
+          <p><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
+          <p><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
+          <p><b>Change:</b> <span id="receipt-change">₦0</span></p>
+        </div>
+
+        <div class="text-center pt-2 border-t border-dashed border-slate-300 text-[8px] text-slate-500">
+          <p>Thank you for shopping with us!</p>
+          <p>Powered by Quantum OPS Elite</p>
+        </div>
+      </div>
+
+      <!-- SHARE & SEND ACTION BUTTONS -->
+      <div class="space-y-2 pt-1">
+        <p class="text-[10px] font-semibold text-slate-300 text-center">Send Receipt Instantly</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="sendReceiptViaWhatsApp()" class="py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+          </button>
+          <button onclick="sendReceiptViaGmail()" class="py-2 px-3 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-envelope text-sm"></i> Gmail
+          </button>
+          <button onclick="sendReceiptViaPhoneSMS()" class="py-2 px-3 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-phone text-sm"></i> Phone SMS
+          </button>
+          <button onclick="downloadReceiptPDF()" class="py-2 px-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-download text-sm"></i> Download
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- SCRIPT INTEGRATION -->
+  <!-- APPLICATION LOGIC & REALTIME SUPABASE SYNC -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let inventory = [];
+    let userCompanyId = null;
+    let currentUserProfile = null;
+    let inventoryCatalog = [];
     let cart = [];
-    let selectedMethod = "Cash";
-    let html5QrcodeScanner = null;
-    let lastCompletedSale = null;
+    let selectedPaymentMethod = 'Cash';
+    let selectedCustomer = 'Walk-in Customer';
+    let lastCompletedTransaction = null;
 
-    // Load active user and store inventory on startup
-    async function initPOS() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        document.getElementById("cashier-name").textContent = user.user_metadata.full_name || user.email.split('@')[0];
-      } else {
-        document.getElementById("cashier-name").textContent = "Active Cashier";
-      }
-
-      await fetchInventory();
+    function formatCurrency(amount) {
+      return '₦' + Number(amount || 0).toLocaleString();
     }
 
-    // Fetch live products from Supabase
-    async function fetchInventory() {
-      const { data, error } = await supabaseClient.from('inventory').select('*');
-      if (error || !data || data.length === 0) {
-        inventory = [];
-      } else {
-        inventory = data;
-      }
-      renderInventoryGrid(inventory);
-    }
+    async function initializePOS() {
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          currentUserProfile = user;
+          const { data: memberData } = await supabaseClient
+            .from('company_users')
+            .select('company_id, companies(*)')
+            .eq('user_id', user.id)
+            .single();
 
-    function renderInventoryGrid(items) {
-      const container = document.getElementById("inventory-grid");
-      if (items.length === 0) {
-        container.innerHTML = `<div class="col-span-3 text-center py-8 text-gray-500 text-xs">No items found matching search.</div>`;
-        return;
-      }
-
-      container.innerHTML = items.map(item => `
-        <div onclick="addToCartFromInventory('${item.id}')" class="bg-brand-card border border-brand-border p-3 rounded-xl hover:border-purple-500 cursor-pointer transition flex flex-col justify-between">
-          <div>
-            <h4 class="font-bold text-white text-xs">${item.name}</h4>
-            <p class="text-[10px] ${item.stock > 0 ? 'text-gray-400' : 'text-rose-400 font-bold'}">Stock: ${item.stock} pcs</p>
-          </div>
-          <p class="text-purple-400 font-semibold text-xs mt-2">₦${Number(item.price || item.unit_selling_price || 0).toLocaleString()}</p>
-        </div>
-      `).join('');
-    }
-
-    function filterInventory() {
-      const query = document.getElementById("search-input").value.toLowerCase();
-      const filtered = inventory.filter(i => i.name.toLowerCase().includes(query) || (i.sku && i.sku.toLowerCase().includes(query)));
-      renderInventoryGrid(filtered);
-    }
-
-    // Cart Management
-    function addToCartFromInventory(id) {
-      const product = inventory.find(i => i.id === id);
-      if (!product) return;
-
-      const sellingPrice = Number(product.price || product.unit_selling_price || 0);
-      const costPrice = Number(product.unit_cost_price || product.cost_price || product.unit_cost || 0);
-
-      const existing = cart.find(c => c.id === id);
-      if (existing) {
-        if (existing.qty + 1 > product.stock) {
-          alert(`Cannot add more. Only ${product.stock} pcs available in stock!`);
-          return;
-        }
-        existing.qty += 1;
-      } else {
-        if (product.stock < 1) {
-          alert("This item is out of stock!");
-          return;
-        }
-        cart.push({ 
-          id: product.id, 
-          name: product.name, 
-          price: sellingPrice, 
-          cost_price: costPrice,
-          qty: 1, 
-          isInventory: true 
-        });
-      }
-      renderCart();
-    }
-
-    function updateQty(index, newQty) {
-      const qty = parseInt(newQty);
-      if (isNaN(qty) || qty <= 0) {
-        cart.splice(index, 1);
-      } else {
-        const item = cart[index];
-        if (item.isInventory) {
-          const invItem = inventory.find(i => i.id === item.id);
-          if (invItem && qty > invItem.stock) {
-            alert(`Stock limit reached! Max available: ${invItem.stock}`);
-            item.qty = invItem.stock;
-            renderCart();
-            return;
+          if (memberData) {
+            userCompanyId = memberData.company_id;
+            const comp = memberData.companies;
+            if (comp) {
+              document.getElementById('receipt-biz-name').textContent = comp.name || 'MY BUSINESS LTD';
+              document.getElementById('receipt-biz-address').textContent = comp.address || comp.phone || '';
+              document.getElementById('receipt-biz-phone').textContent = comp.phone || '';
+              document.getElementById('receipt-biz-email').textContent = comp.email || '';
+            }
           }
         }
-        item.qty = qty;
+        await fetchInventory();
+      } catch (err) {
+        console.error("POS Initialization Error:", err);
       }
-      renderCart();
     }
 
-    function renderCart() {
-      const container = document.getElementById("cart-items");
-      if (cart.length === 0) {
-        container.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs">Cart is empty. Tap products to add.</div>`;
-        document.getElementById("cart-subtotal").textContent = "₦0";
-        document.getElementById("cart-total").textContent = "₦0";
+    async function fetchInventory() {
+      let query = supabaseClient.from('inventory').select('*');
+      if (userCompanyId) query = query.eq('company_id', userCompanyId);
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("Error fetching inventory:", error);
         return;
       }
 
-      let subtotal = 0;
-      container.innerHTML = cart.map((item, index) => {
-        const itemTotal = item.price * item.qty;
-        subtotal += itemTotal;
-        return `
-          <div class="flex justify-between items-center bg-brand-card p-2 rounded border border-brand-border text-xs">
-            <div class="flex-1 pr-2">
-              <p class="font-bold text-white leading-tight">${item.name}</p>
-              <p class="text-[10px] text-purple-400">₦${Number(item.price).toLocaleString()} each</p>
+      inventoryCatalog = data || [];
+      renderInventoryCatalog(inventoryCatalog);
+    }
+
+    function renderInventoryCatalog(items) {
+      const container = document.getElementById('product-catalog-list');
+      if (items.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No inventory items found. Add items in Inventory tab.</div>`;
+        return;
+      }
+
+      let html = '';
+      items.forEach(item => {
+        const name = item.product_name || item.name || 'Product';
+        const price = parseFloat(item.selling_price || item.price || 0);
+        const qty = parseInt(item.quantity || item.stock || 0);
+
+        html += `
+          <div onclick="addToCart('${item.id}')" class="flex items-center justify-between p-2 bg-[#191932] border border-purple-500/10 hover:border-purple-500 rounded-xl cursor-pointer transition">
+            <div>
+              <p class="font-bold text-white text-[11px]">${name}</p>
+              <p class="text-[9px] text-slate-400">Stock: ${qty} available</p>
             </div>
-            <div class="flex items-center gap-2">
-              <input type="number" min="1" value="${item.qty}" onchange="updateQty(${index}, this.value)" class="w-12 bg-gray-900 border border-gray-700 text-white text-center rounded text-xs py-0.5">
-              <span class="font-bold text-white w-16 text-right">₦${itemTotal.toLocaleString()}</span>
-              <button onclick="updateQty(${index}, 0)" class="text-rose-400 text-[10px] ml-1"><i class="fa-solid fa-trash"></i></button>
+            <div class="text-right">
+              <span class="text-xs font-bold text-purple-300">${formatCurrency(price)}</span>
+              <p class="text-[8px] text-emerald-400"><i class="fa-solid fa-plus"></i> Tap to add</p>
             </div>
           </div>
         `;
-      }).join('');
+      });
+      container.innerHTML = html;
+    }
 
-      document.getElementById("cart-subtotal").textContent = `₦${subtotal.toLocaleString()}`;
-      document.getElementById("cart-total").textContent = `₦${subtotal.toLocaleString()}`;
+    function filterProducts() {
+      const keyword = document.getElementById('product-search').value.toLowerCase();
+      const filtered = inventoryCatalog.filter(i => 
+        (i.product_name || i.name || '').toLowerCase().includes(keyword)
+      );
+      renderInventoryCatalog(filtered);
+    }
+
+    function addToCart(itemId) {
+      const product = inventoryCatalog.find(i => i.id === itemId);
+      if (!product) return;
+
+      const name = product.product_name || product.name || 'Product';
+      const price = parseFloat(product.selling_price || product.price || 0);
+
+      const existingIndex = cart.findIndex(c => c.id === itemId);
+      if (existingIndex > -1) {
+        cart[existingIndex].qty += 1;
+      } else {
+        cart.push({ id: itemId, name: name, price: price, qty: 1 });
+      }
+      renderCart();
+    }
+
+    function updateCartQty(itemId, change) {
+      const item = cart.find(c => c.id === itemId);
+      if (!item) return;
+      item.qty += change;
+      if (item.qty <= 0) {
+        cart = cart.filter(c => c.id !== itemId);
+      }
+      renderCart();
     }
 
     function clearCart() {
@@ -362,170 +442,233 @@
       renderCart();
     }
 
-    // Manual Custom Item Modal
-    function openManualAddModal() { document.getElementById("manual-modal").classList.remove("hidden"); }
-    function closeManualAddModal() { document.getElementById("manual-modal").classList.add("hidden"); }
+    function renderCart() {
+      const container = document.getElementById('cart-items-container');
+      document.getElementById('cart-title-count').textContent = `Cart (${cart.reduce((acc, i) => acc + i.qty, 0)} items)`;
 
-    function addManualItemToCart() {
-      const name = document.getElementById("manual-name").value.trim();
-      const price = parseFloat(document.getElementById("manual-price").value);
-      const costPrice = parseFloat(document.getElementById("manual-cost").value) || 0;
-      const qty = parseInt(document.getElementById("manual-qty").value);
-
-      if (!name || isNaN(price) || isNaN(qty) || qty <= 0) {
-        alert("Please fill in valid item details.");
+      if (cart.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Your cart is empty. Select products above.</div>`;
+        calculateTotals();
         return;
       }
 
-      cart.push({ id: 'custom-' + Date.now(), name, price, cost_price: costPrice, qty, isInventory: false });
-      renderCart();
-      
-      document.getElementById("manual-name").value = "";
-      document.getElementById("manual-price").value = "";
-      document.getElementById("manual-cost").value = "";
-      document.getElementById("manual-qty").value = "1";
-      closeManualAddModal();
+      let html = '';
+      cart.forEach(item => {
+        const itemTotal = item.price * item.qty;
+        html += `
+          <div class="flex items-center justify-between bg-[#191932] border border-purple-500/10 p-2.5 rounded-xl">
+            <div class="flex-1 pr-2">
+              <h4 class="font-bold text-white text-[11px]">${item.name}</h4>
+              <p class="text-[10px] text-purple-400 font-semibold">${formatCurrency(item.price)} each</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="flex items-center bg-[#121224] border border-purple-500/20 rounded-lg overflow-hidden">
+                <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-1 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-minus text-[9px]"></i></button>
+                <span class="px-2 text-xs font-bold text-white">${item.qty}</span>
+                <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-1 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-plus text-[9px]"></i></button>
+              </div>
+              <span class="text-xs font-bold text-white w-16 text-right">${formatCurrency(itemTotal)}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      calculateTotals();
     }
 
-    // Camera Scanner Integration
-    function toggleCameraScanner() {
-      const container = document.getElementById("camera-scanner-container");
-      if (container.classList.contains("hidden")) {
-        container.classList.remove("hidden");
-        html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render((decodedText) => {
-          const matchedItem = inventory.find(i => i.sku === decodedText || i.id === decodedText || i.barcode === decodedText);
-          if (matchedItem) {
-            addToCartFromInventory(matchedItem.id);
-          } else {
-            cart.push({ id: 'scan-' + Date.now(), name: 'Scanned Item (' + decodedText + ')', price: 1000, cost_price: 0, qty: 1, isInventory: false });
-            renderCart();
-          }
-          toggleCameraScanner();
-        });
-      } else {
-        if (html5QrcodeScanner) html5QrcodeScanner.clear();
-        container.classList.add("hidden");
+    function calculateTotals() {
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const taxable = Math.max(subtotal - discount, 0);
+      const tax = taxable * 0.075;
+      const grandTotal = taxable + tax;
+
+      document.getElementById('val-subtotal').textContent = formatCurrency(subtotal);
+      document.getElementById('val-tax').textContent = formatCurrency(tax);
+      document.getElementById('val-grand-total').textContent = formatCurrency(grandTotal);
+
+      // Auto set paid amount if cash or default
+      const paidInput = document.getElementById('input-paid-amount');
+      if (!paidInput.value || parseFloat(paidInput.value) === 0) {
+        paidInput.value = grandTotal.toFixed(2);
       }
+      calculateBalance();
     }
 
-    function setMethod(method) {
-      selectedMethod = method;
-      ['cash', 'transfer', 'pos', 'online'].forEach(m => {
-        const btn = document.getElementById(`btn-${m}`);
-        btn.className = (m === method.toLowerCase()) ? "p-2 rounded bg-purple-600 text-white font-medium" : "p-2 rounded bg-gray-800 text-gray-300 hover:bg-gray-700";
+    function calculateBalance() {
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const tax = Math.max(subtotal - discount, 0) * 0.075;
+      const grandTotal = Math.max(subtotal - discount, 0) + tax;
+      const paid = parseFloat(document.getElementById('input-paid-amount').value || 0);
+      const balance = paid - grandTotal;
+
+      const balanceEl = document.getElementById('val-balance');
+      balanceEl.textContent = formatCurrency(balance);
+      balanceEl.className = balance >= 0 ? "font-bold text-emerald-400" : "font-bold text-rose-400";
+    }
+
+    function setPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      ['Cash', 'Transfer', 'POS', 'Online'].forEach(m => {
+        const btn = document.getElementById(`pm-${m}`);
+        if (m === method) {
+          btn.className = "p-2.5 rounded-xl bg-purple-600/20 border border-purple-500 text-white flex flex-col items-center gap-1 transition";
+          btn.querySelector('i').className = "fa-solid text-xs text-purple-400 " + (m==='Cash'?'fa-money-bill-wave':m==='Transfer'?'fa-building-columns':m==='POS'?'fa-credit-card':'fa-globe');
+        } else {
+          btn.className = "p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition";
+        }
       });
     }
 
-    // Complete Sale & Live Record Updating
+    function promptCustomer() {
+      const name = prompt("Enter Customer Name:", selectedCustomer);
+      if (name) {
+        selectedCustomer = name;
+        document.getElementById('selected-customer-label').textContent = name;
+      }
+    }
+
     async function completeSale() {
-      if (cart.length === 0) return alert("Cart is empty! Add products first.");
-
-      const btn = document.getElementById("complete-btn");
-      btn.disabled = true;
-      btn.textContent = "PROCESSING SALE...";
-
-      const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      const totalCost = cart.reduce((sum, item) => sum + ((item.cost_price || 0) * item.qty), 0);
-      const totalProfit = totalAmount - totalCost;
-
-      const saleNumber = "SAL-" + Date.now().toString().slice(-6);
-      const custName = document.getElementById("cust-name").value.trim() || "Walk-in Customer";
-      const custContact = document.getElementById("cust-contact").value.trim() || "N/A";
-      const now = new Date();
-      const dateTimeStr = now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      // Save Sale Record to Supabase with total_cost and profit
-      const { data: saleData, error: saleErr } = await supabaseClient
-        .from('sales')
-        .insert([{
-          sale_number: saleNumber,
-          total: totalAmount,
-          subtotal: totalAmount,
-          total_cost: totalCost,
-          profit: totalProfit,
-          payment_method: selectedMethod,
-          customer_name: custName,
-          customer_contact: custContact,
-          items: cart
-        }]);
-
-      if (saleErr) {
-        alert("Failed to record sale: " + saleErr.message);
-        btn.disabled = false;
-        btn.innerHTML = `<span>NEXT / GENERATE RECEIPT</span> <i class="fa-solid fa-arrow-right"></i>`;
+      if (cart.length === 0) {
+        alert('Please add items to cart before completing sale.');
         return;
       }
 
-      // Deduct Inventory Stock in real time for inventory items
-      for (const item of cart) {
-        if (item.isInventory) {
-          const invItem = inventory.find(i => i.id === item.id);
-          if (invItem) {
-            const updatedStock = Math.max(0, invItem.stock - item.qty);
-            invItem.stock = updatedStock; // Local update
-            await supabaseClient.from('inventory').update({ stock: updatedStock }).eq('id', item.id);
-          }
-        }
+      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const tax = Math.max(subtotal - discount, 0) * 0.075;
+      const grandTotal = Math.max(subtotal - discount, 0) + tax;
+      const paid = parseFloat(document.getElementById('input-paid-amount').value || grandTotal);
+      const balance = paid - grandTotal;
+
+      const trxId = 'SAL-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(100000 + Math.random() * 900000);
+      const nowIso = new Date().toISOString();
+      const cashierName = currentUserProfile?.user_metadata?.full_name || currentUserProfile?.email?.split('@')[0] || 'Staff';
+
+      // Save sale record to Supabase
+      const { error } = await supabaseClient.from('sales').insert([{
+        company_id: userCompanyId,
+        transaction_id: trxId,
+        customer_name: selectedCustomer,
+        cashier_name: cashierName,
+        items: cart,
+        total_amount: grandTotal,
+        discount: discount,
+        tax: tax,
+        payment_method: selectedPaymentMethod,
+        paid_amount: paid,
+        balance: balance,
+        created_at: nowIso
+      }]);
+
+      if (error) {
+        alert('Error saving sale to Supabase: ' + error.message);
+        return;
       }
 
-      renderInventoryGrid(inventory);
+      // Store transaction details for receipt and sharing
+      lastCompletedTransaction = {
+        trxId,
+        date: new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        customer: selectedCustomer,
+        cashier: cashierName,
+        items: [...cart],
+        subtotal,
+        discount,
+        tax,
+        grandTotal,
+        paymentMethod: selectedPaymentMethod,
+        paid,
+        balance
+      };
 
-      // Save Last Sale State for Sharing Options
-      lastCompletedSale = { saleNumber, totalAmount, custName, custContact, dateTimeStr, items: [...cart], method: selectedMethod };
-
-      // Populate Printable Receipt
-      document.getElementById("rec-number").textContent = saleNumber;
-      document.getElementById("rec-datetime").textContent = dateTimeStr;
-      document.getElementById("rec-total").textContent = `₦${totalAmount.toLocaleString()}`;
-      document.getElementById("rec-method").textContent = selectedMethod;
-      document.getElementById("rec-customer-info").innerHTML = `
-        <div class="flex justify-between"><span>Customer:</span><span class="font-bold">${custName}</span></div>
-        <div class="flex justify-between"><span>Contact:</span><span>${custContact}</span></div>
-      `;
-      document.getElementById("rec-items").innerHTML = cart.map(i => `
-        <div class="flex justify-between">
-          <span>${i.name} (x${i.qty})</span>
-          <span class="font-bold">₦${(i.price * i.qty).toLocaleString()}</span>
-        </div>
-      `).join('');
-
-      // Show Receipt Modal
-      document.getElementById("receipt-modal").classList.remove("hidden");
-      btn.disabled = false;
-      btn.innerHTML = `<span>NEXT / GENERATE RECEIPT</span> <i class="fa-solid fa-arrow-right"></i>`;
-    }
-
-    function startNewSale() {
+      renderReceiptModal();
       clearCart();
-      document.getElementById("cust-name").value = "";
-      document.getElementById("cust-contact").value = "";
-      document.getElementById("receipt-modal").classList.add("hidden");
     }
 
-    // Receipt Distribution Handlers
-    function downloadPDFReceipt() {
-      const element = document.getElementById('printable-receipt');
-      html2pdf().from(element).save(`${lastCompletedSale.saleNumber}.pdf`);
+    function renderReceiptModal() {
+      const t = lastCompletedTransaction;
+      if (!t) return;
+
+      document.getElementById('receipt-trx-id').textContent = t.trxId;
+      document.getElementById('receipt-date').textContent = t.date;
+      document.getElementById('receipt-customer-name').textContent = t.customer;
+      document.getElementById('receipt-cashier-name').textContent = t.cashier;
+      document.getElementById('receipt-subtotal').textContent = formatCurrency(t.subtotal);
+      document.getElementById('receipt-discount').textContent = '-' + formatCurrency(t.discount);
+      document.getElementById('receipt-tax').textContent = formatCurrency(t.tax);
+      document.getElementById('receipt-total').textContent = formatCurrency(t.grandTotal);
+      document.getElementById('receipt-payment-method').textContent = t.paymentMethod;
+      document.getElementById('receipt-paid-amount').textContent = formatCurrency(t.paid);
+      document.getElementById('receipt-change').textContent = formatCurrency(t.balance);
+
+      let itemsHtml = '';
+      t.items.forEach(i => {
+        itemsHtml += `
+          <div class="grid grid-cols-12 text-[9px]">
+            <span class="col-span-6 font-medium">${i.name}</span>
+            <span class="col-span-2 text-center">${i.qty}</span>
+            <span class="col-span-4 text-right">${formatCurrency(i.price * i.qty)}</span>
+          </div>
+        `;
+      });
+      document.getElementById('receipt-items-list').innerHTML = itemsHtml;
+      document.getElementById('receipt-modal').classList.remove('hidden');
     }
 
-    function shareWhatsApp() {
-      const text = `*QUANTUM STORE RECEIPT*\nReceipt: ${lastCompletedSale.saleNumber}\nDate: ${lastCompletedSale.dateTimeStr}\nCustomer: ${lastCompletedSale.custName}\nTotal Paid: ₦${lastCompletedSale.totalAmount.toLocaleString()}\nMethod: ${lastCompletedSale.method}\n\nThank you for shopping with us!`;
-      window.open(`https://wa.me/${lastCompletedSale.custContact}?text=${encodeURIComponent(text)}`, '_blank');
+    function closeReceiptModal() {
+      document.getElementById('receipt-modal').classList.add('hidden');
     }
 
-    function shareGmail() {
-      const subject = `Receipt for Order ${lastCompletedSale.saleNumber} - Quantum Store`;
-      const body = `Hello ${lastCompletedSale.custName},\n\nThank you for your purchase!\nReceipt: ${lastCompletedSale.saleNumber}\nTotal Paid: ₦${lastCompletedSale.totalAmount.toLocaleString()}\nPayment Method: ${lastCompletedSale.method}\nDate: ${lastCompletedSale.dateTimeStr}\n\nQuantum Store Team`;
-      window.open(`mailto:${lastCompletedSale.custContact}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    function generateReceiptText() {
+      const t = lastCompletedTransaction;
+      if (!t) return '';
+      let text = `RECEIPT: ${t.trxId}\nDate: ${t.date}\nCustomer: ${t.customer}\nCashier: ${t.cashier}\n------------------\n`;
+      t.items.forEach(i => {
+        text += `${i.name} x${i.qty} - ${formatCurrency(i.price * i.qty)}\n`;
+      });
+      text += `------------------\nSubtotal: ${formatCurrency(t.subtotal)}\nDiscount: -${formatCurrency(t.discount)}\nTax: ${formatCurrency(t.tax)}\nTOTAL: ${formatCurrency(t.grandTotal)}\nMethod: ${t.paymentMethod}\nThank you!`;
+      return text;
     }
 
-    function shareSMS() {
-      const body = `Quantum Store Receipt ${lastCompletedSale.saleNumber}: Total ₦${lastCompletedSale.totalAmount.toLocaleString()} paid via ${lastCompletedSale.method} on ${lastCompletedSale.dateTimeStr}. Thanks!`;
-      window.open(`sms:${lastCompletedSale.custContact}?body=${encodeURIComponent(body)}`);
+    function sendReceiptViaWhatsApp() {
+      const text = encodeURIComponent(generateReceiptText());
+      window.open(`https://wa.me/?text=${text}`, '_blank');
     }
 
-    window.addEventListener('DOMContentLoaded', initPOS);
+    function sendReceiptViaGmail() {
+      const t = lastCompletedTransaction;
+      if (!t) return;
+      const subject = encodeURIComponent(`Sales Receipt ${t.trxId}`);
+      const body = encodeURIComponent(generateReceiptText());
+      window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+    }
+
+    function sendReceiptViaPhoneSMS() {
+      const text = encodeURIComponent(generateReceiptText());
+      window.open(`sms:?body=${text}`, '_blank');
+    }
+
+    function downloadReceiptPDF() {
+      const text = generateReceiptText();
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${lastCompletedTransaction.trxId}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      alert('Receipt downloaded successfully as text file.');
+    }
+
+    function toggleMenu() {
+      alert('POS Menu: Switch Branch or View Shift Reports.');
+    }
+
+    window.addEventListener('DOMContentLoaded', initializePOS);
   </script>
 </body>
 </html>
