@@ -428,7 +428,7 @@
     async function loadUserProfile() {
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (user) {
-        const userName = user.user_metadata.full_name || user.email.split('@')[0];
+        const userName = user.user_metadata?.full_name || user.email.split('@')[0];
         document.getElementById("user-display-name").textContent = userName;
         document.getElementById("welcome-name").textContent = userName;
         document.getElementById("ai-user-name").textContent = userName;
@@ -498,19 +498,24 @@
         if (saleDateStr === todayStr) {
           todaySalesTotal += saleAmount;
           todayTxCount += 1;
-          // Calculate precise profit from sold items if available
+
+          // Check if sale has a top-level profit property or calculate total minus cost
           let txProfit = 0;
-          if (sale.items && Array.isArray(sale.items)) {
+
+          if (sale.profit !== undefined && sale.profit !== null) {
+            txProfit = Number(sale.profit);
+          } else if (sale.total_cost !== undefined && sale.total_cost !== null) {
+            txProfit = saleAmount - Number(sale.total_cost);
+          } else if (sale.items && Array.isArray(sale.items)) {
+            // Calculate item-by-item profit
             sale.items.forEach(item => {
-              const unitSell = Number(item.price || 0);
-              const unitCost = Number(item.unit_cost_price || 0);
+              const unitSell = Number(item.price || item.unit_price || 0);
+              const unitCost = Number(item.unit_cost_price || item.unit_cost || 0);
               const qty = Number(item.quantity || 1);
               txProfit += (unitSell - unitCost) * qty;
             });
           }
-          if (txProfit === 0) {
-            txProfit = saleAmount * 0.25; // fallback estimate
-          }
+
           todayProfitTotal += txProfit;
         }
       });
@@ -525,7 +530,7 @@
       const recentSales = sales.slice(0, 5);
       const topContainer = document.getElementById("top-products-container");
       topContainer.innerHTML = recentSales.map(s => {
-        const firstItemName = (s.items && s.items.length > 0) ? s.items[0].name : "Store Items";
+        const firstItemName = (s.items && s.items.length > 0) ? (s.items[0].name || s.items[0].product_name) : "Store Items";
         const itemCount = (s.items && s.items.length > 1) ? ` +${s.items.length - 1} more` : "";
         const formattedDate = new Date(s.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -537,49 +542,31 @@
               </div>
               <div>
                 <p class="font-bold text-white text-xs">${firstItemName}${itemCount}</p>
-                <p class="text-[10px] text-gray-400">${s.sale_number} • ${s.payment_method} • ${formattedDate}</p>
+                <p class="text-[10px] text-gray-400">${s.sale_number || s.id} • ${s.payment_method || 'Cash'} • ${formattedDate}</p>
               </div>
             </div>
-            <span class="text-purple-400 font-bold text-xs">₦${Number(s.total).toLocaleString()}</span>
+            <span class="text-purple-400 font-bold text-xs">₦${Number(s.total || 0).toLocaleString()}</span>
           </div>
         `;
       }).join('');
 
-      // Update AI Insights Box dynamically
-      document.getElementById("ai-insights-box").innerHTML = `
-        <p class="text-emerald-300 font-medium">⚡ Live Data Active</p>
-        <p class="text-gray-300 text-[10px]">Recorded <b>${todayTxCount} transactions</b> today total <b>₦${todaySalesTotal.toLocaleString()}</b>.</p>
-      `;
-
-      // Rearrange week array to [Mon, Tue, Wed, Thu, Fri, Sat, Sun] for Chart
-      const chartData = [
-        weekDaysSales[1], // Mon
-        weekDaysSales[2], // Tue
-        weekDaysSales[3], // Wed
-        weekDaysSales[4], // Thu
-        weekDaysSales[5], // Fri
-        weekDaysSales[6], // Sat
-        weekDaysSales[0]  // Sun
-      ];
-
-      initCharts(chartData);
+      initCharts(weekDaysSales);
     }
 
-    function initCharts(salesWeeklyData) {
+    function initCharts(weeklyData) {
+      const salesCtx = document.getElementById('salesChart').getContext('2d');
       if (salesChartInstance) salesChartInstance.destroy();
-      if (categoryChartInstance) categoryChartInstance.destroy();
 
-      // Sales Overview Chart
-      const ctx1 = document.getElementById('salesChart').getContext('2d');
-      salesChartInstance = new Chart(ctx1, {
+      salesChartInstance = new Chart(salesCtx, {
         type: 'line',
         data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
           datasets: [{
             label: 'Sales (₦)',
-            data: salesWeeklyData || [0, 0, 0, 0, 0, 0, 0],
+            data: weeklyData,
             borderColor: '#8B5CF6',
             backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            borderWidth: 2,
             fill: true,
             tension: 0.4
           }]
@@ -589,21 +576,23 @@
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748B', font: { size: 10 } } }
+            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94A3B8', font: { size: 10 } } }
           }
         }
       });
 
-      // Category Donut Chart
-      const ctx2 = document.getElementById('categoryChart').getContext('2d');
-      categoryChartInstance = new Chart(ctx2, {
+      const catCtx = document.getElementById('categoryChart').getContext('2d');
+      if (categoryChartInstance) categoryChartInstance.destroy();
+
+      categoryChartInstance = new Chart(catCtx, {
         type: 'doughnut',
         data: {
-          labels: ['General Products'],
+          labels: ['General'],
           datasets: [{
             data: [100],
-            backgroundColor: ['#6C5CE7']
+            backgroundColor: ['#8B5CF6'],
+            borderWidth: 0
           }]
         },
         options: {
@@ -615,84 +604,92 @@
       });
     }
 
-    // Add Product Modal & Calculation Logic
     function openAddProductModal() {
-      document.getElementById("modal-title").innerHTML = `<i class="fa-solid fa-box-archive text-purple-400 mr-2"></i>Add New Product`;
-      document.getElementById("product-form").reset();
-      document.getElementById("prod-id").value = "";
-      document.getElementById("preview-unit-profit").textContent = "₦0.00";
-      document.getElementById("product-modal").classList.remove("hidden");
-      document.getElementById("product-modal").classList.add("flex");
+      document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-box-archive text-purple-400 mr-2"></i>Add New Product`;
+      document.getElementById('product-form').reset();
+      document.getElementById('prod-id').value = '';
+      document.getElementById('preview-unit-profit').textContent = '₦0.00';
+      document.getElementById('product-modal').classList.remove('hidden');
+      document.getElementById('product-modal').classList.add('flex');
     }
 
     function closeProductModal() {
-      document.getElementById("product-modal").classList.add("hidden");
-      document.getElementById("product-modal").classList.remove("flex");
+      document.getElementById('product-modal').classList.add('hidden');
+      document.getElementById('product-modal').classList.remove('flex');
     }
 
     function calculateUnitCosts() {
-      const packQty = Number(document.getElementById("prod-pack-qty").value) || 1;
-      const bulkCost = Number(document.getElementById("prod-bulk-cost").value) || 0;
-      const unitSelling = Number(document.getElementById("prod-unit-price").value) || 0;
+      const packQty = Number(document.getElementById('prod-pack-qty').value) || 1;
+      const bulkCost = Number(document.getElementById('prod-bulk-cost').value) || 0;
+      const unitPrice = Number(document.getElementById('prod-unit-price').value) || 0;
 
-      const singleUnitCost = bulkCost / packQty;
-      const profitPerUnit = unitSelling - singleUnitCost;
+      const unitCost = bulkCost / packQty;
+      document.getElementById('prod-unit-cost').value = unitCost.toFixed(2);
 
-      document.getElementById("prod-unit-cost").value = singleUnitCost.toFixed(2);
-      document.getElementById("preview-unit-profit").textContent = `₦${profitPerUnit.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+      const profitPerUnit = unitPrice - unitCost;
+      const previewProfitEl = document.getElementById('preview-unit-profit');
+      previewProfitEl.textContent = `₦${profitPerUnit.toFixed(2)}`;
+      
+      if (profitPerUnit < 0) {
+        previewProfitEl.className = "text-sm font-bold text-rose-400";
+      } else {
+        previewProfitEl.className = "text-sm font-bold text-emerald-400";
+      }
     }
 
     async function handleSaveProduct(e) {
       e.preventDefault();
-      
-      const name = document.getElementById("prod-name").value;
-      const barcode = document.getElementById("prod-barcode").value;
-      const packQty = Number(document.getElementById("prod-pack-qty").value);
-      const bulkCost = Number(document.getElementById("prod-bulk-cost").value);
-      const unitCost = Number(document.getElementById("prod-unit-cost").value);
-      const unitPrice = Number(document.getElementById("prod-unit-price").value);
-      const stock = Number(document.getElementById("prod-stock").value);
+      const prodId = document.getElementById('prod-id').value;
+      const name = document.getElementById('prod-name').value;
+      const barcode = document.getElementById('prod-barcode').value;
+      const packQty = Number(document.getElementById('prod-pack-qty').value);
+      const bulkCost = Number(document.getElementById('prod-bulk-cost').value);
+      const unitCost = Number(document.getElementById('prod-unit-cost').value);
+      const unitPrice = Number(document.getElementById('prod-unit-price').value);
+      const stock = Number(document.getElementById('prod-stock').value);
 
       const payload = {
         name,
         barcode,
-        items_per_pack: packQty,
+        pack_quantity: packQty,
         bulk_cost_price: bulkCost,
         unit_cost_price: unitCost,
-        unit_selling_price: unitPrice,
-        price: unitPrice,
+        unit_price: unitPrice,
         stock_units: stock,
-        stock: stock
+        updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabaseClient.from('inventory').insert([payload]);
-
-      if (error) {
-        alert("Error saving product: " + error.message);
+      let err;
+      if (prodId) {
+        const { error } = await supabaseClient.from('inventory').update(payload).eq('id', prodId);
+        err = error;
       } else {
-        alert("Product added successfully!");
+        const { error } = await supabaseClient.from('inventory').insert([payload]);
+        err = error;
+      }
+
+      if (err) {
+        alert("Error saving product: " + err.message);
+      } else {
+        alert("Product saved successfully!");
         closeProductModal();
         loadDashboardMetrics();
       }
     }
 
-    // Camera Barcode Scanner
     function scanBarcodeForInput() {
-      document.getElementById("camera-modal").classList.remove("hidden");
-      document.getElementById("camera-modal").classList.add("flex");
+      document.getElementById('camera-modal').classList.remove('hidden');
+      document.getElementById('camera-modal').classList.add('flex');
 
-      if (!html5QrCodeScanner) {
-        html5QrCodeScanner = new Html5Qrcode("reader");
-      }
-      
+      html5QrCodeScanner = new Html5Qrcode("reader");
       html5QrCodeScanner.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 150 } },
         (decodedText) => {
-          document.getElementById("prod-barcode").value = decodedText;
+          document.getElementById('prod-barcode').value = decodedText;
           closeCameraModal();
         },
-        (errorMessage) => {}
+        () => {}
       ).catch(err => {
         console.error("Camera access error:", err);
       });
@@ -701,24 +698,18 @@
     function closeCameraModal() {
       if (html5QrCodeScanner) {
         html5QrCodeScanner.stop().then(() => {
-          document.getElementById("camera-modal").classList.add("hidden");
-          document.getElementById("camera-modal").classList.remove("flex");
-        }).catch(() => {
-          document.getElementById("camera-modal").classList.add("hidden");
-          document.getElementById("camera-modal").classList.remove("flex");
-        });
-      } else {
-        document.getElementById("camera-modal").classList.add("hidden");
-        document.getElementById("camera-modal").classList.remove("flex");
+          html5QrCodeScanner.clear();
+        }).catch(err => console.error(err));
       }
+      document.getElementById('camera-modal').classList.add('hidden');
+      document.getElementById('camera-modal').classList.remove('flex');
     }
 
-    // Subscribe to Live Supabase Updates (Instant update without refreshing)
-    function setupRealtimeSubscription() {
+    // Realtime Supabase Sync Initialization
+    function subscribeToRealtimeSales() {
       supabaseClient
         .channel('public:sales')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sales' }, payload => {
-          console.log('New sale recorded live:', payload);
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
           loadDashboardMetrics();
         })
         .subscribe();
@@ -727,7 +718,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadUserProfile();
       loadDashboardMetrics();
-      setupRealtimeSubscription();
+      subscribeToRealtimeSales();
     });
   </script>
 </body>
