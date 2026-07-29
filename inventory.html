@@ -82,9 +82,11 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <!-- SEPARATE CAMERA SCAN BUTTON -->
         <button onclick="openCameraModal()" class="flex items-center gap-2 bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-purple-600/30 transition">
           <i class="fa-solid fa-camera"></i> Scan Barcode
         </button>
+        <!-- SEPARATE MANUAL / ADD PRODUCT BUTTON -->
         <button onclick="openAddProductModal()" class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-purple-500/30 transition">
           <i class="fa-solid fa-plus"></i> Add New Product
         </button>
@@ -172,7 +174,7 @@
     </main>
   </div>
 
-  <!-- MODAL 1: EASY ADD / EDIT PRODUCT POPUP -->
+  <!-- MODAL 1: EASY ADD / EDIT PRODUCT POPUP (FOR MANUAL ENTRY & BULK CALCULATION) -->
   <div id="product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-brand-card border border-brand-border w-full max-w-lg rounded-2xl p-6 space-y-5 shadow-2xl relative">
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
@@ -185,27 +187,27 @@
 
         <div>
           <label class="block text-xs font-semibold text-gray-300 mb-1">Product Name *</label>
-          <input type="text" id="prod-name" required placeholder="e.g. Coca-Cola 50cl Can" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+          <input type="text" id="prod-name" required placeholder="e.g. iPhone 15 Pro Max" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Barcode / SKU</label>
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Barcode / SKU (Optional)</label>
             <div class="flex gap-1">
-              <input type="text" id="prod-barcode" placeholder="Scan or type barcode" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-              <button type="button" onclick="scanBarcodeForInput()" class="bg-purple-600/20 text-purple-400 border border-purple-500/30 px-3 rounded-xl hover:bg-purple-600/30"><i class="fa-solid fa-camera"></i></button>
+              <input type="text" id="prod-barcode" placeholder="Type barcode manually" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+              <button type="button" onclick="scanBarcodeForInput()" title="Scan using Camera" class="bg-purple-600/20 text-purple-400 border border-purple-500/30 px-3 rounded-xl hover:bg-purple-600/30"><i class="fa-solid fa-camera"></i></button>
             </div>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Items Per Bulk Pack/Carton *</label>
-            <input type="number" id="prod-pack-qty" value="1" min="1" required oninput="calculateUnitCosts()" placeholder="e.g. 12 pieces in 1 pack" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <label class="block text-xs font-semibold text-gray-300 mb-1">Items Per Bulk Pack *</label>
+            <input type="number" id="prod-pack-qty" value="1" min="1" required oninput="calculateUnitCosts()" placeholder="e.g. 24 inside bulk box" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Bulk Cost Price (₦)</label>
-            <input type="number" id="prod-bulk-cost" value="0" step="0.01" oninput="calculateUnitCosts()" placeholder="Carton purchase price" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-bulk-cost" value="0" step="0.01" oninput="calculateUnitCosts()" placeholder="e.g. 10000000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Single Unit Cost (₦)</label>
@@ -216,11 +218,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Single Unit Selling Price (₦) *</label>
-            <input type="number" id="prod-unit-price" value="0" step="0.01" required oninput="calculateUnitCosts()" placeholder="Sale price per item" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-unit-price" value="0" step="0.01" required oninput="calculateUnitCosts()" placeholder="e.g. 480000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Initial Stock (Total Units) *</label>
-            <input type="number" id="prod-stock" value="0" required min="0" placeholder="Total pieces available" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-stock" value="0" required min="0" placeholder="e.g. 24" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
         </div>
 
@@ -246,7 +248,7 @@
         <button onclick="closeCameraModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
-      <p class="text-xs text-gray-400">Point your phone or computer camera directly at the barcode.</p>
+      <p class="text-xs text-gray-400">Point your camera directly at the item barcode.</p>
       
       <!-- HTML5 QR / Barcode Scanner Render Container -->
       <div id="reader" class="w-full bg-black rounded-xl overflow-hidden border border-purple-500/30 min-h-[250px] flex items-center justify-center"></div>
@@ -376,7 +378,7 @@
       renderInventoryTable(filtered);
     }
 
-    // 4. Calculate Unit Costs & Profit dynamic math
+    // 4. Dynamic Unit Costs & Profit Math
     function calculateUnitCosts() {
       const packQty = Number(document.getElementById("prod-pack-qty").value) || 1;
       const bulkCost = Number(document.getElementById("prod-bulk-cost").value) || 0;
@@ -450,11 +452,9 @@
 
       let error;
       if (id) {
-        // Update product
         const res = await supabaseClient.from('inventory').update(payload).eq('id', id);
         error = res.error;
       } else {
-        // Create new product
         const res = await supabaseClient.from('inventory').insert([payload]);
         error = res.error;
       }
@@ -476,7 +476,7 @@
       }
     }
 
-    // 8. Camera Scanner Logic
+    // 8. Separate Camera Scanner Logic
     function openCameraModal() {
       scanMode = 'search';
       document.getElementById("camera-modal").classList.remove("hidden");
@@ -502,7 +502,6 @@
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 150 } },
         (decodedText) => {
-          // Barcode Scanned Successfully
           if (scanMode === 'search') {
             document.getElementById("inventory-search").value = decodedText;
             filterInventory();
@@ -511,9 +510,7 @@
           }
           closeCameraModal();
         },
-        (errorMessage) => {
-          // Parsing error (can be ignored during continuous scanning)
-        }
+        (errorMessage) => {}
       ).catch(err => {
         console.error("Camera access error:", err);
       });
