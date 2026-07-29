@@ -142,7 +142,6 @@
           <option value="all">All Stock Status</option>
           <option value="in_stock">In Stock (Good)</option>
           <option value="low_stock">Low Stock (≤ 5)</option>
-          <option value="out_stock">Out of Stock (0)</option>
         </select>
       </div>
 
@@ -288,16 +287,23 @@
 
     function renderInventoryTable(items) {
       const tbody = document.getElementById("inventory-table-body");
-      if (!items || items.length === 0) {
+      
+      // Filter out items with stock === 0 so they automatically disappear from the grid
+      const availableItems = (items || []).filter(item => {
+        const stock = Number(item.stock_units || item.stock || 0);
+        return stock > 0;
+      });
+
+      if (availableItems.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" class="text-center py-12 text-gray-500">No products found in inventory. Click <b>"+ Add New Product"</b> to create one! (e.g., add items like phone or shoes)</td>
+            <td colspan="8" class="text-center py-12 text-gray-500">No active stock available. Click <b>"+ Add New Product"</b> or restock items to view them here!</td>
           </tr>
         `;
         return;
       }
 
-      tbody.innerHTML = items.map(item => {
+      tbody.innerHTML = availableItems.map(item => {
         const costUnit = Number(item.unit_cost_price || 0);
         const sellUnit = Number(item.unit_selling_price || item.price || 0);
         const profitUnit = sellUnit - costUnit;
@@ -305,9 +311,7 @@
 
         // Status pill calculation
         let statusBadge = '';
-        if (stock === 0) {
-          statusBadge = `<span class="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full border border-rose-500/30 text-[10px] font-semibold">Out of Stock</span>`;
-        } else if (stock <= (item.low_stock_threshold || 5)) {
+        if (stock <= (item.low_stock_threshold || 5)) {
           statusBadge = `<span class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/30 text-[10px] font-semibold">Low Stock (${stock})</span>`;
         } else {
           statusBadge = `<span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30 text-[10px] font-semibold">In Stock</span>`;
@@ -347,7 +351,7 @@
         const stock = Number(i.stock_units || i.stock || 0);
         const price = Number(i.unit_selling_price || i.price || 0);
 
-        if (stock <= (i.low_stock_threshold || 5)) lowStockCount++;
+        if (stock > 0 && stock <= (i.low_stock_threshold || 5)) lowStockCount++;
         grandTotalValue += (stock * price);
       });
 
@@ -361,16 +365,17 @@
       const statusFilter = document.getElementById("inventory-filter-status").value;
 
       const filtered = allInventoryData.filter(item => {
+        const stock = Number(item.stock_units || item.stock || 0);
+        // Exclude 0 stock from visibility entirely
+        if (stock === 0) return false;
+
         const nameMatch = item.name.toLowerCase().includes(searchTerm);
         const barcodeMatch = (item.barcode || '').toLowerCase().includes(searchTerm);
         const matchesSearch = nameMatch || barcodeMatch;
 
-        const stock = Number(item.stock_units || item.stock || 0);
         let matchesStatus = true;
-
         if (statusFilter === 'in_stock') matchesStatus = stock > 5;
-        if (statusFilter === 'low_stock') matchesStatus = stock > 0 && stock <= 5;
-        if (statusFilter === 'out_stock') matchesStatus = stock === 0;
+        if (statusFilter === 'low_stock') matchesStatus = stock <= 5;
 
         return matchesSearch && matchesStatus;
       });
@@ -402,7 +407,7 @@
     }
 
     function openEditProductModal(id) {
-      const item = allInventoryData.find(p => p.id === id);
+      const item = allInventoryData.find(p => String(p.id) === String(id));
       if (!item) return;
 
       document.getElementById("modal-title").innerHTML = `<i class="fa-solid fa-pen-to-square text-purple-400 mr-2"></i>Edit Product`;
@@ -467,9 +472,9 @@
       }
     }
 
-    // 7. Delete Product (with confirmation)
+    // 7. Delete Product (Fixed matching & deletion execution)
     async function deleteProduct(id) {
-      if (confirm("Are you sure you want to delete this product from your inventory list? (e.g., if you made a mistake adding it)")) {
+      if (confirm("Are you sure you want to delete this product from your inventory list?")) {
         const { error } = await supabaseClient.from('inventory').delete().eq('id', id);
         if (error) {
           alert("Error deleting product: " + error.message);
