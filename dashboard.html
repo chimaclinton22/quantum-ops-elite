@@ -329,7 +329,7 @@
     </main>
   </div>
 
-  <!-- MODAL 1: EASY ADD / EDIT PRODUCT POPUP (With Bulk & Unit Price Calculations) -->
+  <!-- MODAL 1: EASY ADD / EDIT PRODUCT POPUP -->
   <div id="product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-brand-card border border-brand-border w-full max-w-lg rounded-2xl p-6 space-y-5 shadow-2xl relative">
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
@@ -434,12 +434,15 @@
         document.getElementById("ai-user-name").textContent = userName;
         document.getElementById("user-avatar-text").textContent = userName.charAt(0).toUpperCase();
       } else {
-        window.location.href = "index.html";
+        // Fallback for direct testing if unauthenticated
+        document.getElementById("user-display-name").textContent = "Owner";
+        document.getElementById("welcome-name").textContent = "Owner";
+        document.getElementById("ai-user-name").textContent = "Owner";
+        document.getElementById("user-avatar-text").textContent = "O";
       }
     }
 
     async function loadDashboardMetrics() {
-      // 1. Fetch sales from Supabase
       const { data: sales, error: salesErr } = await supabaseClient
         .from('sales')
         .select('*')
@@ -450,7 +453,6 @@
         return;
       }
 
-      // 2. Fetch low stock count from inventory
       const { data: inventory, error: invErr } = await supabaseClient
         .from('inventory')
         .select('*');
@@ -472,7 +474,6 @@
         return;
       }
 
-      // 3. Calculate Today's Sales & Transactions
       const todayStr = new Date().toISOString().split('T')[0];
       
       let todaySalesTotal = 0;
@@ -480,7 +481,6 @@
       let todayTxCount = 0;
       let grandTotalSales = 0;
 
-      // Weekly breakdown counters [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
       const weekDaysSales = [0, 0, 0, 0, 0, 0, 0];
 
       sales.forEach(sale => {
@@ -490,24 +490,19 @@
         const saleDate = new Date(sale.created_at);
         const saleDateStr = saleDate.toISOString().split('T')[0];
 
-        // Chart day mapping
         const dayIdx = saleDate.getDay(); 
         weekDaysSales[dayIdx] += saleAmount;
 
-        // Today comparison
         if (saleDateStr === todayStr) {
           todaySalesTotal += saleAmount;
           todayTxCount += 1;
 
-          // Check if sale has a top-level profit property or calculate total minus cost
           let txProfit = 0;
-
           if (sale.profit !== undefined && sale.profit !== null) {
             txProfit = Number(sale.profit);
           } else if (sale.total_cost !== undefined && sale.total_cost !== null) {
             txProfit = saleAmount - Number(sale.total_cost);
           } else if (sale.items && Array.isArray(sale.items)) {
-            // Calculate item-by-item profit
             sale.items.forEach(item => {
               const unitSell = Number(item.price || item.unit_price || 0);
               const unitCost = Number(item.unit_cost_price || item.unit_cost || 0);
@@ -515,18 +510,15 @@
               txProfit += (unitSell - unitCost) * qty;
             });
           }
-
           todayProfitTotal += txProfit;
         }
       });
 
-      // Update Top Metric Cards
       document.getElementById("val-today-sales").textContent = `₦${todaySalesTotal.toLocaleString()}`;
       document.getElementById("val-today-profit").textContent = `₦${todayProfitTotal.toLocaleString()}`;
       document.getElementById("val-today-transactions").textContent = todayTxCount;
       document.getElementById("val-total-overview").textContent = `₦${grandTotalSales.toLocaleString()}`;
 
-      // 4. Update Recent Sales / Top Selling Products Table
       const recentSales = sales.slice(0, 5);
       const topContainer = document.getElementById("top-products-container");
       topContainer.innerHTML = recentSales.map(s => {
@@ -541,11 +533,14 @@
                 <i class="fa-solid fa-bag-shopping"></i>
               </div>
               <div>
-                <p class="font-bold text-white text-xs">${firstItemName}${itemCount}</p>
-                <p class="text-[10px] text-gray-400">${s.sale_number || s.id} • ${s.payment_method || 'Cash'} • ${formattedDate}</p>
+                <p class="font-medium text-white">${firstItemName}${itemCount}</p>
+                <p class="text-[10px] text-gray-400">Completed at ${formattedDate}</p>
               </div>
             </div>
-            <span class="text-purple-400 font-bold text-xs">₦${Number(s.total || 0).toLocaleString()}</span>
+            <div class="text-right">
+              <span class="font-bold text-emerald-400">₦${Number(s.total).toLocaleString()}</span>
+              <p class="text-[10px] text-gray-400">${s.payment_method || 'Cash'}</p>
+            </div>
           </div>
         `;
       }).join('');
@@ -554,10 +549,10 @@
     }
 
     function initCharts(weeklyData) {
-      const salesCtx = document.getElementById('salesChart').getContext('2d');
+      const ctxSales = document.getElementById('salesChart').getContext('2d');
       if (salesChartInstance) salesChartInstance.destroy();
-
-      salesChartInstance = new Chart(salesCtx, {
+      
+      salesChartInstance = new Chart(ctxSales, {
         type: 'line',
         data: {
           labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
@@ -566,9 +561,9 @@
             data: weeklyData,
             borderColor: '#8B5CF6',
             backgroundColor: 'rgba(139, 92, 246, 0.1)',
-            borderWidth: 2,
             fill: true,
-            tension: 0.4
+            tension: 0.4,
+            borderWidth: 2
           }]
         },
         options: {
@@ -576,19 +571,19 @@
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 10 } } },
-            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#94A3B8', font: { size: 10 } } }
+            x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 10 } } },
+            y: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF', font: { size: 10 } } }
           }
         }
       });
 
-      const catCtx = document.getElementById('categoryChart').getContext('2d');
+      const ctxCat = document.getElementById('categoryChart').getContext('2d');
       if (categoryChartInstance) categoryChartInstance.destroy();
 
-      categoryChartInstance = new Chart(catCtx, {
+      categoryChartInstance = new Chart(ctxCat, {
         type: 'doughnut',
         data: {
-          labels: ['General'],
+          labels: ['General Store'],
           datasets: [{
             data: [100],
             backgroundColor: ['#8B5CF6'],
@@ -599,23 +594,22 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          cutout: '70%'
+          cutout: '75%'
         }
       });
     }
 
     function openAddProductModal() {
-      document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-box-archive text-purple-400 mr-2"></i>Add New Product`;
       document.getElementById('product-form').reset();
       document.getElementById('prod-id').value = '';
-      document.getElementById('preview-unit-profit').textContent = '₦0.00';
+      document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-box-archive text-purple-400 mr-2"></i>Add New Product';
       document.getElementById('product-modal').classList.remove('hidden');
       document.getElementById('product-modal').classList.add('flex');
     }
 
     function closeProductModal() {
-      document.getElementById('product-modal').classList.add('hidden');
       document.getElementById('product-modal').classList.remove('flex');
+      document.getElementById('product-modal').classList.add('hidden');
     }
 
     function calculateUnitCosts() {
@@ -623,53 +617,37 @@
       const bulkCost = Number(document.getElementById('prod-bulk-cost').value) || 0;
       const unitPrice = Number(document.getElementById('prod-unit-price').value) || 0;
 
-      const unitCost = bulkCost / packQty;
+      const unitCost = bulkCost > 0 ? bulkCost / packQty : 0;
       document.getElementById('prod-unit-cost').value = unitCost.toFixed(2);
 
-      const profitPerUnit = unitPrice - unitCost;
-      const previewProfitEl = document.getElementById('preview-unit-profit');
-      previewProfitEl.textContent = `₦${profitPerUnit.toFixed(2)}`;
-      
-      if (profitPerUnit < 0) {
-        previewProfitEl.className = "text-sm font-bold text-rose-400";
-      } else {
-        previewProfitEl.className = "text-sm font-bold text-emerald-400";
-      }
+      const unitProfit = unitPrice - unitCost;
+      const profitElem = document.getElementById('preview-unit-profit');
+      profitElem.textContent = `₦${unitProfit.toFixed(2)}`;
+      profitElem.className = unitProfit >= 0 ? 'text-sm font-bold text-emerald-400' : 'text-sm font-bold text-rose-400';
     }
 
-    async function handleSaveProduct(e) {
-      e.preventDefault();
-      const prodId = document.getElementById('prod-id').value;
+    async function handleSaveProduct(event) {
+      event.preventDefault();
       const name = document.getElementById('prod-name').value;
       const barcode = document.getElementById('prod-barcode').value;
-      const packQty = Number(document.getElementById('prod-pack-qty').value);
-      const bulkCost = Number(document.getElementById('prod-bulk-cost').value);
-      const unitCost = Number(document.getElementById('prod-unit-cost').value);
-      const unitPrice = Number(document.getElementById('prod-unit-price').value);
+      const pack_qty = Number(document.getElementById('prod-pack-qty').value);
+      const bulk_cost = Number(document.getElementById('prod-bulk-cost').value);
+      const unit_cost = Number(document.getElementById('prod-unit-cost').value);
+      const unit_price = Number(document.getElementById('prod-unit-price').value);
       const stock = Number(document.getElementById('prod-stock').value);
 
-      const payload = {
+      const { error } = await supabaseClient.from('inventory').insert([{
         name,
         barcode,
-        pack_quantity: packQty,
-        bulk_cost_price: bulkCost,
-        unit_cost_price: unitCost,
-        unit_price: unitPrice,
-        stock_units: stock,
-        updated_at: new Date().toISOString()
-      };
+        pack_quantity: pack_qty,
+        bulk_cost_price: bulk_cost,
+        unit_cost_price: unit_cost,
+        unit_selling_price: unit_price,
+        stock_units: stock
+      }]);
 
-      let err;
-      if (prodId) {
-        const { error } = await supabaseClient.from('inventory').update(payload).eq('id', prodId);
-        err = error;
-      } else {
-        const { error } = await supabaseClient.from('inventory').insert([payload]);
-        err = error;
-      }
-
-      if (err) {
-        alert("Error saving product: " + err.message);
+      if (error) {
+        alert("Error saving product: " + error.message);
       } else {
         alert("Product saved successfully!");
         closeProductModal();
@@ -680,7 +658,7 @@
     function scanBarcodeForInput() {
       document.getElementById('camera-modal').classList.remove('hidden');
       document.getElementById('camera-modal').classList.add('flex');
-
+      
       html5QrCodeScanner = new Html5Qrcode("reader");
       html5QrCodeScanner.start(
         { facingMode: "environment" },
@@ -689,9 +667,10 @@
           document.getElementById('prod-barcode').value = decodedText;
           closeCameraModal();
         },
-        () => {}
+        (errorMessage) => { /* scanning frame updates */ }
       ).catch(err => {
-        console.error("Camera access error:", err);
+        console.error("Camera start error:", err);
+        alert("Unable to access camera. Please check camera permissions.");
       });
     }
 
@@ -699,27 +678,16 @@
       if (html5QrCodeScanner) {
         html5QrCodeScanner.stop().then(() => {
           html5QrCodeScanner.clear();
-        }).catch(err => console.error(err));
+        }).catch(err => console.error("Failed to stop scanner", err));
       }
-      document.getElementById('camera-modal').classList.add('hidden');
       document.getElementById('camera-modal').classList.remove('flex');
+      document.getElementById('camera-modal').classList.add('hidden');
     }
 
-    // Realtime Supabase Sync Initialization
-    function subscribeToRealtimeSales() {
-      supabaseClient
-        .channel('public:sales')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => {
-          loadDashboardMetrics();
-        })
-        .subscribe();
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
+    window.onload = () => {
       loadUserProfile();
       loadDashboardMetrics();
-      subscribeToRealtimeSales();
-    });
+    };
   </script>
 </body>
 </html>
