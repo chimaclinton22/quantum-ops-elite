@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantum OPS Elite - Debtors Management</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS Library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#07070F',
+              card: '#121224',
+              sidebar: '#0E0E1C',
+              purple: '#6C5CE7',
+              accent: '#8B5CF6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+    .iphone-frame {
+      width: 100%;
+      max-width: 410px;
+      height: 100vh;
+      max-height: 860px;
+      background: #0B0B16;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
+      .iphone-frame { border-radius: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOBILE DEVICE FRAME CONTAINER -->
+  <div class="iphone-frame">
+    
+    <!-- TOP APP BAR -->
+    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
+      <div class="flex items-center gap-3">
+        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
+          <i class="fa-solid fa-arrow-left text-sm"></i>
+        </a>
+        <div class="flex items-center gap-2">
+          <span class="font-bold tracking-wider text-xs text-white">CUSTOMER DEBTS</span>
+        </div>
+      </div>
+      <button onclick="openAddDebtModal()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 rounded-xl text-white text-[11px] font-semibold flex items-center gap-1 shadow-md shadow-purple-900/40 transition">
+        <i class="fa-solid fa-plus text-[10px]"></i> Add Debt
+      </button>
+    </div>
+
+    <!-- MAIN SCROLLABLE VIEWPORT -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
+      
+      <!-- DEBT SUMMARY BANNER -->
+      <div class="bg-gradient-to-r from-rose-950/40 via-[#121224] to-purple-950/35 border border-rose-500/20 p-4 rounded-2xl flex items-center justify-between shadow-xl">
+        <div>
+          <p class="text-[10px] text-slate-400 font-medium">Total Outstanding</p>
+          <h2 class="text-lg font-extrabold text-rose-400 tracking-tight" id="val-total-debt">₦0</h2>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] text-slate-400 font-medium">Total Debtors</p>
+          <h2 class="text-lg font-extrabold text-white" id="val-total-count">0</h2>
+        </div>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+        <input type="text" id="search-debtor" oninput="filterDebtors()" placeholder="Search customer or item bought..." class="w-full bg-[#121224] border border-purple-500/15 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
+      </div>
+
+      <!-- DEBTORS LIST CONTAINER -->
+      <div class="space-y-3" id="debtors-list-container">
+        <div class="text-center py-10 text-slate-500 text-xs">Loading customer debts...</div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM FLOATING NAVIGATION BAR -->
+    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
+      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-gauge-high text-sm"></i>
+        <span class="text-[9px] font-medium">Dashboard</span>
+      </a>
+      <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-boxes-stacked text-sm"></i>
+        <span class="text-[9px] font-medium">Inventory</span>
+      </a>
+      <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-cash-register text-sm"></i>
+        <span class="text-[9px] font-medium">POS Sales</span>
+      </a>
+      <a href="ai-ceo.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-robot text-sm text-purple-400"></i>
+        <span class="text-[9px] font-medium">AI CEO</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <!-- ADD DEBT MODAL -->
+  <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Debt</h3>
+        <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Customer Name</label>
+          <input type="text" id="debt-customer" placeholder="e.g. John Doe" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Item Bought</label>
+          <input type="text" id="debt-item" placeholder="e.g. iPhone 13 Case, Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦)</label>
+          <input type="number" id="debt-amount" placeholder="e.g. 25000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Due Date</label>
+          <input type="date" id="debt-duedate" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <button onclick="submitNewDebt()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let userCompanyId = null;
+    let allDebtors = [];
+
+    function formatCurrency(amount) {
+      return '₦' + Number(amount || 0).toLocaleString();
+    }
+
+    function formatDate(isoString) {
+      if (!isoString) return 'N/A';
+      const d = new Date(isoString);
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' at ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function openAddDebtModal() {
+      document.getElementById('debt-modal').classList.remove('hidden');
+    }
+
+    function closeAddDebtModal() {
+      document.getElementById('debt-modal').classList.add('hidden');
+    }
+
+    async function initializeDebtors() {
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          const { data: memberData } = await supabaseClient
+            .from('company_users')
+            .select('company_id')
+            .eq('user_id', user.id)
+            .single();
+
+          if (memberData) {
+            userCompanyId = memberData.company_id;
+          }
+        }
+        await fetchDebtors();
+      } catch (err) {
+        console.error("Initialization error:", err);
+      }
+    }
+
+    async function fetchDebtors() {
+      let query = supabaseClient.from('debtors').select('*').order('created_at', { ascending: false });
+      if (userCompanyId) {
+        query = query.eq('company_id', userCompanyId);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        console.error("Error fetching debtors:", error);
+        return;
+      }
+
+      allDebtors = data || [];
+      renderDebtors(allDebtors);
+    }
+
+    function renderDebtors(debtors) {
+      const container = document.getElementById('debtors-list-container');
+      let totalAmount = 0;
+
+      if (debtors.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-[#121224] border border-purple-500/10 rounded-2xl space-y-2">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-2xl"></i>
+            <p class="text-slate-300 text-xs font-medium">No outstanding debts found</p>
+            <p class="text-slate-500 text-[10px]">All customer balances are fully settled.</p>
+          </div>
+        `;
+        document.getElementById('val-total-debt').textContent = formatCurrency(0);
+        document.getElementById('val-total-count').textContent = '0';
+        return;
+      }
+
+      let html = '';
+      debtors.forEach(debt => {
+        const amount = parseFloat(debt.amount_owing || 0);
+        totalAmount += amount;
+        const itemBought = debt.item_bought || debt.product_name || 'General Goods';
+
+        html += `
+          <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center border border-rose-500/30 text-xs font-bold">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-white text-xs">${debt.customer_name}</h4>
+                  <p class="text-[10px] text-slate-400"><i class="fa-solid fa-bag-shopping mr-1 text-purple-400"></i>${itemBought}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="font-bold text-rose-400 text-xs">${formatCurrency(amount)}</span>
+                <p class="text-[9px] text-slate-500">Unpaid</p>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-purple-500/10 flex items-center justify-between text-[10px] text-slate-400">
+              <span><i class="fa-regular fa-clock mr-1"></i>${formatDate(debt.created_at)}</span>
+              <button onclick="markAsPaid('${debt.id}')" class="px-3 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-lg font-medium transition">
+                <i class="fa-solid fa-check mr-1"></i>Mark as Paid
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      document.getElementById('val-total-debt').textContent = formatCurrency(totalAmount);
+      document.getElementById('val-total-count').textContent = debtors.length;
+    }
+
+    function filterDebtors() {
+      const keyword = document.getElementById('search-debtor').value.toLowerCase();
+      const filtered = allDebtors.filter(d => 
+        d.customer_name.toLowerCase().includes(keyword) || 
+        (d.item_bought && d.item_bought.toLowerCase().includes(keyword))
+      );
+      renderDebtors(filtered);
+    }
+
+    async function submitNewDebt() {
+      const customer = document.getElementById('debt-customer').value;
+      const item = document.getElementById('debt-item').value;
+      const amount = document.getElementById('debt-amount').value;
+      const duedate = document.getElementById('debt-duedate').value;
+
+      if (!customer || !amount) {
+        alert('Please fill in customer name and amount.');
+        return;
+      }
+
+      const { error } = await supabaseClient.from('debtors').insert([{
+        company_id: userCompanyId,
+        customer_name: customer,
+        item_bought: item || 'General Goods',
+        amount_owing: parseFloat(amount),
+        due_date: duedate || new Date().toISOString()
+      }]);
+
+      if (error) {
+        alert('Error saving debt: ' + error.message);
+      } else {
+        closeAddDebtModal();
+        document.getElementById('debt-customer').value = '';
+        document.getElementById('debt-item').value = '';
+        document.getElementById('debt-amount').value = '';
+        document.getElementById('debt-duedate').value = '';
+        fetchDebtors();
+      }
+    }
+
+    async function markAsPaid(debtId) {
+      if (!confirm('Are you sure you want to mark this debt as fully paid?')) return;
+
+      const { error } = await supabaseClient
+        .from('debtors')
+        .delete()
+        .eq('id', debtId);
+
+      if (error) {
+        alert('Error updating debt status: ' + error.message);
+      } else {
+        fetchDebtors();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initializeDebtors);
+  </script>
+</body>
+</html>
