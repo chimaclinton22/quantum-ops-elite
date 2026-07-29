@@ -242,13 +242,7 @@
     async function fetchInventory() {
       const { data, error } = await supabaseClient.from('inventory').select('*');
       if (error || !data || data.length === 0) {
-        // Fallback default dynamic stock if inventory table is brand new
-        inventory = [
-          { id: '1', name: 'iPhone 15 Pro', price: 1200000, unit_cost_price: 1000000, stock: 10, sku: 'IP15' },
-          { id: '2', name: 'Oraimo Power Bank 20k', price: 25000, unit_cost_price: 18000, stock: 35, sku: 'PB20' },
-          { id: '3', name: 'Fast Charger 65W', price: 15000, unit_cost_price: 9000, stock: 20, sku: 'FC65' },
-          { id: '4', name: 'USB-C Cable', price: 3500, unit_cost_price: 1500, stock: 50, sku: 'USBC' }
-        ];
+        inventory = [];
       } else {
         inventory = data;
       }
@@ -386,7 +380,6 @@
       cart.push({ id: 'custom-' + Date.now(), name, price, cost_price: costPrice, qty, isInventory: false });
       renderCart();
       
-      // Reset & Close Modal
       document.getElementById("manual-name").value = "";
       document.getElementById("manual-price").value = "";
       document.getElementById("manual-cost").value = "";
@@ -401,12 +394,10 @@
         container.classList.remove("hidden");
         html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
         html5QrcodeScanner.render((decodedText) => {
-          // Find matching item in inventory by SKU or barcode ID
           const matchedItem = inventory.find(i => i.sku === decodedText || i.id === decodedText || i.barcode === decodedText);
           if (matchedItem) {
             addToCartFromInventory(matchedItem.id);
           } else {
-            // Add as custom scanned item
             cart.push({ id: 'scan-' + Date.now(), name: 'Scanned Item (' + decodedText + ')', price: 1000, cost_price: 0, qty: 1, isInventory: false });
             renderCart();
           }
