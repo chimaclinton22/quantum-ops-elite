@@ -52,6 +52,10 @@
       body { align-items: center; justify-content: center; display: flex; height: 100vh; }
       .iphone-frame { border-radius: 48px; }
     }
+    /* Action Sheet Transition */
+    #action-sheet {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
   </style>
 </head>
 <body>
@@ -73,7 +77,7 @@
       <div class="flex items-center gap-3">
         <button class="relative p-2 rounded-xl bg-[#131326] border border-purple-500/10 text-slate-300 hover:text-white">
           <i class="fa-regular fa-bell text-sm"></i>
-          <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center text-white">12</span>
+          <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center text-white">0</span>
         </button>
         <div class="w-8 h-8 rounded-full overflow-hidden border border-purple-500/30 bg-purple-950 flex items-center justify-center text-xs font-semibold text-purple-200" id="user-avatar-initial">
           C
@@ -104,7 +108,7 @@
           <p class="text-[10px] text-slate-400 font-medium">Total Sales (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-sales">₦0</h3>
           <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> +18.6%
+            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
           </div>
         </div>
 
@@ -113,7 +117,7 @@
           <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-profit">₦0</h3>
           <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> +16.3%
+            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
           </div>
         </div>
 
@@ -122,7 +126,7 @@
           <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
           <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> +12.5%
+            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
           </div>
         </div>
       </div>
@@ -132,14 +136,14 @@
         <!-- Outstanding Debt -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1">
           <p class="text-[10px] text-slate-400 font-medium">Outstanding Debt</p>
-          <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦420,250</h3>
-          <p class="text-[9px] text-slate-500" id="val-debt-customers">32 Customers</p>
+          <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦0</h3>
+          <p class="text-[9px] text-slate-500" id="val-debt-customers">0 Customers</p>
         </div>
 
         <!-- Low Stock Alerts -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1">
           <p class="text-[10px] text-slate-400 font-medium">Low Stock Alerts</p>
-          <h3 class="text-xs font-bold text-amber-400" id="val-low-stock">15 Items</h3>
+          <h3 class="text-xs font-bold text-amber-400" id="val-low-stock">0 Items</h3>
           <p class="text-[9px] text-slate-500">Need attention</p>
         </div>
 
@@ -147,8 +151,8 @@
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 flex flex-col justify-between">
           <p class="text-[10px] text-slate-400 font-medium">Business Health</p>
           <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm"></i>
-            <span class="text-xs font-bold text-emerald-400">96%</span>
+            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm" id="health-icon"></i>
+            <span class="text-xs font-bold text-emerald-400" id="val-business-health">100%</span>
           </div>
         </div>
       </div>
@@ -158,7 +162,7 @@
         <div class="flex justify-between items-center">
           <div>
             <h4 class="text-xs font-semibold text-slate-300">Sales Overview</h4>
-            <h3 class="text-sm font-bold text-white tracking-wide" id="val-weekly-total">₦12,450,000</h3>
+            <h3 class="text-sm font-bold text-white tracking-wide" id="val-weekly-total">₦0</h3>
           </div>
           <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-medium">This Week</span>
         </div>
@@ -171,22 +175,10 @@
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
           <h4 class="text-xs font-semibold text-slate-300">Top Selling Products</h4>
-          <span class="text-[10px] text-purple-400 font-medium cursor-pointer hover:underline">This Week</span>
+          <span class="text-[10px] text-purple-400 font-medium">Real-time</span>
         </div>
         <div class="space-y-2.5 text-xs" id="top-products-list">
-          <!-- Dynamically populated from Supabase -->
-          <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
-            <span class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">1</span> Coca-Cola 50cl</span>
-            <span class="text-white font-semibold">₦84,000</span>
-          </div>
-          <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
-            <span class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">2</span> Indomie Chicken (70g)</span>
-            <span class="text-white font-semibold">₦68,600</span>
-          </div>
-          <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
-            <span class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">3</span> Peak Milk (170g)</span>
-            <span class="text-white font-semibold">₦46,200</span>
-          </div>
+          <div class="text-slate-500 text-[11px] text-center py-2">Loading top products...</div>
         </div>
       </div>
 
@@ -194,24 +186,10 @@
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
           <h4 class="text-xs font-semibold text-slate-300">Recent Activities</h4>
-          <span class="text-[10px] text-purple-400 font-medium cursor-pointer hover:underline">View All</span>
+          <span class="text-[10px] text-purple-400 font-medium">Live Feed</span>
         </div>
         <div class="space-y-3 text-xs" id="recent-activities-list">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-[11px]">
-                <i class="fa-solid fa-cart-shopping"></i>
-              </div>
-              <div>
-                <p class="font-medium text-white text-[11px]">New Sale</p>
-                <p class="text-[9px] text-slate-400">Coca-Cola 50cl</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-semibold text-emerald-400 text-[11px]">₦2,100</p>
-              <p class="text-[9px] text-slate-500">2 min ago</p>
-            </div>
-          </div>
+          <div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>
         </div>
       </div>
 
@@ -229,9 +207,9 @@
       </a>
       
       <!-- Glowing Center POS Action Button -->
-      <a href="pos.html" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform">
-        <i class="fa-solid fa-plus text-base"></i>
-      </a>
+      <button onclick="toggleActionSheet()" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform focus:outline-none">
+        <i class="fa-solid fa-plus text-base" id="action-btn-icon"></i>
+      </button>
 
       <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
         <i class="fa-solid fa-cash-register text-sm"></i>
@@ -245,7 +223,94 @@
 
   </div>
 
-  <!-- SUPABASE INTEGRATION & REALTIME METRICS ENGINE -->
+  <!-- QUICK ACTION BOTTOM SHEET DRAWER -->
+  <div id="action-sheet" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="w-full max-w-md bg-[#121224] border-t border-purple-500/30 rounded-t-[32px] p-6 space-y-5 transform translate-y-full transition-transform duration-300" id="action-sheet-content">
+      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto"></div>
+      
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white tracking-wide">Quick Business Actions</h3>
+        <button onclick="toggleActionSheet()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <!-- Record Sale -->
+        <a href="pos.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
+          <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-cash-register"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">New Sale</span>
+        </a>
+
+        <!-- Add Debt -->
+        <button onclick="openAddDebtModal()" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">Add Debt</span>
+        </button>
+
+        <!-- Inventory -->
+        <a href="inventory.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">Inventory</span>
+        </a>
+
+        <!-- AI CEO -->
+        <a href="ai-ceo.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
+        </a>
+
+        <!-- Reports -->
+        <button onclick="alert('Generating live business reports from Supabase...')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">Reports</span>
+        </button>
+
+        <!-- Logout -->
+        <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </div>
+          <span class="text-[11px] font-medium text-rose-300">Log Out</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD DEBT MODAL -->
+  <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Customer Debt</h3>
+        <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Customer Name</label>
+          <input type="text" id="debt-customer" placeholder="e.g. John Doe" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦)</label>
+          <input type="number" id="debt-amount" placeholder="e.g. 25000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Due Date</label>
+          <input type="date" id="debt-duedate" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <button onclick="submitNewDebt()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAL-TIME SUPABASE ENGINE & APPLICATION LOGIC -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
@@ -254,7 +319,10 @@
     let salesChartInstance = null;
     let userCompanyId = null;
 
-    // Helper: Local date string YYYY-MM-DD
+    function formatCurrency(amount) {
+      return '₦' + Number(amount || 0).toLocaleString();
+    }
+
     function getLocalDateString(dateObj) {
       const year = dateObj.getFullYear();
       const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -262,20 +330,44 @@
       return `${year}-${month}-${day}`;
     }
 
-    function formatCurrency(amount) {
-      return '₦' + Number(amount || 0).toLocaleString();
+    // Toggle Action Sheet Drawer
+    function toggleActionSheet() {
+      const sheet = document.getElementById('action-sheet');
+      const content = document.getElementById('action-sheet-content');
+      const isHidden = sheet.classList.contains('opacity-0');
+      
+      if (isHidden) {
+        sheet.classList.remove('opacity-0', 'pointer-events-none');
+        content.classList.remove('translate-y-full');
+      } else {
+        sheet.classList.add('opacity-0', 'pointer-events-none');
+        content.classList.add('translate-y-full');
+      }
     }
 
+    function openAddDebtModal() {
+      toggleActionSheet();
+      document.getElementById('debt-modal').classList.remove('hidden');
+    }
+
+    function closeAddDebtModal() {
+      document.getElementById('debt-modal').classList.add('hidden');
+    }
+
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'login.html';
+    }
+
+    // Initialization & Realtime Sync
     async function initializeApp() {
       try {
-        // 1. Get Logged In User
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
           const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
           document.getElementById('greeting-title').textContent = `Good evening, ${fullName.split(' ')[0]} 👋`;
           document.getElementById('user-avatar-initial').textContent = fullName.charAt(0).toUpperCase();
 
-          // Fetch company membership
           const { data: memberData } = await supabaseClient
             .from('company_users')
             .select('company_id, companies(name)')
@@ -290,17 +382,14 @@
           }
         }
 
-        // 2. Fetch Live Dashboard Data filtered securely by company_id if available
-        await fetchLiveMetrics();
+        await fetchAllLiveMetrics();
 
-        // 3. Setup Supabase Realtime Listener for instant updates
+        // Setup Realtime Subscriptions for 100% live synchronization
         supabaseClient
-          .channel('public:sales')
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sales' }, payload => {
-            if (!userCompanyId || payload.new.company_id === userCompanyId) {
-              fetchLiveMetrics(); // Re-fetch metrics instantly upon new sale
-            }
-          })
+          .channel('public:all_changes')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
           .subscribe();
 
       } catch (err) {
@@ -308,38 +397,47 @@
       }
     }
 
-    async function fetchLiveMetrics() {
+    async function fetchAllLiveMetrics() {
       let salesQuery = supabaseClient.from('sales').select('*');
       let inventoryQuery = supabaseClient.from('inventory').select('*');
+      let debtorsQuery = supabaseClient.from('debtors').select('*');
 
       if (userCompanyId) {
         salesQuery = salesQuery.eq('company_id', userCompanyId);
         inventoryQuery = inventoryQuery.eq('company_id', userCompanyId);
+        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
       }
 
-      const { data: sales } = await salesQuery;
-      const { data: inventory } = await inventoryQuery;
+      const [salesRes, inventoryRes, debtorsRes] = await Promise.all([
+        salesQuery,
+        inventoryQuery,
+        debtorsQuery
+      ]);
 
-      processSalesData(sales || []);
-      processInventoryData(inventory || []);
-      renderSalesChart(sales || []);
+      const sales = salesRes.data || [];
+      const inventory = inventoryRes.data || [];
+      const debtors = debtorsRes.data || [];
+
+      processSalesMetrics(sales);
+      processInventoryMetrics(inventory);
+      processDebtorsMetrics(debtors);
+      renderSalesChart(sales);
+      renderTopProducts(sales);
+      renderRecentActivities(sales);
     }
 
-    function processSalesData(sales) {
+    function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0;
       let todayProfit = 0;
-      let totalTransactions = sales.length;
       let weeklyTotal = 0;
 
       sales.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        const amount = parseFloat(sale.total_amount || sale.amount || 0);
         const profit = parseFloat(sale.profit || 0);
-        const rawDate = sale.created_at || sale.date || new Date();
-        const saleDateStr = getLocalDateString(new Date(rawDate));
+        const saleDateStr = getLocalDateString(new Date(sale.created_at || sale.date || Date.now()));
 
         weeklyTotal += amount;
-
         if (saleDateStr === todayStr) {
           todaySales += amount;
           todayProfit += profit;
@@ -348,65 +446,56 @@
 
       document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
       document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
-      document.getElementById('val-transactions').textContent = totalTransactions;
-      document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal > 0 ? weeklyTotal : 12450000);
-
-      // Render recent activities from live sales
-      renderRecentActivities(sales);
+      document.getElementById('val-transactions').textContent = sales.length;
+      document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal);
     }
 
-    function processInventoryData(inventory) {
+    function processInventoryMetrics(inventory) {
       let lowStockCount = 0;
       inventory.forEach(item => {
         const qty = parseInt(item.quantity || item.stock || 0);
         const threshold = parseInt(item.low_stock_threshold || 5);
         if (qty <= threshold) lowStockCount++;
       });
-      document.getElementById('val-low-stock').textContent = lowStockCount > 0 ? `${lowStockCount} Items` : '15 Items';
+      document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
+      
+      // Calculate Business Health based on stock & sales performance
+      let health = 100;
+      if (lowStockCount > 0) health -= Math.min(lowStockCount * 3, 25);
+      document.getElementById('val-business-health').textContent = `${Math.max(health, 50)}%`;
     }
 
-    function renderRecentActivities(sales) {
-      const container = document.getElementById('recent-activities-list');
-      if (!sales || sales.length === 0) return;
-
-      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 4);
-      let html = '';
-
-      sorted.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || 0);
-        const timeAgo = 'Just now';
-        html += `
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-[11px]">
-                <i class="fa-solid fa-cart-shopping"></i>
-              </div>
-              <div>
-                <p class="font-medium text-white text-[11px]">New Sale #${sale.id || ''}</p>
-                <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash Payment'}</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-semibold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
-              <p class="text-[9px] text-slate-500">${timeAgo}</p>
-            </div>
-          </div>
-        `;
+    function processDebtorsMetrics(debtors) {
+      let totalDebt = 0;
+      debtors.forEach(d => {
+        totalDebt += parseFloat(d.amount_owing || d.amount || 0);
       });
-      container.innerHTML = html;
+      document.getElementById('val-outstanding-debt').textContent = formatCurrency(totalDebt);
+      document.getElementById('val-debt-customers').textContent = `${debtors.length} Customers`;
     }
 
     function renderSalesChart(sales) {
       const ctx = document.getElementById('salesOverviewChart').getContext('2d');
       if (salesChartInstance) salesChartInstance.destroy();
 
+      // Aggregate sales by day of current week (Mon-Sun)
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
+
+      sales.forEach(sale => {
+        const dateObj = new Date(sale.created_at || sale.date || Date.now());
+        let dayIdx = dateObj.getDay() - 1; // 0 = Mon, ..., 6 = Sun
+        if (dayIdx === -1) dayIdx = 6; // Sunday
+        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || 0);
+      });
+
       salesChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          labels: days,
           datasets: [{
             label: 'Sales (₦)',
-            data: [1200000, 1850000, 1400000, 2100000, 2900000, 2400000, 3100000],
+            data: dailyTotals,
             borderColor: '#A78BFA',
             backgroundColor: 'rgba(108, 92, 231, 0.15)',
             borderWidth: 2,
@@ -422,14 +511,108 @@
           plugins: { legend: { display: false } },
           scales: {
             x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 9 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94A3B8', font: { size: 9 }, callback: val => '₦' + (val / 1000000).toFixed(1) + 'M' } }
+            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94A3B8', font: { size: 9 }, callback: val => '₦' + (val / 1000).toFixed(0) + 'k' } }
           }
         }
       });
     }
 
+    function renderTopProducts(sales) {
+      const container = document.getElementById('top-products-list');
+      const productCounts = {};
+
+      sales.forEach(sale => {
+        const name = sale.product_name || sale.item_name || 'General Product';
+        const amount = parseFloat(sale.total_amount || sale.amount || 0);
+        if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
+        productCounts[name].qty += parseInt(sale.quantity || 1);
+        productCounts[name].revenue += amount;
+      });
+
+      const sortedProducts = Object.entries(productCounts)
+        .sort((a, b) => b[1].revenue - a[1].revenue)
+        .slice(0, 3);
+
+      if (sortedProducts.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>`;
+        return;
+      }
+
+      let html = '';
+      sortedProducts.forEach(([name, data], idx) => {
+        html += `
+          <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
+            <span class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">${idx + 1}</span> ${name} (${data.qty} sold)</span>
+            <span class="text-white font-semibold">${formatCurrency(data.revenue)}</span>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderRecentActivities(sales) {
+      const container = document.getElementById('recent-activities-list');
+      if (!sales || sales.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>`;
+        return;
+      }
+
+      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 4);
+      let html = '';
+
+      sorted.forEach(sale => {
+        const amount = parseFloat(sale.total_amount || sale.amount || 0);
+        html += `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-[11px]">
+                <i class="fa-solid fa-cart-shopping"></i>
+              </div>
+              <div>
+                <p class="font-medium text-white text-[11px]">${sale.product_name || 'New Sale'}</p>
+                <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash'}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
+              <p class="text-[9px] text-slate-500">Just now</p>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // Submit New Debt Record to Supabase
+    async function submitNewDebt() {
+      const customer = document.getElementById('debt-customer').value;
+      const amount = document.getElementById('debt-amount').value;
+      const duedate = document.getElementById('debt-duedate').value;
+
+      if (!customer || !amount) {
+        alert('Please fill in customer name and amount.');
+        return;
+      }
+
+      const { error } = await supabaseClient.from('debtors').insert([{
+        company_id: userCompanyId,
+        customer_name: customer,
+        amount_owing: parseFloat(amount),
+        due_date: duedate || new Date().toISOString()
+      }]);
+
+      if (error) {
+        alert('Error saving debt: ' + error.message);
+      } else {
+        closeAddDebtModal();
+        document.getElementById('debt-customer').value = '';
+        document.getElementById('debt-amount').value = '';
+        fetchAllLiveMetrics();
+      }
+    }
+
     function toggleMenu() {
-      alert("Quantum OPS Elite Navigation Menu Active");
+      toggleActionSheet();
     }
 
     window.addEventListener('DOMContentLoaded', initializeApp);
