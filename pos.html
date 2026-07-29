@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- html2pdf Library for True PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -224,13 +226,13 @@
         <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- ACTUAL RECEIPT PAPER (Carrying User's Custom Business Name) -->
+      <!-- ACTUAL RECEIPT PAPER (Carrying User's Custom Real-time Business Name & Address) -->
       <div id="receipt-paper" class="bg-white text-slate-900 p-4 rounded-xl font-mono text-[10px] space-y-2 shadow-inner">
         <div class="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-2">
-          <h3 class="font-extrabold text-xs tracking-wider" id="receipt-biz-name">DAVID ELECTRONICS LTD</h3>
-          <p class="text-[9px] text-slate-600" id="receipt-biz-address">No. 12 Allen Avenue, Ikeja, Lagos, Nigeria</p>
-          <p class="text-[9px] text-slate-600" id="receipt-biz-phone">0803 123 4567</p>
-          <p class="text-[9px] text-slate-600" id="receipt-biz-email">info@davidelectronics.com</p>
+          <h3 class="font-extrabold text-xs tracking-wider" id="receipt-biz-name">MY BUSINESS LTD</h3>
+          <p class="text-[9px] text-slate-600" id="receipt-biz-address">Loading Address...</p>
+          <p class="text-[9px] text-slate-600" id="receipt-biz-phone"></p>
+          <p class="text-[9px] text-slate-600" id="receipt-biz-email"></p>
         </div>
 
         <div class="flex justify-between text-[9px] border-b border-dashed border-slate-300 pb-1.5">
@@ -245,7 +247,7 @@
 
         <div class="text-[9px] space-y-0.5 border-b border-dashed border-slate-300 pb-1.5">
           <p><b>Customer:</b> <span id="receipt-customer-name">John Smith</span></p>
-          <p><b>Cashier:</b> <span id="receipt-cashier-name">David Eze</span></p>
+          <p><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
         </div>
 
         <!-- RECEIPT ITEMS TABLE -->
@@ -295,19 +297,19 @@
 
       <!-- SHARE & SEND ACTION BUTTONS -->
       <div class="space-y-2 pt-1">
-        <p class="text-[10px] font-semibold text-slate-300 text-center">Send Receipt Instantly</p>
+        <p class="text-[10px] font-semibold text-slate-300 text-center">Send True PDF Receipt Instantly</p>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="sendReceiptViaWhatsApp()" class="py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp PDF
           </button>
           <button onclick="sendReceiptViaGmail()" class="py-2 px-3 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-envelope text-sm"></i> Gmail
+            <i class="fa-solid fa-envelope text-sm"></i> Gmail PDF
           </button>
           <button onclick="sendReceiptViaPhoneSMS()" class="py-2 px-3 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-phone text-sm"></i> Phone SMS
+            <i class="fa-solid fa-phone text-sm"></i> Phone SMS PDF
           </button>
           <button onclick="downloadReceiptPDF()" class="py-2 px-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-download text-sm"></i> Download
+            <i class="fa-solid fa-download text-sm"></i> Download PDF
           </button>
         </div>
       </div>
@@ -322,6 +324,7 @@
 
     let userCompanyId = null;
     let currentUserProfile = null;
+    let userCompanyDetails = null;
     let inventoryCatalog = [];
     let cart = [];
     let selectedPaymentMethod = 'Cash';
@@ -347,8 +350,9 @@
             userCompanyId = memberData.company_id;
             const comp = memberData.companies;
             if (comp) {
+              userCompanyDetails = comp;
               document.getElementById('receipt-biz-name').textContent = comp.name || 'MY BUSINESS LTD';
-              document.getElementById('receipt-biz-address').textContent = comp.address || comp.phone || '';
+              document.getElementById('receipt-biz-address').textContent = comp.address || 'Business Address Not Set';
               document.getElementById('receipt-biz-phone').textContent = comp.phone || '';
               document.getElementById('receipt-biz-email').textContent = comp.email || '';
             }
@@ -488,7 +492,6 @@
       document.getElementById('val-tax').textContent = formatCurrency(tax);
       document.getElementById('val-grand-total').textContent = formatCurrency(grandTotal);
 
-      // Auto set paid amount if cash or default
       const paidInput = document.getElementById('input-paid-amount');
       if (!paidInput.value || parseFloat(paidInput.value) === 0) {
         paidInput.value = grandTotal.toFixed(2);
@@ -547,7 +550,6 @@
       const nowIso = new Date().toISOString();
       const cashierName = currentUserProfile?.user_metadata?.full_name || currentUserProfile?.email?.split('@')[0] || 'Staff';
 
-      // Save sale record to Supabase
       const { error } = await supabaseClient.from('sales').insert([{
         company_id: userCompanyId,
         transaction_id: trxId,
@@ -568,7 +570,6 @@
         return;
       }
 
-      // Store transaction details for receipt and sharing
       lastCompletedTransaction = {
         trxId,
         date: new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
@@ -591,6 +592,13 @@
     function renderReceiptModal() {
       const t = lastCompletedTransaction;
       if (!t) return;
+
+      if (userCompanyDetails) {
+        document.getElementById('receipt-biz-name').textContent = userCompanyDetails.name || 'MY BUSINESS LTD';
+        document.getElementById('receipt-biz-address').textContent = userCompanyDetails.address || '';
+        document.getElementById('receipt-biz-phone').textContent = userCompanyDetails.phone || '';
+        document.getElementById('receipt-biz-email').textContent = userCompanyDetails.email || '';
+      }
 
       document.getElementById('receipt-trx-id').textContent = t.trxId;
       document.getElementById('receipt-date').textContent = t.date;
@@ -622,46 +630,81 @@
       document.getElementById('receipt-modal').classList.add('hidden');
     }
 
-    function generateReceiptText() {
-      const t = lastCompletedTransaction;
-      if (!t) return '';
-      let text = `RECEIPT: ${t.trxId}\nDate: ${t.date}\nCustomer: ${t.customer}\nCashier: ${t.cashier}\n------------------\n`;
-      t.items.forEach(i => {
-        text += `${i.name} x${i.qty} - ${formatCurrency(i.price * i.qty)}\n`;
-      });
-      text += `------------------\nSubtotal: ${formatCurrency(t.subtotal)}\nDiscount: -${formatCurrency(t.discount)}\nTax: ${formatCurrency(t.tax)}\nTOTAL: ${formatCurrency(t.grandTotal)}\nMethod: ${t.paymentMethod}\nThank you!`;
-      return text;
+    // TRUE PDF GENERATION HELPER USING html2pdf.js
+    async function generatePDFBlob() {
+      const element = document.getElementById('receipt-paper');
+      const opt = {
+        margin:       5,
+        filename:     `${lastCompletedTransaction?.trxId || 'receipt'}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' }
+      };
+      
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
     }
 
-    function sendReceiptViaWhatsApp() {
-      const text = encodeURIComponent(generateReceiptText());
+    async function downloadReceiptPDF() {
+      const element = document.getElementById('receipt-paper');
+      const opt = {
+        margin:       5,
+        filename:     `${lastCompletedTransaction.trxId}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
+    }
+
+    async function sendReceiptViaWhatsApp() {
+      const t = lastCompletedTransaction;
+      if (!t) return;
+      const pdfBlob = await generatePDFBlob();
+      const pdfFile = new File([pdfBlob], `${t.trxId}.pdf`, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            files: [pdfFile],
+            title: `Receipt ${t.trxId}`,
+            text: `Here is your official receipt ${t.trxId} from ${userCompanyDetails?.name || 'our store'}.`
+          });
+          return;
+        } catch (err) {
+          console.log('Share canceled or failed', err);
+        }
+      }
+
+      // Fallback text link if direct file sharing is unsupported
+      const text = encodeURIComponent(`Official Receipt ${t.trxId} from ${userCompanyDetails?.name || 'Store'}\nTotal: ${formatCurrency(t.grandTotal)}\nThank you for shopping with us!`);
       window.open(`https://wa.me/?text=${text}`, '_blank');
     }
 
-    function sendReceiptViaGmail() {
+    async function sendReceiptViaGmail() {
       const t = lastCompletedTransaction;
       if (!t) return;
-      const subject = encodeURIComponent(`Sales Receipt ${t.trxId}`);
-      const body = encodeURIComponent(generateReceiptText());
-      window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
-    }
-
-    function sendReceiptViaPhoneSMS() {
-      const text = encodeURIComponent(generateReceiptText());
-      window.open(`sms:?body=${text}`, '_blank');
-    }
-
-    function downloadReceiptPDF() {
-      const text = generateReceiptText();
-      const blob = new Blob([text], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
+      const pdfBlob = await generatePDFBlob();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      
+      const subject = encodeURIComponent(`Official Sales Receipt ${t.trxId} - ${userCompanyDetails?.name || ''}`);
+      const body = encodeURIComponent(`Dear ${t.customer},\n\nPlease find attached your official PDF receipt for transaction ${t.trxId}.\nTotal Amount: ${formatCurrency(t.grandTotal)}\n\nThank you for your business!`);
+      
+      // Open email client and prompt download of PDF for manual attachment
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `${lastCompletedTransaction.trxId}.txt`;
-      document.body.appendChild(a);
+      a.href = pdfUrl;
+      a.download = `${t.trxId}.pdf`;
       a.click();
-      document.body.removeChild(a);
-      alert('Receipt downloaded successfully as text file.');
+
+      window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+      alert('PDF Receipt downloaded and email client opened. Please attach the downloaded PDF to your email.');
+    }
+
+    async function sendReceiptViaPhoneSMS() {
+      const t = lastCompletedTransaction;
+      if (!t) return;
+      const text = encodeURIComponent(`Receipt ${t.trxId} Total: ${formatCurrency(t.grandTotal)} from ${userCompanyDetails?.name || 'Store'}. Thank you!`);
+      window.open(`sms:?body=${text}`, '_blank');
     }
 
     function toggleMenu() {
