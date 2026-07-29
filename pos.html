@@ -97,7 +97,7 @@
         <button onclick="clearCart()" class="text-[10px] text-rose-400 hover:underline">Clear Cart</button>
       </div>
 
-      <!-- CUSTOMER DETAILS (OPIONAL) -->
+      <!-- CUSTOMER DETAILS (OPTIONAL) -->
       <div class="bg-brand-card border border-brand-border p-2.5 rounded-xl space-y-2">
         <div class="flex items-center justify-between text-xs">
           <span class="text-gray-400 font-medium"><i class="fa-solid fa-user text-purple-400 mr-1"></i> Customer Info</span>
@@ -156,9 +156,13 @@
             <input type="number" id="manual-price" placeholder="5000" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
           </div>
           <div>
-            <label class="text-gray-400 block mb-1">Quantity</label>
-            <input type="number" id="manual-qty" value="1" min="1" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
+            <label class="text-gray-400 block mb-1">Cost Price (₦)</label>
+            <input type="number" id="manual-cost" placeholder="3000" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
           </div>
+        </div>
+        <div>
+          <label class="text-gray-400 block mb-1">Quantity</label>
+          <input type="number" id="manual-qty" value="1" min="1" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
         </div>
       </div>
       <button onclick="addManualItemToCart()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg text-xs transition">Add to Cart</button>
@@ -240,10 +244,10 @@
       if (error || !data || data.length === 0) {
         // Fallback default dynamic stock if inventory table is brand new
         inventory = [
-          { id: '1', name: 'iPhone 15 Pro', price: 1200000, stock: 10, sku: 'IP15' },
-          { id: '2', name: 'Oraimo Power Bank 20k', price: 25000, stock: 35, sku: 'PB20' },
-          { id: '3', name: 'Fast Charger 65W', price: 15000, stock: 20, sku: 'FC65' },
-          { id: '4', name: 'USB-C Cable', price: 3500, stock: 50, sku: 'USBC' }
+          { id: '1', name: 'iPhone 15 Pro', price: 1200000, unit_cost_price: 1000000, stock: 10, sku: 'IP15' },
+          { id: '2', name: 'Oraimo Power Bank 20k', price: 25000, unit_cost_price: 18000, stock: 35, sku: 'PB20' },
+          { id: '3', name: 'Fast Charger 65W', price: 15000, unit_cost_price: 9000, stock: 20, sku: 'FC65' },
+          { id: '4', name: 'USB-C Cable', price: 3500, unit_cost_price: 1500, stock: 50, sku: 'USBC' }
         ];
       } else {
         inventory = data;
@@ -264,7 +268,7 @@
             <h4 class="font-bold text-white text-xs">${item.name}</h4>
             <p class="text-[10px] ${item.stock > 0 ? 'text-gray-400' : 'text-rose-400 font-bold'}">Stock: ${item.stock} pcs</p>
           </div>
-          <p class="text-purple-400 font-semibold text-xs mt-2">₦${Number(item.price).toLocaleString()}</p>
+          <p class="text-purple-400 font-semibold text-xs mt-2">₦${Number(item.price || item.unit_selling_price || 0).toLocaleString()}</p>
         </div>
       `).join('');
     }
@@ -280,6 +284,9 @@
       const product = inventory.find(i => i.id === id);
       if (!product) return;
 
+      const sellingPrice = Number(product.price || product.unit_selling_price || 0);
+      const costPrice = Number(product.unit_cost_price || product.cost_price || product.unit_cost || 0);
+
       const existing = cart.find(c => c.id === id);
       if (existing) {
         if (existing.qty + 1 > product.stock) {
@@ -292,7 +299,14 @@
           alert("This item is out of stock!");
           return;
         }
-        cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, isInventory: true });
+        cart.push({ 
+          id: product.id, 
+          name: product.name, 
+          price: sellingPrice, 
+          cost_price: costPrice,
+          qty: 1, 
+          isInventory: true 
+        });
       }
       renderCart();
     }
@@ -361,6 +375,7 @@
     function addManualItemToCart() {
       const name = document.getElementById("manual-name").value.trim();
       const price = parseFloat(document.getElementById("manual-price").value);
+      const costPrice = parseFloat(document.getElementById("manual-cost").value) || 0;
       const qty = parseInt(document.getElementById("manual-qty").value);
 
       if (!name || isNaN(price) || isNaN(qty) || qty <= 0) {
@@ -368,12 +383,13 @@
         return;
       }
 
-      cart.push({ id: 'custom-' + Date.now(), name, price, qty, isInventory: false });
+      cart.push({ id: 'custom-' + Date.now(), name, price, cost_price: costPrice, qty, isInventory: false });
       renderCart();
       
       // Reset & Close Modal
       document.getElementById("manual-name").value = "";
       document.getElementById("manual-price").value = "";
+      document.getElementById("manual-cost").value = "";
       document.getElementById("manual-qty").value = "1";
       closeManualAddModal();
     }
@@ -386,12 +402,12 @@
         html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
         html5QrcodeScanner.render((decodedText) => {
           // Find matching item in inventory by SKU or barcode ID
-          const matchedItem = inventory.find(i => i.sku === decodedText || i.id === decodedText);
+          const matchedItem = inventory.find(i => i.sku === decodedText || i.id === decodedText || i.barcode === decodedText);
           if (matchedItem) {
             addToCartFromInventory(matchedItem.id);
           } else {
             // Add as custom scanned item
-            cart.push({ id: 'scan-' + Date.now(), name: 'Scanned Item (' + decodedText + ')', price: 1000, qty: 1, isInventory: false });
+            cart.push({ id: 'scan-' + Date.now(), name: 'Scanned Item (' + decodedText + ')', price: 1000, cost_price: 0, qty: 1, isInventory: false });
             renderCart();
           }
           toggleCameraScanner();
@@ -419,24 +435,36 @@
       btn.textContent = "PROCESSING SALE...";
 
       const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const totalCost = cart.reduce((sum, item) => sum + ((item.cost_price || 0) * item.qty), 0);
+      const totalProfit = totalAmount - totalCost;
+
       const saleNumber = "SAL-" + Date.now().toString().slice(-6);
       const custName = document.getElementById("cust-name").value.trim() || "Walk-in Customer";
       const custContact = document.getElementById("cust-contact").value.trim() || "N/A";
       const now = new Date();
       const dateTimeStr = now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // Save Sale Record to Supabase
+      // Save Sale Record to Supabase with total_cost and profit
       const { data: saleData, error: saleErr } = await supabaseClient
         .from('sales')
         .insert([{
           sale_number: saleNumber,
           total: totalAmount,
           subtotal: totalAmount,
+          total_cost: totalCost,
+          profit: totalProfit,
           payment_method: selectedMethod,
           customer_name: custName,
           customer_contact: custContact,
           items: cart
         }]);
+
+      if (saleErr) {
+        alert("Failed to record sale: " + saleErr.message);
+        btn.disabled = false;
+        btn.innerHTML = `<span>NEXT / GENERATE RECEIPT</span> <i class="fa-solid fa-arrow-right"></i>`;
+        return;
+      }
 
       // Deduct Inventory Stock in real time for inventory items
       for (const item of cart) {
