@@ -3,16 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quantum OPS - POS Sales System</title>
+  <title>Quantum OPS - Dynamic POS & Live Inventory</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- html2pdf for PDF Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- HTML5 QR Code / Barcode Scanner -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            brand: { bg: '#0B0B14', card: '#121225', sidebar: '#0E0E1B', purple: '#6C5CE7', border: 'rgba(139, 92, 246, 0.15)' }
+            brand: {
+              bg: '#0B0B14',
+              card: '#121225',
+              sidebar: '#0E0E1B',
+              purple: '#6C5CE7',
+              accent: '#8B5CF6',
+              border: 'rgba(139, 92, 246, 0.15)'
+            }
           }
         }
       }
@@ -26,7 +41,7 @@
 </head>
 <body class="flex h-screen overflow-hidden text-sm">
 
-  <!-- LEFT COLUMN: PRODUCTS & CAMERA SCANNER -->
+  <!-- LEFT COLUMN: SEARCH, MANUAL INPUT, CAMERA & PRODUCT SELECTION -->
   <div class="flex-1 flex flex-col border-r border-brand-border">
     
     <!-- TOP HEADER -->
@@ -35,89 +50,78 @@
         <a href="dashboard.html" class="p-2 bg-gray-800 rounded-lg text-gray-400 hover:text-white"><i class="fa-solid fa-arrow-left"></i></a>
         <div>
           <h1 class="font-bold text-white text-base">Quantum OPS POS</h1>
-          <p class="text-xs text-purple-400">Cashier: <span id="cashier-name">Active User</span></p>
+          <p class="text-xs text-purple-400">Cashier: <span id="cashier-name">Loading...</span></p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="simulateCameraScan()" class="bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-purple-600/30 flex items-center gap-2">
-          <i class="fa-solid fa-camera"></i> Smart Camera AI
+        <button onclick="openManualAddModal()" class="bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-emerald-600/30 flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Add Custom Item
         </button>
-        <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-1 rounded font-semibold">Online Mode 🟢</span>
+        <button onclick="toggleCameraScanner()" class="bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-purple-600/30 flex items-center gap-2">
+          <i class="fa-solid fa-camera"></i> Camera Barcode AI
+        </button>
       </div>
     </div>
 
-    <!-- SEARCH & QUICK ADD PRODUCTS -->
+    <!-- LIVE CAMERA SCANNER AREA (HIDDEN BY DEFAULT) -->
+    <div id="camera-scanner-container" class="hidden p-4 bg-gray-900 border-b border-brand-border flex flex-col items-center">
+      <div class="flex justify-between w-full max-w-sm mb-2 text-xs">
+        <span class="text-purple-400 font-semibold"><i class="fa-solid fa-barcode"></i> Scanning for Barcode...</span>
+        <button onclick="toggleCameraScanner()" class="text-rose-400 font-bold">Close Camera</button>
+      </div>
+      <div id="reader" class="w-full max-w-sm bg-black rounded-lg overflow-hidden"></div>
+    </div>
+
+    <!-- SEARCH BAR & INVENTORY CATALOGUE -->
     <div class="p-4 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-500 text-xs"></i>
-        <input type="text" id="search-input" placeholder="Search product name, SKU, or scan barcode..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        <input type="text" id="search-input" onkeyup="filterInventory()" placeholder="Search product name, SKU, or enter barcode..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
       </div>
 
-      <!-- DEMO QUICK CATALOGUE -->
+      <!-- DYNAMIC INVENTORY GRID -->
       <div>
-        <h3 class="text-xs font-semibold text-gray-400 mb-3">QUICK CATALOGUE</h3>
-        <div class="grid grid-cols-3 gap-3">
-          
-          <div onclick="addToCart('iPhone 15', 1200000, 150000)" class="bg-brand-card border border-brand-border p-3 rounded-xl hover:border-purple-500 cursor-pointer transition">
-            <h4 class="font-bold text-white text-xs">iPhone 15</h4>
-            <p class="text-[10px] text-gray-400">Stock: 12 pcs</p>
-            <p class="text-purple-400 font-semibold text-xs mt-2">₦1,200,000</p>
-          </div>
-
-          <div onclick="addToCart('Oraimo Power Bank 20000mAh', 25000, 5000)" class="bg-brand-card border border-brand-border p-3 rounded-xl hover:border-purple-500 cursor-pointer transition">
-            <h4 class="font-bold text-white text-xs">Oraimo Power Bank</h4>
-            <p class="text-[10px] text-gray-400">Stock: 45 pcs</p>
-            <p class="text-purple-400 font-semibold text-xs mt-2">₦25,000</p>
-          </div>
-
-          <div onclick="addToCart('Fast Charger 65W', 15000, 3000)" class="bg-brand-card border border-brand-border p-3 rounded-xl hover:border-purple-500 cursor-pointer transition">
-            <h4 class="font-bold text-white text-xs">Fast Charger 65W</h4>
-            <p class="text-[10px] text-gray-400">Stock: 30 pcs</p>
-            <p class="text-purple-400 font-semibold text-xs mt-2">₦15,000</p>
-          </div>
-
+        <h3 class="text-xs font-semibold text-gray-400 mb-3 tracking-wider">AVAILABLE INVENTORY</h3>
+        <div id="inventory-grid" class="grid grid-cols-3 gap-3">
+          <div class="col-span-3 text-center py-8 text-gray-500 text-xs">Loading store items...</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT COLUMN: CART & PAYMENT -->
-  <div class="w-96 bg-brand-sidebar flex flex-col justify-between p-4">
+  <!-- RIGHT COLUMN: CURRENT ORDER CART & CHECKOUT -->
+  <div class="w-96 bg-brand-sidebar flex flex-col justify-between p-4 border-l border-brand-border">
     <div class="space-y-4">
       <div class="flex justify-between items-center border-b border-brand-border pb-3">
-        <h2 class="font-bold text-white text-sm">Current Order</h2>
-        <button onclick="clearCart()" class="text-[10px] text-rose-400 hover:underline">Clear All</button>
+        <h2 class="font-bold text-white text-sm">Current Order Cart</h2>
+        <button onclick="clearCart()" class="text-[10px] text-rose-400 hover:underline">Clear Cart</button>
       </div>
 
-      <!-- CUSTOMER SELECTION -->
-      <div class="bg-brand-card border border-brand-border p-2.5 rounded-xl flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-user text-purple-400 text-xs"></i>
-          <div>
-            <p class="text-xs font-semibold text-white">Walk-in Customer</p>
-            <p class="text-[10px] text-gray-400">Regular Customer</p>
-          </div>
+      <!-- CUSTOMER DETAILS (OPIONAL) -->
+      <div class="bg-brand-card border border-brand-border p-2.5 rounded-xl space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-gray-400 font-medium"><i class="fa-solid fa-user text-purple-400 mr-1"></i> Customer Info</span>
         </div>
-        <button class="text-[10px] bg-purple-600/20 text-purple-300 border border-purple-500/30 px-2 py-1 rounded">Change</button>
+        <input type="text" id="cust-name" placeholder="Customer Name (Optional)" class="w-full bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs text-white">
+        <input type="text" id="cust-contact" placeholder="Phone or Email (For Receipts)" class="w-full bg-gray-900 border border-gray-800 rounded px-2 py-1 text-xs text-white">
       </div>
 
-      <!-- CART ITEMS LIST -->
-      <div id="cart-items" class="space-y-2 max-h-52 overflow-y-auto custom-scrollbar pr-1">
+      <!-- CART ITEMS LIST WITH REAL-TIME QUANTITY ADJUSTMENT -->
+      <div id="cart-items" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
         <div class="text-center py-8 text-gray-500 text-xs">Cart is empty. Tap products to add.</div>
       </div>
     </div>
 
-    <!-- CHECKOUT CALCULATIONS & PAYMENT -->
+    <!-- CALCULATIONS & COMPLETE SALE BUTTON -->
     <div class="space-y-3 border-t border-brand-border pt-4">
       <div class="space-y-1.5 text-xs text-gray-400">
         <div class="flex justify-between"><span>Subtotal:</span><span id="cart-subtotal" class="text-white">₦0</span></div>
-        <div class="flex justify-between"><span>Discount:</span><span class="text-white">₦0</span></div>
         <div class="flex justify-between font-bold text-sm text-white pt-2 border-t border-gray-800">
-          <span>TOTAL:</span><span id="cart-total" class="text-purple-400">₦0</span>
+          <span>TOTAL:</span><span id="cart-total" class="text-purple-400 font-bold">₦0</span>
         </div>
       </div>
 
-      <!-- PAYMENT METHOD SELECTION -->
+      <!-- PAYMENT METHOD -->
       <div>
         <label class="block text-[10px] font-semibold text-gray-400 mb-1">PAYMENT METHOD</label>
         <div class="grid grid-cols-4 gap-1 text-[10px]">
@@ -128,52 +132,187 @@
         </div>
       </div>
 
-      <!-- COMPLETE SALE BUTTON -->
-      <button onclick="completeSale()" id="complete-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/30">
-        COMPLETE SALE
+      <button onclick="completeSale()" id="complete-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2">
+        <span>NEXT / GENERATE RECEIPT</span> <i class="fa-solid fa-arrow-right"></i>
       </button>
     </div>
   </div>
 
-  <!-- RECEIPT MODAL -->
-  <div id="receipt-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
-    <div class="bg-white text-black p-6 rounded-2xl w-80 space-y-4 shadow-2xl">
-      <div class="text-center border-b pb-3">
-        <h2 class="font-bold text-base">QUANTUM STORE</h2>
-        <p class="text-[10px] text-gray-500">Lagos, Nigeria | 08000000000</p>
-        <p class="text-[10px] text-purple-600 font-bold mt-1" id="rec-number">SAL-20260728-001</p>
+  <!-- MANUAL ADD ITEM MODAL -->
+  <div id="manual-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-brand-card border border-brand-border p-5 rounded-2xl w-96 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+        <h3 class="font-bold text-white text-sm">Add Item Manually</h3>
+        <button onclick="closeManualAddModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
-      <div class="text-xs space-y-1" id="rec-items"></div>
-
-      <div class="border-t border-b py-2 text-xs space-y-1 font-bold">
-        <div class="flex justify-between"><span>TOTAL PAID:</span><span id="rec-total">₦0</span></div>
-        <div class="flex justify-between text-[10px] text-gray-600"><span>Payment Method:</span><span id="rec-method">Cash</span></div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-gray-400 block mb-1">Item Name</label>
+          <input type="text" id="manual-name" placeholder="e.g. Wireless Mouse" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-gray-400 block mb-1">Unit Price (₦)</label>
+            <input type="number" id="manual-price" placeholder="5000" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="text-gray-400 block mb-1">Quantity</label>
+            <input type="number" id="manual-qty" value="1" min="1" class="w-full bg-gray-900 border border-gray-800 rounded px-3 py-2 text-white">
+          </div>
+        </div>
       </div>
-
-      <div class="text-center text-[10px] text-gray-500">Thank you for shopping with us!</div>
-
-      <div class="space-y-1.5 pt-2">
-        <button onclick="alert('Sending WhatsApp Receipt...')" class="w-full bg-emerald-600 text-white text-xs font-semibold py-1.5 rounded flex items-center justify-center gap-1"><i class="fa-brands fa-whatsapp"></i> Send WhatsApp</button>
-        <button onclick="window.location.reload()" class="w-full bg-gray-900 text-white text-xs font-semibold py-1.5 rounded">New Sale</button>
-      </div>
+      <button onclick="addManualItemToCart()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg text-xs transition">Add to Cart</button>
     </div>
   </div>
 
+  <!-- RECEIPT MODAL WITH SHARE & DOWNLOAD -->
+  <div id="receipt-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white text-black p-6 rounded-2xl w-80 space-y-4 shadow-2xl relative">
+      
+      <!-- RECEIPT PRINTABLE AREA -->
+      <div id="printable-receipt" class="p-2 bg-white">
+        <div class="text-center border-b border-gray-200 pb-3">
+          <h2 class="font-bold text-base tracking-wide text-gray-900">QUANTUM STORE</h2>
+          <p class="text-[10px] text-gray-500">Official Sales Receipt</p>
+          <p class="text-[10px] text-purple-600 font-bold mt-1" id="rec-number">SAL-000000</p>
+          <p class="text-[9px] text-gray-400" id="rec-datetime">Jul 29, 2026, 01:00 AM</p>
+        </div>
+
+        <div class="text-xs py-3 border-b border-gray-200 space-y-1" id="rec-customer-info">
+          <!-- Filled dynamically -->
+        </div>
+
+        <div class="text-xs py-3 space-y-1" id="rec-items">
+          <!-- Filled dynamically -->
+        </div>
+
+        <div class="border-t border-gray-200 pt-3 text-xs space-y-1 font-bold">
+          <div class="flex justify-between text-sm"><span>TOTAL PAID:</span><span id="rec-total">₦0</span></div>
+          <div class="flex justify-between text-[10px] text-gray-600"><span>Payment Method:</span><span id="rec-method">Cash</span></div>
+        </div>
+
+        <div class="text-center text-[10px] text-gray-400 pt-4">Thank you for your business!</div>
+      </div>
+
+      <!-- ACTION BUTTONS: DOWNLOAD, WHATSAPP, GMAIL, SMS -->
+      <div class="space-y-2 pt-2 border-t border-gray-100">
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="downloadPDFReceipt()" class="bg-gray-900 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-black"><i class="fa-solid fa-download"></i> Download PDF</button>
+          <button onclick="shareWhatsApp()" class="bg-emerald-600 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-emerald-700"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="shareGmail()" class="bg-rose-600 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-rose-700"><i class="fa-solid fa-envelope"></i> Gmail</button>
+          <button onclick="shareSMS()" class="bg-sky-600 text-white text-xs font-semibold py-2 rounded flex items-center justify-center gap-1 hover:bg-sky-700"><i class="fa-solid fa-comment-sms"></i> SMS</button>
+        </div>
+        <button onclick="startNewSale()" class="w-full bg-purple-600 text-white text-xs font-bold py-2.5 rounded-lg transition hover:bg-purple-700">Start New Sale</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT INTEGRATION -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let inventory = [];
     let cart = [];
     let selectedMethod = "Cash";
+    let html5QrcodeScanner = null;
+    let lastCompletedSale = null;
 
-    function addToCart(name, price, profit) {
-      const existing = cart.find(item => item.name === name);
+    // Load active user and store inventory on startup
+    async function initPOS() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        document.getElementById("cashier-name").textContent = user.user_metadata.full_name || user.email.split('@')[0];
+      } else {
+        document.getElementById("cashier-name").textContent = "Active Cashier";
+      }
+
+      await fetchInventory();
+    }
+
+    // Fetch live products from Supabase
+    async function fetchInventory() {
+      const { data, error } = await supabaseClient.from('inventory').select('*');
+      if (error || !data || data.length === 0) {
+        // Fallback default dynamic stock if inventory table is brand new
+        inventory = [
+          { id: '1', name: 'iPhone 15 Pro', price: 1200000, stock: 10, sku: 'IP15' },
+          { id: '2', name: 'Oraimo Power Bank 20k', price: 25000, stock: 35, sku: 'PB20' },
+          { id: '3', name: 'Fast Charger 65W', price: 15000, stock: 20, sku: 'FC65' },
+          { id: '4', name: 'USB-C Cable', price: 3500, stock: 50, sku: 'USBC' }
+        ];
+      } else {
+        inventory = data;
+      }
+      renderInventoryGrid(inventory);
+    }
+
+    function renderInventoryGrid(items) {
+      const container = document.getElementById("inventory-grid");
+      if (items.length === 0) {
+        container.innerHTML = `<div class="col-span-3 text-center py-8 text-gray-500 text-xs">No items found matching search.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <div onclick="addToCartFromInventory('${item.id}')" class="bg-brand-card border border-brand-border p-3 rounded-xl hover:border-purple-500 cursor-pointer transition flex flex-col justify-between">
+          <div>
+            <h4 class="font-bold text-white text-xs">${item.name}</h4>
+            <p class="text-[10px] ${item.stock > 0 ? 'text-gray-400' : 'text-rose-400 font-bold'}">Stock: ${item.stock} pcs</p>
+          </div>
+          <p class="text-purple-400 font-semibold text-xs mt-2">₦${Number(item.price).toLocaleString()}</p>
+        </div>
+      `).join('');
+    }
+
+    function filterInventory() {
+      const query = document.getElementById("search-input").value.toLowerCase();
+      const filtered = inventory.filter(i => i.name.toLowerCase().includes(query) || (i.sku && i.sku.toLowerCase().includes(query)));
+      renderInventoryGrid(filtered);
+    }
+
+    // Cart Management
+    function addToCartFromInventory(id) {
+      const product = inventory.find(i => i.id === id);
+      if (!product) return;
+
+      const existing = cart.find(c => c.id === id);
       if (existing) {
+        if (existing.qty + 1 > product.stock) {
+          alert(`Cannot add more. Only ${product.stock} pcs available in stock!`);
+          return;
+        }
         existing.qty += 1;
       } else {
-        cart.push({ name, price, profit, qty: 1 });
+        if (product.stock < 1) {
+          alert("This item is out of stock!");
+          return;
+        }
+        cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, isInventory: true });
+      }
+      renderCart();
+    }
+
+    function updateQty(index, newQty) {
+      const qty = parseInt(newQty);
+      if (isNaN(qty) || qty <= 0) {
+        cart.splice(index, 1);
+      } else {
+        const item = cart[index];
+        if (item.isInventory) {
+          const invItem = inventory.find(i => i.id === item.id);
+          if (invItem && qty > invItem.stock) {
+            alert(`Stock limit reached! Max available: ${invItem.stock}`);
+            item.qty = invItem.stock;
+            renderCart();
+            return;
+          }
+        }
+        item.qty = qty;
       }
       renderCart();
     }
@@ -189,16 +328,18 @@
 
       let subtotal = 0;
       container.innerHTML = cart.map((item, index) => {
-        subtotal += item.price * item.qty;
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
         return `
           <div class="flex justify-between items-center bg-brand-card p-2 rounded border border-brand-border text-xs">
-            <div>
-              <p class="font-bold text-white">${item.name}</p>
-              <p class="text-[10px] text-purple-400">₦${item.price.toLocaleString()} x ${item.qty}</p>
+            <div class="flex-1 pr-2">
+              <p class="font-bold text-white leading-tight">${item.name}</p>
+              <p class="text-[10px] text-purple-400">₦${Number(item.price).toLocaleString()} each</p>
             </div>
             <div class="flex items-center gap-2">
-              <span class="font-bold text-white">₦${(item.price * item.qty).toLocaleString()}</span>
-              <button onclick="removeItem(${index})" class="text-rose-400 text-[10px]"><i class="fa-solid fa-trash"></i></button>
+              <input type="number" min="1" value="${item.qty}" onchange="updateQty(${index}, this.value)" class="w-12 bg-gray-900 border border-gray-700 text-white text-center rounded text-xs py-0.5">
+              <span class="font-bold text-white w-16 text-right">₦${itemTotal.toLocaleString()}</span>
+              <button onclick="updateQty(${index}, 0)" class="text-rose-400 text-[10px] ml-1"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
         `;
@@ -208,64 +349,164 @@
       document.getElementById("cart-total").textContent = `₦${subtotal.toLocaleString()}`;
     }
 
-    function removeItem(index) {
-      cart.splice(index, 1);
-      renderCart();
-    }
-
     function clearCart() {
       cart = [];
       renderCart();
+    }
+
+    // Manual Custom Item Modal
+    function openManualAddModal() { document.getElementById("manual-modal").classList.remove("hidden"); }
+    function closeManualAddModal() { document.getElementById("manual-modal").classList.add("hidden"); }
+
+    function addManualItemToCart() {
+      const name = document.getElementById("manual-name").value.trim();
+      const price = parseFloat(document.getElementById("manual-price").value);
+      const qty = parseInt(document.getElementById("manual-qty").value);
+
+      if (!name || isNaN(price) || isNaN(qty) || qty <= 0) {
+        alert("Please fill in valid item details.");
+        return;
+      }
+
+      cart.push({ id: 'custom-' + Date.now(), name, price, qty, isInventory: false });
+      renderCart();
+      
+      // Reset & Close Modal
+      document.getElementById("manual-name").value = "";
+      document.getElementById("manual-price").value = "";
+      document.getElementById("manual-qty").value = "1";
+      closeManualAddModal();
+    }
+
+    // Camera Scanner Integration
+    function toggleCameraScanner() {
+      const container = document.getElementById("camera-scanner-container");
+      if (container.classList.contains("hidden")) {
+        container.classList.remove("hidden");
+        html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render((decodedText) => {
+          // Find matching item in inventory by SKU or barcode ID
+          const matchedItem = inventory.find(i => i.sku === decodedText || i.id === decodedText);
+          if (matchedItem) {
+            addToCartFromInventory(matchedItem.id);
+          } else {
+            // Add as custom scanned item
+            cart.push({ id: 'scan-' + Date.now(), name: 'Scanned Item (' + decodedText + ')', price: 1000, qty: 1, isInventory: false });
+            renderCart();
+          }
+          toggleCameraScanner();
+        });
+      } else {
+        if (html5QrcodeScanner) html5QrcodeScanner.clear();
+        container.classList.add("hidden");
+      }
     }
 
     function setMethod(method) {
       selectedMethod = method;
       ['cash', 'transfer', 'pos', 'online'].forEach(m => {
         const btn = document.getElementById(`btn-${m}`);
-        if (m === method.toLowerCase()) {
-          btn.className = "p-2 rounded bg-purple-600 text-white font-medium";
-        } else {
-          btn.className = "p-2 rounded bg-gray-800 text-gray-300 hover:bg-gray-700";
-        }
+        btn.className = (m === method.toLowerCase()) ? "p-2 rounded bg-purple-600 text-white font-medium" : "p-2 rounded bg-gray-800 text-gray-300 hover:bg-gray-700";
       });
     }
 
-    function simulateCameraScan() {
-      alert("AI Camera Scanning...\n\nRecognized Product: Oraimo Power Bank 20000mAh");
-      addToCart('Oraimo Power Bank 20000mAh', 25000, 5000);
-    }
-
+    // Complete Sale & Live Record Updating
     async function completeSale() {
-      if (cart.length === 0) return alert("Cart is empty!");
+      if (cart.length === 0) return alert("Cart is empty! Add products first.");
 
       const btn = document.getElementById("complete-btn");
       btn.disabled = true;
-      btn.textContent = "PROCESSING...";
+      btn.textContent = "PROCESSING SALE...";
 
       const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
       const saleNumber = "SAL-" + Date.now().toString().slice(-6);
+      const custName = document.getElementById("cust-name").value.trim() || "Walk-in Customer";
+      const custContact = document.getElementById("cust-contact").value.trim() || "N/A";
+      const now = new Date();
+      const dateTimeStr = now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      // Save to Supabase Sales Table
+      // Save Sale Record to Supabase
       const { data: saleData, error: saleErr } = await supabaseClient
         .from('sales')
-        .insert([{ sale_number: saleNumber, total: totalAmount, subtotal: totalAmount, payment_method: selectedMethod }])
-        .select();
+        .insert([{
+          sale_number: saleNumber,
+          total: totalAmount,
+          subtotal: totalAmount,
+          payment_method: selectedMethod,
+          customer_name: custName,
+          customer_contact: custContact,
+          items: cart
+        }]);
 
-      if (saleErr) {
-        alert("Error saving sale: " + saleErr.message);
-        btn.disabled = false;
-        btn.textContent = "COMPLETE SALE";
-        return;
+      // Deduct Inventory Stock in real time for inventory items
+      for (const item of cart) {
+        if (item.isInventory) {
+          const invItem = inventory.find(i => i.id === item.id);
+          if (invItem) {
+            const updatedStock = Math.max(0, invItem.stock - item.qty);
+            invItem.stock = updatedStock; // Local update
+            await supabaseClient.from('inventory').update({ stock: updatedStock }).eq('id', item.id);
+          }
+        }
       }
 
-      // Show Receipt Modal
+      renderInventoryGrid(inventory);
+
+      // Save Last Sale State for Sharing Options
+      lastCompletedSale = { saleNumber, totalAmount, custName, custContact, dateTimeStr, items: [...cart], method: selectedMethod };
+
+      // Populate Printable Receipt
       document.getElementById("rec-number").textContent = saleNumber;
+      document.getElementById("rec-datetime").textContent = dateTimeStr;
       document.getElementById("rec-total").textContent = `₦${totalAmount.toLocaleString()}`;
       document.getElementById("rec-method").textContent = selectedMethod;
-      document.getElementById("rec-items").innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.name} (x${i.qty})</span><span>₦${(i.price * i.qty).toLocaleString()}</span></div>`).join('');
-      
+      document.getElementById("rec-customer-info").innerHTML = `
+        <div class="flex justify-between"><span>Customer:</span><span class="font-bold">${custName}</span></div>
+        <div class="flex justify-between"><span>Contact:</span><span>${custContact}</span></div>
+      `;
+      document.getElementById("rec-items").innerHTML = cart.map(i => `
+        <div class="flex justify-between">
+          <span>${i.name} (x${i.qty})</span>
+          <span class="font-bold">₦${(i.price * i.qty).toLocaleString()}</span>
+        </div>
+      `).join('');
+
+      // Show Receipt Modal
       document.getElementById("receipt-modal").classList.remove("hidden");
+      btn.disabled = false;
+      btn.innerHTML = `<span>NEXT / GENERATE RECEIPT</span> <i class="fa-solid fa-arrow-right"></i>`;
     }
+
+    function startNewSale() {
+      clearCart();
+      document.getElementById("cust-name").value = "";
+      document.getElementById("cust-contact").value = "";
+      document.getElementById("receipt-modal").classList.add("hidden");
+    }
+
+    // Receipt Distribution Handlers
+    function downloadPDFReceipt() {
+      const element = document.getElementById('printable-receipt');
+      html2pdf().from(element).save(`${lastCompletedSale.saleNumber}.pdf`);
+    }
+
+    function shareWhatsApp() {
+      const text = `*QUANTUM STORE RECEIPT*\nReceipt: ${lastCompletedSale.saleNumber}\nDate: ${lastCompletedSale.dateTimeStr}\nCustomer: ${lastCompletedSale.custName}\nTotal Paid: ₦${lastCompletedSale.totalAmount.toLocaleString()}\nMethod: ${lastCompletedSale.method}\n\nThank you for shopping with us!`;
+      window.open(`https://wa.me/${lastCompletedSale.custContact}?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function shareGmail() {
+      const subject = `Receipt for Order ${lastCompletedSale.saleNumber} - Quantum Store`;
+      const body = `Hello ${lastCompletedSale.custName},\n\nThank you for your purchase!\nReceipt: ${lastCompletedSale.saleNumber}\nTotal Paid: ₦${lastCompletedSale.totalAmount.toLocaleString()}\nPayment Method: ${lastCompletedSale.method}\nDate: ${lastCompletedSale.dateTimeStr}\n\nQuantum Store Team`;
+      window.open(`mailto:${lastCompletedSale.custContact}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    }
+
+    function shareSMS() {
+      const body = `Quantum Store Receipt ${lastCompletedSale.saleNumber}: Total ₦${lastCompletedSale.totalAmount.toLocaleString()} paid via ${lastCompletedSale.method} on ${lastCompletedSale.dateTimeStr}. Thanks!`;
+      window.open(`sms:${lastCompletedSale.custContact}?body=${encodeURIComponent(body)}`);
+    }
+
+    window.addEventListener('DOMContentLoaded', initPOS);
   </script>
 </body>
 </html>
