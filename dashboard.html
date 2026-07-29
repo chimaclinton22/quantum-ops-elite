@@ -91,7 +91,7 @@
       <!-- GREETING & BRANCH SELECTOR -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-base font-bold text-white" id="greeting-title">Good evening, User 👋</h1>
+          <h1 class="text-base font-bold text-white" id="greeting-title">Good day, User 👋</h1>
           <p class="text-[11px] text-slate-400">Here's what's happening with your business today.</p>
         </div>
         <div class="flex items-center gap-1.5 bg-[#121224] border border-purple-500/20 px-2.5 py-1.5 rounded-xl text-xs text-purple-300 font-medium shadow-inner">
@@ -364,9 +364,21 @@
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
-          const fullName = user.user_metadata?.full_name || user.email.split('@')[0];
-          document.getElementById('greeting-title').textContent = `Good evening, ${fullName.split(' ')[0]} 👋`;
-          document.getElementById('user-avatar-initial').textContent = fullName.charAt(0).toUpperCase();
+          const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
+          const firstName = rawName.split(' ')[0];
+          const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+
+          // Dynamic time-based greeting (Morning / Afternoon / Evening)
+          const currentHour = new Date().getHours();
+          let timeGreeting = "Good evening";
+          if (currentHour < 12) {
+            timeGreeting = "Good morning";
+          } else if (currentHour < 17) {
+            timeGreeting = "Good afternoon";
+          }
+
+          document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
+          document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
 
           const { data: memberData } = await supabaseClient
             .from('company_users')
@@ -433,9 +445,12 @@
       let weeklyTotal = 0;
 
       sales.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || 0);
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
         const profit = parseFloat(sale.profit || 0);
-        const saleDateStr = getLocalDateString(new Date(sale.created_at || sale.date || Date.now()));
+        
+        // Extract exact date string properly handling UTC/local timestamps
+        const rawDate = sale.created_at || sale.date || new Date();
+        const saleDateStr = getLocalDateString(new Date(rawDate));
 
         weeklyTotal += amount;
         if (saleDateStr === todayStr) {
@@ -459,7 +474,6 @@
       });
       document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
       
-      // Calculate Business Health based on stock & sales performance
       let health = 100;
       if (lowStockCount > 0) health -= Math.min(lowStockCount * 3, 25);
       document.getElementById('val-business-health').textContent = `${Math.max(health, 50)}%`;
@@ -478,15 +492,14 @@
       const ctx = document.getElementById('salesOverviewChart').getContext('2d');
       if (salesChartInstance) salesChartInstance.destroy();
 
-      // Aggregate sales by day of current week (Mon-Sun)
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
 
       sales.forEach(sale => {
         const dateObj = new Date(sale.created_at || sale.date || Date.now());
-        let dayIdx = dateObj.getDay() - 1; // 0 = Mon, ..., 6 = Sun
-        if (dayIdx === -1) dayIdx = 6; // Sunday
-        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || 0);
+        let dayIdx = dateObj.getDay() - 1; 
+        if (dayIdx === -1) dayIdx = 6; 
+        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || sale.total || 0);
       });
 
       salesChartInstance = new Chart(ctx, {
@@ -523,7 +536,7 @@
 
       sales.forEach(sale => {
         const name = sale.product_name || sale.item_name || 'General Product';
-        const amount = parseFloat(sale.total_amount || sale.amount || 0);
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
         if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
         productCounts[name].qty += parseInt(sale.quantity || 1);
         productCounts[name].revenue += amount;
@@ -557,11 +570,11 @@
         return;
       }
 
-      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 4);
+      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(b.created_at || 0)).slice(0, 4);
       let html = '';
 
       sorted.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || 0);
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
         html += `
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -583,7 +596,6 @@
       container.innerHTML = html;
     }
 
-    // Submit New Debt Record to Supabase
     async function submitNewDebt() {
       const customer = document.getElementById('debt-customer').value;
       const amount = document.getElementById('debt-amount').value;
