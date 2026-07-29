@@ -102,7 +102,7 @@
           <div>
             <p class="text-xs text-gray-400 font-medium">TOTAL ITEMS IN STORE</p>
             <h3 class="text-2xl font-bold text-white mt-1" id="stat-total-items">0</h3>
-            <p class="text-[10px] text-gray-500 mt-1">Unique products registered</p>
+            <p class="text-[10px] text-gray-500 mt-1">Unique products registered (e.g., iPhone, Shoes, Rice)</p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl">
             <i class="fa-solid fa-boxes-stacked"></i>
@@ -113,7 +113,7 @@
           <div>
             <p class="text-xs text-gray-400 font-medium">LOW STOCK WARNINGS</p>
             <h3 class="text-2xl font-bold text-amber-400 mt-1" id="stat-low-stock">0</h3>
-            <p class="text-[10px] text-amber-500/80 mt-1">Items running out soon (≤ 5)</p>
+            <p class="text-[10px] text-amber-500/80 mt-1">Items running out soon (e.g., 5 items or less left)</p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -124,7 +124,7 @@
           <div>
             <p class="text-xs text-gray-400 font-medium">TOTAL INVENTORY VALUE</p>
             <h3 class="text-2xl font-bold text-emerald-400 mt-1" id="stat-total-value">₦0</h3>
-            <p class="text-[10px] text-emerald-500/80 mt-1">Total estimated stock worth</p>
+            <p class="text-[10px] text-emerald-500/80 mt-1">Total estimated money worth of all goods</p>
           </div>
           <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
             <i class="fa-solid fa-sack-dollar"></i>
@@ -136,7 +136,7 @@
       <div class="flex items-center justify-between gap-4 bg-brand-card p-3 rounded-xl border border-brand-border">
         <div class="relative flex-1">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-500 text-xs"></i>
-          <input type="text" id="inventory-search" oninput="filterInventory()" placeholder="Search products by name or scan barcode..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-gray-300 focus:outline-none focus:border-purple-500">
+          <input type="text" id="inventory-search" oninput="filterInventory()" placeholder="Search products by name e.g. iPhone or scan barcode..." class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-gray-300 focus:outline-none focus:border-purple-500">
         </div>
         <select id="inventory-filter-status" onchange="filterInventory()" class="bg-gray-900 border border-gray-800 text-xs rounded-xl px-3 py-2 text-gray-300 focus:outline-none focus:border-purple-500">
           <option value="all">All Stock Status</option>
@@ -187,27 +187,27 @@
 
         <div>
           <label class="block text-xs font-semibold text-gray-300 mb-1">Product Name *</label>
-          <input type="text" id="prod-name" required placeholder="e.g. iPhone 15 Pro Max" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+          <input type="text" id="prod-name" required placeholder="e.g., iPhone 15 Pro Max or Indomie Carton" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Barcode / SKU (Optional)</label>
             <div class="flex gap-1">
-              <input type="text" id="prod-barcode" placeholder="Type barcode manually" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+              <input type="text" id="prod-barcode" placeholder="e.g., 123456789" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
               <button type="button" onclick="scanBarcodeForInput()" title="Scan using Camera" class="bg-purple-600/20 text-purple-400 border border-purple-500/30 px-3 rounded-xl hover:bg-purple-600/30"><i class="fa-solid fa-camera"></i></button>
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Items Per Bulk Pack *</label>
-            <input type="number" id="prod-pack-qty" value="1" min="1" required oninput="calculateUnitCosts()" placeholder="e.g. 24 inside bulk box" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-pack-qty" value="1" min="1" required oninput="calculateUnitCosts()" placeholder="e.g., 24 inside a carton" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Bulk Cost Price (₦)</label>
-            <input type="number" id="prod-bulk-cost" value="0" step="0.01" oninput="calculateUnitCosts()" placeholder="e.g. 10000000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-bulk-cost" value="0" step="0.01" oninput="calculateUnitCosts()" placeholder="e.g., 100000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Single Unit Cost (₦)</label>
@@ -218,11 +218,11 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Single Unit Selling Price (₦) *</label>
-            <input type="number" id="prod-unit-price" value="0" step="0.01" required oninput="calculateUnitCosts()" placeholder="e.g. 480000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-unit-price" value="0" step="0.01" required oninput="calculateUnitCosts()" placeholder="e.g., 5000" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-300 mb-1">Initial Stock (Total Units) *</label>
-            <input type="number" id="prod-stock" value="0" required min="0" placeholder="e.g. 24" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-stock" value="0" required min="0" placeholder="e.g., 24" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
           </div>
         </div>
 
@@ -291,7 +291,7 @@
       if (!items || items.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" class="text-center py-12 text-gray-500">No products found in inventory. Click <b>"+ Add New Product"</b> to create one!</td>
+            <td colspan="8" class="text-center py-12 text-gray-500">No products found in inventory. Click <b>"+ Add New Product"</b> to create one! (e.g., add items like phone or shoes)</td>
           </tr>
         `;
         return;
@@ -328,8 +328,8 @@
             <td class="py-3 px-4 font-bold text-white">${stock} pcs</td>
             <td class="py-3 px-4">${statusBadge}</td>
             <td class="py-3 px-4 text-right space-x-2">
-              <button onclick="openEditProductModal('${item.id}')" class="p-1.5 bg-gray-800 hover:bg-purple-600 text-gray-300 hover:text-white rounded-lg transition"><i class="fa-solid fa-pencil"></i></button>
-              <button onclick="deleteProduct('${item.id}')" class="p-1.5 bg-gray-800 hover:bg-rose-600 text-gray-300 hover:text-white rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
+              <button onclick="openEditProductModal('${item.id}')" class="p-1.5 bg-gray-800 hover:bg-purple-600 text-gray-300 hover:text-white rounded-lg transition" title="Edit Product"><i class="fa-solid fa-pencil"></i></button>
+              <button onclick="deleteProduct('${item.id}')" class="p-1.5 bg-gray-800 hover:bg-rose-600 text-gray-300 hover:text-white rounded-lg transition" title="Delete Product"><i class="fa-solid fa-trash"></i></button>
             </td>
           </tr>
         `;
@@ -467,12 +467,15 @@
       }
     }
 
-    // 7. Delete Product
+    // 7. Delete Product (with confirmation)
     async function deleteProduct(id) {
-      if (confirm("Are you sure you want to delete this product from inventory?")) {
+      if (confirm("Are you sure you want to delete this product from your inventory list? (e.g., if you made a mistake adding it)")) {
         const { error } = await supabaseClient.from('inventory').delete().eq('id', id);
-        if (error) alert("Error deleting: " + error.message);
-        else loadInventory();
+        if (error) {
+          alert("Error deleting product: " + error.message);
+        } else {
+          loadInventory();
+        }
       }
     }
 
