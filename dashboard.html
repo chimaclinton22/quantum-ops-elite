@@ -229,9 +229,9 @@
                   <h4 class="text-xs font-semibold text-gray-400">SALES OVERVIEW</h4>
                   <h3 class="text-xl font-bold text-white" id="val-total-overview">₦0</h3>
                 </div>
-                <select class="bg-gray-900 border border-gray-800 text-xs rounded px-2 py-1 text-gray-300">
-                  <option>This Week</option>
-                  <option>This Month</option>
+                <select id="sales-timeframe-select" class="bg-gray-900 border border-gray-800 text-xs rounded px-2 py-1 text-gray-300">
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
                 </select>
               </div>
               <div class="h-40">
@@ -334,11 +334,14 @@
 
   </div>
 
-  <!-- SUPABASE INTEGRATION & CHARTS SCRIPT -->
+  <!-- SUPABASE INTEGRATION & REALTIME METRICS SCRIPT -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let salesChartInstance = null;
+    let categoryChartInstance = null;
 
     async function loadUserProfile() {
       const { data: { user } } = await supabaseClient.auth.getUser();
@@ -351,7 +354,184 @@
       }
     }
 
-    loadUserProfile();
+    function formatCurrency(amount) {
+      return '₦' + Number(amount || 0).toLocaleString();
+    }
+
+    async function fetchDashboardData() {
+      try {
+        // Fetch sales records
+        const { data: salesData, error: salesError } = await supabaseClient
+          .from('sales')
+          .select('*');
+
+        if (salesError) {
+          console.error("Error fetching sales:", salesError);
+          return;
+        }
+
+        // Fetch inventory data for low stock
+        const { data: inventoryData, error: invError } = await supabaseClient
+          .from('inventory')
+          .select('*');
+
+        if (invError) {
+          console.error("Error fetching inventory:", invError);
+        }
+
+        processSalesMetrics(salesData || []);
+        processInventoryMetrics(inventoryData || []);
+        renderRecentSales(salesData || []);
+        renderCharts(salesData || [], inventoryData || []);
+
+      } catch (err) {
+        console.error("Dashboard Sync Exception:", err);
+      }
+    }
+
+    function processSalesMetrics(sales) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      
+      let totalSalesSum = 0;
+      let totalProfitSum = 0;
+      let todayCount = 0;
+      let totalDebtSum = 0;
+
+      sales.forEach(sale => {
+        const saleAmount = parseFloat(sale.total_amount || sale.amount || 0);
+        const saleProfit = parseFloat(sale.profit || 0);
+        const saleDate = sale.created_at ? sale.created_at.split('T')[0] : '';
+        const isDebt = sale.status === 'debt' || sale.payment_status === 'debt';
+
+        totalSalesSum += saleAmount;
+        totalProfitSum += saleProfit;
+
+        if (isDebt) {
+          totalDebtSum += saleAmount;
+        }
+
+        if (saleDate === todayStr) {
+          todayCount++;
+        }
+      });
+
+      document.getElementById("val-today-sales").textContent = formatCurrency(totalSalesSum);
+      document.getElementById("val-today-profit").textContent = formatCurrency(totalProfitSum);
+      document.getElementById("val-today-transactions").textContent = sales.length;
+      document.getElementById("val-today-debt").textContent = formatCurrency(totalDebtSum);
+      document.getElementById("val-total-overview").textContent = formatCurrency(totalSalesSum);
+    }
+
+    function processInventoryMetrics(inventory) {
+      let lowStockCount = 0;
+      inventory.forEach(item => {
+        const qty = parseInt(item.quantity || item.stock || 0);
+        const threshold = parseInt(item.low_stock_threshold || 5);
+        if (qty <= threshold) {
+          lowStockCount++;
+        }
+      });
+      document.getElementById("val-stock-alerts").textContent = lowStockCount + " Items";
+    }
+
+    function renderRecentSales(sales) {
+      const container = document.getElementById("top-products-container");
+      if (!sales || sales.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-gray-500 text-xs">No sales recorded yet.</div>`;
+        return;
+      }
+
+      // Sort recent first
+      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
+
+      let html = '';
+      sorted.forEach(sale => {
+        const dateStr = sale.created_at ? new Date(sale.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';
+        html += `
+          <div class="flex items-center justify-between p-2.5 bg-gray-900/60 border border-gray-800/80 rounded-lg">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center font-bold text-xs border border-purple-500/30">
+                <i class="fa-solid fa-receipt"></i>
+              </div>
+              <div>
+                <p class="font-medium text-white">Order #${sale.id || 'N/A'}</p>
+                <p class="text-[10px] text-gray-400">${dateStr}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold text-emerald-400">${formatCurrency(sale.total_amount || sale.amount || 0)}</p>
+              <p class="text-[10px] text-gray-400 uppercase">${sale.payment_method || 'Cash'}</p>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderCharts(sales, inventory) {
+      // Sales Overview Line Chart
+      const salesCtx = document.getElementById('salesChart').getContext('2d');
+      if (salesChartInstance) salesChartInstance.destroy();
+
+      salesChartInstance = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Sales (₦)',
+            data: [0, 0, 0, 0, 0, 0, sales.reduce((acc, s) => acc + parseFloat(s.total_amount || s.amount || 0), 0)],
+            borderColor: '#6C5CE7',
+            backgroundColor: 'rgba(108, 92, 231, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#9CA3AF', font: { size: 10 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9CA3AF', font: { size: 10 } } }
+          }
+        }
+      });
+
+      // Category Doughnut Chart
+      const catCtx = document.getElementById('categoryChart').getContext('2d');
+      if (categoryChartInstance) categoryChartInstance.destroy();
+
+      let categories = {};
+      inventory.forEach(item => {
+        const cat = item.category || 'General';
+        categories[cat] = (categories[cat] || 0) + 1;
+      });
+
+      const catLabels = Object.keys(categories).length > 0 ? Object.keys(categories) : ['General'];
+      const catData = Object.keys(categories).length > 0 ? Object.values(categories) : [1];
+
+      categoryChartInstance = new Chart(catCtx, {
+        type: 'doughnut',
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: ['#6C5CE7', '#8B5CF6', '#A78BFA', '#C4B5FD', '#4C1D95']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#9CA3AF', boxWidth: 10, font: { size: 10 } } } }
+        }
+      });
+    }
+
+    // Initialize application data sync on load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadUserProfile();
+      fetchDashboardData();
+    });
   </script>
 </body>
 </html>
