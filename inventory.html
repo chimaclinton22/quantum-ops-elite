@@ -111,13 +111,15 @@
 
   </div>
 
-  <!-- ADD PRODUCT MODAL WITH PHOTO & BARCODE -->
+  <!-- ADD / EDIT PRODUCT MODAL WITH PHOTO & BARCODE -->
   <div id="product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm max-h-[90vh] overflow-y-auto custom-scrollbar bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-box text-purple-400 mr-2"></i>Add New Product</h3>
+        <h3 id="modal-title" class="text-sm font-bold text-white"><i class="fa-solid fa-box text-purple-400 mr-2"></i>Add New Product</h3>
         <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
+
+      <input type="hidden" id="edit-prod-id">
 
       <div class="space-y-3 text-xs">
         <!-- Product Photo Upload -->
@@ -150,7 +152,7 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-[10px] text-slate-400 font-medium">Items Per Bulk Pack</label>
+            <label class="text-[10px] text-slate-400 font-medium">Items Per Bulk Pack (Pieces per Unit)</label>
             <input type="number" id="prod-pack" value="1" oninput="calculateUnitCost()" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
@@ -172,8 +174,8 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-[10px] text-slate-400 font-medium">Initial Stock (Units) *</label>
-            <input type="number" id="prod-stock" value="1" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+            <label class="text-[10px] text-slate-400 font-medium">Initial Total Pieces *</label>
+            <input type="number" id="prod-stock" value="24" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="text-[10px] text-slate-400 font-medium">Expected Profit / Unit</label>
@@ -181,7 +183,7 @@
           </div>
         </div>
 
-        <button onclick="submitNewProduct()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Product to Inventory</button>
+        <button onclick="submitProductForm()" id="modal-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Product to Inventory</button>
       </div>
     </div>
   </div>
@@ -210,6 +212,50 @@
     }
 
     function openAddProductModal() {
+      document.getElementById('edit-prod-id').value = '';
+      document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-box text-purple-400 mr-2"></i>Add New Product`;
+      document.getElementById('modal-submit-btn').textContent = 'Save Product to Inventory';
+      
+      // Reset form fields
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-sku').value = '';
+      document.getElementById('prod-pack').value = '24';
+      document.getElementById('prod-bulk-cost').value = '';
+      document.getElementById('prod-unit-cost').value = '';
+      document.getElementById('prod-selling').value = '';
+      document.getElementById('prod-stock').value = '48';
+      document.getElementById('prod-expected-profit').value = '₦0';
+      uploadedImageBase64 = '';
+      document.getElementById('photo-preview-box').innerHTML = `<i class="fa-solid fa-image"></i>`;
+      document.getElementById('product-image-file').value = '';
+
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    function openEditProductModal(id) {
+      const p = allProducts.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('edit-prod-id').value = p.id;
+      document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-purple-400 mr-2"></i>Edit Product`;
+      document.getElementById('modal-submit-btn').textContent = 'Update Product';
+
+      document.getElementById('prod-name').value = p.name || '';
+      document.getElementById('prod-sku').value = p.sku || '';
+      document.getElementById('prod-pack').value = p.items_per_pack || p.pack || 24;
+      document.getElementById('prod-bulk-cost').value = p.bulk_cost || '';
+      document.getElementById('prod-unit-cost').value = p.unit_cost || '';
+      document.getElementById('prod-selling').value = p.selling_price || p.price || '';
+      document.getElementById('prod-stock').value = p.stock || 0;
+      
+      uploadedImageBase64 = p.image_url || '';
+      if (uploadedImageBase64) {
+        document.getElementById('photo-preview-box').innerHTML = `<img src="${uploadedImageBase64}" class="w-full h-full object-cover">`;
+      } else {
+        document.getElementById('photo-preview-box').innerHTML = `<i class="fa-solid fa-image"></i>`;
+      }
+
+      calculateProfit();
       document.getElementById('product-modal').classList.remove('hidden');
     }
 
@@ -355,14 +401,20 @@
 
       let html = '';
       products.forEach(p => {
-        const stock = parseInt(p.stock || 0);
+        const totalPieces = parseInt(p.stock || 0);
+        const piecesPerUnit = parseInt(p.items_per_pack || p.pack || 24) || 24;
+        
+        // Calculate dynamic units and remaining pieces cleanly
+        const calculatedUnits = (totalPieces / piecesPerUnit).toFixed(1);
+        const displayUnits = totalPieces % piecesPerUnit === 0 ? Math.floor(totalPieces / piecesPerUnit) : calculatedUnits;
+
         let badgeBg = 'bg-emerald-950/50 text-emerald-400 border-emerald-500/30';
         let badgeText = 'In Stock';
 
-        if (stock === 0) {
+        if (totalPieces === 0) {
           badgeBg = 'bg-rose-950/50 text-rose-400 border-rose-500/30';
           badgeText = 'Out of Stock';
-        } else if (stock <= 5) {
+        } else if (totalPieces <= 5) {
           badgeBg = 'bg-amber-950/50 text-amber-400 border-amber-500/30';
           badgeText = 'Low Stock';
         }
@@ -381,7 +433,7 @@
                 <p class="text-[10px] text-slate-400">SKU: ${p.sku || 'N/A'}</p>
                 <div class="flex items-center gap-2">
                   <span class="px-2 py-0.5 rounded-md text-[9px] font-semibold border ${badgeBg}">${badgeText}</span>
-                  <span class="text-[10px] text-slate-400 font-medium">${stock} pieces</span>
+                  <span class="text-[10px] text-purple-300 font-bold">${displayUnits} unit <span class="text-slate-400 font-normal">(${totalPieces} pcs)</span></span>
                 </div>
               </div>
             </div>
@@ -396,6 +448,7 @@
                   <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
                 </button>
                 <div id="menu-${p.id}" class="hidden absolute right-0 top-8 w-28 bg-[#191932] border border-purple-500/30 rounded-xl shadow-2xl z-20 py-1 text-left">
+                  <button onclick="openEditProductModal('${p.id}')" class="w-full px-3 py-1.5 text-[10px] text-purple-300 hover:bg-purple-600/20 flex items-center gap-2"><i class="fa-solid fa-pen"></i> Edit</button>
                   <button onclick="deleteProduct('${p.id}')" class="w-full px-3 py-1.5 text-[10px] text-rose-400 hover:bg-rose-600/20 flex items-center gap-2"><i class="fa-solid fa-trash"></i> Delete</button>
                 </div>
               </div>
@@ -407,9 +460,12 @@
       container.innerHTML = html;
     }
 
-    async function submitNewProduct() {
+    async function submitProductForm() {
+      const editId = document.getElementById('edit-prod-id').value;
       const name = document.getElementById('prod-name').value;
       const sku = document.getElementById('prod-sku').value;
+      const pack = parseInt(document.getElementById('prod-pack').value) || 24;
+      const bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
       const unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
       const sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
       const stock = parseInt(document.getElementById('prod-stock').value) || 0;
@@ -419,30 +475,31 @@
         return;
       }
 
-      const { error } = await supabaseClient.from('products').insert([{
+      const productData = {
         company_id: userCompanyId,
         name: name,
         sku: sku || 'SKU-' + Math.floor(1000 + Math.random() * 9000),
+        items_per_pack: pack,
+        bulk_cost: bulkCost,
         unit_cost: unitCost,
         selling_price: sellingPrice,
         stock: stock,
         image_url: uploadedImageBase64 || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150'
-      }]);
+      };
+
+      let error;
+      if (editId) {
+        const res = await supabaseClient.from('products').update(productData).eq('id', editId);
+        error = res.error;
+      } else {
+        const res = await supabaseClient.from('products').insert([productData]);
+        error = res.error;
+      }
 
       if (error) {
         alert('Error saving product: ' + error.message);
       } else {
         closeAddProductModal();
-        document.getElementById('prod-name').value = '';
-        document.getElementById('prod-sku').value = '';
-        document.getElementById('prod-bulk-cost').value = '';
-        document.getElementById('prod-unit-cost').value = '';
-        document.getElementById('prod-selling').value = '';
-        document.getElementById('prod-stock').value = '1';
-        document.getElementById('prod-expected-profit').value = '₦0';
-        uploadedImageBase64 = '';
-        document.getElementById('photo-preview-box').innerHTML = `<i class="fa-solid fa-image"></i>`;
-        document.getElementById('product-image-file').value = '';
         fetchProducts();
       }
     }
