@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quantum OPS Elite - POS Sales</title>
+  <title>POS Sales - Quantum OPS Elite</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
@@ -226,72 +226,72 @@
         <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- ACTUAL RECEIPT PAPER -->
-      <div id="receipt-paper" class="bg-white text-slate-900 p-4 rounded-xl font-mono text-[10px] space-y-2 shadow-inner">
-        <div class="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-2">
-          <h3 class="font-extrabold text-xs tracking-wider" id="receipt-biz-name">MY BUSINESS LTD</h3>
-          <p class="text-[9px] text-slate-600" id="receipt-biz-address">Loading Address...</p>
-          <p class="text-[9px] text-slate-600" id="receipt-biz-phone"></p>
-          <p class="text-[9px] text-slate-600" id="receipt-biz-email"></p>
+      <!-- ACTUAL RECEIPT PAPER (High Quality Styling) -->
+      <div id="receipt-paper" style="background-color: #ffffff; color: #0f172a; padding: 20px; font-family: monospace; font-size: 11px; width: 100%; box-sizing: border-box;">
+        <div style="text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 12px;">
+          <h3 id="receipt-biz-name" style="font-size: 15px; font-weight: 900; margin: 0 0 4px 0; text-transform: uppercase; color: #020617;">MY STORE</h3>
+          <p id="receipt-biz-address" style="font-size: 10px; color: #475569; margin: 2px 0;">Loading Address...</p>
+          <p id="receipt-biz-phone" style="font-size: 10px; color: #475569; margin: 2px 0;"></p>
+          <p id="receipt-biz-email" style="font-size: 10px; color: #475569; margin: 2px 0;"></p>
         </div>
 
-        <div class="flex justify-between text-[9px] border-b border-dashed border-slate-300 pb-1.5">
+        <div style="display: flex; justify-content: space-between; font-size: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
           <div>
-            <p><b>RECEIPT</b></p>
-            <p class="text-slate-500" id="receipt-trx-id">SAL-20260728-001928</p>
+            <p style="margin: 0; font-weight: bold;">RECEIPT</p>
+            <p id="receipt-trx-id" style="margin: 2px 0; color: #64748b;">SAL-000000</p>
           </div>
-          <div class="text-right">
-            <p id="receipt-date">28 Jul 2026, 09:41 PM</p>
+          <div style="text-align: right;">
+            <p id="receipt-date" style="margin: 0; color: #0f172a;">28 Jul 2026</p>
           </div>
         </div>
 
-        <div class="text-[9px] space-y-0.5 border-b border-dashed border-slate-300 pb-1.5">
-          <p><b>Customer:</b> <span id="receipt-customer-name">John Smith</span></p>
-          <p><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
+        <div style="font-size: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
+          <p style="margin: 2px 0;"><b>Customer:</b> <span id="receipt-customer-name">Walk-in</span></p>
+          <p style="margin: 2px 0;"><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
         </div>
 
         <!-- RECEIPT ITEMS TABLE -->
-        <div>
-          <div class="grid grid-cols-12 font-bold border-b border-slate-300 pb-1 text-[9px]">
-            <span class="col-span-6">ITEM</span>
-            <span class="col-span-2 text-center">QTY</span>
-            <span class="col-span-4 text-right">PRICE</span>
+        <div style="margin-bottom: 10px;">
+          <div style="display: grid; grid-template-columns: 6fr 2fr 4fr; font-weight: bold; border-bottom: 1px solid #0f172a; padding-bottom: 4px; font-size: 10px;">
+            <span>ITEM</span>
+            <span style="text-align: center;">QTY</span>
+            <span style="text-align: right;">PRICE</span>
           </div>
-          <div id="receipt-items-list" class="divide-y divide-slate-100 py-1 space-y-1">
-            <!-- Dynamically populated items -->
+          <div id="receipt-items-list" style="margin-top: 6px;">
+            <!-- Items populated dynamically -->
           </div>
         </div>
 
         <!-- RECEIPT TOTALS -->
-        <div class="border-t border-dashed border-slate-300 pt-2 space-y-1 text-[9px]">
-          <div class="flex justify-between">
+        <div style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px; font-size: 10px;">
+          <div style="display: flex; justify-content: space-between; margin: 3px 0;">
             <span>Subtotal:</span>
             <span id="receipt-subtotal">₦0</span>
           </div>
-          <div class="flex justify-between">
+          <div style="display: flex; justify-content: space-between; margin: 3px 0;">
             <span>Discount:</span>
             <span id="receipt-discount">-₦0</span>
           </div>
-          <div class="flex justify-between">
+          <div style="display: flex; justify-content: space-between; margin: 3px 0;">
             <span>Tax (7.5%):</span>
             <span id="receipt-tax">₦0</span>
           </div>
-          <div class="flex justify-between font-bold text-xs pt-1 border-t border-slate-300">
+          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; border-top: 1px solid #0f172a; padding-top: 6px; margin-top: 6px;">
             <span>TOTAL:</span>
             <span id="receipt-total">₦0</span>
           </div>
         </div>
 
         <!-- PAYMENT INFO -->
-        <div class="border-t border-dashed border-slate-300 pt-2 text-[9px] space-y-0.5">
-          <p><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
-          <p><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
-          <p><b>Change:</b> <span id="receipt-change">₦0</span></p>
+        <div style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px; font-size: 10px;">
+          <p style="margin: 2px 0;"><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
+          <p style="margin: 2px 0;"><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
+          <p style="margin: 2px 0;"><b>Change:</b> <span id="receipt-change">₦0</span></p>
         </div>
 
-        <div class="text-center pt-2 border-t border-dashed border-slate-300 text-[8px] text-slate-500">
-          <p>Thank you for shopping with us!</p>
-          <p>Powered by Quantum OPS Elite</p>
+        <div style="text-align: center; padding-top: 12px; border-top: 2px dashed #cbd5e1; margin-top: 12px; font-size: 9px; color: #64748b;">
+          <p style="margin: 2px 0;">Thank you for your patronage!</p>
+          <p style="margin: 2px 0; font-weight: bold; color: #0f172a;" id="receipt-footer-biz">Business Store</p>
         </div>
       </div>
 
@@ -351,8 +351,11 @@
             const comp = memberData.companies;
             if (comp) {
               userCompanyDetails = comp;
-              document.getElementById('receipt-biz-name').textContent = comp.name || 'MY BUSINESS LTD';
-              document.getElementById('receipt-biz-address').textContent = comp.address || 'Business Address Not Set';
+              // Setting User/Company custom business info on receipt (Replaced Quantum Ops with user's business name)
+              const bizName = comp.name || 'MY STORE';
+              document.getElementById('receipt-biz-name').textContent = bizName;
+              document.getElementById('receipt-footer-biz').textContent = bizName;
+              document.getElementById('receipt-biz-address').textContent = comp.address || '';
               document.getElementById('receipt-biz-phone').textContent = comp.phone || '';
               document.getElementById('receipt-biz-email').textContent = comp.email || '';
             }
@@ -361,14 +364,12 @@
         await fetchInventory();
       } catch (err) {
         console.error("POS Initialization Error:", err);
-        await fetchInventory(); // Ensure fallback runs even if auth check fails
+        await fetchInventory();
       }
     }
 
     async function fetchInventory() {
       let query = supabaseClient.from('products').select('*');
-      
-      // Only filter by company_id if available, otherwise fetch all to prevent eternal loading block
       if (userCompanyId) {
         query = query.eq('company_id', userCompanyId);
       }
@@ -427,12 +428,13 @@
 
       const name = product.name || 'Product';
       const price = parseFloat(product.selling_price || 0);
+      const costPrice = parseFloat(product.cost_price || 0);
 
       const existingIndex = cart.findIndex(c => c.id === itemId);
       if (existingIndex > -1) {
         cart[existingIndex].qty += 1;
       } else {
-        cart.push({ id: itemId, name: name, price: price, qty: 1 });
+        cart.push({ id: itemId, name: name, price: price, cost_price: costPrice, qty: 1 });
       }
       renderCart();
     }
@@ -552,10 +554,17 @@
       const paid = parseFloat(document.getElementById('input-paid-amount').value || grandTotal);
       const balance = paid - grandTotal;
 
+      // Calculate total profit dynamically
+      const totalProfit = cart.reduce((acc, item) => {
+        const profitPerUnit = item.price - (item.cost_price || 0);
+        return acc + (profitPerUnit * item.qty);
+      }, 0);
+
       const trxId = 'SAL-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(100000 + Math.random() * 900000);
       const nowIso = new Date().toISOString();
       const cashierName = currentUserProfile?.user_metadata?.full_name || currentUserProfile?.email?.split('@')[0] || 'Staff';
 
+      // Insert sale into Supabase
       const { error } = await supabaseClient.from('sales').insert([{
         company_id: userCompanyId,
         transaction_id: trxId,
@@ -563,6 +572,7 @@
         cashier_name: cashierName,
         items: cart,
         total_amount: grandTotal,
+        total_profit: totalProfit,
         discount: discount,
         tax: tax,
         payment_method: selectedPaymentMethod,
@@ -574,6 +584,15 @@
       if (error) {
         alert('Error saving sale to Supabase: ' + error.message);
         return;
+      }
+
+      // Automatically deduct stock piece by piece from inventory
+      for (const item of cart) {
+        const product = inventoryCatalog.find(p => p.id === item.id);
+        if (product) {
+          const newStock = Math.max(0, parseInt(product.stock || 0) - item.qty);
+          await supabaseClient.from('products').update({ stock: newStock }).eq('id', item.id);
+        }
       }
 
       lastCompletedTransaction = {
@@ -600,7 +619,9 @@
       if (!t) return;
 
       if (userCompanyDetails) {
-        document.getElementById('receipt-biz-name').textContent = userCompanyDetails.name || 'MY BUSINESS LTD';
+        const bizName = userCompanyDetails.name || 'MY STORE';
+        document.getElementById('receipt-biz-name').textContent = bizName;
+        document.getElementById('receipt-footer-biz').textContent = bizName;
         document.getElementById('receipt-biz-address').textContent = userCompanyDetails.address || '';
         document.getElementById('receipt-biz-phone').textContent = userCompanyDetails.phone || '';
         document.getElementById('receipt-biz-email').textContent = userCompanyDetails.email || '';
@@ -621,10 +642,10 @@
       let itemsHtml = '';
       t.items.forEach(i => {
         itemsHtml += `
-          <div class="grid grid-cols-12 text-[9px]">
-            <span class="col-span-6 font-medium">${i.name}</span>
-            <span class="col-span-2 text-center">${i.qty}</span>
-            <span class="col-span-4 text-right">${formatCurrency(i.price * i.qty)}</span>
+          <div style="display: grid; grid-template-columns: 6fr 2fr 4fr; font-size: 10px; margin: 3px 0; border-bottom: 1px dotted #f1f5f9; padding-bottom: 2px;">
+            <span style="font-weight: 600; color: #0f172a;">${i.name}</span>
+            <span style="text-align: center; color: #334155;">${i.qty}</span>
+            <span style="text-align: right; color: #0f172a; font-weight: 600;">${formatCurrency(i.price * i.qty)}</span>
           </div>
         `;
       });
@@ -642,8 +663,8 @@
         margin:       5,
         filename:     `${lastCompletedTransaction?.trxId || 'receipt'}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' }
+        html2canvas:  { scale: 3, useCORS: true },
+        jsPDF:        { unit: 'mm', format: [80, 160], orientation: 'portrait' }
       };
       
       const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
@@ -656,8 +677,8 @@
         margin:       5,
         filename:     `${lastCompletedTransaction.trxId}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' }
+        html2canvas:  { scale: 3, useCORS: true },
+        jsPDF:        { unit: 'mm', format: [80, 160], orientation: 'portrait' }
       };
       html2pdf().from(element).set(opt).save();
     }
@@ -673,7 +694,7 @@
           await navigator.share({
             files: [pdfFile],
             title: `Receipt ${t.trxId}`,
-            text: `Here is your official receipt ${t.trxId} from ${userCompanyDetails?.name || 'our store'}.`
+            text: `Here is your official PDF receipt ${t.trxId} from ${userCompanyDetails?.name || 'our store'}.`
           });
           return;
         } catch (err) {
