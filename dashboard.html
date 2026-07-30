@@ -34,7 +34,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
     .led-glow { box-shadow: 0 0 20px rgba(108, 92, 231, 0.25); }
-    /* iPhone Frame Container Styling */
     .iphone-frame {
       width: 100%;
       max-width: 410px;
@@ -52,7 +51,6 @@
       body { align-items: center; justify-content: center; display: flex; height: 100vh; }
       .iphone-frame { border-radius: 48px; }
     }
-    /* Action Sheet Transition */
     #action-sheet {
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
     }
@@ -60,7 +58,7 @@
 </head>
 <body>
 
-  <!-- MOBILE DEVICE FRAME CONTAINER (1:1 UI Design match) -->
+  <!-- MOBILE DEVICE FRAME CONTAINER -->
   <div class="iphone-frame">
     
     <!-- TOP APP BAR -->
@@ -101,7 +99,7 @@
         </div>
       </div>
 
-      <!-- KPI CARDS GRID (Live Supabase Sync) -->
+      <!-- KPI CARDS GRID -->
       <div class="grid grid-cols-3 gap-2.5">
         <!-- Today's Sales -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
@@ -121,7 +119,7 @@
           </div>
         </div>
 
-        <!-- Transactions -->
+        <!-- Transactions (Today) -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
@@ -133,7 +131,7 @@
 
       <!-- SECONDARY KPI ROW -->
       <div class="grid grid-cols-3 gap-2.5">
-        <!-- Outstanding Debt (Connected to debtors.html) -->
+        <!-- Outstanding Debt -->
         <a href="debtors.html" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 block transition cursor-pointer">
           <p class="text-[10px] text-slate-400 font-medium">Outstanding Debt</p>
           <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦0</h3>
@@ -157,7 +155,7 @@
         </div>
       </div>
 
-      <!-- SALES OVERVIEW CHART CARD -->
+      <!-- SALES OVERVIEW CHART -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
           <div>
@@ -206,7 +204,6 @@
         <span class="text-[9px] font-medium">Inventory</span>
       </a>
       
-      <!-- Glowing Center POS Action Button -->
       <button onclick="toggleActionSheet()" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform focus:outline-none">
         <i class="fa-solid fa-plus text-base" id="action-btn-icon"></i>
       </button>
@@ -223,7 +220,7 @@
 
   </div>
 
-  <!-- QUICK ACTION BOTTOM SHEET DRAWER -->
+  <!-- QUICK ACTION BOTTOM SHEET -->
   <div id="action-sheet" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="w-full max-w-md bg-[#121224] border-t border-purple-500/30 rounded-t-[32px] p-6 space-y-5 transform translate-y-full transition-transform duration-300" id="action-sheet-content">
       <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto"></div>
@@ -234,7 +231,6 @@
       </div>
 
       <div class="grid grid-cols-3 gap-3">
-        <!-- Record Sale -->
         <a href="pos.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
           <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-cash-register"></i>
@@ -242,7 +238,6 @@
           <span class="text-[11px] font-medium text-slate-200">New Sale</span>
         </a>
 
-        <!-- Add Debt -->
         <button onclick="openAddDebtModal()" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -250,7 +245,6 @@
           <span class="text-[11px] font-medium text-slate-200">Add Debt</span>
         </button>
 
-        <!-- Inventory -->
         <a href="inventory.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
           <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-boxes-stacked"></i>
@@ -258,7 +252,6 @@
           <span class="text-[11px] font-medium text-slate-200">Inventory</span>
         </a>
 
-        <!-- AI CEO -->
         <a href="ai-ceo.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
           <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-robot"></i>
@@ -266,15 +259,13 @@
           <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
         </a>
 
-        <!-- Reports -->
-        <button onclick="alert('Generating live business reports from Supabase...')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+        <button onclick="alert('Reports module coming next. Your sales data is already ready.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-chart-pie"></i>
           </div>
           <span class="text-[11px] font-medium text-slate-200">Reports</span>
         </button>
 
-        <!-- Logout -->
         <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-right-from-bracket"></i>
@@ -310,27 +301,30 @@
     </div>
   </div>
 
-  <!-- REAL-TIME SUPABASE ENGINE & APPLICATION LOGIC -->
+  <!-- REAL-TIME ENGINE -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Low stock = 3 units or less (same rule as inventory)
+    const LOW_STOCK_UNITS = 3;
+
     let salesChartInstance = null;
     let userCompanyId = null;
 
     function formatCurrency(amount) {
-      return '₦' + Number(amount || 0).toLocaleString();
+      return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
 
     function getLocalDateString(dateObj) {
-      const year = dateObj.getFullYear();
-      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const day = String(dateObj.getDate()).padStart(2, '0');
+      const d = new Date(dateObj);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
 
-    // Toggle Action Sheet Drawer
     function toggleActionSheet() {
       const sheet = document.getElementById('action-sheet');
       const content = document.getElementById('action-sheet-content');
@@ -355,11 +349,12 @@
     }
 
     async function handleLogout() {
-      await supabaseClient.auth.signOut();
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (e) {}
       window.location.href = 'login.html';
     }
 
-    // Initialization & Realtime Sync
     async function initializeApp() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
@@ -368,14 +363,10 @@
           const firstName = rawName.split(' ')[0];
           const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
-          // Dynamic time-based greeting (Morning / Afternoon / Evening)
           const currentHour = new Date().getHours();
           let timeGreeting = "Good evening";
-          if (currentHour < 12) {
-            timeGreeting = "Good morning";
-          } else if (currentHour < 17) {
-            timeGreeting = "Good afternoon";
-          }
+          if (currentHour < 12) timeGreeting = "Good morning";
+          else if (currentHour < 17) timeGreeting = "Good afternoon";
 
           document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
           document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
@@ -396,11 +387,11 @@
 
         await fetchAllLiveMetrics();
 
-        // Setup Realtime Subscriptions for 100% live synchronization
+        // Realtime – listen to the correct tables
         supabaseClient
-          .channel('public:all_changes')
+          .channel('quantum-live')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
           .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
           .subscribe();
 
@@ -410,28 +401,28 @@
     }
 
     async function fetchAllLiveMetrics() {
-      let salesQuery = supabaseClient.from('sales').select('*');
-      let inventoryQuery = supabaseClient.from('inventory').select('*');
+      let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
+      let productsQuery = supabaseClient.from('products').select('*');
       let debtorsQuery = supabaseClient.from('debtors').select('*');
 
       if (userCompanyId) {
         salesQuery = salesQuery.eq('company_id', userCompanyId);
-        inventoryQuery = inventoryQuery.eq('company_id', userCompanyId);
+        productsQuery = productsQuery.eq('company_id', userCompanyId);
         debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
       }
 
-      const [salesRes, inventoryRes, debtorsRes] = await Promise.all([
+      const [salesRes, productsRes, debtorsRes] = await Promise.all([
         salesQuery,
-        inventoryQuery,
+        productsQuery,
         debtorsQuery
       ]);
 
       const sales = salesRes.data || [];
-      const inventory = inventoryRes.data || [];
+      const products = productsRes.data || [];
       const debtors = debtorsRes.data || [];
 
       processSalesMetrics(sales);
-      processInventoryMetrics(inventory);
+      processInventoryMetrics(products);
       processDebtorsMetrics(debtors);
       renderSalesChart(sales);
       renderTopProducts(sales);
@@ -442,41 +433,50 @@
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0;
       let todayProfit = 0;
+      let todayCount = 0;
       let weeklyTotal = 0;
 
       sales.forEach(sale => {
         const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
         const profit = parseFloat(sale.profit || 0);
-        
-        // Extract exact date string properly handling UTC/local timestamps
+
         const rawDate = sale.created_at || sale.date || new Date();
         const saleDateStr = getLocalDateString(new Date(rawDate));
 
         weeklyTotal += amount;
+
         if (saleDateStr === todayStr) {
           todaySales += amount;
           todayProfit += profit;
+          todayCount += 1;
         }
       });
 
       document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
       document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
-      document.getElementById('val-transactions').textContent = sales.length;
+      document.getElementById('val-transactions').textContent = todayCount;
       document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal);
     }
 
-    function processInventoryMetrics(inventory) {
+    function processInventoryMetrics(products) {
       let lowStockCount = 0;
-      inventory.forEach(item => {
-        const qty = parseInt(item.quantity || item.stock || 0);
-        const threshold = parseInt(item.low_stock_threshold || 5);
-        if (qty <= threshold) lowStockCount++;
+
+      products.forEach(item => {
+        const totalPieces = parseFloat(item.stock || 0);
+        const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
+        const remainingUnits = totalPieces / piecesPerUnit;
+
+        if (totalPieces > 0 && remainingUnits <= LOW_STOCK_UNITS) {
+          lowStockCount++;
+        }
       });
+
       document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
-      
+
+      // Simple business health score
       let health = 100;
-      if (lowStockCount > 0) health -= Math.min(lowStockCount * 3, 25);
-      document.getElementById('val-business-health').textContent = `${Math.max(health, 50)}%`;
+      if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
+      document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
     }
 
     function processDebtorsMetrics(debtors) {
@@ -497,8 +497,8 @@
 
       sales.forEach(sale => {
         const dateObj = new Date(sale.created_at || sale.date || Date.now());
-        let dayIdx = dateObj.getDay() - 1; 
-        if (dayIdx === -1) dayIdx = 6; 
+        let dayIdx = dateObj.getDay() - 1;
+        if (dayIdx === -1) dayIdx = 6;
         dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || sale.total || 0);
       });
 
@@ -524,7 +524,14 @@
           plugins: { legend: { display: false } },
           scales: {
             x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 9 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94A3B8', font: { size: 9 }, callback: val => '₦' + (val / 1000).toFixed(0) + 'k' } }
+            y: {
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: {
+                color: '#94A3B8',
+                font: { size: 9 },
+                callback: val => '₦' + (val / 1000).toFixed(0) + 'k'
+              }
+            }
           }
         }
       });
@@ -544,7 +551,7 @@
 
       const sortedProducts = Object.entries(productCounts)
         .sort((a, b) => b[1].revenue - a[1].revenue)
-        .slice(0, 3);
+        .slice(0, 5);
 
       if (sortedProducts.length === 0) {
         container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>`;
@@ -555,7 +562,10 @@
       sortedProducts.forEach(([name, data], idx) => {
         html += `
           <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
-            <span class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">${idx + 1}</span> ${name} (${data.qty} sold)</span>
+            <span class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">${idx + 1}</span>
+              ${name} (${data.qty} sold)
+            </span>
             <span class="text-white font-semibold">${formatCurrency(data.revenue)}</span>
           </div>
         `;
@@ -570,11 +580,14 @@
         return;
       }
 
-      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(b.created_at || 0)).slice(0, 4);
+      // Fixed sorting (a vs b)
+      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
       let html = '';
 
       sorted.forEach(sale => {
         const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        const timeAgo = getTimeAgo(sale.created_at);
+
         html += `
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -582,13 +595,13 @@
                 <i class="fa-solid fa-cart-shopping"></i>
               </div>
               <div>
-                <p class="font-medium text-white text-[11px]">${sale.product_name || 'New Sale'}</p>
+                <p class="font-medium text-white text-[11px]">${sale.product_name || sale.item_name || 'New Sale'}</p>
                 <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash'}</p>
               </div>
             </div>
             <div class="text-right">
               <p class="font-semibold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
-              <p class="text-[9px] text-slate-500">Just now</p>
+              <p class="text-[9px] text-slate-500">${timeAgo}</p>
             </div>
           </div>
         `;
@@ -596,8 +609,22 @@
       container.innerHTML = html;
     }
 
+    function getTimeAgo(dateString) {
+      if (!dateString) return 'Just now';
+      const now = new Date();
+      const past = new Date(dateString);
+      const diffMs = now - past;
+      const diffMins = Math.floor(diffMs / 60000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      return getLocalDateString(past);
+    }
+
     async function submitNewDebt() {
-      const customer = document.getElementById('debt-customer').value;
+      const customer = document.getElementById('debt-customer').value.trim();
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
 
@@ -610,7 +637,7 @@
         company_id: userCompanyId,
         customer_name: customer,
         amount_owing: parseFloat(amount),
-        due_date: duedate || new Date().toISOString()
+        due_date: duedate || new Date().toISOString().split('T')[0]
       }]);
 
       if (error) {
@@ -619,6 +646,7 @@
         closeAddDebtModal();
         document.getElementById('debt-customer').value = '';
         document.getElementById('debt-amount').value = '';
+        document.getElementById('debt-duedate').value = '';
         fetchAllLiveMetrics();
       }
     }
