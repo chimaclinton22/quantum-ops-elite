@@ -111,15 +111,13 @@
 
   </div>
 
-  <!-- ADD / EDIT PRODUCT MODAL WITH PHOTO & BARCODE -->
+  <!-- ADD PRODUCT MODAL WITH PHOTO & BARCODE -->
   <div id="product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm max-h-[90vh] overflow-y-auto custom-scrollbar bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 id="modal-title" class="text-sm font-bold text-white"><i class="fa-solid fa-box text-purple-400 mr-2"></i>Add New Product</h3>
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-box text-purple-400 mr-2"></i>Add New Product</h3>
         <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
-
-      <input type="hidden" id="edit-prod-id">
 
       <div class="space-y-3 text-xs">
         <!-- Product Photo Upload -->
@@ -183,7 +181,7 @@
           </div>
         </div>
 
-        <button onclick="submitProductForm()" id="modal-submit-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Product to Inventory</button>
+        <button onclick="submitNewProduct()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Product to Inventory</button>
       </div>
     </div>
   </div>
@@ -212,49 +210,6 @@
     }
 
     function openAddProductModal() {
-      document.getElementById('edit-prod-id').value = '';
-      document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-box text-purple-400 mr-2"></i>Add New Product`;
-      document.getElementById('modal-submit-btn').textContent = 'Save Product to Inventory';
-      
-      document.getElementById('prod-name').value = '';
-      document.getElementById('prod-sku').value = '';
-      document.getElementById('prod-pack').value = '24';
-      document.getElementById('prod-bulk-cost').value = '';
-      document.getElementById('prod-unit-cost').value = '';
-      document.getElementById('prod-selling').value = '';
-      document.getElementById('prod-stock').value = '48';
-      document.getElementById('prod-expected-profit').value = '₦0';
-      uploadedImageBase64 = '';
-      document.getElementById('photo-preview-box').innerHTML = `<i class="fa-solid fa-image"></i>`;
-      document.getElementById('product-image-file').value = '';
-
-      document.getElementById('product-modal').classList.remove('hidden');
-    }
-
-    function openEditProductModal(id) {
-      const p = allProducts.find(item => item.id === id);
-      if (!p) return;
-
-      document.getElementById('edit-prod-id').value = p.id;
-      document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square text-purple-400 mr-2"></i>Edit Product`;
-      document.getElementById('modal-submit-btn').textContent = 'Update Product';
-
-      document.getElementById('prod-name').value = p.name || '';
-      document.getElementById('prod-sku').value = p.sku || '';
-      document.getElementById('prod-pack').value = p.items_per_pack || p.pack || 24;
-      document.getElementById('prod-bulk-cost').value = p.bulk_cost || '';
-      document.getElementById('prod-unit-cost').value = p.unit_cost || '';
-      document.getElementById('prod-selling').value = p.selling_price || p.price || '';
-      document.getElementById('prod-stock').value = p.stock || 0;
-      
-      uploadedImageBase64 = p.image_url || '';
-      if (uploadedImageBase64) {
-        document.getElementById('photo-preview-box').innerHTML = `<img src="${uploadedImageBase64}" class="w-full h-full object-cover">`;
-      } else {
-        document.getElementById('photo-preview-box').innerHTML = `<i class="fa-solid fa-image"></i>`;
-      }
-
-      calculateProfit();
       document.getElementById('product-modal').classList.remove('hidden');
     }
 
@@ -275,6 +230,7 @@
     }
 
     function triggerBarcodeScan() {
+      // Barcode camera simulator / trigger
       const randomBarcode = 'SKU-' + Math.floor(100000 + Math.random() * 900000);
       document.getElementById('prod-sku').value = randomBarcode;
       alert('Barcode scanned successfully: ' + randomBarcode);
@@ -360,29 +316,6 @@
       renderProducts(filtered);
     }
 
-    function toggleCardMenu(event, id) {
-      event.stopPropagation();
-      document.querySelectorAll('[id^="menu-"]').forEach(m => {
-        if (m.id !== `menu-${id}`) m.classList.add('hidden');
-      });
-      const menu = document.getElementById(`menu-${id}`);
-      menu.classList.toggle('hidden');
-    }
-
-    window.addEventListener('click', () => {
-      document.querySelectorAll('[id^="menu-"]').forEach(m => m.classList.add('hidden'));
-    });
-
-    async function deleteProduct(id) {
-      if (!confirm('Are you sure you want to delete this product?')) return;
-      const { error } = await supabaseClient.from('products').delete().eq('id', id);
-      if (error) {
-        alert('Error deleting product: ' + error.message);
-        return;
-      }
-      await fetchProducts();
-    }
-
     function renderProducts(products) {
       const container = document.getElementById('products-list-container');
       document.getElementById('product-count-label').textContent = `${products.length} products`;
@@ -403,9 +336,9 @@
         const totalPieces = parseInt(p.stock || 0);
         const piecesPerUnit = parseInt(p.items_per_pack || p.pack || 24) || 24;
         
-        // Live calculated units and formatted pieces breakdown matching sample format
-        const calculatedUnits = (totalPieces / piecesPerUnit).toFixed(1);
-        const displayUnits = totalPieces % piecesPerUnit === 0 ? Math.floor(totalPieces / piecesPerUnit) : calculatedUnits;
+        // Live calculated units based strictly on the recorded items_per_pack and total pieces
+        const rawUnits = totalPieces / piecesPerUnit;
+        const displayUnits = Number.isInteger(rawUnits) ? rawUnits : rawUnits.toFixed(1);
 
         let badgeBg = 'bg-emerald-950/50 text-emerald-400 border-emerald-500/30';
         let badgeText = 'In Stock';
@@ -424,7 +357,7 @@
         const imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
 
         html += `
-          <div class="bg-[#121224] border border-purple-500/15 p-3.5 rounded-2xl flex items-center justify-between shadow-xl gap-3 relative">
+          <div class="bg-[#121224] border border-purple-500/15 p-3.5 rounded-2xl flex items-center justify-between shadow-xl gap-3">
             <div class="flex items-center gap-3">
               <img src="${imgUrl}" class="w-14 h-14 rounded-xl object-cover bg-purple-950/30 border border-purple-500/20 flex-shrink-0">
               <div class="space-y-1">
@@ -436,21 +369,10 @@
                 </div>
               </div>
             </div>
-            <div class="text-right space-y-0.5 flex-shrink-0 flex items-center gap-2">
-              <div>
-                <span class="font-extrabold text-white text-xs block">${formatCurrency(price)}</span>
-                <p class="text-[10px] text-slate-400">Cost: ${formatCurrency(cost)}</p>
-                <p class="text-[10px] font-semibold ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">Profit: ${formatCurrency(profit)}</p>
-              </div>
-              <div class="relative">
-                <button onclick="toggleCardMenu(event, '${p.id}')" class="p-2 text-slate-400 hover:text-white transition rounded-lg">
-                  <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
-                </button>
-                <div id="menu-${p.id}" class="hidden absolute right-0 top-8 w-28 bg-[#191932] border border-purple-500/30 rounded-xl shadow-2xl z-20 py-1 text-left">
-                  <button onclick="openEditProductModal('${p.id}')" class="w-full px-3 py-1.5 text-[10px] text-purple-300 hover:bg-purple-600/20 flex items-center gap-2"><i class="fa-solid fa-pen"></i> Edit</button>
-                  <button onclick="deleteProduct('${p.id}')" class="w-full px-3 py-1.5 text-[10px] text-rose-400 hover:bg-rose-600/20 flex items-center gap-2"><i class="fa-solid fa-trash"></i> Delete</button>
-                </div>
-              </div>
+            <div class="text-right space-y-0.5 flex-shrink-0">
+              <span class="font-extrabold text-white text-xs">${formatCurrency(price)}</span>
+              <p class="text-[10px] text-slate-400">Cost: ${formatCurrency(cost)}</p>
+              <p class="text-[10px] font-semibold ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">Profit: ${formatCurrency(profit)}</p>
             </div>
           </div>
         `;
@@ -459,13 +381,12 @@
       container.innerHTML = html;
     }
 
-    async function submitProductForm() {
-      const editId = document.getElementById('edit-prod-id').value;
+    async function submitNewProduct() {
       const name = document.getElementById('prod-name').value;
       const sku = document.getElementById('prod-sku').value;
       const pack = parseInt(document.getElementById('prod-pack').value) || 24;
-      const bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
       const unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
+      const bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
       const sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
       const stock = parseInt(document.getElementById('prod-stock').value) || 0;
 
@@ -474,7 +395,7 @@
         return;
       }
 
-      const productData = {
+      const { error } = await supabaseClient.from('products').insert([{
         company_id: userCompanyId,
         name: name,
         sku: sku || 'SKU-' + Math.floor(1000 + Math.random() * 9000),
@@ -484,21 +405,24 @@
         selling_price: sellingPrice,
         stock: stock,
         image_url: uploadedImageBase64 || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150'
-      };
-
-      let error;
-      if (editId) {
-        const res = await supabaseClient.from('products').update(productData).eq('id', editId);
-        error = res.error;
-      } else {
-        const res = await supabaseClient.from('products').insert([productData]);
-        error = res.error;
-      }
+      }]);
 
       if (error) {
         alert('Error saving product: ' + error.message);
       } else {
         closeAddProductModal();
+        // Clear inputs
+        document.getElementById('prod-name').value = '';
+        document.getElementById('prod-sku').value = '';
+        document.getElementById('prod-pack').value = '24';
+        document.getElementById('prod-bulk-cost').value = '';
+        document.getElementById('prod-unit-cost').value = '';
+        document.getElementById('prod-selling').value = '';
+        document.getElementById('prod-stock').value = '48';
+        document.getElementById('prod-expected-profit').value = '₦0';
+        uploadedImageBase64 = '';
+        document.getElementById('photo-preview-box').innerHTML = `<i class="fa-solid fa-image"></i>`;
+        document.getElementById('product-image-file').value = '';
         fetchProducts();
       }
     }
