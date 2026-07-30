@@ -153,7 +153,7 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-[10px] text-slate-400 font-medium">Items Per Bulk Pack (Pieces per Unit)</label>
-            <input type="number" id="prod-pack" value="1" oninput="calculateUnitCost()" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-pack" value="24" oninput="calculateUnitCost()" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="text-[10px] text-slate-400 font-medium">Bulk Cost Price (₦)</label>
@@ -175,7 +175,7 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-[10px] text-slate-400 font-medium">Initial Total Pieces *</label>
-            <input type="number" id="prod-stock" value="24" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-stock" value="48" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="text-[10px] text-slate-400 font-medium">Expected Profit / Unit</label>
@@ -216,7 +216,6 @@
       document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-box text-purple-400 mr-2"></i>Add New Product`;
       document.getElementById('modal-submit-btn').textContent = 'Save Product to Inventory';
       
-      // Reset form fields
       document.getElementById('prod-name').value = '';
       document.getElementById('prod-sku').value = '';
       document.getElementById('prod-pack').value = '24';
@@ -404,7 +403,7 @@
         const totalPieces = parseInt(p.stock || 0);
         const piecesPerUnit = parseInt(p.items_per_pack || p.pack || 24) || 24;
         
-        // Calculate dynamic units and remaining pieces cleanly
+        // Live calculated units and formatted pieces breakdown matching sample format
         const calculatedUnits = (totalPieces / piecesPerUnit).toFixed(1);
         const displayUnits = totalPieces % piecesPerUnit === 0 ? Math.floor(totalPieces / piecesPerUnit) : calculatedUnits;
 
@@ -433,7 +432,7 @@
                 <p class="text-[10px] text-slate-400">SKU: ${p.sku || 'N/A'}</p>
                 <div class="flex items-center gap-2">
                   <span class="px-2 py-0.5 rounded-md text-[9px] font-semibold border ${badgeBg}">${badgeText}</span>
-                  <span class="text-[10px] text-purple-300 font-bold">${displayUnits} unit <span class="text-slate-400 font-normal">(${totalPieces} pcs)</span></span>
+                  <span class="text-[10px] text-slate-300 font-medium">${displayUnits} units = <span class="text-white font-bold">${totalPieces.toLocaleString()} pcs</span></span>
                 </div>
               </div>
             </div>
