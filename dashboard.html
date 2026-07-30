@@ -3,9 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quantum OPS Elite - Debtors Management</title>
+  <title>Quantum OPS Elite - Mobile Business OS</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
@@ -28,6 +33,7 @@
     body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+    .led-glow { box-shadow: 0 0 20px rgba(108, 92, 231, 0.25); }
     .iphone-frame {
       width: 100%;
       max-width: 410px;
@@ -45,58 +51,151 @@
       body { align-items: center; justify-content: center; display: flex; height: 100vh; }
       .iphone-frame { border-radius: 48px; }
     }
+    #action-sheet {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
   </style>
 </head>
 <body>
 
+  <!-- MOBILE DEVICE FRAME CONTAINER -->
   <div class="iphone-frame">
     
     <!-- TOP APP BAR -->
-    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
+    <div class="px-4 pt-3 pb-2 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
       <div class="flex items-center gap-3">
-        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
-          <i class="fa-solid fa-arrow-left text-sm"></i>
-        </a>
+        <button onclick="toggleMenu()" class="text-slate-300 hover:text-white transition">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
         <div class="flex items-center gap-2">
-          <span class="font-bold tracking-wider text-xs text-white">CUSTOMER DEBTS</span>
+          <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-xs shadow-inner">Q</div>
+          <span class="font-bold tracking-wider text-xs text-white">QUANTUM OPS <span class="text-[9px] text-purple-400 border border-purple-500/30 px-1 rounded">ELITE</span></span>
         </div>
       </div>
-      <button onclick="openAddDebtModal()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 rounded-xl text-white text-[11px] font-semibold flex items-center gap-1 shadow-md shadow-purple-900/40 transition">
-        <i class="fa-solid fa-plus text-[10px]"></i> Add Debt
-      </button>
+      <div class="flex items-center gap-3">
+        <button class="relative p-2 rounded-xl bg-[#131326] border border-purple-500/10 text-slate-300 hover:text-white">
+          <i class="fa-regular fa-bell text-sm"></i>
+          <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center text-white">0</span>
+        </button>
+        <div class="w-8 h-8 rounded-full overflow-hidden border border-purple-500/30 bg-purple-950 flex items-center justify-center text-xs font-semibold text-purple-200" id="user-avatar-initial">
+          C
+        </div>
+      </div>
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN SCROLLABLE VIEWPORT -->
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
       
-      <!-- SUMMARY BANNER -->
-      <div class="bg-gradient-to-r from-rose-950/40 via-[#121224] to-purple-950/35 border border-rose-500/20 p-4 rounded-2xl flex items-center justify-between shadow-xl">
+      <!-- GREETING & BRANCH SELECTOR -->
+      <div class="flex items-center justify-between">
         <div>
-          <p class="text-[10px] text-slate-400 font-medium">Total Outstanding</p>
-          <h2 class="text-lg font-extrabold text-rose-400 tracking-tight" id="val-total-debt">₦0</h2>
+          <h1 class="text-base font-bold text-white" id="greeting-title">Good day, User 👋</h1>
+          <p class="text-[11px] text-slate-400">Here's what's happening with your business today.</p>
         </div>
-        <div class="text-right">
-          <p class="text-[10px] text-slate-400 font-medium">Total Debtors</p>
-          <h2 class="text-lg font-extrabold text-white" id="val-total-count">0</h2>
+        <div class="flex items-center gap-1.5 bg-[#121224] border border-purple-500/20 px-2.5 py-1.5 rounded-xl text-xs text-purple-300 font-medium shadow-inner">
+          <i class="fa-solid fa-store text-purple-400 text-[10px]"></i>
+          <span id="current-branch-name">Main Branch</span>
+          <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
         </div>
       </div>
 
-      <!-- SEARCH -->
-      <div class="relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-        <input type="text" id="search-debtor" oninput="filterDebtors()" placeholder="Search customer or item bought..." class="w-full bg-[#121224] border border-purple-500/15 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
+      <!-- KPI CARDS GRID -->
+      <div class="grid grid-cols-3 gap-2.5">
+        <!-- Today's Sales -->
+        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
+          <p class="text-[10px] text-slate-400 font-medium">Total Sales (Today)</p>
+          <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-sales">₦0</h3>
+          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
+            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
+          </div>
+        </div>
+
+        <!-- Today's Profit -->
+        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
+          <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
+          <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-profit">₦0</h3>
+          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
+            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
+          </div>
+        </div>
+
+        <!-- Transactions (Today) -->
+        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
+          <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
+          <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
+          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
+            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
+          </div>
+        </div>
       </div>
 
-      <!-- LIST -->
-      <div class="space-y-3" id="debtors-list-container">
-        <div class="text-center py-10 text-slate-500 text-xs">Loading customer debts...</div>
+      <!-- SECONDARY KPI ROW -->
+      <div class="grid grid-cols-3 gap-2.5">
+        <!-- Outstanding Debt -->
+        <a href="debtors.html" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 block transition cursor-pointer">
+          <p class="text-[10px] text-slate-400 font-medium">Outstanding Debt</p>
+          <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦0</h3>
+          <p class="text-[9px] text-slate-500" id="val-debt-customers">0 Customers</p>
+        </a>
+
+        <!-- Low Stock Alerts -->
+        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1">
+          <p class="text-[10px] text-slate-400 font-medium">Low Stock Alerts</p>
+          <h3 class="text-xs font-bold text-amber-400" id="val-low-stock">0 Items</h3>
+          <p class="text-[9px] text-slate-500">Need attention</p>
+        </div>
+
+        <!-- Business Health -->
+        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 flex flex-col justify-between">
+          <p class="text-[10px] text-slate-400 font-medium">Business Health</p>
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm" id="health-icon"></i>
+            <span class="text-xs font-bold text-emerald-400" id="val-business-health">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SALES OVERVIEW CHART -->
+      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
+        <div class="flex justify-between items-center">
+          <div>
+            <h4 class="text-xs font-semibold text-slate-300">Sales Overview</h4>
+            <h3 class="text-sm font-bold text-white tracking-wide" id="val-weekly-total">₦0</h3>
+          </div>
+          <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-medium">This Week</span>
+        </div>
+        <div class="h-36 w-full">
+          <canvas id="salesOverviewChart"></canvas>
+        </div>
+      </div>
+
+      <!-- TOP SELLING PRODUCTS -->
+      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
+        <div class="flex justify-between items-center">
+          <h4 class="text-xs font-semibold text-slate-300">Top Selling Products</h4>
+          <span class="text-[10px] text-purple-400 font-medium">Real-time</span>
+        </div>
+        <div class="space-y-2.5 text-xs" id="top-products-list">
+          <div class="text-slate-500 text-[11px] text-center py-2">Loading top products...</div>
+        </div>
+      </div>
+
+      <!-- RECENT ACTIVITIES FEED -->
+      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
+        <div class="flex justify-between items-center">
+          <h4 class="text-xs font-semibold text-slate-300">Recent Activities</h4>
+          <span class="text-[10px] text-purple-400 font-medium">Live Feed</span>
+        </div>
+        <div class="space-y-3 text-xs" id="recent-activities-list">
+          <div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>
+        </div>
       </div>
 
     </div>
 
-    <!-- BOTTOM NAV -->
+    <!-- BOTTOM FLOATING NAVIGATION BAR -->
     <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
-      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-purple-400">
         <i class="fa-solid fa-gauge-high text-sm"></i>
         <span class="text-[9px] font-medium">Dashboard</span>
       </a>
@@ -104,6 +203,11 @@
         <i class="fa-solid fa-boxes-stacked text-sm"></i>
         <span class="text-[9px] font-medium">Inventory</span>
       </a>
+      
+      <button onclick="toggleActionSheet()" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform focus:outline-none">
+        <i class="fa-solid fa-plus text-base" id="action-btn-icon"></i>
+      </button>
+
       <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
         <i class="fa-solid fa-cash-register text-sm"></i>
         <span class="text-[9px] font-medium">POS Sales</span>
@@ -116,61 +220,127 @@
 
   </div>
 
-  <!-- ADD DEBT MODAL (FULL FORM) -->
+  <!-- QUICK ACTION BOTTOM SHEET -->
+  <div id="action-sheet" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="w-full max-w-md bg-[#121224] border-t border-purple-500/30 rounded-t-[32px] p-6 space-y-5 transform translate-y-full transition-transform duration-300" id="action-sheet-content">
+      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto"></div>
+      
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white tracking-wide">Quick Business Actions</h3>
+        <button onclick="toggleActionSheet()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <a href="pos.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
+          <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-cash-register"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">New Sale</span>
+        </a>
+
+        <button onclick="openAddDebtModal()" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">Add Debt</span>
+        </button>
+
+        <a href="inventory.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">Inventory</span>
+        </a>
+
+        <a href="ai-ceo.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
+        </a>
+
+        <button onclick="alert('Reports module coming next. Your sales data is already ready.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-chart-pie"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">Reports</span>
+        </button>
+
+        <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </div>
+          <span class="text-[11px] font-medium text-rose-300">Log Out</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD DEBT MODAL -->
   <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white">
-          <i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Debt
-        </h3>
-        <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Customer Debt</h3>
+        <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="space-y-3 text-xs">
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Customer Name *</label>
+          <label class="text-[10px] text-slate-400 font-medium">Customer Name</label>
           <input type="text" id="debt-customer" placeholder="e.g. John Doe" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Item Bought</label>
-          <input type="text" id="debt-item" placeholder="e.g. iPhone 13 Case, Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
-        </div>
-        <div>
-          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦) *</label>
+          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦)</label>
           <input type="number" id="debt-amount" placeholder="e.g. 25000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
           <label class="text-[10px] text-slate-400 font-medium">Due Date</label>
           <input type="date" id="debt-duedate" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
-        <button onclick="submitNewDebt()" id="save-debt-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">
-          Save Debt Record
-        </button>
+        <button onclick="submitNewDebt()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
       </div>
     </div>
   </div>
 
+  <!-- REAL-TIME ENGINE -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Low stock = 3 units or less (same rule as inventory)
+    const LOW_STOCK_UNITS = 3;
+
+    let salesChartInstance = null;
     let userCompanyId = null;
-    let allDebtors = [];
 
     function formatCurrency(amount) {
-      return '₦' + Number(amount || 0).toLocaleString();
+      return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
 
-    function formatDate(isoString) {
-      if (!isoString) return 'N/A';
-      const d = new Date(isoString);
-      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + 
-             ' at ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    function getLocalDateString(dateObj) {
+      const d = new Date(dateObj);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function toggleActionSheet() {
+      const sheet = document.getElementById('action-sheet');
+      const content = document.getElementById('action-sheet-content');
+      const isHidden = sheet.classList.contains('opacity-0');
+      
+      if (isHidden) {
+        sheet.classList.remove('opacity-0', 'pointer-events-none');
+        content.classList.remove('translate-y-full');
+      } else {
+        sheet.classList.add('opacity-0', 'pointer-events-none');
+        content.classList.add('translate-y-full');
+      }
     }
 
     function openAddDebtModal() {
+      toggleActionSheet();
       document.getElementById('debt-modal').classList.remove('hidden');
     }
 
@@ -178,181 +348,314 @@
       document.getElementById('debt-modal').classList.add('hidden');
     }
 
-    async function initializeDebtors() {
+    async function handleLogout() {
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (e) {}
+      window.location.href = 'login.html';
+    }
+
+    async function initializeApp() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
+          const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
+          const firstName = rawName.split(' ')[0];
+          const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+
+          const currentHour = new Date().getHours();
+          let timeGreeting = "Good evening";
+          if (currentHour < 12) timeGreeting = "Good morning";
+          else if (currentHour < 17) timeGreeting = "Good afternoon";
+
+          document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
+          document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
+
           const { data: memberData } = await supabaseClient
             .from('company_users')
-            .select('company_id')
+            .select('company_id, companies(name)')
             .eq('user_id', user.id)
             .single();
 
           if (memberData) {
             userCompanyId = memberData.company_id;
+            if (memberData.companies?.name) {
+              document.getElementById('current-branch-name').textContent = memberData.companies.name;
+            }
           }
         }
-        await fetchDebtors();
+
+        await fetchAllLiveMetrics();
+
+        // Realtime – listen to the correct tables
+        supabaseClient
+          .channel('quantum-live')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
+          .subscribe();
+
       } catch (err) {
         console.error("Initialization error:", err);
       }
     }
 
-    async function fetchDebtors() {
-      let query = supabaseClient
-        .from('debtors')
-        .select('*')
-        .order('created_at', { ascending: false });
+    async function fetchAllLiveMetrics() {
+      let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
+      let productsQuery = supabaseClient.from('products').select('*');
+      let debtorsQuery = supabaseClient.from('debtors').select('*');
 
       if (userCompanyId) {
-        query = query.eq('company_id', userCompanyId);
+        salesQuery = salesQuery.eq('company_id', userCompanyId);
+        productsQuery = productsQuery.eq('company_id', userCompanyId);
+        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
       }
 
-      const { data, error } = await query;
-      if (error) {
-        console.error("Error fetching debtors:", error);
-        return;
-      }
+      const [salesRes, productsRes, debtorsRes] = await Promise.all([
+        salesQuery,
+        productsQuery,
+        debtorsQuery
+      ]);
 
-      allDebtors = data || [];
-      renderDebtors(allDebtors);
+      const sales = salesRes.data || [];
+      const products = productsRes.data || [];
+      const debtors = debtorsRes.data || [];
+
+      processSalesMetrics(sales);
+      processInventoryMetrics(products);
+      processDebtorsMetrics(debtors);
+      renderSalesChart(sales);
+      renderTopProducts(sales);
+      renderRecentActivities(sales);
     }
 
-    function renderDebtors(debtors) {
-      const container = document.getElementById('debtors-list-container');
-      let totalAmount = 0;
+    function processSalesMetrics(sales) {
+      const todayStr = getLocalDateString(new Date());
+      let todaySales = 0;
+      let todayProfit = 0;
+      let todayCount = 0;
+      let weeklyTotal = 0;
 
-      if (debtors.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 bg-[#121224] border border-purple-500/10 rounded-2xl space-y-2">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-2xl"></i>
-            <p class="text-slate-300 text-xs font-medium">No outstanding debts found</p>
-            <p class="text-slate-500 text-[10px]">All customer balances are fully settled.</p>
-          </div>
-        `;
-        document.getElementById('val-total-debt').textContent = formatCurrency(0);
-        document.getElementById('val-total-count').textContent = '0';
+      sales.forEach(sale => {
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        const profit = parseFloat(sale.profit || 0);
+
+        const rawDate = sale.created_at || sale.date || new Date();
+        const saleDateStr = getLocalDateString(new Date(rawDate));
+
+        weeklyTotal += amount;
+
+        if (saleDateStr === todayStr) {
+          todaySales += amount;
+          todayProfit += profit;
+          todayCount += 1;
+        }
+      });
+
+      document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
+      document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
+      document.getElementById('val-transactions').textContent = todayCount;
+      document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal);
+    }
+
+    function processInventoryMetrics(products) {
+      let lowStockCount = 0;
+
+      products.forEach(item => {
+        const totalPieces = parseFloat(item.stock || 0);
+        const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
+        const remainingUnits = totalPieces / piecesPerUnit;
+
+        if (totalPieces > 0 && remainingUnits <= LOW_STOCK_UNITS) {
+          lowStockCount++;
+        }
+      });
+
+      document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
+
+      // Simple business health score
+      let health = 100;
+      if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
+      document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
+    }
+
+    function processDebtorsMetrics(debtors) {
+      let totalDebt = 0;
+      debtors.forEach(d => {
+        totalDebt += parseFloat(d.amount_owing || d.amount || 0);
+      });
+      document.getElementById('val-outstanding-debt').textContent = formatCurrency(totalDebt);
+      document.getElementById('val-debt-customers').textContent = `${debtors.length} Customers`;
+    }
+
+    function renderSalesChart(sales) {
+      const ctx = document.getElementById('salesOverviewChart').getContext('2d');
+      if (salesChartInstance) salesChartInstance.destroy();
+
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
+
+      sales.forEach(sale => {
+        const dateObj = new Date(sale.created_at || sale.date || Date.now());
+        let dayIdx = dateObj.getDay() - 1;
+        if (dayIdx === -1) dayIdx = 6;
+        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+      });
+
+      salesChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: days,
+          datasets: [{
+            label: 'Sales (₦)',
+            data: dailyTotals,
+            borderColor: '#A78BFA',
+            backgroundColor: 'rgba(108, 92, 231, 0.15)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#C084FC',
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 9 } } },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.03)' },
+              ticks: {
+                color: '#94A3B8',
+                font: { size: 9 },
+                callback: val => '₦' + (val / 1000).toFixed(0) + 'k'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTopProducts(sales) {
+      const container = document.getElementById('top-products-list');
+      const productCounts = {};
+
+      sales.forEach(sale => {
+        const name = sale.product_name || sale.item_name || 'General Product';
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
+        productCounts[name].qty += parseInt(sale.quantity || 1);
+        productCounts[name].revenue += amount;
+      });
+
+      const sortedProducts = Object.entries(productCounts)
+        .sort((a, b) => b[1].revenue - a[1].revenue)
+        .slice(0, 5);
+
+      if (sortedProducts.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>`;
         return;
       }
 
       let html = '';
-      debtors.forEach(debt => {
-        const amount = parseFloat(debt.amount_owing || 0);
-        totalAmount += amount;
-        const itemBought = debt.item_bought || 'General Goods';
+      sortedProducts.forEach(([name, data], idx) => {
+        html += `
+          <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
+            <span class="flex items-center gap-2">
+              <span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">${idx + 1}</span>
+              ${name} (${data.qty} sold)
+            </span>
+            <span class="text-white font-semibold">${formatCurrency(data.revenue)}</span>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderRecentActivities(sales) {
+      const container = document.getElementById('recent-activities-list');
+      if (!sales || sales.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>`;
+        return;
+      }
+
+      // Fixed sorting (a vs b)
+      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
+      let html = '';
+
+      sorted.forEach(sale => {
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        const timeAgo = getTimeAgo(sale.created_at);
 
         html += `
-          <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center border border-rose-500/30 text-xs font-bold">
-                  <i class="fa-solid fa-user"></i>
-                </div>
-                <div>
-                  <h4 class="font-bold text-white text-xs">${debt.customer_name || 'Unknown'}</h4>
-                  <p class="text-[10px] text-slate-400">
-                    <i class="fa-solid fa-bag-shopping mr-1 text-purple-400"></i>${itemBought}
-                  </p>
-                </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-[11px]">
+                <i class="fa-solid fa-cart-shopping"></i>
               </div>
-              <div class="text-right">
-                <span class="font-bold text-rose-400 text-xs">${formatCurrency(amount)}</span>
-                <p class="text-[9px] text-slate-500">Unpaid</p>
+              <div>
+                <p class="font-medium text-white text-[11px]">${sale.product_name || sale.item_name || 'New Sale'}</p>
+                <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash'}</p>
               </div>
             </div>
-
-            <div class="pt-2 border-t border-purple-500/10 flex items-center justify-between text-[10px] text-slate-400">
-              <span><i class="fa-regular fa-clock mr-1"></i>${formatDate(debt.created_at)}</span>
-              <button onclick="markAsPaid('${debt.id}')" class="px-3 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-lg font-medium transition">
-                <i class="fa-solid fa-check mr-1"></i>Mark as Paid
-              </button>
+            <div class="text-right">
+              <p class="font-semibold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
+              <p class="text-[9px] text-slate-500">${timeAgo}</p>
             </div>
           </div>
         `;
       });
-
       container.innerHTML = html;
-      document.getElementById('val-total-debt').textContent = formatCurrency(totalAmount);
-      document.getElementById('val-total-count').textContent = debtors.length;
     }
 
-    function filterDebtors() {
-      const keyword = (document.getElementById('search-debtor').value || '').toLowerCase();
-      const filtered = allDebtors.filter(d => 
-        (d.customer_name || '').toLowerCase().includes(keyword) || 
-        (d.item_bought || '').toLowerCase().includes(keyword)
-      );
-      renderDebtors(filtered);
+    function getTimeAgo(dateString) {
+      if (!dateString) return 'Just now';
+      const now = new Date();
+      const past = new Date(dateString);
+      const diffMs = now - past;
+      const diffMins = Math.floor(diffMs / 60000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      return getLocalDateString(past);
     }
 
     async function submitNewDebt() {
       const customer = document.getElementById('debt-customer').value.trim();
-      const item = document.getElementById('debt-item').value.trim();
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
 
-      if (!customer) {
-        alert('Please enter Customer Name.');
+      if (!customer || !amount) {
+        alert('Please fill in customer name and amount.');
         return;
       }
-      if (!amount || parseFloat(amount) <= 0) {
-        alert('Please enter a valid Amount.');
-        return;
-      }
-
-      // Critical: never save without company_id
-      if (!userCompanyId) {
-        alert('Company not loaded yet. Please refresh the page and try again.');
-        return;
-      }
-
-      const btn = document.getElementById('save-debt-btn');
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
 
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
         customer_name: customer,
-        item_bought: item || 'General Goods',
         amount_owing: parseFloat(amount),
-        due_date: duedate || null,
-        status: 'unpaid'
+        due_date: duedate || new Date().toISOString().split('T')[0]
       }]);
-
-      btn.disabled = false;
-      btn.textContent = originalText;
 
       if (error) {
         alert('Error saving debt: ' + error.message);
-        return;
+      } else {
+        closeAddDebtModal();
+        document.getElementById('debt-customer').value = '';
+        document.getElementById('debt-amount').value = '';
+        document.getElementById('debt-duedate').value = '';
+        fetchAllLiveMetrics();
       }
-
-      // Success
-      closeAddDebtModal();
-      document.getElementById('debt-customer').value = '';
-      document.getElementById('debt-item').value = '';
-      document.getElementById('debt-amount').value = '';
-      document.getElementById('debt-duedate').value = '';
-      await fetchDebtors();
     }
 
-    async function markAsPaid(debtId) {
-      if (!confirm('Mark this debt as fully paid? This will remove it from the outstanding list.')) return;
-
-      const { error } = await supabaseClient
-        .from('debtors')
-        .delete()
-        .eq('id', debtId);
-
-      if (error) {
-        alert('Error: ' + error.message);
-        return;
-      }
-      await fetchDebtors();
+    function toggleMenu() {
+      toggleActionSheet();
     }
 
-    window.addEventListener('DOMContentLoaded', initializeDebtors);
+    window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
