@@ -99,7 +99,7 @@
         </div>
       </div>
 
-      <!-- KPI CARDS GRID -->
+      <!-- KPI CARDS GRID (INCLUDING EXPENSES CARD) -->
       <div class="grid grid-cols-3 gap-2.5">
         <!-- Today's Sales -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
@@ -145,13 +145,16 @@
           <p class="text-[9px] text-slate-500">Need attention</p>
         </div>
 
-        <!-- Business Health -->
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 flex flex-col justify-between">
-          <p class="text-[10px] text-slate-400 font-medium">Business Health</p>
-          <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm" id="health-icon"></i>
-            <span class="text-xs font-bold text-emerald-400" id="val-business-health">100%</span>
+        <!-- Expenses Card (Today) -->
+        <div onclick="openExpensesModal()" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/40 p-3 rounded-2xl space-y-1 cursor-pointer transition flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] text-slate-400 font-medium leading-tight">Expenses <span class="block">(Today)</span></p>
+              <i class="fa-solid fa-plus-circle text-purple-400 text-xs"></i>
+            </div>
+            <h3 class="text-xs font-bold text-rose-400 mt-1" id="val-today-expenses">₦0</h3>
           </div>
+          <span class="text-[9px] text-purple-400 font-medium">Tap to log</span>
         </div>
       </div>
 
@@ -245,6 +248,13 @@
           <span class="text-[11px] font-medium text-slate-200">Add Debt</span>
         </button>
 
+        <button onclick="openExpensesModal()" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-receipt"></i>
+          </div>
+          <span class="text-[11px] font-medium text-slate-200">Log Expense</span>
+        </button>
+
         <a href="inventory.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
           <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-boxes-stacked"></i>
@@ -258,13 +268,6 @@
           </div>
           <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
         </a>
-
-        <button onclick="alert('Reports module coming next. Your sales data is already ready.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-chart-pie"></i>
-          </div>
-          <span class="text-[11px] font-medium text-slate-200">Reports</span>
-        </button>
 
         <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
@@ -285,18 +288,57 @@
       </div>
       <div class="space-y-3 text-xs">
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Customer Name</label>
+          <label class="text-[10px] text-slate-400 font-medium">Customer Name *</label>
           <input type="text" id="debt-customer" placeholder="e.g. John Doe" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦)</label>
+          <label class="text-[10px] text-slate-400 font-medium">Item Bought</label>
+          <input type="text" id="debt-item" placeholder="e.g. iPhone 13 Case, Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦) *</label>
           <input type="number" id="debt-amount" placeholder="e.g. 25000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
           <label class="text-[10px] text-slate-400 font-medium">Due Date</label>
           <input type="date" id="debt-duedate" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
-        <button onclick="submitNewDebt()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
+        <button onclick="submitNewDebt()" id="save-debt-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG EXPENSE MODAL -->
+  <div id="expense-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-receipt text-purple-400 mr-2"></i>Log Business Expense</h3>
+        <button onclick="closeExpensesModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Expense Title *</label>
+          <input type="text" id="expense-title" placeholder="e.g. Shop Rent, Transport, Data" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Category</label>
+          <select id="expense-category" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+            <option value="Logistics">Logistics / Transport</option>
+            <option value="Utilities">Utilities (Power/Internet)</option>
+            <option value="Rent">Shop Rent</option>
+            <option value="Salaries">Staff Salary</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Amount (₦) *</label>
+          <input type="number" id="expense-amount" placeholder="e.g. 5000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Date</label>
+          <input type="date" id="expense-date" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <button onclick="submitNewExpense()" id="save-expense-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Expense</button>
       </div>
     </div>
   </div>
@@ -340,12 +382,28 @@
     }
 
     function openAddDebtModal() {
-      toggleActionSheet();
+      const sheet = document.getElementById('action-sheet');
+      if (!sheet.classList.contains('opacity-0')) {
+        toggleActionSheet();
+      }
       document.getElementById('debt-modal').classList.remove('hidden');
     }
 
     function closeAddDebtModal() {
       document.getElementById('debt-modal').classList.add('hidden');
+    }
+
+    function openExpensesModal() {
+      const sheet = document.getElementById('action-sheet');
+      if (!sheet.classList.contains('opacity-0')) {
+        toggleActionSheet();
+      }
+      document.getElementById('expense-date').value = getLocalDateString(new Date());
+      document.getElementById('expense-modal').classList.remove('hidden');
+    }
+
+    function closeExpensesModal() {
+      document.getElementById('expense-modal').classList.add('hidden');
     }
 
     async function handleLogout() {
@@ -393,6 +451,7 @@
           .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
           .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
           .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, () => fetchAllLiveMetrics())
           .subscribe();
 
       } catch (err) {
@@ -404,35 +463,40 @@
       let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
       let productsQuery = supabaseClient.from('products').select('*');
       let debtorsQuery = supabaseClient.from('debtors').select('*');
+      let expensesQuery = supabaseClient.from('expenses').select('*');
 
       if (userCompanyId) {
         salesQuery = salesQuery.eq('company_id', userCompanyId);
         productsQuery = productsQuery.eq('company_id', userCompanyId);
         debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
+        expensesQuery = expensesQuery.eq('company_id', userCompanyId);
       }
 
-      const [salesRes, productsRes, debtorsRes] = await Promise.all([
+      const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
         salesQuery,
         productsQuery,
-        debtorsQuery
+        debtorsQuery,
+        expensesQuery
       ]);
 
       const sales = salesRes.data || [];
       const products = productsRes.data || [];
       const debtors = debtorsRes.data || [];
+      const expenses = expensesRes.data || [];
 
-      processSalesMetrics(sales);
+      processSalesMetrics(sales, expenses);
       processInventoryMetrics(products);
       processDebtorsMetrics(debtors);
+      processExpenseMetrics(expenses);
       renderSalesChart(sales);
       renderTopProducts(sales);
       renderRecentActivities(sales);
     }
 
-    function processSalesMetrics(sales) {
+    function processSalesMetrics(sales, expenses) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0;
-      let todayProfit = 0;
+      let todayGrossProfit = 0;
       let todayCount = 0;
       let weeklyTotal = 0;
 
@@ -447,15 +511,40 @@
 
         if (saleDateStr === todayStr) {
           todaySales += amount;
-          todayProfit += profit;
+          todayGrossProfit += profit;
           todayCount += 1;
         }
       });
 
+      // Calculate today's total expenses to subtract for net profit
+      let todayExpenses = 0;
+      expenses.forEach(exp => {
+        const expDateStr = getLocalDateString(new Date(exp.expense_date || exp.created_at || Date.now()));
+        if (expDateStr === todayStr) {
+          todayExpenses += parseFloat(exp.amount || 0);
+        }
+      });
+
+      const todayNetProfit = todayGrossProfit - todayExpenses;
+
       document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
-      document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
+      document.getElementById('val-today-profit').textContent = formatCurrency(todayNetProfit);
       document.getElementById('val-transactions').textContent = todayCount;
       document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal);
+    }
+
+    function processExpenseMetrics(expenses) {
+      const todayStr = getLocalDateString(new Date());
+      let todayTotal = 0;
+
+      expenses.forEach(exp => {
+        const expDateStr = getLocalDateString(new Date(exp.expense_date || exp.created_at || Date.now()));
+        if (expDateStr === todayStr) {
+          todayTotal += parseFloat(exp.amount || 0);
+        }
+      });
+
+      document.getElementById('val-today-expenses').textContent = formatCurrency(todayTotal);
     }
 
     function processInventoryMetrics(products) {
@@ -580,7 +669,6 @@
         return;
       }
 
-      // Fixed sorting (a vs b)
       const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
       let html = '';
 
@@ -625,28 +713,93 @@
 
     async function submitNewDebt() {
       const customer = document.getElementById('debt-customer').value.trim();
+      const item = document.getElementById('debt-item').value.trim();
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
 
-      if (!customer || !amount) {
-        alert('Please fill in customer name and amount.');
+      if (!customer) {
+        alert('Please enter Customer Name.');
         return;
       }
+      if (!amount || parseFloat(amount) <= 0) {
+        alert('Please enter a valid Amount.');
+        return;
+      }
+
+      if (!userCompanyId) {
+        alert('Company session not loaded yet. Please refresh the page.');
+        return;
+      }
+
+      const btn = document.getElementById('save-debt-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
 
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
         customer_name: customer,
+        item_bought: item || 'General Goods',
         amount_owing: parseFloat(amount),
-        due_date: duedate || new Date().toISOString().split('T')[0]
+        due_date: duedate || null,
+        status: 'unpaid'
       }]);
+
+      btn.disabled = false;
+      btn.textContent = 'Save Debt Record';
 
       if (error) {
         alert('Error saving debt: ' + error.message);
       } else {
         closeAddDebtModal();
         document.getElementById('debt-customer').value = '';
+        document.getElementById('debt-item').value = '';
         document.getElementById('debt-amount').value = '';
         document.getElementById('debt-duedate').value = '';
+        fetchAllLiveMetrics();
+      }
+    }
+
+    async function submitNewExpense() {
+      const title = document.getElementById('expense-title').value.trim();
+      const category = document.getElementById('expense-category').value;
+      const amount = document.getElementById('expense-amount').value;
+      const expenseDate = document.getElementById('expense-date').value;
+
+      if (!title) {
+        alert('Please enter an expense title.');
+        return;
+      }
+      if (!amount || parseFloat(amount) <= 0) {
+        alert('Please enter a valid amount.');
+        return;
+      }
+
+      if (!userCompanyId) {
+        alert('Company session not loaded yet. Please refresh the page.');
+        return;
+      }
+
+      const btn = document.getElementById('save-expense-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const { error } = await supabaseClient.from('expenses').insert([{
+        company_id: userCompanyId,
+        title: title,
+        category: category,
+        amount: parseFloat(amount),
+        expense_date: expenseDate || getLocalDateString(new Date())
+      }]);
+
+      btn.disabled = false;
+      btn.textContent = 'Save Expense';
+
+      if (error) {
+        alert('Error saving expense: ' + error.message);
+      } else {
+        closeExpensesModal();
+        document.getElementById('expense-title').value = '';
+        document.getElementById('expense-amount').value = '';
         fetchAllLiveMetrics();
       }
     }
