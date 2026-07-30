@@ -276,7 +276,7 @@
     </div>
   </div>
 
-  <!-- ADD DEBT MODAL -->
+  <!-- ADD DEBT MODAL (FULL SAFE FORM WITH ITEM BOUGHT) -->
   <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
@@ -285,18 +285,22 @@
       </div>
       <div class="space-y-3 text-xs">
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Customer Name</label>
+          <label class="text-[10px] text-slate-400 font-medium">Customer Name *</label>
           <input type="text" id="debt-customer" placeholder="e.g. John Doe" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦)</label>
+          <label class="text-[10px] text-slate-400 font-medium">Item Bought</label>
+          <input type="text" id="debt-item" placeholder="e.g. iPhone 13 Case, Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦) *</label>
           <input type="number" id="debt-amount" placeholder="e.g. 25000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
           <label class="text-[10px] text-slate-400 font-medium">Due Date</label>
           <input type="date" id="debt-duedate" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
-        <button onclick="submitNewDebt()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
+        <button onclick="submitNewDebt()" id="save-debt-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
       </div>
     </div>
   </div>
@@ -351,43 +355,49 @@
     async function handleLogout() {
       try {
         await supabaseClient.auth.signOut();
-      } catch (e) {}
-      window.location.href = 'login.html';
+      } catch (e) {
+        console.error("Sign out error:", e);
+      }
+      // Force immediate redirect to login page
+      window.location.href = 'index.html';
     }
 
     async function initializeApp() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
-        if (user) {
-          const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
-          const firstName = rawName.split(' ')[0];
-          const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+        if (!user) {
+          window.location.href = 'index.html';
+          return;
+        }
 
-          const currentHour = new Date().getHours();
-          let timeGreeting = "Good evening";
-          if (currentHour < 12) timeGreeting = "Good morning";
-          else if (currentHour < 17) timeGreeting = "Good afternoon";
+        const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
+        const firstName = rawName.split(' ')[0];
+        const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
-          document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
-          document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
+        const currentHour = new Date().getHours();
+        let timeGreeting = "Good evening";
+        if (currentHour < 12) timeGreeting = "Good morning";
+        else if (currentHour < 17) timeGreeting = "Good afternoon";
 
-          const { data: memberData } = await supabaseClient
-            .from('company_users')
-            .select('company_id, companies(name)')
-            .eq('user_id', user.id)
-            .single();
+        document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
+        document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
 
-          if (memberData) {
-            userCompanyId = memberData.company_id;
-            if (memberData.companies?.name) {
-              document.getElementById('current-branch-name').textContent = memberData.companies.name;
-            }
+        const { data: memberData } = await supabaseClient
+          .from('company_users')
+          .select('company_id, companies(name)')
+          .eq('user_id', user.id)
+          .single();
+
+        if (memberData) {
+          userCompanyId = memberData.company_id;
+          if (memberData.companies?.name) {
+            document.getElementById('current-branch-name').textContent = memberData.companies.name;
           }
         }
 
         await fetchAllLiveMetrics();
 
-        // Realtime – listen to the correct tables
+        // Realtime – listen to changes on tables
         supabaseClient
           .channel('quantum-live')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
@@ -473,7 +483,6 @@
 
       document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
 
-      // Simple business health score
       let health = 100;
       if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
       document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
@@ -580,7 +589,6 @@
         return;
       }
 
-      // Fixed sorting (a vs b)
       const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
       let html = '';
 
@@ -625,26 +633,47 @@
 
     async function submitNewDebt() {
       const customer = document.getElementById('debt-customer').value.trim();
+      const item = document.getElementById('debt-item').value.trim();
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
 
-      if (!customer || !amount) {
-        alert('Please fill in customer name and amount.');
+      if (!customer) {
+        alert('Please enter Customer Name.');
         return;
       }
+      if (!amount || parseFloat(amount) <= 0) {
+        alert('Please enter a valid Amount.');
+        return;
+      }
+
+      if (!userCompanyId) {
+        alert('Company not loaded yet. Please refresh the page and try again.');
+        return;
+      }
+
+      const btn = document.getElementById('save-debt-btn');
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
 
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
         customer_name: customer,
+        item_bought: item || 'General Goods',
         amount_owing: parseFloat(amount),
-        due_date: duedate || new Date().toISOString().split('T')[0]
+        due_date: duedate || null,
+        status: 'unpaid'
       }]);
+
+      btn.disabled = false;
+      btn.textContent = originalText;
 
       if (error) {
         alert('Error saving debt: ' + error.message);
       } else {
         closeAddDebtModal();
         document.getElementById('debt-customer').value = '';
+        document.getElementById('debt-item').value = '';
         document.getElementById('debt-amount').value = '';
         document.getElementById('debt-duedate').value = '';
         fetchAllLiveMetrics();
