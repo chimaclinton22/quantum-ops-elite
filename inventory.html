@@ -48,34 +48,63 @@
       body { align-items: center; justify-content: center; display: flex; height: 100vh; }
       .iphone-frame { border-radius: 48px; }
     }
+
+    /* ===== STRONG 3-DOT MENU ===== */
+    .product-card {
+      position: relative;
+    }
+    .menu-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: #94a3b8;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .menu-btn:hover {
+      background: rgba(139, 92, 246, 0.15);
+      color: #fff;
+    }
     .action-menu {
       position: absolute;
-      right: 0;
-      top: 28px;
+      right: 8px;
+      top: 40px;
       background: #1a1a2e;
-      border: 1px solid rgba(139, 92, 246, 0.35);
+      border: 1px solid rgba(139, 92, 246, 0.4);
       border-radius: 12px;
-      min-width: 130px;
-      z-index: 50;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      min-width: 140px;
+      z-index: 100;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
       overflow: hidden;
+      display: none;
+    }
+    .action-menu.show {
+      display: block;
     }
     .action-menu button {
       width: 100%;
       text-align: left;
-      padding: 10px 14px;
-      font-size: 11px;
+      padding: 11px 14px;
+      font-size: 12px;
       color: #e2e8f0;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
       transition: background 0.15s;
     }
     .action-menu button:hover {
-      background: rgba(139, 92, 246, 0.15);
+      background: rgba(139, 92, 246, 0.18);
     }
     .action-menu button.delete-btn:hover {
-      background: rgba(244, 63, 94, 0.15);
+      background: rgba(244, 63, 94, 0.18);
       color: #fb7185;
     }
   </style>
@@ -359,7 +388,7 @@
       document.getElementById('preview-units-pcs').textContent = `${formatUnits(units)} units = ${totalPieces.toLocaleString()} pcs`;
     }
 
-    // ===== ORIGINAL AUTH WIRING (kept exactly like your original) =====
+    // ===== ORIGINAL AUTH WIRING (kept exactly) =====
     async function initializeInventory() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
@@ -476,43 +505,53 @@
         const profit = price - cost;
         const imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
 
-        // Escape name safely for the delete function
         const safeName = (p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
         html += `
-          <div class="bg-[#121224] border border-purple-500/15 p-3.5 rounded-2xl flex items-center justify-between shadow-xl gap-3 relative">
-            <div class="flex items-center gap-3 min-w-0">
+          <div class="product-card bg-[#121224] border border-purple-500/15 p-3.5 rounded-2xl shadow-xl">
+            <div class="flex items-start gap-3">
               <img src="${imgUrl}" class="w-14 h-14 rounded-xl object-cover bg-purple-950/30 border border-purple-500/20 flex-shrink-0" onerror="this.src='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150'">
-              <div class="space-y-1 min-w-0">
-                <h4 class="font-bold text-white text-xs truncate">${p.name || 'Unnamed'}</h4>
-                <p class="text-[10px] text-slate-400">SKU: ${p.sku || 'N/A'}</p>
-                <div class="flex items-center gap-2 flex-wrap">
+              
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <h4 class="font-bold text-white text-xs truncate">${p.name || 'Unnamed'}</h4>
+                    <p class="text-[10px] text-slate-400 mt-0.5">SKU: ${p.sku || 'N/A'}</p>
+                  </div>
+                  
+                  <!-- 3-DOT BUTTON (always visible) -->
+                  <button class="menu-btn flex-shrink-0" onclick="toggleActionMenu(event, '${p.id}')">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap mt-1.5">
                   <span class="px-2 py-0.5 rounded-md text-[9px] font-semibold border ${status.badgeBg}">${status.badgeText}</span>
                   <span class="text-[10px] text-slate-300 font-medium">
                     ${displayUnits} units = <span class="text-white font-bold">${totalPieces.toLocaleString()} pcs</span>
                   </span>
                 </div>
+
+                <div class="flex items-center justify-between mt-2">
+                  <div class="text-[10px] text-slate-400">
+                    Cost: ${formatCurrency(cost)}
+                  </div>
+                  <div class="text-right">
+                    <div class="font-extrabold text-white text-xs">${formatCurrency(price)}</div>
+                    <div class="text-[10px] font-semibold ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">Profit: ${formatCurrency(profit)}</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="text-right space-y-0.5 flex-shrink-0 relative">
-              <!-- 3-DOT MENU -->
-              <button onclick="toggleActionMenu(event, '${p.id}')" class="absolute -top-1 -right-1 w-7 h-7 flex items-center justify-center text-slate-400 hover:text-white rounded-full hover:bg-white/5 transition">
-                <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+            <!-- DROPDOWN MENU -->
+            <div id="menu-${p.id}" class="action-menu">
+              <button onclick="editProduct('${p.id}')">
+                <i class="fa-solid fa-pen text-purple-400"></i> Edit Product
               </button>
-
-              <div id="menu-${p.id}" class="action-menu hidden">
-                <button onclick="editProduct('${p.id}')">
-                  <i class="fa-solid fa-pen text-purple-400"></i> Edit
-                </button>
-                <button class="delete-btn" onclick="deleteProduct('${p.id}', '${safeName}')">
-                  <i class="fa-solid fa-trash"></i> Delete
-                </button>
-              </div>
-
-              <span class="font-extrabold text-white text-xs block mt-5">${formatCurrency(price)}</span>
-              <p class="text-[10px] text-slate-400">Cost: ${formatCurrency(cost)}</p>
-              <p class="text-[10px] font-semibold ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}">Profit: ${formatCurrency(profit)}</p>
+              <button class="delete-btn" onclick="deleteProduct('${p.id}', '${safeName}')">
+                <i class="fa-solid fa-trash"></i> Delete Product
+              </button>
             </div>
           </div>
         `;
@@ -521,29 +560,35 @@
       container.innerHTML = html;
     }
 
+    // Close menus when clicking outside
     document.addEventListener('click', function(e) {
-      if (!e.target.closest('[id^="menu-"]') && !e.target.closest('button[onclick*="toggleActionMenu"]')) {
-        document.querySelectorAll('.action-menu').forEach(m => m.classList.add('hidden'));
+      if (!e.target.closest('.menu-btn') && !e.target.closest('.action-menu')) {
+        document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
       }
     });
 
     function toggleActionMenu(event, productId) {
       event.stopPropagation();
+      
+      // Close all other menus
       document.querySelectorAll('.action-menu').forEach(m => {
-        if (m.id !== `menu-${productId}`) m.classList.add('hidden');
+        if (m.id !== `menu-${productId}`) m.classList.remove('show');
       });
+
       const menu = document.getElementById(`menu-${productId}`);
-      if (menu) menu.classList.toggle('hidden');
+      if (menu) {
+        menu.classList.toggle('show');
+      }
     }
 
     function editProduct(productId) {
-      document.querySelectorAll('.action-menu').forEach(m => m.classList.add('hidden'));
+      document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
       const product = allProducts.find(p => p.id === productId);
       if (product) openEditProductModal(product);
     }
 
     async function deleteProduct(productId, productName) {
-      document.querySelectorAll('.action-menu').forEach(m => m.classList.add('hidden'));
+      document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
 
       const confirmed = confirm(`Are you sure you want to delete "${productName}"?\n\nThis action cannot be undone.`);
       if (!confirmed) return;
