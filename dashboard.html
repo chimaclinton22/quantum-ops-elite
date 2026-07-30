@@ -403,7 +403,8 @@
       try {
         await supabaseClient.auth.signOut();
       } catch (e) {}
-      window.location.href = 'login.html';
+      // Redirect safely back to index.html (or your landing/login page)
+      window.location.href = 'index.html';
     }
 
     // BULLETPROOF COMPANY ID RESOLVER
