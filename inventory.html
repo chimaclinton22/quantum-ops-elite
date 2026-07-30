@@ -151,7 +151,7 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-[10px] text-slate-400 font-medium">Items Per Bulk Pack (Pieces per Unit)</label>
-            <input type="number" id="prod-pack" value="24" oninput="calculateUnitCost()" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+            <input type="number" id="prod-pack" value="24" oninput="calculateUnitCost(); calculateTotalPieces();" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
             <label class="text-[10px] text-slate-400 font-medium">Bulk Cost Price (₦)</label>
@@ -172,13 +172,18 @@
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="text-[10px] text-slate-400 font-medium">Initial Total Pieces *</label>
-            <input type="number" id="prod-stock" value="48" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+            <label class="text-[10px] text-slate-400 font-medium">Number of Packs (Units) *</label>
+            <input type="number" id="prod-packs-count" value="2" oninput="calculateTotalPieces()" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
           </div>
           <div>
-            <label class="text-[10px] text-slate-400 font-medium">Expected Profit / Unit</label>
-            <input type="text" id="prod-expected-profit" value="₦0" readonly class="w-full mt-1 bg-[#15152a] text-emerald-400 font-bold border border-purple-500/10 rounded-xl px-3 py-2 focus:outline-none cursor-not-allowed">
+            <label class="text-[10px] text-slate-400 font-medium">Total Pieces (Auto)</label>
+            <input type="number" id="prod-stock" value="48" readonly class="w-full mt-1 bg-[#15152a] text-emerald-400 font-bold border border-purple-500/10 rounded-xl px-3 py-2 focus:outline-none cursor-not-allowed">
           </div>
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Expected Profit / Unit</label>
+          <input type="text" id="prod-expected-profit" value="₦0" readonly class="w-full mt-1 bg-[#15152a] text-emerald-400 font-bold border border-purple-500/10 rounded-xl px-3 py-2 focus:outline-none cursor-not-allowed">
         </div>
 
         <button onclick="submitNewProduct()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Product to Inventory</button>
@@ -230,7 +235,6 @@
     }
 
     function triggerBarcodeScan() {
-      // Barcode camera simulator / trigger
       const randomBarcode = 'SKU-' + Math.floor(100000 + Math.random() * 900000);
       document.getElementById('prod-sku').value = randomBarcode;
       alert('Barcode scanned successfully: ' + randomBarcode);
@@ -242,6 +246,12 @@
       const unitCost = bulkCost / pack;
       document.getElementById('prod-unit-cost').value = unitCost.toFixed(2);
       calculateProfit();
+    }
+
+    function calculateTotalPieces() {
+      const packs = parseFloat(document.getElementById('prod-packs-count').value) || 0;
+      const itemsPerPack = parseFloat(document.getElementById('prod-pack').value) || 24;
+      document.getElementById('prod-stock').value = packs * itemsPerPack;
     }
 
     function calculateProfit() {
@@ -307,8 +317,11 @@
 
         if (!nameMatch) return false;
 
-        if (currentFilter === 'instock') return stock > 5;
-        if (currentFilter === 'lowstock') return stock > 0 && stock <= 5;
+        const piecesPerUnit = parseInt(p.items_per_pack || 24) || 24;
+        const totalUnits = stock / piecesPerUnit;
+
+        if (currentFilter === 'instock') return totalUnits > 5;
+        if (currentFilter === 'lowstock') return totalUnits > 0 && totalUnits <= 5;
         if (currentFilter === 'outofstock') return stock === 0;
         return true;
       });
@@ -336,7 +349,6 @@
         const totalPieces = parseInt(p.stock || 0);
         const piecesPerUnit = parseInt(p.items_per_pack || p.pack || 24) || 24;
         
-        // Live calculated units based strictly on the recorded items_per_pack and total pieces
         const rawUnits = totalPieces / piecesPerUnit;
         const displayUnits = Number.isInteger(rawUnits) ? rawUnits : rawUnits.toFixed(1);
 
@@ -346,7 +358,7 @@
         if (totalPieces === 0) {
           badgeBg = 'bg-rose-950/50 text-rose-400 border-rose-500/30';
           badgeText = 'Out of Stock';
-        } else if (totalPieces <= 5) {
+        } else if (rawUnits <= 5) {
           badgeBg = 'bg-amber-950/50 text-amber-400 border-amber-500/30';
           badgeText = 'Low Stock';
         }
@@ -411,13 +423,13 @@
         alert('Error saving product: ' + error.message);
       } else {
         closeAddProductModal();
-        // Clear inputs
         document.getElementById('prod-name').value = '';
         document.getElementById('prod-sku').value = '';
         document.getElementById('prod-pack').value = '24';
         document.getElementById('prod-bulk-cost').value = '';
         document.getElementById('prod-unit-cost').value = '';
         document.getElementById('prod-selling').value = '';
+        document.getElementById('prod-packs-count').value = '2';
         document.getElementById('prod-stock').value = '48';
         document.getElementById('prod-expected-profit').value = '₦0';
         uploadedImageBase64 = '';
