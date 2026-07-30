@@ -226,7 +226,7 @@
         <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- ACTUAL RECEIPT PAPER (Carrying User's Custom Real-time Business Name & Address) -->
+      <!-- ACTUAL RECEIPT PAPER -->
       <div id="receipt-paper" class="bg-white text-slate-900 p-4 rounded-xl font-mono text-[10px] space-y-2 shadow-inner">
         <div class="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-2">
           <h3 class="font-extrabold text-xs tracking-wider" id="receipt-biz-name">MY BUSINESS LTD</h3>
@@ -361,16 +361,22 @@
         await fetchInventory();
       } catch (err) {
         console.error("POS Initialization Error:", err);
+        await fetchInventory(); // Ensure fallback runs even if auth check fails
       }
     }
 
     async function fetchInventory() {
-      let query = supabaseClient.from('inventory').select('*');
-      if (userCompanyId) query = query.eq('company_id', userCompanyId);
+      let query = supabaseClient.from('products').select('*');
+      
+      // Only filter by company_id if available, otherwise fetch all to prevent eternal loading block
+      if (userCompanyId) {
+        query = query.eq('company_id', userCompanyId);
+      }
 
       const { data, error } = await query;
       if (error) {
         console.error("Error fetching inventory:", error);
+        document.getElementById('product-catalog-list').innerHTML = `<div class="text-rose-400 text-[11px] text-center py-2">Error loading inventory. Check console.</div>`;
         return;
       }
 
@@ -387,9 +393,9 @@
 
       let html = '';
       items.forEach(item => {
-        const name = item.product_name || item.name || 'Product';
-        const price = parseFloat(item.selling_price || item.price || 0);
-        const qty = parseInt(item.quantity || item.stock || 0);
+        const name = item.name || 'Product';
+        const price = parseFloat(item.selling_price || 0);
+        const qty = parseInt(item.stock || 0);
 
         html += `
           <div onclick="addToCart('${item.id}')" class="flex items-center justify-between p-2 bg-[#191932] border border-purple-500/10 hover:border-purple-500 rounded-xl cursor-pointer transition">
@@ -410,7 +416,7 @@
     function filterProducts() {
       const keyword = document.getElementById('product-search').value.toLowerCase();
       const filtered = inventoryCatalog.filter(i => 
-        (i.product_name || i.name || '').toLowerCase().includes(keyword)
+        (i.name || '').toLowerCase().includes(keyword) || (i.sku || '').toLowerCase().includes(keyword)
       );
       renderInventoryCatalog(filtered);
     }
@@ -419,8 +425,8 @@
       const product = inventoryCatalog.find(i => i.id === itemId);
       if (!product) return;
 
-      const name = product.product_name || product.name || 'Product';
-      const price = parseFloat(product.selling_price || product.price || 0);
+      const name = product.name || 'Product';
+      const price = parseFloat(product.selling_price || 0);
 
       const existingIndex = cart.findIndex(c => c.id === itemId);
       if (existingIndex > -1) {
@@ -608,3 +614,107 @@
       document.getElementById('receipt-discount').textContent = '-' + formatCurrency(t.discount);
       document.getElementById('receipt-tax').textContent = formatCurrency(t.tax);
       document.getElementById('receipt-total').textContent = formatCurrency(t.grandTotal);
+      document.getElementById('receipt-payment-method').textContent = t.paymentMethod;
+      document.getElementById('receipt-paid-amount').textContent = formatCurrency(t.paid);
+      document.getElementById('receipt-change').textContent = formatCurrency(t.balance);
+
+      let itemsHtml = '';
+      t.items.forEach(i => {
+        itemsHtml += `
+          <div class="grid grid-cols-12 text-[9px]">
+            <span class="col-span-6 font-medium">${i.name}</span>
+            <span class="col-span-2 text-center">${i.qty}</span>
+            <span class="col-span-4 text-right">${formatCurrency(i.price * i.qty)}</span>
+          </div>
+        `;
+      });
+      document.getElementById('receipt-items-list').innerHTML = itemsHtml;
+      document.getElementById('receipt-modal').classList.remove('hidden');
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('receipt-modal').classList.add('hidden');
+    }
+
+    async function generatePDFBlob() {
+      const element = document.getElementById('receipt-paper');
+      const opt = {
+        margin:       5,
+        filename:     `${lastCompletedTransaction?.trxId || 'receipt'}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' }
+      };
+      
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    }
+
+    async function downloadReceiptPDF() {
+      const element = document.getElementById('receipt-paper');
+      const opt = {
+        margin:       5,
+        filename:     `${lastCompletedTransaction.trxId}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: [80, 150], orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
+    }
+
+    async function sendReceiptViaWhatsApp() {
+      const t = lastCompletedTransaction;
+      if (!t) return;
+      const pdfBlob = await generatePDFBlob();
+      const pdfFile = new File([pdfBlob], `${t.trxId}.pdf`, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        try {
+          await navigator.share({
+            files: [pdfFile],
+            title: `Receipt ${t.trxId}`,
+            text: `Here is your official receipt ${t.trxId} from ${userCompanyDetails?.name || 'our store'}.`
+          });
+          return;
+        } catch (err) {
+          console.log('Share canceled or failed', err);
+        }
+      }
+
+      const text = encodeURIComponent(`Official Receipt ${t.trxId} from ${userCompanyDetails?.name || 'Store'}\nTotal: ${formatCurrency(t.grandTotal)}\nThank you for shopping with us!`);
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    async function sendReceiptViaGmail() {
+      const t = lastCompletedTransaction;
+      if (!t) return;
+      const pdfBlob = await generatePDFBlob();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      
+      const subject = encodeURIComponent(`Official Sales Receipt ${t.trxId} - ${userCompanyDetails?.name || ''}`);
+      const body = encodeURIComponent(`Dear ${t.customer},\n\nPlease find attached your official PDF receipt for transaction ${t.trxId}.\nTotal Amount: ${formatCurrency(t.grandTotal)}\n\nThank you for your business!`);
+      
+      const a = document.createElement('a');
+      a.href = pdfUrl;
+      a.download = `${t.trxId}.pdf`;
+      a.click();
+
+      window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+      alert('PDF Receipt downloaded and email client opened. Please attach the downloaded PDF to your email.');
+    }
+
+    async function sendReceiptViaPhoneSMS() {
+      const t = lastCompletedTransaction;
+      if (!t) return;
+      const text = encodeURIComponent(`Receipt ${t.trxId} Total: ${formatCurrency(t.grandTotal)} from ${userCompanyDetails?.name || 'Store'}. Thank you!`);
+      window.open(`sms:?body=${text}`, '_blank');
+    }
+
+    function toggleMenu() {
+      alert('POS Menu: Switch Branch or View Shift Reports.');
+    }
+
+    window.addEventListener('DOMContentLoaded', initializePOS);
+  </script>
+</body>
+</html>
