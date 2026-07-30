@@ -33,7 +33,6 @@
     body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
-    .led-glow { box-shadow: 0 0 20px rgba(108, 92, 231, 0.25); }
     .iphone-frame {
       width: 100%;
       max-width: 410px;
@@ -99,9 +98,8 @@
         </div>
       </div>
 
-      <!-- KPI CARDS GRID (INCLUDING EXPENSES CARD) -->
+      <!-- KPI CARDS GRID -->
       <div class="grid grid-cols-3 gap-2.5">
-        <!-- Today's Sales -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Total Sales (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-sales">₦0</h3>
@@ -110,7 +108,6 @@
           </div>
         </div>
 
-        <!-- Today's Profit -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-profit">₦0</h3>
@@ -119,7 +116,6 @@
           </div>
         </div>
 
-        <!-- Transactions (Today) -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
@@ -131,21 +127,18 @@
 
       <!-- SECONDARY KPI ROW -->
       <div class="grid grid-cols-3 gap-2.5">
-        <!-- Outstanding Debt -->
         <a href="debtors.html" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 block transition cursor-pointer">
           <p class="text-[10px] text-slate-400 font-medium">Outstanding Debt</p>
           <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦0</h3>
           <p class="text-[9px] text-slate-500" id="val-debt-customers">0 Customers</p>
         </a>
 
-        <!-- Low Stock Alerts -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1">
           <p class="text-[10px] text-slate-400 font-medium">Low Stock Alerts</p>
           <h3 class="text-xs font-bold text-amber-400" id="val-low-stock">0 Items</h3>
           <p class="text-[9px] text-slate-500">Need attention</p>
         </div>
 
-        <!-- Expenses Card (Today) -->
         <div onclick="openExpensesModal()" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/40 p-3 rounded-2xl space-y-1 cursor-pointer transition flex flex-col justify-between shadow-lg">
           <div>
             <div class="flex items-center justify-between">
@@ -349,7 +342,6 @@
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Low stock = 3 units or less (same rule as inventory)
     const LOW_STOCK_UNITS = 3;
 
     let salesChartInstance = null;
@@ -386,6 +378,7 @@
       if (!sheet.classList.contains('opacity-0')) {
         toggleActionSheet();
       }
+      document.getElementById('debt-duedate').value = getLocalDateString(new Date());
       document.getElementById('debt-modal').classList.remove('hidden');
     }
 
@@ -413,6 +406,33 @@
       window.location.href = 'login.html';
     }
 
+    // BULLETPROOF COMPANY ID RESOLVER
+    async function resolveCompanyId() {
+      if (userCompanyId) return userCompanyId;
+
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) return null;
+
+        const { data: memberData } = await supabaseClient
+          .from('company_users')
+          .select('company_id, companies(name)')
+          .eq('user_id', user.id)
+          .single();
+
+        if (memberData && memberData.company_id) {
+          userCompanyId = memberData.company_id;
+          if (memberData.companies?.name) {
+            document.getElementById('current-branch-name').textContent = memberData.companies.name;
+          }
+          return userCompanyId;
+        }
+      } catch (e) {
+        console.error("Error resolving company ID:", e);
+      }
+      return null;
+    }
+
     async function initializeApp() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
@@ -429,23 +449,11 @@
           document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
           document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
 
-          const { data: memberData } = await supabaseClient
-            .from('company_users')
-            .select('company_id, companies(name)')
-            .eq('user_id', user.id)
-            .single();
-
-          if (memberData) {
-            userCompanyId = memberData.company_id;
-            if (memberData.companies?.name) {
-              document.getElementById('current-branch-name').textContent = memberData.companies.name;
-            }
-          }
+          await resolveCompanyId();
         }
 
         await fetchAllLiveMetrics();
 
-        // Realtime – listen to the correct tables
         supabaseClient
           .channel('quantum-live')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
@@ -460,16 +468,18 @@
     }
 
     async function fetchAllLiveMetrics() {
+      const activeCompanyId = await resolveCompanyId();
+
       let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
       let productsQuery = supabaseClient.from('products').select('*');
       let debtorsQuery = supabaseClient.from('debtors').select('*');
       let expensesQuery = supabaseClient.from('expenses').select('*');
 
-      if (userCompanyId) {
-        salesQuery = salesQuery.eq('company_id', userCompanyId);
-        productsQuery = productsQuery.eq('company_id', userCompanyId);
-        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
-        expensesQuery = expensesQuery.eq('company_id', userCompanyId);
+      if (activeCompanyId) {
+        salesQuery = salesQuery.eq('company_id', activeCompanyId);
+        productsQuery = productsQuery.eq('company_id', activeCompanyId);
+        debtorsQuery = debtorsQuery.eq('company_id', activeCompanyId);
+        expensesQuery = expensesQuery.eq('company_id', activeCompanyId);
       }
 
       const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
@@ -516,7 +526,6 @@
         }
       });
 
-      // Calculate today's total expenses to subtract for net profit
       let todayExpenses = 0;
       expenses.forEach(exp => {
         const expDateStr = getLocalDateString(new Date(exp.expense_date || exp.created_at || Date.now()));
@@ -561,11 +570,6 @@
       });
 
       document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
-
-      // Simple business health score
-      let health = 100;
-      if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
-      document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
     }
 
     function processDebtorsMetrics(debtors) {
@@ -726,17 +730,20 @@
         return;
       }
 
-      if (!userCompanyId) {
-        alert('Company session not loaded yet. Please refresh the page.');
+      const btn = document.getElementById('save-debt-btn');
+      btn.disabled = true;
+      btn.textContent = 'Resolving & Saving...';
+
+      const activeCompanyId = await resolveCompanyId();
+      if (!activeCompanyId) {
+        btn.disabled = false;
+        btn.textContent = 'Save Debt Record';
+        alert('Could not find your business branch. Please log out and log back in.');
         return;
       }
 
-      const btn = document.getElementById('save-debt-btn');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-
       const { error } = await supabaseClient.from('debtors').insert([{
-        company_id: userCompanyId,
+        company_id: activeCompanyId,
         customer_name: customer,
         item_bought: item || 'General Goods',
         amount_owing: parseFloat(amount),
@@ -774,17 +781,20 @@
         return;
       }
 
-      if (!userCompanyId) {
-        alert('Company session not loaded yet. Please refresh the page.');
+      const btn = document.getElementById('save-expense-btn');
+      btn.disabled = true;
+      btn.textContent = 'Resolving & Saving...';
+
+      const activeCompanyId = await resolveCompanyId();
+      if (!activeCompanyId) {
+        btn.disabled = false;
+        btn.textContent = 'Save Expense';
+        alert('Could not find your business branch. Please log out and log back in.');
         return;
       }
 
-      const btn = document.getElementById('save-expense-btn');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-
       const { error } = await supabaseClient.from('expenses').insert([{
-        company_id: userCompanyId,
+        company_id: activeCompanyId,
         title: title,
         category: category,
         amount: parseFloat(amount),
