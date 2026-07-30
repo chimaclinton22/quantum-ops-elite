@@ -382,17 +382,53 @@
         document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
         document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
 
-        const { data: memberData } = await supabaseClient
+        // --- SAFE MULTI-TABLE COMPANY LOOKUP ---
+        userCompanyId = null;
+
+        // Approach 1: Check company_users join table
+        const { data: memberData, error: memberErr } = await supabaseClient
           .from('company_users')
           .select('company_id, companies(name)')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (memberData) {
+        if (memberData && memberData.company_id) {
           userCompanyId = memberData.company_id;
           if (memberData.companies?.name) {
             document.getElementById('current-branch-name').textContent = memberData.companies.name;
           }
+          console.log("Company ID loaded from company_users:", userCompanyId);
+        } else {
+          // Approach 2: Check direct ownership in companies table
+          const { data: companyData, error: companyErr } = await supabaseClient
+            .from('companies')
+            .select('id, name')
+            .eq('owner_id', user.id)
+            .maybeSingle();
+
+          if (companyData && companyData.id) {
+            userCompanyId = companyData.id;
+            if (companyData.name) {
+              document.getElementById('current-branch-name').textContent = companyData.name;
+            }
+            console.log("Company ID loaded from companies table:", userCompanyId);
+          } else {
+            // Approach 3: Check profiles table
+            const { data: profileData } = await supabaseClient
+              .from('profiles')
+              .select('company_id')
+              .eq('id', user.id)
+              .maybeSingle();
+
+            if (profileData && profileData.company_id) {
+              userCompanyId = profileData.company_id;
+              console.log("Company ID loaded from profiles table:", userCompanyId);
+            }
+          }
+        }
+
+        if (!userCompanyId) {
+          console.warn("No company ID found for this user in company_users, companies, or profiles.");
         }
 
         await fetchAllLiveMetrics();
