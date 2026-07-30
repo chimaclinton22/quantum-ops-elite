@@ -181,17 +181,51 @@
     async function initializeDebtors() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
+        
         if (user) {
+          userCompanyId = null;
+
+          // Check company_users join table
           const { data: memberData } = await supabaseClient
             .from('company_users')
             .select('company_id')
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
 
-          if (memberData) {
+          if (memberData && memberData.company_id) {
             userCompanyId = memberData.company_id;
+            console.log("Debtors: Loaded Company ID from company_users:", userCompanyId);
+          } else {
+            // Fallback 1: Check companies table for direct ownership
+            const { data: companyData } = await supabaseClient
+              .from('companies')
+              .select('id')
+              .eq('owner_id', user.id)
+              .maybeSingle();
+
+            if (companyData && companyData.id) {
+              userCompanyId = companyData.id;
+              console.log("Debtors: Loaded Company ID from companies table:", userCompanyId);
+            } else {
+              // Fallback 2: Check profiles table
+              const { data: profileData } = await supabaseClient
+                .from('profiles')
+                .select('company_id')
+                .eq('id', user.id)
+                .maybeSingle();
+
+              if (profileData && profileData.company_id) {
+                userCompanyId = profileData.company_id;
+                console.log("Debtors: Loaded Company ID from profiles table:", userCompanyId);
+              }
+            }
+          }
+
+          if (!userCompanyId) {
+            console.warn("Debtors: No company ID found for user:", user.id);
           }
         }
+
         await fetchDebtors();
       } catch (err) {
         console.error("Initialization error:", err);
