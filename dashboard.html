@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -386,7 +386,7 @@
         userCompanyId = null;
 
         // Approach 1: Check company_users join table
-        const { data: memberData, error: memberErr } = await supabaseClient
+        const { data: memberData } = await supabaseClient
           .from('company_users')
           .select('company_id, companies(name)')
           .eq('user_id', user.id)
@@ -397,10 +397,9 @@
           if (memberData.companies?.name) {
             document.getElementById('current-branch-name').textContent = memberData.companies.name;
           }
-          console.log("Company ID loaded from company_users:", userCompanyId);
         } else {
           // Approach 2: Check direct ownership in companies table
-          const { data: companyData, error: companyErr } = await supabaseClient
+          const { data: companyData } = await supabaseClient
             .from('companies')
             .select('id, name')
             .eq('owner_id', user.id)
@@ -411,7 +410,6 @@
             if (companyData.name) {
               document.getElementById('current-branch-name').textContent = companyData.name;
             }
-            console.log("Company ID loaded from companies table:", userCompanyId);
           } else {
             // Approach 3: Check profiles table
             const { data: profileData } = await supabaseClient
@@ -422,23 +420,18 @@
 
             if (profileData && profileData.company_id) {
               userCompanyId = profileData.company_id;
-              console.log("Company ID loaded from profiles table:", userCompanyId);
             }
           }
         }
 
-        if (!userCompanyId) {
-          console.warn("No company ID found for this user in company_users, companies, or profiles.");
-        }
-
         await fetchAllLiveMetrics();
 
-        // Realtime – listen to changes on tables
+        // Realtime – listen to changes filtered strictly for this specific user
         supabaseClient
-          .channel('quantum-live')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
+          .channel(`quantum-live-${user.id}`)
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales', filter: `user_id=eq.${user.id}` }, () => fetchAllLiveMetrics())
           .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors', filter: `user_id=eq.${user.id}` }, () => fetchAllLiveMetrics())
           .subscribe();
 
       } catch (err) {
@@ -447,14 +440,22 @@
     }
 
     async function fetchAllLiveMetrics() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) return;
+
       let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
       let productsQuery = supabaseClient.from('products').select('*');
       let debtorsQuery = supabaseClient.from('debtors').select('*');
 
+      // Strictly filter sales and debts by user_id so users only see their own dashboard data
       if (userCompanyId) {
-        salesQuery = salesQuery.eq('company_id', userCompanyId);
+        salesQuery = salesQuery.eq('company_id', userCompanyId).eq('user_id', user.id);
         productsQuery = productsQuery.eq('company_id', userCompanyId);
-        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
+        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId).eq('user_id', user.id);
+      } else {
+        salesQuery = salesQuery.eq('user_id', user.id);
+        productsQuery = productsQuery.eq('user_id', user.id);
+        debtorsQuery = debtorsQuery.eq('user_id', user.id);
       }
 
       const [salesRes, productsRes, debtorsRes] = await Promise.all([
@@ -682,8 +683,9 @@
         return;
       }
 
-      if (!userCompanyId) {
-        alert('Company not loaded yet. Please refresh the page and try again.');
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        alert('User session expired. Please log in again.');
         return;
       }
 
@@ -694,6 +696,7 @@
 
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
+        user_id: user.id,
         customer_name: customer,
         item_bought: item || 'General Goods',
         amount_owing: parseFloat(amount),
@@ -724,5 +727,3 @@
   </script>
 </body>
 </html>
-
-
