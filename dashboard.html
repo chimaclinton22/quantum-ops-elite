@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -57,7 +57,6 @@
   </style>
 </head>
 <body>
-
   <!-- MOBILE DEVICE FRAME CONTAINER -->
   <div class="iphone-frame">
     
@@ -82,7 +81,6 @@
         </div>
       </div>
     </div>
-
     <!-- MAIN SCROLLABLE VIEWPORT -->
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
       
@@ -98,7 +96,6 @@
           <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
         </div>
       </div>
-
       <!-- KPI CARDS GRID -->
       <div class="grid grid-cols-3 gap-2.5">
         <!-- Today's Sales -->
@@ -109,7 +106,6 @@
             <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
           </div>
         </div>
-
         <!-- Today's Profit -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
@@ -118,7 +114,6 @@
             <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
           </div>
         </div>
-
         <!-- Transactions (Today) -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
@@ -128,7 +123,6 @@
           </div>
         </div>
       </div>
-
       <!-- SECONDARY KPI ROW -->
       <div class="grid grid-cols-3 gap-2.5">
         <!-- Outstanding Debt -->
@@ -137,14 +131,12 @@
           <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦0</h3>
           <p class="text-[9px] text-slate-500" id="val-debt-customers">0 Customers</p>
         </a>
-
         <!-- Low Stock Alerts -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1">
           <p class="text-[10px] text-slate-400 font-medium">Low Stock Alerts</p>
           <h3 class="text-xs font-bold text-amber-400" id="val-low-stock">0 Items</h3>
           <p class="text-[9px] text-slate-500">Need attention</p>
         </div>
-
         <!-- Business Health -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 flex flex-col justify-between">
           <p class="text-[10px] text-slate-400 font-medium">Business Health</p>
@@ -154,7 +146,6 @@
           </div>
         </div>
       </div>
-
       <!-- SALES OVERVIEW CHART -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
@@ -168,7 +159,6 @@
           <canvas id="salesOverviewChart"></canvas>
         </div>
       </div>
-
       <!-- TOP SELLING PRODUCTS -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
@@ -179,7 +169,6 @@
           <div class="text-slate-500 text-[11px] text-center py-2">Loading top products...</div>
         </div>
       </div>
-
       <!-- RECENT ACTIVITIES FEED -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
@@ -190,9 +179,7 @@
           <div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>
         </div>
       </div>
-
     </div>
-
     <!-- BOTTOM FLOATING NAVIGATION BAR -->
     <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
       <a href="dashboard.html" class="flex flex-col items-center gap-1 text-purple-400">
@@ -207,7 +194,6 @@
       <button onclick="toggleActionSheet()" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform focus:outline-none">
         <i class="fa-solid fa-plus text-base" id="action-btn-icon"></i>
       </button>
-
       <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
         <i class="fa-solid fa-cash-register text-sm"></i>
         <span class="text-[9px] font-medium">POS Sales</span>
@@ -217,9 +203,7 @@
         <span class="text-[9px] font-medium">AI CEO</span>
       </a>
     </nav>
-
   </div>
-
   <!-- QUICK ACTION BOTTOM SHEET -->
   <div id="action-sheet" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="w-full max-w-md bg-[#121224] border-t border-purple-500/30 rounded-t-[32px] p-6 space-y-5 transform translate-y-full transition-transform duration-300" id="action-sheet-content">
@@ -229,7 +213,6 @@
         <h3 class="text-sm font-bold text-white tracking-wide">Quick Business Actions</h3>
         <button onclick="toggleActionSheet()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
       </div>
-
       <div class="grid grid-cols-3 gap-3">
         <a href="pos.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
           <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-sm">
@@ -237,35 +220,30 @@
           </div>
           <span class="text-[11px] font-medium text-slate-200">New Sale</span>
         </a>
-
         <button onclick="openAddDebtModal()" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-file-invoice-dollar"></i>
           </div>
           <span class="text-[11px] font-medium text-slate-200">Add Debt</span>
         </button>
-
         <a href="inventory.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
           <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-boxes-stacked"></i>
           </div>
           <span class="text-[11px] font-medium text-slate-200">Inventory</span>
         </a>
-
         <a href="ai-ceo.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
           <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-robot"></i>
           </div>
           <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
         </a>
-
         <button onclick="alert('Reports module coming next. Your sales data is already ready.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-chart-pie"></i>
           </div>
           <span class="text-[11px] font-medium text-slate-200">Reports</span>
         </button>
-
         <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
             <i class="fa-solid fa-right-from-bracket"></i>
@@ -275,7 +253,6 @@
       </div>
     </div>
   </div>
-
   <!-- ADD DEBT MODAL (FULL SAFE FORM WITH ITEM BOUGHT) -->
   <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
@@ -304,23 +281,18 @@
       </div>
     </div>
   </div>
-
   <!-- REAL-TIME ENGINE -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     // Low stock = 3 units or less (same rule as inventory)
     const LOW_STOCK_UNITS = 3;
-
     let salesChartInstance = null;
     let userCompanyId = null;
-
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
-
     function getLocalDateString(dateObj) {
       const d = new Date(dateObj);
       const year = d.getFullYear();
@@ -328,7 +300,6 @@
       const day = String(d.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
-
     function toggleActionSheet() {
       const sheet = document.getElementById('action-sheet');
       const content = document.getElementById('action-sheet-content');
@@ -342,16 +313,13 @@
         content.classList.add('translate-y-full');
       }
     }
-
     function openAddDebtModal() {
       toggleActionSheet();
       document.getElementById('debt-modal').classList.remove('hidden');
     }
-
     function closeAddDebtModal() {
       document.getElementById('debt-modal').classList.add('hidden');
     }
-
     async function handleLogout() {
       try {
         await supabaseClient.auth.signOut();
@@ -359,39 +327,32 @@
         console.error("Sign out error:", e);
       }
       // Force immediate redirect to login page
-      window.location.replace('index.html');
+      window.location.href = 'index.html';
     }
-
     async function initializeApp() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) {
-          window.location.replace('index.html');
+          window.location.href = 'index.html';
           return;
         }
-
         const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
         const firstName = rawName.split(' ')[0];
         const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-
         const currentHour = new Date().getHours();
         let timeGreeting = "Good evening";
         if (currentHour < 12) timeGreeting = "Good morning";
         else if (currentHour < 17) timeGreeting = "Good afternoon";
-
         document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
         document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
-
         // --- SAFE MULTI-TABLE COMPANY LOOKUP ---
         userCompanyId = null;
-
         // Approach 1: Check company_users join table
-        const { data: memberData } = await supabaseClient
+        const { data: memberData, error: memberErr } = await supabaseClient
           .from('company_users')
           .select('company_id, companies(name)')
           .eq('user_id', user.id)
           .maybeSingle();
-
         if (memberData && memberData.company_id) {
           userCompanyId = memberData.company_id;
           if (memberData.companies?.name) {
@@ -400,12 +361,11 @@
           console.log("Company ID loaded from company_users:", userCompanyId);
         } else {
           // Approach 2: Check direct ownership in companies table
-          const { data: companyData } = await supabaseClient
+          const { data: companyData, error: companyErr } = await supabaseClient
             .from('companies')
             .select('id, name')
             .eq('owner_id', user.id)
             .maybeSingle();
-
           if (companyData && companyData.id) {
             userCompanyId = companyData.id;
             if (companyData.name) {
@@ -419,64 +379,44 @@
               .select('company_id')
               .eq('id', user.id)
               .maybeSingle();
-
             if (profileData && profileData.company_id) {
               userCompanyId = profileData.company_id;
               console.log("Company ID loaded from profiles table:", userCompanyId);
             }
           }
         }
-
         if (!userCompanyId) {
-          console.warn("No company ID found for this user. Showing empty dashboard to protect data isolation.");
-          showEmptyState();
-        } else {
-          await fetchAllLiveMetrics();
-
-          // Realtime – only for this company
-          supabaseClient
-            .channel('quantum-live-' + userCompanyId)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
-            .subscribe();
+          console.warn("No company ID found for this user in company_users, companies, or profiles.");
         }
-
+        await fetchAllLiveMetrics();
+        // Realtime – listen to changes on tables
+        supabaseClient
+          .channel('quantum-live')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
+          .subscribe();
       } catch (err) {
         console.error("Initialization error:", err);
       }
     }
-
-    function showEmptyState() {
-      document.getElementById('val-today-sales').textContent = '₦0';
-      document.getElementById('val-today-profit').textContent = '₦0';
-      document.getElementById('val-transactions').textContent = '0';
-      document.getElementById('val-outstanding-debt').textContent = '₦0';
-      document.getElementById('val-debt-customers').textContent = '0 Customers';
-      document.getElementById('val-low-stock').textContent = '0 Items';
-      document.getElementById('val-business-health').textContent = '100%';
-      document.getElementById('val-weekly-total').textContent = '₦0';
-      document.getElementById('top-products-list').innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No data yet for your business.</div>`;
-      document.getElementById('recent-activities-list').innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>`;
-    }
-
     async function fetchAllLiveMetrics() {
-      // HARD RULE: Never fetch data without company_id (this stops users seeing each other)
-      if (!userCompanyId) {
-        showEmptyState();
-        return;
+      let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
+      let productsQuery = supabaseClient.from('products').select('*');
+      let debtorsQuery = supabaseClient.from('debtors').select('*');
+      if (userCompanyId) {
+        salesQuery = salesQuery.eq('company_id', userCompanyId);
+        productsQuery = productsQuery.eq('company_id', userCompanyId);
+        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
       }
-
       const [salesRes, productsRes, debtorsRes] = await Promise.all([
-        supabaseClient.from('sales').select('*').eq('company_id', userCompanyId).order('created_at', { ascending: false }),
-        supabaseClient.from('products').select('*').eq('company_id', userCompanyId),
-        supabaseClient.from('debtors').select('*').eq('company_id', userCompanyId)
+        salesQuery,
+        productsQuery,
+        debtorsQuery
       ]);
-
       const sales = salesRes.data || [];
       const products = productsRes.data || [];
       const debtors = debtorsRes.data || [];
-
       processSalesMetrics(sales);
       processInventoryMetrics(products);
       processDebtorsMetrics(debtors);
@@ -484,56 +424,44 @@
       renderTopProducts(sales);
       renderRecentActivities(sales);
     }
-
     function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0;
       let todayProfit = 0;
       let todayCount = 0;
       let weeklyTotal = 0;
-
       sales.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
-        const profit = parseFloat(sale.profit || sale.total_profit || 0);
-
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        const profit = parseFloat(sale.profit || 0);
         const rawDate = sale.created_at || sale.date || new Date();
         const saleDateStr = getLocalDateString(new Date(rawDate));
-
         weeklyTotal += amount;
-
         if (saleDateStr === todayStr) {
           todaySales += amount;
           todayProfit += profit;
           todayCount += 1;
         }
       });
-
       document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
       document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
       document.getElementById('val-transactions').textContent = todayCount;
       document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal);
     }
-
     function processInventoryMetrics(products) {
       let lowStockCount = 0;
-
       products.forEach(item => {
         const totalPieces = parseFloat(item.stock || 0);
         const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
         const remainingUnits = totalPieces / piecesPerUnit;
-
         if (totalPieces > 0 && remainingUnits <= LOW_STOCK_UNITS) {
           lowStockCount++;
         }
       });
-
       document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
-
       let health = 100;
       if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
       document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
     }
-
     function processDebtorsMetrics(debtors) {
       let totalDebt = 0;
       debtors.forEach(d => {
@@ -542,21 +470,17 @@
       document.getElementById('val-outstanding-debt').textContent = formatCurrency(totalDebt);
       document.getElementById('val-debt-customers').textContent = `${debtors.length} Customers`;
     }
-
     function renderSalesChart(sales) {
       const ctx = document.getElementById('salesOverviewChart').getContext('2d');
       if (salesChartInstance) salesChartInstance.destroy();
-
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
-
       sales.forEach(sale => {
         const dateObj = new Date(sale.created_at || sale.date || Date.now());
         let dayIdx = dateObj.getDay() - 1;
         if (dayIdx === -1) dayIdx = 6;
-        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.total || sale.amount || 0);
+        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || sale.total || 0);
       });
-
       salesChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -591,40 +515,23 @@
         }
       });
     }
-
     function renderTopProducts(sales) {
       const container = document.getElementById('top-products-list');
       const productCounts = {};
-
       sales.forEach(sale => {
-        // Support items jsonb array (from POS) and flat product_name
-        if (Array.isArray(sale.items) && sale.items.length > 0) {
-          sale.items.forEach(item => {
-            const name = item.name || item.product_name || 'Product';
-            const qty = parseInt(item.qty || item.quantity || 1);
-            const amount = parseFloat(item.total || (item.price * qty) || 0);
-            if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
-            productCounts[name].qty += qty;
-            productCounts[name].revenue += amount;
-          });
-        } else {
-          const name = sale.product_name || sale.item_name || 'General Product';
-          const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
-          if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
-          productCounts[name].qty += parseInt(sale.quantity || 1);
-          productCounts[name].revenue += amount;
-        }
+        const name = sale.product_name || sale.item_name || 'General Product';
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
+        productCounts[name].qty += parseInt(sale.quantity || 1);
+        productCounts[name].revenue += amount;
       });
-
       const sortedProducts = Object.entries(productCounts)
         .sort((a, b) => b[1].revenue - a[1].revenue)
         .slice(0, 5);
-
       if (sortedProducts.length === 0) {
         container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>`;
         return;
       }
-
       let html = '';
       sortedProducts.forEach(([name, data], idx) => {
         html += `
@@ -639,30 +546,17 @@
       });
       container.innerHTML = html;
     }
-
     function renderRecentActivities(sales) {
       const container = document.getElementById('recent-activities-list');
       if (!sales || sales.length === 0) {
         container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>`;
         return;
       }
-
       const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
       let html = '';
-
       sorted.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
-        let productLabel = 'New Sale';
-
-        if (Array.isArray(sale.items) && sale.items.length > 0) {
-          productLabel = sale.items[0].name || sale.items[0].product_name || 'New Sale';
-          if (sale.items.length > 1) productLabel += ` +${sale.items.length - 1} more`;
-        } else {
-          productLabel = sale.product_name || sale.item_name || sale.customer_name || 'New Sale';
-        }
-
+        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
         const timeAgo = getTimeAgo(sale.created_at);
-
         html += `
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -670,7 +564,7 @@
                 <i class="fa-solid fa-cart-shopping"></i>
               </div>
               <div>
-                <p class="font-medium text-white text-[11px]">${productLabel}</p>
+                <p class="font-medium text-white text-[11px]">${sale.product_name || sale.item_name || 'New Sale'}</p>
                 <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash'}</p>
               </div>
             </div>
@@ -683,27 +577,23 @@
       });
       container.innerHTML = html;
     }
-
     function getTimeAgo(dateString) {
       if (!dateString) return 'Just now';
       const now = new Date();
       const past = new Date(dateString);
       const diffMs = now - past;
       const diffMins = Math.floor(diffMs / 60000);
-
       if (diffMins < 1) return 'Just now';
       if (diffMins < 60) return `${diffMins} min ago`;
       const diffHours = Math.floor(diffMins / 60);
       if (diffHours < 24) return `${diffHours}h ago`;
       return getLocalDateString(past);
     }
-
     async function submitNewDebt() {
       const customer = document.getElementById('debt-customer').value.trim();
       const item = document.getElementById('debt-item').value.trim();
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
-
       if (!customer) {
         alert('Please enter Customer Name.');
         return;
@@ -712,17 +602,14 @@
         alert('Please enter a valid Amount.');
         return;
       }
-
       if (!userCompanyId) {
         alert('Company not loaded yet. Please refresh the page and try again.');
         return;
       }
-
       const btn = document.getElementById('save-debt-btn');
       const originalText = btn.textContent;
       btn.disabled = true;
       btn.textContent = 'Saving...';
-
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
         customer_name: customer,
@@ -731,10 +618,8 @@
         due_date: duedate || null,
         status: 'unpaid'
       }]);
-
       btn.disabled = false;
       btn.textContent = originalText;
-
       if (error) {
         alert('Error saving debt: ' + error.message);
       } else {
@@ -746,12 +631,11 @@
         fetchAllLiveMetrics();
       }
     }
-
     function toggleMenu() {
       toggleActionSheet();
     }
-
     window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
+
