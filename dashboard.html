@@ -1,726 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quantum OPS Elite - Mobile Business OS</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Supabase JS Library -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              bg: '#07070F',
-              card: '#121224',
-              sidebar: '#0E0E1C',
-              purple: '#6C5CE7',
-              accent: '#8B5CF6'
-            }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
-    .led-glow { box-shadow: 0 0 20px rgba(108, 92, 231, 0.25); }
-    .iphone-frame {
-      width: 100%;
-      max-width: 410px;
-      height: 100vh;
-      max-height: 860px;
-      background: #0B0B16;
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    @media (min-width: 768px) {
-      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
-      .iphone-frame { border-radius: 48px; }
-    }
-    #action-sheet {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - QuickBuy HQ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
-
-  <!-- MOBILE DEVICE FRAME CONTAINER -->
-  <div class="iphone-frame">
-    
-    <!-- TOP APP BAR -->
-    <div class="px-4 pt-3 pb-2 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
-      <div class="flex items-center gap-3">
-        <button onclick="toggleMenu()" class="text-slate-300 hover:text-white transition">
-          <i class="fa-solid fa-bars text-lg"></i>
-        </button>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-xs shadow-inner">Q</div>
-          <span class="font-bold tracking-wider text-xs text-white">QUANTUM OPS <span class="text-[9px] text-purple-400 border border-purple-500/30 px-1 rounded">ELITE</span></span>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <button class="relative p-2 rounded-xl bg-[#131326] border border-purple-500/10 text-slate-300 hover:text-white">
-          <i class="fa-regular fa-bell text-sm"></i>
-          <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center text-white">0</span>
-        </button>
-        <div class="w-8 h-8 rounded-full overflow-hidden border border-purple-500/30 bg-purple-950 flex items-center justify-center text-xs font-semibold text-purple-200" id="user-avatar-initial">
-          C
-        </div>
-      </div>
-    </div>
-
-    <!-- MAIN SCROLLABLE VIEWPORT -->
-    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
-      
-      <!-- GREETING & BRANCH SELECTOR -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-base font-bold text-white" id="greeting-title">Good day, User 👋</h1>
-          <p class="text-[11px] text-slate-400">Here's what's happening with your business today.</p>
-        </div>
-        <div class="flex items-center gap-1.5 bg-[#121224] border border-purple-500/20 px-2.5 py-1.5 rounded-xl text-xs text-purple-300 font-medium shadow-inner">
-          <i class="fa-solid fa-store text-purple-400 text-[10px]"></i>
-          <span id="current-branch-name">Main Branch</span>
-          <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
-        </div>
-      </div>
-
-      <!-- KPI CARDS GRID -->
-      <div class="grid grid-cols-3 gap-2.5">
-        <!-- Today's Sales -->
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
-          <p class="text-[10px] text-slate-400 font-medium">Total Sales (Today)</p>
-          <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-sales">₦0</h3>
-          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
-          </div>
-        </div>
-
-        <!-- Today's Profit -->
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
-          <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
-          <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-profit">₦0</h3>
-          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
-          </div>
-        </div>
-
-        <!-- Transactions (Today) -->
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
-          <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
-          <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
-          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
-          </div>
-        </div>
-      </div>
-
-      <!-- SECONDARY KPI ROW -->
-      <div class="grid grid-cols-3 gap-2.5">
-        <!-- Outstanding Debt -->
-        <a href="debtors.html" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 block transition cursor-pointer">
-          <p class="text-[10px] text-slate-400 font-medium">Outstanding Debt</p>
-          <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦0</h3>
-          <p class="text-[9px] text-slate-500" id="val-debt-customers">0 Customers</p>
-        </a>
-
-        <!-- Low Stock Alerts -->
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1">
-          <p class="text-[10px] text-slate-400 font-medium">Low Stock Alerts</p>
-          <h3 class="text-xs font-bold text-amber-400" id="val-low-stock">0 Items</h3>
-          <p class="text-[9px] text-slate-500">Need attention</p>
-        </div>
-
-        <!-- Business Health -->
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 flex flex-col justify-between">
-          <p class="text-[10px] text-slate-400 font-medium">Business Health</p>
-          <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm" id="health-icon"></i>
-            <span class="text-xs font-bold text-emerald-400" id="val-business-health">100%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- SALES OVERVIEW CHART -->
-      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
-        <div class="flex justify-between items-center">
-          <div>
-            <h4 class="text-xs font-semibold text-slate-300">Sales Overview</h4>
-            <h3 class="text-sm font-bold text-white tracking-wide" id="val-weekly-total">₦0</h3>
-          </div>
-          <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-medium">This Week</span>
-        </div>
-        <div class="h-36 w-full">
-          <canvas id="salesOverviewChart"></canvas>
-        </div>
-      </div>
-
-      <!-- TOP SELLING PRODUCTS -->
-      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
-        <div class="flex justify-between items-center">
-          <h4 class="text-xs font-semibold text-slate-300">Top Selling Products</h4>
-          <span class="text-[10px] text-purple-400 font-medium">Real-time</span>
-        </div>
-        <div class="space-y-2.5 text-xs" id="top-products-list">
-          <div class="text-slate-500 text-[11px] text-center py-2">Loading top products...</div>
-        </div>
-      </div>
-
-      <!-- RECENT ACTIVITIES FEED -->
-      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
-        <div class="flex justify-between items-center">
-          <h4 class="text-xs font-semibold text-slate-300">Recent Activities</h4>
-          <span class="text-[10px] text-purple-400 font-medium">Live Feed</span>
-        </div>
-        <div class="space-y-3 text-xs" id="recent-activities-list">
-          <div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- BOTTOM FLOATING NAVIGATION BAR -->
-    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
-      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-purple-400">
-        <i class="fa-solid fa-gauge-high text-sm"></i>
-        <span class="text-[9px] font-medium">Dashboard</span>
-      </a>
-      <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-boxes-stacked text-sm"></i>
-        <span class="text-[9px] font-medium">Inventory</span>
-      </a>
-      
-      <button onclick="toggleActionSheet()" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform focus:outline-none">
-        <i class="fa-solid fa-plus text-base" id="action-btn-icon"></i>
-      </button>
-
-      <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-cash-register text-sm"></i>
-        <span class="text-[9px] font-medium">POS Sales</span>
-      </a>
-      <a href="ai-ceo.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-robot text-sm text-purple-400"></i>
-        <span class="text-[9px] font-medium">AI CEO</span>
-      </a>
-    </nav>
-
-  </div>
-
-  <!-- QUICK ACTION BOTTOM SHEET -->
-  <div id="action-sheet" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-    <div class="w-full max-w-md bg-[#121224] border-t border-purple-500/30 rounded-t-[32px] p-6 space-y-5 transform translate-y-full transition-transform duration-300" id="action-sheet-content">
-      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto"></div>
-      
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white tracking-wide">Quick Business Actions</h3>
-        <button onclick="toggleActionSheet()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
-      </div>
-
-      <div class="grid grid-cols-3 gap-3">
-        <a href="pos.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
-          <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-cash-register"></i>
-          </div>
-          <span class="text-[11px] font-medium text-slate-200">New Sale</span>
-        </a>
-
-        <button onclick="openAddDebtModal()" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-file-invoice-dollar"></i>
-          </div>
-          <span class="text-[11px] font-medium text-slate-200">Add Debt</span>
-        </button>
-
-        <a href="inventory.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
-          <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-boxes-stacked"></i>
-          </div>
-          <span class="text-[11px] font-medium text-slate-200">Inventory</span>
-        </a>
-
-        <a href="ai-ceo.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
-          <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-          <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
-        </a>
-
-        <button onclick="alert('Reports module coming next. Your sales data is already ready.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-chart-pie"></i>
-          </div>
-          <span class="text-[11px] font-medium text-slate-200">Reports</span>
-        </button>
-
-        <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-right-from-bracket"></i>
-          </div>
-          <span class="text-[11px] font-medium text-rose-300">Log Out</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADD DEBT MODAL (FULL SAFE FORM WITH ITEM BOUGHT) -->
-  <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Customer Debt</h3>
-        <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="text-[10px] text-slate-400 font-medium">Customer Name *</label>
-          <input type="text" id="debt-customer" placeholder="e.g. John Doe" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
-        </div>
-        <div>
-          <label class="text-[10px] text-slate-400 font-medium">Item Bought</label>
-          <input type="text" id="debt-item" placeholder="e.g. iPhone 13 Case, Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
-        </div>
-        <div>
-          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦) *</label>
-          <input type="number" id="debt-amount" placeholder="e.g. 25000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
-        </div>
-        <div>
-          <label class="text-[10px] text-slate-400 font-medium">Due Date</label>
-          <input type="date" id="debt-duedate" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
-        </div>
-        <button onclick="submitNewDebt()" id="save-debt-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- REAL-TIME ENGINE -->
-  <script>
-    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // Low stock = 3 units or less (same rule as inventory)
-    const LOW_STOCK_UNITS = 3;
-
-    let salesChartInstance = null;
-    let userCompanyId = null;
-
-    function formatCurrency(amount) {
-      return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
-    }
-
-    function getLocalDateString(dateObj) {
-      const d = new Date(dateObj);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-
-    function toggleActionSheet() {
-      const sheet = document.getElementById('action-sheet');
-      const content = document.getElementById('action-sheet-content');
-      const isHidden = sheet.classList.contains('opacity-0');
-      
-      if (isHidden) {
-        sheet.classList.remove('opacity-0', 'pointer-events-none');
-        content.classList.remove('translate-y-full');
-      } else {
-        sheet.classList.add('opacity-0', 'pointer-events-none');
-        content.classList.add('translate-y-full');
-      }
-    }
-
-    function openAddDebtModal() {
-      toggleActionSheet();
-      document.getElementById('debt-modal').classList.remove('hidden');
-    }
-
-    function closeAddDebtModal() {
-      document.getElementById('debt-modal').classList.add('hidden');
-    }
-
-    async function handleLogout() {
-      try {
-        await supabaseClient.auth.signOut();
-      } catch (e) {
-        console.error("Sign out error:", e);
-      }
-      // Force immediate redirect to login page
-      window.location.href = 'index.html';
-    }
-
-    async function initializeApp() {
-      try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) {
-          window.location.href = 'index.html';
-          return;
-        }
-
-        const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
-        const firstName = rawName.split(' ')[0];
-        const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-
-        const currentHour = new Date().getHours();
-        let timeGreeting = "Good evening";
-        if (currentHour < 12) timeGreeting = "Good morning";
-        else if (currentHour < 17) timeGreeting = "Good afternoon";
-
-        document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
-        document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
-
-        // --- SAFE MULTI-TABLE COMPANY LOOKUP ---
-        userCompanyId = null;
-
-        // Approach 1: Check company_users join table
-        const { data: memberData, error: memberErr } = await supabaseClient
-          .from('company_users')
-          .select('company_id, companies(name)')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (memberData && memberData.company_id) {
-          userCompanyId = memberData.company_id;
-          if (memberData.companies?.name) {
-            document.getElementById('current-branch-name').textContent = memberData.companies.name;
-          }
-          console.log("Company ID loaded from company_users:", userCompanyId);
-        } else {
-          // Approach 2: Check direct ownership in companies table
-          const { data: companyData, error: companyErr } = await supabaseClient
-            .from('companies')
-            .select('id, name')
-            .eq('owner_id', user.id)
-            .maybeSingle();
-
-          if (companyData && companyData.id) {
-            userCompanyId = companyData.id;
-            if (companyData.name) {
-              document.getElementById('current-branch-name').textContent = companyData.name;
-            }
-            console.log("Company ID loaded from companies table:", userCompanyId);
-          } else {
-            // Approach 3: Check profiles table
-            const { data: profileData } = await supabaseClient
-              .from('profiles')
-              .select('company_id')
-              .eq('id', user.id)
-              .maybeSingle();
-
-            if (profileData && profileData.company_id) {
-              userCompanyId = profileData.company_id;
-              console.log("Company ID loaded from profiles table:", userCompanyId);
-            }
-          }
-        }
-
-        if (!userCompanyId) {
-          console.warn("No company ID found for this user in company_users, companies, or profiles.");
-        }
-
-        await fetchAllLiveMetrics();
-
-        // Realtime – listen to changes on tables
-        supabaseClient
-          .channel('quantum-live')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
-          .subscribe();
-
-      } catch (err) {
-        console.error("Initialization error:", err);
-      }
-    }
-
-    async function fetchAllLiveMetrics() {
-      let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
-      let productsQuery = supabaseClient.from('products').select('*');
-      let debtorsQuery = supabaseClient.from('debtors').select('*');
-
-      if (userCompanyId) {
-        salesQuery = salesQuery.eq('company_id', userCompanyId);
-        productsQuery = productsQuery.eq('company_id', userCompanyId);
-        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
-      }
-
-      const [salesRes, productsRes, debtorsRes] = await Promise.all([
-        salesQuery,
-        productsQuery,
-        debtorsQuery
-      ]);
-
-      const sales = salesRes.data || [];
-      const products = productsRes.data || [];
-      const debtors = debtorsRes.data || [];
-
-      processSalesMetrics(sales);
-      processInventoryMetrics(products);
-      processDebtorsMetrics(debtors);
-      renderSalesChart(sales);
-      renderTopProducts(sales);
-      renderRecentActivities(sales);
-    }
-
-    function processSalesMetrics(sales) {
-      const todayStr = getLocalDateString(new Date());
-      let todaySales = 0;
-      let todayProfit = 0;
-      let todayCount = 0;
-      let weeklyTotal = 0;
-
-      sales.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
-        const profit = parseFloat(sale.profit || 0);
-
-        const rawDate = sale.created_at || sale.date || new Date();
-        const saleDateStr = getLocalDateString(new Date(rawDate));
-
-        weeklyTotal += amount;
-
-        if (saleDateStr === todayStr) {
-          todaySales += amount;
-          todayProfit += profit;
-          todayCount += 1;
-        }
-      });
-
-      document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
-      document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
-      document.getElementById('val-transactions').textContent = todayCount;
-      document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal);
-    }
-
-    function processInventoryMetrics(products) {
-      let lowStockCount = 0;
-
-      products.forEach(item => {
-        const totalPieces = parseFloat(item.stock || 0);
-        const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
-        const remainingUnits = totalPieces / piecesPerUnit;
-
-        if (totalPieces > 0 && remainingUnits <= LOW_STOCK_UNITS) {
-          lowStockCount++;
-        }
-      });
-
-      document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
-
-      let health = 100;
-      if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
-      document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
-    }
-
-    function processDebtorsMetrics(debtors) {
-      let totalDebt = 0;
-      debtors.forEach(d => {
-        totalDebt += parseFloat(d.amount_owing || d.amount || 0);
-      });
-      document.getElementById('val-outstanding-debt').textContent = formatCurrency(totalDebt);
-      document.getElementById('val-debt-customers').textContent = `${debtors.length} Customers`;
-    }
-
-    function renderSalesChart(sales) {
-      const ctx = document.getElementById('salesOverviewChart').getContext('2d');
-      if (salesChartInstance) salesChartInstance.destroy();
-
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
-
-      sales.forEach(sale => {
-        const dateObj = new Date(sale.created_at || sale.date || Date.now());
-        let dayIdx = dateObj.getDay() - 1;
-        if (dayIdx === -1) dayIdx = 6;
-        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || sale.total || 0);
-      });
-
-      salesChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: days,
-          datasets: [{
-            label: 'Sales (₦)',
-            data: dailyTotals,
-            borderColor: '#A78BFA',
-            backgroundColor: 'rgba(108, 92, 231, 0.15)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#C084FC',
-            pointRadius: 3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 9 } } },
-            y: {
-              grid: { color: 'rgba(255,255,255,0.03)' },
-              ticks: {
-                color: '#94A3B8',
-                font: { size: 9 },
-                callback: val => '₦' + (val / 1000).toFixed(0) + 'k'
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function renderTopProducts(sales) {
-      const container = document.getElementById('top-products-list');
-      const productCounts = {};
-
-      sales.forEach(sale => {
-        const name = sale.product_name || sale.item_name || 'General Product';
-        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
-        if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
-        productCounts[name].qty += parseInt(sale.quantity || 1);
-        productCounts[name].revenue += amount;
-      });
-
-      const sortedProducts = Object.entries(productCounts)
-        .sort((a, b) => b[1].revenue - a[1].revenue)
-        .slice(0, 5);
-
-      if (sortedProducts.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>`;
-        return;
-      }
-
-      let html = '';
-      sortedProducts.forEach(([name, data], idx) => {
-        html += `
-          <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
-            <span class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">${idx + 1}</span>
-              ${name} (${data.qty} sold)
-            </span>
-            <span class="text-white font-semibold">${formatCurrency(data.revenue)}</span>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
-
-    function renderRecentActivities(sales) {
-      const container = document.getElementById('recent-activities-list');
-      if (!sales || sales.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>`;
-        return;
-      }
-
-      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
-      let html = '';
-
-      sorted.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
-        const timeAgo = getTimeAgo(sale.created_at);
-
-        html += `
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-[11px]">
-                <i class="fa-solid fa-cart-shopping"></i>
-              </div>
-              <div>
-                <p class="font-medium text-white text-[11px]">${sale.product_name || sale.item_name || 'New Sale'}</p>
-                <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash'}</p>
-              </div>
+<body class="bg-gray-50 font-sans text-gray-900 antialiased">
+
+    <!-- App Wrapper -->
+    <div class="min-h-screen flex flex-col md:flex-row">
+
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl">
+            <div>
+                <!-- Brand Header -->
+                <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
+                    <span class="text-xl font-black tracking-wider text-white uppercase flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-indigo-500"></i> QuickBuy HQ
+                    </span>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-1">
+                    <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white font-medium shadow-md shadow-indigo-600/30 transition">
+                        <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+                    </a>
+                    <a href="pos.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-medium">
+                        <i class="fa-solid fa-cash-register w-5"></i> POS Terminal
+                    </a>
+                    <a href="inventory.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-medium">
+                        <i class="fa-solid fa-boxes-stacked w-5"></i> Inventory
+                    </a>
+                    <a href="sales.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-medium">
+                        <i class="fa-solid fa-receipt w-5"></i> Sales History
+                    </a>
+                    <a href="debtors.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-medium">
+                        <i class="fa-solid fa-address-book w-5"></i> Debtors Ledger
+                    </a>
+                    <a href="expenses.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-medium">
+                        <i class="fa-solid fa-wallet w-5"></i> Expenses
+                    </a>
+                    <a href="staff.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-medium">
+                        <i class="fa-solid fa-users w-5"></i> Staff Manager
+                    </a>
+                    <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition font-medium">
+                        <i class="fa-solid fa-gear w-5"></i> Settings
+                    </a>
+                </nav>
             </div>
-            <div class="text-right">
-              <p class="font-semibold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
-              <p class="text-[9px] text-slate-500">${timeAgo}</p>
+
+            <!-- Branch & Logout Info -->
+            <div class="p-4 border-t border-slate-800 bg-slate-950/50">
+                <div class="mb-3 px-2">
+                    <p class="text-xs text-slate-500 uppercase font-semibold">Active Branch</p>
+                    <p id="current-branch-name" class="text-sm font-bold text-white truncate">Loading branch...</p>
+                </div>
+                <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition font-medium text-sm">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </button>
             </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
+        </aside>
 
-    function getTimeAgo(dateString) {
-      if (!dateString) return 'Just now';
-      const now = new Date();
-      const past = new Date(dateString);
-      const diffMs = now - past;
-      const diffMins = Math.floor(diffMs / 60000);
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            
+            <!-- Top Navbar -->
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-xl font-bold text-gray-800">Store Dashboard</h1>
+                    <span id="live-indicator" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Sync Active
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="user-email-display" class="text-sm font-medium text-gray-600 hidden sm:inline">Loading...</span>
+                    <div class="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm border border-indigo-200">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+            </header>
 
-      if (diffMins < 1) return 'Just now';
-      if (diffMins < 60) return `${diffMins} min ago`;
-      const diffHours = Math.floor(diffMins / 60);
-      if (diffHours < 24) return `${diffHours}h ago`;
-      return getLocalDateString(past);
-    }
+            <!-- Dashboard Content Container -->
+            <div class="p-6 max-w-7xl w-full mx-auto space-y-6">
 
-    async function submitNewDebt() {
-      const customer = document.getElementById('debt-customer').value.trim();
-      const item = document.getElementById('debt-item').value.trim();
-      const amount = document.getElementById('debt-amount').value;
-      const duedate = document.getElementById('debt-duedate').value;
+                <!-- KPI Metric Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    
+                    <!-- Card 1: Today's Revenue -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-indigo-100 transition">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Today's Revenue</p>
+                            <h3 id="metric-today-sales" class="text-2xl font-black text-gray-800 mt-1">₦0.00</h3>
+                            <p class="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-trend-up"></i> Real-time tracking
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold group-hover:scale-110 transition">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
 
-      if (!customer) {
-        alert('Please enter Customer Name.');
-        return;
-      }
-      if (!amount || parseFloat(amount) <= 0) {
-        alert('Please enter a valid Amount.');
-        return;
-      }
+                    <!-- Card 2: Low Stock Warning -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-amber-100 transition">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Low Stock Items</p>
+                            <h3 id="metric-low-stock" class="text-2xl font-black text-gray-800 mt-1">0</h3>
+                            <p class="text-xs text-amber-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Needs Restock
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold group-hover:scale-110 transition">
+                            <i class="fa-solid fa-boxes-packing"></i>
+                        </div>
+                    </div>
 
-      if (!userCompanyId) {
-        alert('Company not loaded yet. Please refresh the page and try again.');
-        return;
-      }
+                    <!-- Card 3: Total Debtors -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-rose-100 transition">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Outstanding Debts</p>
+                            <h3 id="metric-total-debt" class="text-2xl font-black text-gray-800 mt-1">₦0.00</h3>
+                            <p class="text-xs text-rose-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-file-invoice-dollar"></i> Unsettled balance
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl font-bold group-hover:scale-110 transition">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                    </div>
 
-      const btn = document.getElementById('save-debt-btn');
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
+                    <!-- Card 4: Total Inventory Value -->
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-blue-100 transition">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Inventory Value</p>
+                            <h3 id="metric-inventory-value" class="text-2xl font-black text-gray-800 mt-1">₦0.00</h3>
+                            <p class="text-xs text-blue-600 font-semibold mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-warehouse"></i> Asset worth
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold group-hover:scale-110 transition">
+                            <i class="fa-solid fa-vault"></i>
+                        </div>
+                    </div>
 
-      const { error } = await supabaseClient.from('debtors').insert([{
-        company_id: userCompanyId,
-        customer_name: customer,
-        item_bought: item || 'General Goods',
-        amount_owing: parseFloat(amount),
-        due_date: duedate || null,
-        status: 'unpaid'
-      }]);
+                </div>
 
-      btn.disabled = false;
-      btn.textContent = originalText;
+                <!-- Charts & Breakdown Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Sales Chart (Spans 2 columns) -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-800 text-lg">Sales Performance Overview</h3>
+                            <span class="text-xs font-semibold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100">Last 7 Days</span>
+                        </div>
+                        <div class="flex-1 relative min-h-[300px]">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
 
-      if (error) {
-        alert('Error saving debt: ' + error.message);
-      } else {
-        closeAddDebtModal();
-        document.getElementById('debt-customer').value = '';
-        document.getElementById('debt-item').value = '';
-        document.getElementById('debt-amount').value = '';
-        document.getElementById('debt-duedate').value = '';
-        fetchAllLiveMetrics();
-      }
-    }
+                    <!-- Top Selling Products -->
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-800 text-lg">Top Products</h3>
+                            <a href="inventory.html" class="text-xs font-semibold text-indigo-600 hover:underline">View All</a>
+                        </div>
+                        <div id="top-products-list" class="space-y-4 flex-1 overflow-y-auto max-h-[320px]">
+                            <!-- Dynamic Content Injected via JS -->
+                            <div class="text-center py-12 text-gray-400 text-sm">Loading top products...</div>
+                        </div>
+                    </div>
 
-    function toggleMenu() {
-      toggleActionSheet();
-    }
+                </div>
 
-    window.addEventListener('DOMContentLoaded', initializeApp);
-  </script>
+                <!-- Recent Activities & Quick Links -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-800 text-lg">Recent Sales Transactions</h3>
+                        <a href="sales.html" class="text-xs font-semibold text-indigo-600 hover:underline">View History</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-100 text-xs uppercase font-semibold text-gray-400 tracking-wider">
+                                    <th class="py-3 px-4">Transaction Ref</th>
+                                    <th class="py-3 px-4">Items Sold</th>
+                                    <th class="py-3 px-4">Total Amount</th>
+                                    <th class="py-3 px-4">Payment Method</th>
+                                    <th class="py-3 px-4">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-activities-table" class="divide-y divide-gray-50 text-sm text-gray-600">
+                                <tr>
+                                    <td colspan="5" class="text-center py-8 text-gray-400">Loading recent records...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Script Application Logic -->
+    <script>
+        const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Global User & Branch State Tracking
+        let currentUserId = null;
+        let userRole = 'staff'; // Defaults to standard staff
+        let userCompanyId = null;
+
+        const LOW_STOCK_UNITS = 3;
+        let salesChartInstance = null;
+
+        // Run security and initialization on window load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            if (error || !session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = session.user;
+            document.getElementById('user-email-display').textContent = user.email;
+            currentUserId = user.id;
+
+            await initializeApp(user);
+        });
+
+        async function initializeApp(user) {
+            try {
+                // --- SAFE MULTI-TABLE COMPANY LOOKUP ---
+                userCompanyId = null;
+
+                // Approach 1: Check company_users join table (NOW FETCHES ROLE)
+                const { data: memberData, error: memberErr } = await supabaseClient
+                    .from('company_users')
+                    .select('company_id, role, companies(name)')
+                    .eq('user_id', user.id)
+                    .maybeSingle();
+
+                if (memberData && memberData.company_id) {
+                    userCompanyId = memberData.company_id;
+                    userRole = memberData.role || 'staff'; // Assign the fetched role
+                    
+                    if (memberData.companies?.name) {
+                        document.getElementById('current-branch-name').textContent = memberData.companies.name;
+                    }
+                } else {
+                    // Approach 2: Check direct ownership in companies table
+                    const { data: companyData, error: companyErr } = await supabaseClient
+                        .from('companies')
+                        .select('id, name')
+                        .eq('owner_id', user.id)
+                        .maybeSingle();
+
+                    if (companyData && companyData.id) {
+                        userCompanyId = companyData.id;
+                        userRole = 'owner'; // Direct owners get ultimate access
+                        
+                        if (companyData.name) {
+                            document.getElementById('current-branch-name').textContent = companyData.name;
+                        }
+                    } else {
+                        // Approach 3: Check user metadata fallback
+                        userCompanyId = user.user_metadata?.company_id || user.app_metadata?.company_id;
+                        if (userCompanyId) {
+                            const { data: metaComp } = await supabaseClient
+                                .from('companies')
+                                .select('name')
+                                .eq('id', userCompanyId)
+                                .maybeSingle();
+                            if (metaComp?.name) {
+                                document.getElementById('current-branch-name').textContent = metaComp.name;
+                            }
+                        }
+                    }
+                }
+
+                if (!userCompanyId) {
+                    document.getElementById('current-branch-name').textContent = "No Branch Assigned";
+                }
+
+                // Initial Data Fetch
+                await fetchAllLiveMetrics();
+
+                // Setup Realtime Subscriptions for Auto-refresh
+                setupRealtimeListeners();
+
+            } catch (err) {
+                console.error("Initialization Error:", err);
+            }
+        }
+
+        async function fetchAllLiveMetrics() {
+            let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
+            let productsQuery = supabaseClient.from('products').select('*');
+            let debtorsQuery = supabaseClient.from('debtors').select('*');
+
+            if (userCompanyId) {
+                salesQuery = salesQuery.eq('company_id', userCompanyId);
+                productsQuery = productsQuery.eq('company_id', userCompanyId);
+                debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
+                
+                // User-Specific Dashboard Isolation for Standard Staff
+                const isManagement = ['owner', 'admin', 'manager'].includes(userRole);
+                
+                if (!isManagement) {
+                    // Standard staff only see their own sales and their own logged debtors
+                    salesQuery = salesQuery.eq('user_id', currentUserId);
+                    debtorsQuery = debtorsQuery.eq('user_id', currentUserId); 
+                }
+            }
+
+            const [salesRes, productsRes, debtorsRes] = await Promise.all([
+                salesQuery,
+                productsQuery,
+                debtorsQuery
+            ]);
+
+            const sales = salesRes.data || [];
+            const products = productsRes.data || [];
+            const debtors = debtorsRes.data || [];
+
+            processSalesMetrics(sales);
+            processInventoryMetrics(products);
+            processDebtorsMetrics(debtors);
+            renderSalesChart(sales);
+            renderTopProducts(sales);
+            renderRecentActivities(sales);
+        }
+
+        function processSalesMetrics(sales) {
+            const todayStr = new Date().toISOString().split('T')[0];
+            let todayTotal = 0;
+
+            sales.forEach(sale => {
+                const saleDate = new Date(sale.created_at).toISOString().split('T')[0];
+                if (saleDate === todayStr) {
+                    todayTotal += Number(sale.total_amount || sale.total || 0);
+                }
+            });
+
+            document.getElementById('metric-today-sales').textContent = formatCurrency(todayTotal);
+        }
+
+        function processInventoryMetrics(products) {
+            let lowStockCount = 0;
+            let totalInventoryValue = 0;
+
+            products.forEach(p => {
+                const qty = Number(p.quantity || p.stock || 0);
+                const price = Number(p.price || p.selling_price || 0);
+
+                totalInventoryValue += (qty * price);
+
+                if (qty <= LOW_STOCK_UNITS) {
+                    lowStockCount++;
+                }
+            });
+
+            document.getElementById('metric-low-stock').textContent = lowStockCount;
+            document.getElementById('metric-inventory-value').textContent = formatCurrency(totalInventoryValue);
+        }
+
+        function processDebtorsMetrics(debtors) {
+            let totalDebt = 0;
+
+            debtors.forEach(d => {
+                // If there's an amount/balance field, calculate total remaining debt
+                const balance = Number(d.balance || d.amount_due || d.amount || 0);
+                totalDebt += balance;
+            });
+
+            document.getElementById('metric-total-debt').textContent = formatCurrency(totalDebt);
+        }
+
+        function renderSalesChart(sales) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Group sales by last 7 days
+            const daysMap = {};
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateKey = d.toISOString().split('T')[0];
+                const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                daysMap[dateKey] = { label: dayName, total: 0 };
+            }
+
+            sales.forEach(s => {
+                const dateKey = new Date(s.created_at).toISOString().split('T')[0];
+                if (daysMap[dateKey]) {
+                    daysMap[dateKey].total += Number(s.total_amount || s.total || 0);
+                }
+            });
+
+            const labels = Object.values(daysMap).map(d => d.label);
+            const dataValues = Object.values(daysMap).map(d => d.total);
+
+            if (salesChartInstance) {
+                salesChartInstance.destroy();
+            }
+
+            salesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Revenue (₦)',
+                        data: dataValues,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Revenue: ' + formatCurrency(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6' },
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000) {
+                                        return '₦' + (value / 1000).toFixed(0) + 'k';
+                                    }
+                                    return '₦' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTopProducts(sales) {
+            const productCounts = {};
+
+            sales.forEach(s => {
+                // Safely evaluate items array or json object if logged inside sales table
+                let items = s.items || s.cart_items || [];
+                if (typeof items === 'string') {
+                    try { items = JSON.parse(items); } catch(e) { items = []; }
+                }
+
+                items.forEach(item => {
+                    const name = item.name || item.product_name || 'Unknown Product';
+                    const qty = Number(item.quantity || item.qty || 1);
+                    productCounts[name] = (productCounts[name] || 0) + qty;
+                });
+            });
+
+            const sortedProducts = Object.entries(productCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const container = document.getElementById('top-products-list');
+            if (sortedProducts.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-gray-400 text-sm">No sales records found yet.</div>`;
+                return;
+            }
+
+            container.innerHTML = sortedProducts.map(([name, count], index) => `
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50/50 border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">${index + 1}</span>
+                        <span class="font-semibold text-gray-800 text-sm truncate max-w-[140px]">${name}</span>
+                    </div>
+                    <span class="text-xs font-bold text-gray-500 bg-white px-2.5 py-1 rounded-md border border-gray-100 shadow-2xs">${count} sold</span>
+                </div>
+            `).join('');
+        }
+
+        function renderRecentActivities(sales) {
+            const tbody = document.getElementById('recent-activities-table');
+            const recent = sales.slice(0, 6);
+
+            if (recent.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-400">No transactions recorded yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = recent.map(sale => {
+                const ref = sale.reference || sale.id.slice(0, 8).toUpperCase();
+                const total = formatCurrency(sale.total_amount || sale.total || 0);
+                const method = sale.payment_method || sale.method || 'Cash';
+                const timeStr = new Date(sale.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                let itemCount = 0;
+                let items = sale.items || sale.cart_items || [];
+                if (typeof items === 'string') {
+                    try { items = JSON.parse(items); } catch(e) { items = []; }
+                }
+                itemCount = items.reduce((acc, curr) => acc + Number(curr.quantity || curr.qty || 1), 0);
+                if (itemCount === 0) itemCount = 1;
+
+                return `
+                    <tr class="hover:bg-gray-50/50 transition">
+                        <td class="py-3 px-4 font-mono font-bold text-indigo-600">#${ref}</td>
+                        <td class="py-3 px-4 text-gray-800 font-medium">${itemCount} item(s)</td>
+                        <td class="py-3 px-4 font-bold text-gray-900">${total}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 uppercase">${method}</span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-400 text-xs">${timeStr}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setupRealtimeListeners() {
+            supabaseClient
+                .channel('dashboard-live-sync')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, payload => {
+                    fetchAllLiveMetrics();
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, payload => {
+                    fetchAllLiveMetrics();
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, payload => {
+                    fetchAllLiveMetrics();
+                })
+                .subscribe();
+        }
+
+        function formatCurrency(amount) {
+            return '₦' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
 </html>
