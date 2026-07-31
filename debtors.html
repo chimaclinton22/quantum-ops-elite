@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quantum OPS Elite - Debtors Management</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
@@ -49,6 +52,7 @@
 </head>
 <body>
 
+  <!-- MOBILE DEVICE FRAME CONTAINER -->
   <div class="iphone-frame">
     
     <!-- TOP APP BAR -->
@@ -66,14 +70,14 @@
       </button>
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN SCROLLABLE VIEWPORT -->
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
       
-      <!-- SUMMARY BANNER -->
+      <!-- DEBT SUMMARY BANNER -->
       <div class="bg-gradient-to-r from-rose-950/40 via-[#121224] to-purple-950/35 border border-rose-500/20 p-4 rounded-2xl flex items-center justify-between shadow-xl">
         <div>
           <p class="text-[10px] text-slate-400 font-medium">Total Outstanding</p>
-          <h2 class="text-lg font-extrabold text-rose-400 tracking-tight" id="val-total-debt">₦0</h2>
+          <h2 class="text-lg font-extrabold text-rose-400 tracking-tight" id="val-total-debt">â¦0</h2>
         </div>
         <div class="text-right">
           <p class="text-[10px] text-slate-400 font-medium">Total Debtors</p>
@@ -81,20 +85,20 @@
         </div>
       </div>
 
-      <!-- SEARCH -->
+      <!-- SEARCH BAR -->
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
         <input type="text" id="search-debtor" oninput="filterDebtors()" placeholder="Search customer or item bought..." class="w-full bg-[#121224] border border-purple-500/15 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
       </div>
 
-      <!-- LIST -->
+      <!-- DEBTORS LIST CONTAINER -->
       <div class="space-y-3" id="debtors-list-container">
         <div class="text-center py-10 text-slate-500 text-xs">Loading customer debts...</div>
       </div>
 
     </div>
 
-    <!-- BOTTOM NAV -->
+    <!-- BOTTOM FLOATING NAVIGATION BAR -->
     <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
       <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
         <i class="fa-solid fa-gauge-high text-sm"></i>
@@ -116,20 +120,16 @@
 
   </div>
 
-  <!-- ADD DEBT MODAL (FULL FORM) -->
+  <!-- ADD DEBT MODAL -->
   <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white">
-          <i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Debt
-        </h3>
-        <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Debt</h3>
+        <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="space-y-3 text-xs">
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Customer Name *</label>
+          <label class="text-[10px] text-slate-400 font-medium">Customer Name</label>
           <input type="text" id="debt-customer" placeholder="e.g. John Doe" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
@@ -137,20 +137,19 @@
           <input type="text" id="debt-item" placeholder="e.g. iPhone 13 Case, Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
-          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦) *</label>
+          <label class="text-[10px] text-slate-400 font-medium">Amount Owing (â¦)</label>
           <input type="number" id="debt-amount" placeholder="e.g. 25000" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
           <label class="text-[10px] text-slate-400 font-medium">Due Date</label>
           <input type="date" id="debt-duedate" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
-        <button onclick="submitNewDebt()" id="save-debt-btn" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">
-          Save Debt Record
-        </button>
+        <button onclick="submitNewDebt()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">Save Debt Record</button>
       </div>
     </div>
   </div>
 
+  <!-- APPLICATION LOGIC -->
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
@@ -160,14 +159,13 @@
     let allDebtors = [];
 
     function formatCurrency(amount) {
-      return '₦' + Number(amount || 0).toLocaleString();
+      return 'â¦' + Number(amount || 0).toLocaleString();
     }
 
     function formatDate(isoString) {
       if (!isoString) return 'N/A';
       const d = new Date(isoString);
-      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + 
-             ' at ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + ' at ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     function openAddDebtModal() {
@@ -181,51 +179,17 @@
     async function initializeDebtors() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
-        
         if (user) {
-          userCompanyId = null;
-
-          // Check company_users join table
           const { data: memberData } = await supabaseClient
             .from('company_users')
             .select('company_id')
             .eq('user_id', user.id)
-            .maybeSingle();
+            .single();
 
-          if (memberData && memberData.company_id) {
+          if (memberData) {
             userCompanyId = memberData.company_id;
-            console.log("Debtors: Loaded Company ID from company_users:", userCompanyId);
-          } else {
-            // Fallback 1: Check companies table for direct ownership
-            const { data: companyData } = await supabaseClient
-              .from('companies')
-              .select('id')
-              .eq('owner_id', user.id)
-              .maybeSingle();
-
-            if (companyData && companyData.id) {
-              userCompanyId = companyData.id;
-              console.log("Debtors: Loaded Company ID from companies table:", userCompanyId);
-            } else {
-              // Fallback 2: Check profiles table
-              const { data: profileData } = await supabaseClient
-                .from('profiles')
-                .select('company_id')
-                .eq('id', user.id)
-                .maybeSingle();
-
-              if (profileData && profileData.company_id) {
-                userCompanyId = profileData.company_id;
-                console.log("Debtors: Loaded Company ID from profiles table:", userCompanyId);
-              }
-            }
-          }
-
-          if (!userCompanyId) {
-            console.warn("Debtors: No company ID found for user:", user.id);
           }
         }
-
         await fetchDebtors();
       } catch (err) {
         console.error("Initialization error:", err);
@@ -233,11 +197,7 @@
     }
 
     async function fetchDebtors() {
-      let query = supabaseClient
-        .from('debtors')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      let query = supabaseClient.from('debtors').select('*').order('created_at', { ascending: false });
       if (userCompanyId) {
         query = query.eq('company_id', userCompanyId);
       }
@@ -273,7 +233,7 @@
       debtors.forEach(debt => {
         const amount = parseFloat(debt.amount_owing || 0);
         totalAmount += amount;
-        const itemBought = debt.item_bought || 'General Goods';
+        const itemBought = debt.item_bought || debt.product_name || 'General Goods';
 
         html += `
           <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
@@ -283,10 +243,8 @@
                   <i class="fa-solid fa-user"></i>
                 </div>
                 <div>
-                  <h4 class="font-bold text-white text-xs">${debt.customer_name || 'Unknown'}</h4>
-                  <p class="text-[10px] text-slate-400">
-                    <i class="fa-solid fa-bag-shopping mr-1 text-purple-400"></i>${itemBought}
-                  </p>
+                  <h4 class="font-bold text-white text-xs">${debt.customer_name}</h4>
+                  <p class="text-[10px] text-slate-400"><i class="fa-solid fa-bag-shopping mr-1 text-purple-400"></i>${itemBought}</p>
                 </div>
               </div>
               <div class="text-right">
@@ -311,68 +269,47 @@
     }
 
     function filterDebtors() {
-      const keyword = (document.getElementById('search-debtor').value || '').toLowerCase();
+      const keyword = document.getElementById('search-debtor').value.toLowerCase();
       const filtered = allDebtors.filter(d => 
-        (d.customer_name || '').toLowerCase().includes(keyword) || 
-        (d.item_bought || '').toLowerCase().includes(keyword)
+        d.customer_name.toLowerCase().includes(keyword) || 
+        (d.item_bought && d.item_bought.toLowerCase().includes(keyword))
       );
       renderDebtors(filtered);
     }
 
     async function submitNewDebt() {
-      const customer = document.getElementById('debt-customer').value.trim();
-      const item = document.getElementById('debt-item').value.trim();
+      const customer = document.getElementById('debt-customer').value;
+      const item = document.getElementById('debt-item').value;
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
 
-      if (!customer) {
-        alert('Please enter Customer Name.');
+      if (!customer || !amount) {
+        alert('Please fill in customer name and amount.');
         return;
       }
-      if (!amount || parseFloat(amount) <= 0) {
-        alert('Please enter a valid Amount.');
-        return;
-      }
-
-      // Critical: never save without company_id
-      if (!userCompanyId) {
-        alert('Company not loaded yet. Please refresh the page and try again.');
-        return;
-      }
-
-      const btn = document.getElementById('save-debt-btn');
-      const originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
 
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
         customer_name: customer,
         item_bought: item || 'General Goods',
         amount_owing: parseFloat(amount),
-        due_date: duedate || null,
-        status: 'unpaid'
+        due_date: duedate || new Date().toISOString()
       }]);
-
-      btn.disabled = false;
-      btn.textContent = originalText;
 
       if (error) {
         alert('Error saving debt: ' + error.message);
-        return;
+      } else {
+        closeAddDebtModal();
+        document.getElementById('debt-customer').value = '';
+        document.getElementById('debt-item').value = '';
+        document.getElementById('debt-amount').value = '';
+        document.getElementById('debt-duedate').value = '';
+        fetchDebtors();
       }
-
-      // Success
-      closeAddDebtModal();
-      document.getElementById('debt-customer').value = '';
-      document.getElementById('debt-item').value = '';
-      document.getElementById('debt-amount').value = '';
-      document.getElementById('debt-duedate').value = '';
-      await fetchDebtors();
     }
 
     async function markAsPaid(debtId) {
-      if (!confirm('Mark this debt as fully paid? This will remove it from the outstanding list.')) return;
+      if (!confirm('Are you sure you want to mark this debt as fully paid?')) return;
 
       const { error } = await supabaseClient
         .from('debtors')
@@ -380,10 +317,10 @@
         .eq('id', debtId);
 
       if (error) {
-        alert('Error: ' + error.message);
-        return;
+        alert('Error updating debt status: ' + error.message);
+      } else {
+        fetchDebtors();
       }
-      await fetchDebtors();
     }
 
     window.addEventListener('DOMContentLoaded', initializeDebtors);
