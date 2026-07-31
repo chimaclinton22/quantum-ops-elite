@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -316,8 +316,6 @@
 
     let salesChartInstance = null;
     let userCompanyId = null;
-    let userRole = null;
-    let currentUser = null;
 
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -366,15 +364,13 @@
 
     async function initializeApp() {
       try {
-        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
-        if (authErr || !user) {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) {
           window.location.href = 'index.html';
           return;
         }
-        currentUser = user;
 
-        const emailPrefix = user.email ? user.email.split('@')[0] : 'User';
-        const rawName = user.user_metadata?.full_name || user.user_metadata?.name || emailPrefix;
+        const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
         const firstName = rawName.split(' ')[0];
         const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
 
@@ -386,35 +382,32 @@
         document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
         document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
 
-        // --- SAFE MULTI-TABLE COMPANY LOOKUP & ROLE DETECTION ---
+        // --- SAFE MULTI-TABLE COMPANY LOOKUP ---
         userCompanyId = null;
-        userRole = null;
 
         // Approach 1: Check company_users join table
-        const { data: memberData } = await supabaseClient
+        const { data: memberData, error: memberErr } = await supabaseClient
           .from('company_users')
-          .select('company_id, role, companies(name)')
-          .eq('user_id', currentUser.id)
+          .select('company_id, companies(name)')
+          .eq('user_id', user.id)
           .maybeSingle();
 
-        if (memberData?.company_id) {
+        if (memberData && memberData.company_id) {
           userCompanyId = memberData.company_id;
-          userRole = memberData.role;
           if (memberData.companies?.name) {
             document.getElementById('current-branch-name').textContent = memberData.companies.name;
           }
           console.log("Company ID loaded from company_users:", userCompanyId);
         } else {
           // Approach 2: Check direct ownership in companies table
-          const { data: companyData } = await supabaseClient
+          const { data: companyData, error: companyErr } = await supabaseClient
             .from('companies')
             .select('id, name')
-            .eq('owner_id', currentUser.id)
+            .eq('owner_id', user.id)
             .maybeSingle();
 
-          if (companyData?.id) {
+          if (companyData && companyData.id) {
             userCompanyId = companyData.id;
-            userRole = 'owner';
             if (companyData.name) {
               document.getElementById('current-branch-name').textContent = companyData.name;
             }
@@ -424,42 +417,28 @@
             const { data: profileData } = await supabaseClient
               .from('profiles')
               .select('company_id')
-              .eq('id', currentUser.id)
+              .eq('id', user.id)
               .maybeSingle();
 
-            if (profileData?.company_id) {
+            if (profileData && profileData.company_id) {
               userCompanyId = profileData.company_id;
               console.log("Company ID loaded from profiles table:", userCompanyId);
-            } else {
-              // Approach 4: Check user_metadata
-              if (currentUser.user_metadata?.company_id) {
-                userCompanyId = currentUser.user_metadata.company_id;
-                userRole = currentUser.user_metadata?.role;
-                console.log("Company ID loaded from user_metadata:", userCompanyId);
-              }
             }
           }
         }
 
-        // Default to staff if no specific elevated role is found to ensure security
-        if (!userRole) {
-          userRole = 'staff';
-        }
-
         if (!userCompanyId) {
-          console.warn("No company ID found for this user. Operations will be restricted.");
-          return; // Prevents loading all un-filtered data
+          console.warn("No company ID found for this user in company_users, companies, or profiles.");
         }
 
         await fetchAllLiveMetrics();
 
-        // Realtime – listen to changes safely with company filter
-        const filterStr = `company_id=eq.${userCompanyId}`;
+        // Realtime – listen to changes on tables
         supabaseClient
           .channel('quantum-live')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales', filter: filterStr }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'products', filter: filterStr }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors', filter: filterStr }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
           .subscribe();
 
       } catch (err) {
@@ -468,17 +447,14 @@
     }
 
     async function fetchAllLiveMetrics() {
-      if (!userCompanyId || !currentUser) return;
+      let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
+      let productsQuery = supabaseClient.from('products').select('*');
+      let debtorsQuery = supabaseClient.from('debtors').select('*');
 
-      // 6. Company Isolation MUST be strictly applied to every query first.
-      let salesQuery = supabaseClient.from('sales').select('*').eq('company_id', userCompanyId).order('created_at', { ascending: false });
-      let productsQuery = supabaseClient.from('products').select('*').eq('company_id', userCompanyId);
-      let debtorsQuery = supabaseClient.from('debtors').select('*').eq('company_id', userCompanyId);
-
-      // 7. Staff Isolation
-      if (userRole === 'staff') {
-        salesQuery = salesQuery.eq('user_id', currentUser.id);
-        debtorsQuery = debtorsQuery.eq('user_id', currentUser.id);
+      if (userCompanyId) {
+        salesQuery = salesQuery.eq('company_id', userCompanyId);
+        productsQuery = productsQuery.eq('company_id', userCompanyId);
+        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
       }
 
       const [salesRes, productsRes, debtorsRes] = await Promise.all([
@@ -706,8 +682,8 @@
         return;
       }
 
-      if (!userCompanyId || !currentUser) {
-        alert('Authentication/Company data missing. Please refresh the page and try again.');
+      if (!userCompanyId) {
+        alert('Company not loaded yet. Please refresh the page and try again.');
         return;
       }
 
@@ -718,7 +694,6 @@
 
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
-        user_id: currentUser.id,
         customer_name: customer,
         item_bought: item || 'General Goods',
         amount_owing: parseFloat(amount),
@@ -749,3 +724,5 @@
   </script>
 </body>
 </html>
+
+
