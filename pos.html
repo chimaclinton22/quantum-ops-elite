@@ -30,17 +30,10 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
     .iphone-frame {
-      width: 100%;
-      max-width: 410px;
-      height: 100vh;
-      max-height: 860px;
-      background: #0B0B16;
-      border: 1px solid rgba(139, 92, 246, 0.2);
+      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
+      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
       box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
     }
     @media (min-width: 768px) {
       body { align-items: center; justify-content: center; display: flex; height: 100vh; }
@@ -52,7 +45,7 @@
 
   <div class="iphone-frame">
     
-    <!-- TOP APP BAR -->
+    <!-- TOP BAR -->
     <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
       <div class="flex items-center gap-3">
         <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
@@ -64,31 +57,31 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="clearCart()" class="p-2 rounded-xl bg-[#121224] border border-purple-500/20 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-barcode"></i></button>
-        <button onclick="toggleMenu()" class="p-2 rounded-xl bg-[#121224] border border-purple-500/20 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-bars"></i></button>
+        <button onclick="clearCart()" class="p-2 rounded-xl bg-[#121224] border border-purple-500/20 text-slate-300 hover:text-white text-xs">
+          <i class="fa-solid fa-trash"></i>
+        </button>
       </div>
     </div>
 
-    <!-- MAIN SCROLLABLE VIEWPORT -->
+    <!-- MAIN -->
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
       
       <!-- SEARCH -->
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name, barcode or scan" class="w-full bg-[#121224] border border-purple-500/20 rounded-xl pl-9 pr-9 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
-        <i class="fa-solid fa-microphone absolute right-3.5 top-3 text-purple-400 text-xs cursor-pointer"></i>
+        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name or SKU" class="w-full bg-[#121224] border border-purple-500/20 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
       </div>
 
       <!-- QUICK TOOLS -->
       <div class="grid grid-cols-3 gap-2">
-        <button onclick="alert('Camera AI recognition scanner activated.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
+        <button onclick="alert('Camera AI recognition coming soon.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
           <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-camera"></i></div>
           <div>
             <p class="text-[10px] font-bold text-white">Smart Camera</p>
             <p class="text-[8px] text-slate-400">AI Recognition</p>
           </div>
         </button>
-        <button onclick="alert('Barcode laser scanner ready.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
+        <button onclick="alert('Barcode scanner ready.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
           <div class="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xs"><i class="fa-solid fa-barcode"></i></div>
           <div>
             <p class="text-[10px] font-bold text-white">Barcode</p>
@@ -111,7 +104,7 @@
           <span class="text-[10px] text-purple-400">Live Inventory</span>
         </div>
         <div id="product-catalog-list" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar">
-          <div class="text-slate-500 text-[11px] text-center py-2">Loading inventory catalog...</div>
+          <div class="text-slate-500 text-[11px] text-center py-2">Loading inventory...</div>
         </div>
       </div>
 
@@ -126,7 +119,7 @@
         </div>
       </div>
 
-      <!-- BILLING SUMMARY -->
+      <!-- BILLING -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-2 text-xs shadow-xl">
         <div class="flex justify-between text-slate-400">
           <span>Subtotal</span>
@@ -146,7 +139,7 @@
         </div>
       </div>
 
-      <!-- PAYMENT METHOD -->
+      <!-- PAYMENT -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
           <span class="text-xs font-semibold text-slate-300">Payment Method</span>
@@ -170,7 +163,6 @@
             <span class="text-[10px] font-medium">Online</span>
           </button>
         </div>
-
         <div class="space-y-1 pt-1">
           <label class="text-[10px] text-slate-400 font-medium">Paid Amount (₦)</label>
           <input type="number" id="input-paid-amount" oninput="calculateBalance()" placeholder="Enter amount paid" class="w-full bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
@@ -181,11 +173,9 @@
         </div>
       </div>
 
-      <!-- COMPLETE SALE -->
       <button onclick="completeSale()" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl text-white font-bold text-xs shadow-lg shadow-purple-600/40 hover:opacity-95 transition flex items-center justify-center gap-2">
         <i class="fa-solid fa-circle-check text-sm"></i> Complete Sale & Generate Receipt
       </button>
-
     </div>
 
     <!-- BOTTOM NAV -->
@@ -207,7 +197,6 @@
         <span class="text-[9px] font-medium">AI CEO</span>
       </a>
     </nav>
-
   </div>
 
   <!-- RECEIPT MODAL -->
@@ -220,83 +209,56 @@
         <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <!-- RECEIPT PAPER -->
-      <div id="receipt-paper" style="background-color: #ffffff; color: #0f172a; padding: 20px; font-family: monospace; font-size: 11px; width: 100%; box-sizing: border-box;">
-        <div style="text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 12px; margin-bottom: 12px;">
-          <h3 id="receipt-biz-name" style="font-size: 15px; font-weight: 900; margin: 0 0 4px 0; text-transform: uppercase; color: #020617;">MY STORE</h3>
-          <p id="receipt-biz-address" style="font-size: 10px; color: #475569; margin: 2px 0;">Loading Address...</p>
-          <p id="receipt-biz-phone" style="font-size: 10px; color: #475569; margin: 2px 0;"></p>
-          <p id="receipt-biz-email" style="font-size: 10px; color: #475569; margin: 2px 0;"></p>
+      <div id="receipt-paper" style="background-color:#ffffff;color:#0f172a;padding:20px;font-family:monospace;font-size:11px;width:100%;box-sizing:border-box;">
+        <div style="text-align:center;border-bottom:2px dashed #cbd5e1;padding-bottom:12px;margin-bottom:12px;">
+          <h3 id="receipt-biz-name" style="font-size:15px;font-weight:900;margin:0 0 4px 0;text-transform:uppercase;color:#020617;">MY STORE</h3>
+          <p id="receipt-biz-address" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-phone" style="font-size:10px;color:#475569;margin:2px 0;"></p>
         </div>
-
-        <div style="display: flex; justify-content: space-between; font-size: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
+        <div style="display:flex;justify-content:space-between;font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
           <div>
-            <p style="margin: 0; font-weight: bold;">RECEIPT</p>
-            <p id="receipt-trx-id" style="margin: 2px 0; color: #64748b;">SAL-000000</p>
+            <p style="margin:0;font-weight:bold;">RECEIPT</p>
+            <p id="receipt-trx-id" style="margin:2px 0;color:#64748b;">SAL-000000</p>
           </div>
-          <div style="text-align: right;">
-            <p id="receipt-date" style="margin: 0; color: #0f172a;">28 Jul 2026</p>
-          </div>
-        </div>
-
-        <div style="font-size: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px;">
-          <p style="margin: 2px 0;"><b>Customer:</b> <span id="receipt-customer-name">Walk-in</span></p>
-          <p style="margin: 2px 0;"><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
-        </div>
-
-        <div style="margin-bottom: 10px;">
-          <div style="display: grid; grid-template-columns: 6fr 2fr 4fr; font-weight: bold; border-bottom: 1px solid #0f172a; padding-bottom: 4px; font-size: 10px;">
-            <span>ITEM</span>
-            <span style="text-align: center;">QTY</span>
-            <span style="text-align: right;">AMOUNT</span>
-          </div>
-          <div id="receipt-items-list" style="margin-top: 6px;"></div>
-        </div>
-
-        <div style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px; font-size: 10px;">
-          <div style="display: flex; justify-content: space-between; margin: 3px 0;">
-            <span>Subtotal:</span>
-            <span id="receipt-subtotal">₦0</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin: 3px 0;">
-            <span>Discount:</span>
-            <span id="receipt-discount">-₦0</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin: 3px 0;">
-            <span>Tax:</span>
-            <span id="receipt-tax">₦0</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; border-top: 1px solid #0f172a; padding-top: 6px; margin-top: 6px;">
-            <span>TOTAL:</span>
-            <span id="receipt-total">₦0</span>
+          <div style="text-align:right;">
+            <p id="receipt-date" style="margin:0;color:#0f172a;"></p>
           </div>
         </div>
-
-        <div style="border-top: 1px dashed #cbd5e1; padding-top: 8px; margin-top: 8px; font-size: 10px;">
-          <p style="margin: 2px 0;"><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
-          <p style="margin: 2px 0;"><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
-          <p style="margin: 2px 0;"><b>Change:</b> <span id="receipt-change">₦0</span></p>
+        <div style="font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
+          <p style="margin:2px 0;"><b>Customer:</b> <span id="receipt-customer-name">Walk-in</span></p>
+          <p style="margin:2px 0;"><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
         </div>
-
-        <div style="text-align: center; padding-top: 12px; border-top: 2px dashed #cbd5e1; margin-top: 12px; font-size: 9px; color: #64748b;">
-          <p style="margin: 2px 0;">Thank you for your patronage!</p>
-          <p style="margin: 2px 0; font-weight: bold; color: #0f172a;" id="receipt-footer-biz">Business Store</p>
-          <p style="margin: 4px 0; font-size: 8px;">Powered by Quantum OPS Elite</p>
+        <div style="margin-bottom:10px;">
+          <div style="display:grid;grid-template-columns:6fr 2fr 4fr;font-weight:bold;border-bottom:1px solid #0f172a;padding-bottom:4px;font-size:10px;">
+            <span>ITEM</span><span style="text-align:center;">QTY</span><span style="text-align:right;">AMOUNT</span>
+          </div>
+          <div id="receipt-items-list" style="margin-top:6px;"></div>
+        </div>
+        <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Subtotal:</span><span id="receipt-subtotal">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Discount:</span><span id="receipt-discount">-₦0</span></div>
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Tax:</span><span id="receipt-tax">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:13px;border-top:1px solid #0f172a;padding-top:6px;margin-top:6px;">
+            <span>TOTAL:</span><span id="receipt-total">₦0</span>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
+          <p style="margin:2px 0;"><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
+          <p style="margin:2px 0;"><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
+          <p style="margin:2px 0;"><b>Change:</b> <span id="receipt-change">₦0</span></p>
+        </div>
+        <div style="text-align:center;padding-top:12px;border-top:2px dashed #cbd5e1;margin-top:12px;font-size:9px;color:#64748b;">
+          <p style="margin:2px 0;">Thank you for your patronage!</p>
+          <p style="margin:2px 0;font-weight:bold;color:#0f172a;" id="receipt-footer-biz">Business Store</p>
+          <p style="margin:4px 0;font-size:8px;">Powered by Quantum OPS Elite</p>
         </div>
       </div>
 
-      <!-- SHARE BUTTONS -->
       <div class="space-y-2 pt-1">
-        <p class="text-[10px] font-semibold text-slate-300 text-center">Send True PDF Receipt Instantly</p>
+        <p class="text-[10px] font-semibold text-slate-300 text-center">Send Receipt</p>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="sendReceiptViaWhatsApp()" class="py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp PDF
-          </button>
-          <button onclick="sendReceiptViaGmail()" class="py-2 px-3 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-envelope text-sm"></i> Gmail PDF
-          </button>
-          <button onclick="sendReceiptViaPhoneSMS()" class="py-2 px-3 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-phone text-sm"></i> Phone SMS
+            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
           </button>
           <button onclick="downloadReceiptPDF()" class="py-2 px-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
             <i class="fa-solid fa-download text-sm"></i> Download PDF
@@ -335,43 +297,67 @@
     async function initializePOS() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
-        if (user) {
-          currentUserProfile = user;
-          const { data: memberData } = await supabaseClient
-            .from('company_users')
-            .select('company_id, companies(*)')
-            .eq('user_id', user.id)
-            .single();
+        if (!user) {
+          window.location.href = 'index.html';
+          return;
+        }
 
-          if (memberData) {
-            userCompanyId = memberData.company_id;
-            const comp = memberData.companies;
-            if (comp) {
-              userCompanyDetails = comp;
-              const bizName = comp.name || 'MY STORE';
-              document.getElementById('receipt-biz-name').textContent = bizName;
-              document.getElementById('receipt-footer-biz').textContent = bizName;
-              document.getElementById('receipt-biz-address').textContent = comp.address || '';
-              document.getElementById('receipt-biz-phone').textContent = comp.phone || '';
-              document.getElementById('receipt-biz-email').textContent = comp.email || '';
-            }
+        currentUserProfile = user;
+        userCompanyId = null;
+
+        const { data: member } = await supabaseClient
+          .from('company_users')
+          .select('company_id, companies(*)')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (member?.company_id) {
+          userCompanyId = member.company_id;
+          if (member.companies) {
+            userCompanyDetails = member.companies;
+            const bizName = member.companies.company_name || 'MY STORE';
+            document.getElementById('receipt-biz-name').textContent = bizName;
+            document.getElementById('receipt-footer-biz').textContent = bizName;
+            document.getElementById('receipt-biz-address').textContent = member.companies.address || '';
+            document.getElementById('receipt-biz-phone').textContent = member.companies.phone || '';
+          }
+        } else {
+          const { data: owned } = await supabaseClient
+            .from('companies')
+            .select('*')
+            .eq('owner_id', user.id)
+            .maybeSingle();
+          if (owned?.id) {
+            userCompanyId = owned.id;
+            userCompanyDetails = owned;
+            document.getElementById('receipt-biz-name').textContent = owned.company_name || 'MY STORE';
+            document.getElementById('receipt-footer-biz').textContent = owned.company_name || 'MY STORE';
           }
         }
+
         await fetchInventory();
       } catch (err) {
-        console.error("POS Initialization Error:", err);
-        await fetchInventory();
+        console.error("POS init error:", err);
       }
     }
 
     async function fetchInventory() {
-      let query = supabaseClient.from('products').select('*').order('name');
-      if (userCompanyId) query = query.eq('company_id', userCompanyId);
+      if (!userCompanyId) {
+        document.getElementById('product-catalog-list').innerHTML =
+          `<div class="text-slate-500 text-[11px] text-center py-2">No company found. Please re-login.</div>`;
+        return;
+      }
 
-      const { data, error } = await query;
+      const { data, error } = await supabaseClient
+        .from('products')
+        .select('*')
+        .eq('company_id', userCompanyId)
+        .order('name');
+
       if (error) {
-        console.error("Error fetching inventory:", error);
-        document.getElementById('product-catalog-list').innerHTML = `<div class="text-rose-400 text-[11px] text-center py-2">Error loading inventory.</div>`;
+        console.error(error);
+        document.getElementById('product-catalog-list').innerHTML =
+          `<div class="text-rose-400 text-[11px] text-center py-2">Error loading inventory.</div>`;
         return;
       }
 
@@ -381,19 +367,15 @@
 
     function getStockStatus(totalPieces, piecesPerUnit) {
       const remainingUnits = totalPieces / (piecesPerUnit || 1);
-      if (totalPieces === 0) {
-        return { badgeBg: 'bg-rose-950/50 text-rose-400 border-rose-500/30', badgeText: 'Out of Stock' };
-      }
-      if (remainingUnits <= LOW_STOCK_UNITS) {
-        return { badgeBg: 'bg-amber-950/50 text-amber-400 border-amber-500/30', badgeText: 'Low Stock' };
-      }
+      if (totalPieces === 0) return { badgeBg: 'bg-rose-950/50 text-rose-400 border-rose-500/30', badgeText: 'Out of Stock' };
+      if (remainingUnits <= LOW_STOCK_UNITS) return { badgeBg: 'bg-amber-950/50 text-amber-400 border-amber-500/30', badgeText: 'Low Stock' };
       return { badgeBg: 'bg-emerald-950/50 text-emerald-400 border-emerald-500/30', badgeText: 'In Stock' };
     }
 
     function renderInventoryCatalog(items) {
       const container = document.getElementById('product-catalog-list');
       if (items.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No inventory items found. Add items in Inventory tab.</div>`;
+        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No products. Add items in Inventory first.</div>`;
         return;
       }
 
@@ -423,15 +405,14 @@
               <span class="text-xs font-bold text-purple-300">${formatCurrency(price)}</span>
               <p class="text-[8px] text-emerald-400 mt-0.5"><i class="fa-solid fa-plus"></i> Add</p>
             </div>
-          </div>
-        `;
+          </div>`;
       });
       container.innerHTML = html;
     }
 
     function filterProducts() {
       const keyword = document.getElementById('product-search').value.toLowerCase();
-      const filtered = inventoryCatalog.filter(i => 
+      const filtered = inventoryCatalog.filter(i =>
         (i.name || '').toLowerCase().includes(keyword) || (i.sku || '').toLowerCase().includes(keyword)
       );
       renderInventoryCatalog(filtered);
@@ -442,24 +423,20 @@
       if (!product) return;
 
       const available = parseInt(product.stock || 0);
-      if (available <= 0) {
-        alert('This product is out of stock.');
-        return;
-      }
+      if (available <= 0) return alert('Out of stock.');
 
-      const name = product.name || 'Product';
-      const price = parseFloat(product.selling_price || 0);
-      const costPrice = parseFloat(product.unit_cost || 0);
-
-      const existingIndex = cart.findIndex(c => c.id === itemId);
-      if (existingIndex > -1) {
-        if (cart[existingIndex].qty >= available) {
-          alert('Not enough stock available.');
-          return;
-        }
-        cart[existingIndex].qty += 1;
+      const existing = cart.find(c => c.id === itemId);
+      if (existing) {
+        if (existing.qty >= available) return alert('Not enough stock.');
+        existing.qty += 1;
       } else {
-        cart.push({ id: itemId, name, price, cost_price: costPrice, qty: 1 });
+        cart.push({
+          id: itemId,
+          name: product.name || 'Product',
+          price: parseFloat(product.selling_price || 0),
+          cost_price: parseFloat(product.unit_cost || 0),
+          qty: 1
+        });
       }
       renderCart();
     }
@@ -467,16 +444,13 @@
     function updateCartQty(itemId, change) {
       const item = cart.find(c => c.id === itemId);
       if (!item) return;
-
       const product = inventoryCatalog.find(p => p.id === itemId);
       const available = parseInt(product?.stock || 0);
-
       item.qty += change;
-      if (item.qty <= 0) {
-        cart = cart.filter(c => c.id !== itemId);
-      } else if (item.qty > available) {
+      if (item.qty <= 0) cart = cart.filter(c => c.id !== itemId);
+      else if (item.qty > available) {
         item.qty = available;
-        alert('Maximum available stock reached.');
+        alert('Maximum stock reached.');
       }
       renderCart();
     }
@@ -488,7 +462,8 @@
 
     function renderCart() {
       const container = document.getElementById('cart-items-container');
-      document.getElementById('cart-title-count').textContent = `Cart (${cart.reduce((acc, i) => acc + i.qty, 0)} items)`;
+      const totalQty = cart.reduce((a, i) => a + i.qty, 0);
+      document.getElementById('cart-title-count').textContent = `Cart (${totalQty} items)`;
 
       if (cart.length === 0) {
         container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Your cart is empty. Select products above.</div>`;
@@ -498,7 +473,6 @@
 
       let html = '';
       cart.forEach(item => {
-        const itemTotal = item.price * item.qty;
         html += `
           <div class="flex items-center justify-between bg-[#191932] border border-purple-500/10 p-2.5 rounded-xl">
             <div class="flex-1 pr-2">
@@ -511,18 +485,16 @@
                 <span class="px-2 text-xs font-bold text-white">${item.qty}</span>
                 <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-1 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-plus text-[9px]"></i></button>
               </div>
-              <span class="text-xs font-bold text-white w-16 text-right">${formatCurrency(itemTotal)}</span>
+              <span class="text-xs font-bold text-white w-16 text-right">${formatCurrency(item.price * item.qty)}</span>
             </div>
-          </div>
-        `;
+          </div>`;
       });
-
       container.innerHTML = html;
       calculateTotals();
     }
 
     function calculateTotals() {
-      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const subtotal = cart.reduce((a, i) => a + i.price * i.qty, 0);
       const discount = parseFloat(document.getElementById('input-discount').value || 0);
       const tax = 0;
       const grandTotal = Math.max(subtotal - discount, 0) + tax;
@@ -539,58 +511,50 @@
     }
 
     function calculateBalance() {
-      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const subtotal = cart.reduce((a, i) => a + i.price * i.qty, 0);
       const discount = parseFloat(document.getElementById('input-discount').value || 0);
-      const tax = 0;
-      const grandTotal = Math.max(subtotal - discount, 0) + tax;
+      const grandTotal = Math.max(subtotal - discount, 0);
       const paid = parseFloat(document.getElementById('input-paid-amount').value || 0);
       const balance = paid - grandTotal;
-
-      const balanceEl = document.getElementById('val-balance');
-      balanceEl.textContent = formatCurrency(balance);
-      balanceEl.className = balance >= 0 ? "font-bold text-emerald-400" : "font-bold text-rose-400";
+      const el = document.getElementById('val-balance');
+      el.textContent = formatCurrency(balance);
+      el.className = balance >= 0 ? 'font-bold text-emerald-400' : 'font-bold text-rose-400';
     }
 
     function setPaymentMethod(method) {
       selectedPaymentMethod = method;
       ['Cash', 'Transfer', 'POS', 'Online'].forEach(m => {
-        const btn = document.getElementById(`pm-${m}`);
-        if (m === method) {
-          btn.className = "p-2.5 rounded-xl bg-purple-600/20 border border-purple-500 text-white flex flex-col items-center gap-1 transition";
-        } else {
-          btn.className = "p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition";
-        }
+        const btn = document.getElementById('pm-' + m);
+        btn.className = m === method
+          ? 'p-2.5 rounded-xl bg-purple-600/20 border border-purple-500 text-white flex flex-col items-center gap-1 transition'
+          : 'p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition';
       });
     }
 
     function promptCustomer() {
-      const name = prompt("Enter Customer Name:", selectedCustomer);
+      const name = prompt('Enter Customer Name:', selectedCustomer);
       if (name) {
         selectedCustomer = name;
-        document.getElementById('selected-customer-label').textContent = name.length > 10 ? name.slice(0, 10) + '…' : name;
+        document.getElementById('selected-customer-label').textContent =
+          name.length > 10 ? name.slice(0, 10) + '…' : name;
       }
     }
 
     async function completeSale() {
-      if (cart.length === 0) {
-        alert('Please add items to cart before completing sale.');
-        return;
-      }
+      if (cart.length === 0) return alert('Add items to cart first.');
+      if (!userCompanyId) return alert('Company not loaded. Please refresh.');
 
-      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const subtotal = cart.reduce((a, i) => a + i.price * i.qty, 0);
       const discount = parseFloat(document.getElementById('input-discount').value || 0);
       const tax = 0;
-      const grandTotal = Math.max(subtotal - discount, 0) + tax;
+      const grandTotal = Math.max(subtotal - discount, 0);
       const paid = parseFloat(document.getElementById('input-paid-amount').value || grandTotal);
       const balance = paid - grandTotal;
 
-      const totalProfit = cart.reduce((acc, item) => {
-        const profitPerUnit = item.price - (item.cost_price || 0);
-        return acc + (profitPerUnit * item.qty);
-      }, 0);
+      const totalProfit = cart.reduce((a, i) => a + (i.price - (i.cost_price || 0)) * i.qty, 0);
+      const totalCost = cart.reduce((a, i) => a + (i.cost_price || 0) * i.qty, 0);
 
-      const trxId = 'SAL-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(100000 + Math.random() * 900000);
-      const nowIso = new Date().toISOString();
+      const trxId = 'SAL-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(100000 + Math.random() * 900000);
       const cashierName = currentUserProfile?.user_metadata?.full_name || currentUserProfile?.email?.split('@')[0] || 'Staff';
 
       const { error } = await supabaseClient.from('sales').insert([{
@@ -600,16 +564,17 @@
         customer_name: selectedCustomer,
         cashier_name: cashierName,
         items: cart,
-        total: grandTotal,
-        total_amount: grandTotal,
-        profit: totalProfit,
-        total_profit: totalProfit,
+        subtotal: subtotal,
         discount: discount,
         tax: tax,
-        payment_method: selectedPaymentMethod,
+        total: grandTotal,
+        total_amount: grandTotal,
+        total_cost: totalCost,
+        profit: totalProfit,
+        total_profit: totalProfit,
         paid_amount: paid,
         balance: balance,
-        created_at: nowIso
+        payment_method: selectedPaymentMethod
       }]);
 
       if (error) {
@@ -617,6 +582,7 @@
         return;
       }
 
+      // Deduct stock (pieces)
       for (const item of cart) {
         const product = inventoryCatalog.find(p => p.id === item.id);
         if (product) {
@@ -650,12 +616,11 @@
       if (!t) return;
 
       if (userCompanyDetails) {
-        const bizName = userCompanyDetails.name || 'MY STORE';
+        const bizName = userCompanyDetails.company_name || 'MY STORE';
         document.getElementById('receipt-biz-name').textContent = bizName;
         document.getElementById('receipt-footer-biz').textContent = bizName;
         document.getElementById('receipt-biz-address').textContent = userCompanyDetails.address || '';
         document.getElementById('receipt-biz-phone').textContent = userCompanyDetails.phone || '';
-        document.getElementById('receipt-biz-email').textContent = userCompanyDetails.email || '';
       }
 
       document.getElementById('receipt-trx-id').textContent = t.trxId;
@@ -673,12 +638,11 @@
       let itemsHtml = '';
       t.items.forEach(i => {
         itemsHtml += `
-          <div style="display: grid; grid-template-columns: 6fr 2fr 4fr; font-size: 10px; margin: 3px 0; border-bottom: 1px dotted #f1f5f9; padding-bottom: 2px;">
-            <span style="font-weight: 600; color: #0f172a;">${i.name}</span>
-            <span style="text-align: center; color: #334155;">${i.qty}</span>
-            <span style="text-align: right; color: #0f172a; font-weight: 600;">${formatCurrency(i.price * i.qty)}</span>
-          </div>
-        `;
+          <div style="display:grid;grid-template-columns:6fr 2fr 4fr;font-size:10px;margin:3px 0;border-bottom:1px dotted #f1f5f9;padding-bottom:2px;">
+            <span style="font-weight:600;color:#0f172a;">${i.name}</span>
+            <span style="text-align:center;color:#334155;">${i.qty}</span>
+            <span style="text-align:right;color:#0f172a;font-weight:600;">${formatCurrency(i.price * i.qty)}</span>
+          </div>`;
       });
       document.getElementById('receipt-items-list').innerHTML = itemsHtml;
       document.getElementById('receipt-modal').classList.remove('hidden');
@@ -688,23 +652,11 @@
       document.getElementById('receipt-modal').classList.add('hidden');
     }
 
-    async function generatePDFBlob() {
-      const element = document.getElementById('receipt-paper');
-      const opt = {
-        margin: 5,
-        filename: `${lastCompletedTransaction?.trxId || 'receipt'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true },
-        jsPDF: { unit: 'mm', format: [80, 160], orientation: 'portrait' }
-      };
-      return await html2pdf().from(element).set(opt).outputPdf('blob');
-    }
-
     async function downloadReceiptPDF() {
       const element = document.getElementById('receipt-paper');
       const opt = {
         margin: 5,
-        filename: `${lastCompletedTransaction.trxId}.pdf`,
+        filename: (lastCompletedTransaction?.trxId || 'receipt') + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 3, useCORS: true },
         jsPDF: { unit: 'mm', format: [80, 160], orientation: 'portrait' }
@@ -715,57 +667,11 @@
     async function sendReceiptViaWhatsApp() {
       const t = lastCompletedTransaction;
       if (!t) return;
-      
-      try {
-        const pdfBlob = await generatePDFBlob();
-        const pdfFile = new File([pdfBlob], `${t.trxId}.pdf`, { type: 'application/pdf' });
-
-        // Native share sheet integration supporting file attachment directly to WhatsApp
-        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({
-            files: [pdfFile],
-            title: `Receipt ${t.trxId}`,
-            text: `Here is your official PDF receipt ${t.trxId} from ${userCompanyDetails?.name || 'our store'}.`
-          });
-          return;
-        }
-      } catch (err) {
-        console.error("Native share file error, falling back to download & text:", err);
-      }
-
-      // Fallback: Downloads PDF locally and opens WhatsApp messaging link
       await downloadReceiptPDF();
-      const text = encodeURIComponent(`Hello! Here is your official PDF receipt (${t.trxId}) downloaded to your device from ${userCompanyDetails?.name || 'Store'}. Total: ${formatCurrency(t.grandTotal)}. Thank you for shopping with us!`);
+      const text = encodeURIComponent(
+        `Receipt ${t.trxId} from ${userCompanyDetails?.company_name || 'Store'}. Total: ${formatCurrency(t.grandTotal)}. Thank you!`
+      );
       window.open(`https://wa.me/?text=${text}`, '_blank');
-    }
-
-    async function sendReceiptViaGmail() {
-      const t = lastCompletedTransaction;
-      if (!t) return;
-      const pdfBlob = await generatePDFBlob();
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      
-      const subject = encodeURIComponent(`Official Sales Receipt ${t.trxId} - ${userCompanyDetails?.name || ''}`);
-      const body = encodeURIComponent(`Dear ${t.customer},\n\nPlease find attached your official PDF receipt for transaction ${t.trxId}.\nTotal Amount: ${formatCurrency(t.grandTotal)}\n\nThank you for your business!`);
-      
-      const a = document.createElement('a');
-      a.href = pdfUrl;
-      a.download = `${t.trxId}.pdf`;
-      a.click();
-
-      window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
-      alert('PDF downloaded. Please attach it to your email.');
-    }
-
-    async function sendReceiptViaPhoneSMS() {
-      const t = lastCompletedTransaction;
-      if (!t) return;
-      const text = encodeURIComponent(`Receipt ${t.trxId} Total: ${formatCurrency(t.grandTotal)} from ${userCompanyDetails?.name || 'Store'}. Thank you!`);
-      window.open(`sms:?body=${text}`, '_blank');
-    }
-
-    function toggleMenu() {
-      alert('POS Menu: Switch Branch or View Shift Reports.');
     }
 
     window.addEventListener('DOMContentLoaded', initializePOS);
