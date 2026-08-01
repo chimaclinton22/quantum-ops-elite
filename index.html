@@ -4,11 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quantum OPS - Login & Authentication</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
@@ -61,10 +58,10 @@
       
       <!-- FULL NAME FIELD (SIGNUP ONLY) -->
       <div id="name-field" class="hidden">
-        <label class="block text-xs font-medium text-gray-400 mb-1.5">Full Name</label>
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Full Name / Shop Name</label>
         <div class="relative">
           <i class="fa-regular fa-user absolute left-3.5 top-3 text-gray-500 text-xs"></i>
-          <input type="text" id="full_name" placeholder="John Doe" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+          <input type="text" id="full_name" placeholder="e.g. Rise Beyond or John Doe" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
         </div>
       </div>
 
@@ -105,15 +102,13 @@
   </div>
 
   <script>
-    // SUPABASE CONFIGURATION
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentMode = "login"; // Modes: "login", "signup", "forgot"
+    let currentMode = "login";
 
-    // UI ELEMENTS
     const alertBox = document.getElementById("alert");
     const alertText = document.getElementById("alert-text");
     const alertIcon = document.getElementById("alert-icon");
@@ -124,7 +119,6 @@
     const submitBtn = document.getElementById("submit-btn");
     const forgotLink = document.getElementById("forgot-link");
 
-    // AUTO CHECK SESSION ON LOAD
     async function checkExistingSession() {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
@@ -133,7 +127,6 @@
     }
     checkExistingSession();
 
-    // ALERT MESSAGING SYSTEM
     function showAlert(msg, isError = true) {
       alertText.textContent = msg;
       alertBox.classList.remove("hidden", "bg-rose-950/60", "border-rose-500/40", "text-rose-300", "bg-emerald-950/60", "border-emerald-500/40", "text-emerald-300");
@@ -147,7 +140,6 @@
       }
     }
 
-    // MODE SWITCHING LOGIC
     function showSignUp() {
       currentMode = "signup";
       formTitle.textContent = "Create an Elite Account";
@@ -186,43 +178,118 @@
       alertBox.classList.add("hidden");
     }
 
-    // FORM SUBMIT HANDLER
+    // ========== CREATE UNIQUE COMPANY FOR NEW USER ==========
+    async function createCompanyForUser(user, fullName) {
+      const shopName = (fullName && fullName.trim()) 
+        ? fullName.trim() 
+        : (user.email ? user.email.split('@')[0] : 'My Business');
+
+      // 1. Create company
+      const { data: company, error: companyError } = await supabaseClient
+        .from('companies')
+        .insert([{
+          owner_id: user.id,
+          company_name: shopName,
+          currency: 'NGN',
+          subscription_plan: 'free',
+          subscription_status: 'active'
+        }])
+        .select()
+        .single();
+
+      if (companyError) {
+        console.error('Company create error:', companyError);
+        throw new Error('Could not create your business account: ' + companyError.message);
+      }
+
+      // 2. Link user as owner in company_users
+      const { error: linkError } = await supabaseClient
+        .from('company_users')
+        .insert([{
+          company_id: company.id,
+          user_id: user.id,
+          role: 'owner',
+          invitation_status: 'accepted',
+          joined_at: new Date().toISOString()
+        }]);
+
+      if (linkError) {
+        console.error('company_users link error:', linkError);
+        throw new Error('Could not link your account to the business: ' + linkError.message);
+      }
+
+      return company;
+    }
+
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       alertBox.classList.add("hidden");
 
-      const email = document.getElementById("email").value;
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
-      const fullName = document.getElementById("full_name").value;
+      const fullName = document.getElementById("full_name").value.trim();
 
-      // Disable button while processing
       submitBtn.disabled = true;
       submitBtn.classList.add("opacity-70");
 
       try {
         if (currentMode === "signup") {
+          if (!fullName) {
+            throw new Error('Please enter your Full Name or Shop Name.');
+          }
+          if (!password || password.length < 6) {
+            throw new Error('Password must be at least 6 characters.');
+          }
+
+          // 1. Create auth user
           const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
-            options: { data: { full_name: fullName } }
+            options: { 
+              data: { full_name: fullName }
+            }
           });
           
           if (error) throw error;
-          showAlert("Account created! Check your email to verify before logging in.", false);
+          if (!data.user) throw new Error('Account created but user data missing. Please try again.');
+
+          // 2. Create unique company + link
+          await createCompanyForUser(data.user, fullName);
+
+          showAlert("Account created successfully! You can now sign in.", false);
+          
+          // Switch to login after short delay
+          setTimeout(() => {
+            showLogin();
+            document.getElementById("email").value = email;
+          }, 1500);
+
         } 
         else if (currentMode === "login") {
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
           
           if (error) throw error;
+
+          // Safety net: if this user somehow has no company, create one now
+          const { data: existingLink } = await supabaseClient
+            .from('company_users')
+            .select('id')
+            .eq('user_id', data.user.id)
+            .maybeSingle();
+
+          if (!existingLink) {
+            const name = data.user.user_metadata?.full_name || data.user.email.split('@')[0];
+            await createCompanyForUser(data.user, name);
+          }
+
           showAlert("Login Successful! Redirecting to Dashboard...", false);
           
-          // Redirect to dashboard after 1 second
           setTimeout(() => {
             window.location.href = "dashboard.html";
-          }, 1000);
+          }, 800);
         } 
         else if (currentMode === "forgot") {
-          const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + '/index.html',
           });
           
@@ -230,7 +297,7 @@
           showAlert("Password reset link sent! Check your inbox.", false);
         }
       } catch (err) {
-        showAlert(err.message, true);
+        showAlert(err.message || 'Something went wrong.', true);
       } finally {
         submitBtn.disabled = false;
         submitBtn.classList.remove("opacity-70");
