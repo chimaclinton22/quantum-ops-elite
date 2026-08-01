@@ -30,37 +30,23 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
     .iphone-frame {
-      width: 100%;
-      max-width: 410px;
-      height: 100vh;
-      max-height: 860px;
-      background: #0B0B16;
-      border: 1px solid rgba(139, 92, 246, 0.2);
+      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
+      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
       box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
     }
     @media (min-width: 768px) {
       body { align-items: center; justify-content: center; display: flex; height: 100vh; }
       .iphone-frame { border-radius: 48px; }
     }
-    #action-sheet {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-    }
+    #action-sheet { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease; }
   </style>
 </head>
 <body>
-
   <div class="iphone-frame">
-    
-    <!-- TOP APP BAR -->
     <div class="px-4 pt-3 pb-2 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
       <div class="flex items-center gap-3">
-        <button onclick="toggleMenu()" class="text-slate-300 hover:text-white transition">
-          <i class="fa-solid fa-bars text-lg"></i>
-        </button>
+        <button onclick="toggleMenu()" class="text-slate-300 hover:text-white transition"><i class="fa-solid fa-bars text-lg"></i></button>
         <div class="flex items-center gap-2">
           <div class="w-7 h-7 rounded-lg bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-xs shadow-inner">Q</div>
           <span class="font-bold tracking-wider text-xs text-white">QUANTUM OPS <span class="text-[9px] text-purple-400 border border-purple-500/30 px-1 rounded">ELITE</span></span>
@@ -75,10 +61,7 @@
       </div>
     </div>
 
-    <!-- MAIN SCROLLABLE VIEWPORT -->
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
-      
-      <!-- GREETING & BRANCH SELECTOR -->
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-base font-bold text-white" id="greeting-title">Good day, User 👋</h1>
@@ -86,37 +69,28 @@
         </div>
         <div class="flex items-center gap-1.5 bg-[#121224] border border-purple-500/20 px-2.5 py-1.5 rounded-xl text-xs text-purple-300 font-medium shadow-inner">
           <i class="fa-solid fa-store text-purple-400 text-[10px]"></i>
-          <span id="current-branch-name">Main Branch</span>
-          <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+          <span id="current-branch-name">My Business</span>
         </div>
       </div>
 
-      <!-- KPI CARDS GRID -->
       <div class="grid grid-cols-3 gap-2.5">
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Total Sales (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-sales">₦0</h3>
-          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
-          </div>
+          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live</div>
         </div>
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-profit">₦0</h3>
-          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
-          </div>
+          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live</div>
         </div>
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
-          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold">
-            <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
-          </div>
+          <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live</div>
         </div>
       </div>
 
-      <!-- SECONDARY KPI ROW -->
       <div class="grid grid-cols-3 gap-2.5">
         <a href="debtors.html" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 block transition cursor-pointer">
           <p class="text-[10px] text-slate-400 font-medium">Outstanding Debt</p>
@@ -131,13 +105,12 @@
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 flex flex-col justify-between">
           <p class="text-[10px] text-slate-400 font-medium">Business Health</p>
           <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm" id="health-icon"></i>
+            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm"></i>
             <span class="text-xs font-bold text-emerald-400" id="val-business-health">100%</span>
           </div>
         </div>
       </div>
 
-      <!-- SALES OVERVIEW CHART -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
           <div>
@@ -146,23 +119,19 @@
           </div>
           <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-medium">This Week</span>
         </div>
-        <div class="h-36 w-full">
-          <canvas id="salesOverviewChart"></canvas>
-        </div>
+        <div class="h-36 w-full"><canvas id="salesOverviewChart"></canvas></div>
       </div>
 
-      <!-- TOP SELLING PRODUCTS -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
           <h4 class="text-xs font-semibold text-slate-300">Top Selling Products</h4>
           <span class="text-[10px] text-purple-400 font-medium">Real-time</span>
         </div>
         <div class="space-y-2.5 text-xs" id="top-products-list">
-          <div class="text-slate-500 text-[11px] text-center py-2">Loading top products...</div>
+          <div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>
         </div>
       </div>
 
-      <!-- RECENT ACTIVITIES FEED -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
           <h4 class="text-xs font-semibold text-slate-300">Recent Activities</h4>
@@ -172,35 +141,27 @@
           <div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>
         </div>
       </div>
-
     </div>
 
-    <!-- BOTTOM FLOATING NAVIGATION BAR -->
     <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
       <a href="dashboard.html" class="flex flex-col items-center gap-1 text-purple-400">
-        <i class="fa-solid fa-gauge-high text-sm"></i>
-        <span class="text-[9px] font-medium">Dashboard</span>
+        <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px] font-medium">Dashboard</span>
       </a>
       <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-boxes-stacked text-sm"></i>
-        <span class="text-[9px] font-medium">Inventory</span>
+        <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px] font-medium">Inventory</span>
       </a>
       <button onclick="toggleActionSheet()" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform focus:outline-none">
-        <i class="fa-solid fa-plus text-base" id="action-btn-icon"></i>
+        <i class="fa-solid fa-plus text-base"></i>
       </button>
       <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-cash-register text-sm"></i>
-        <span class="text-[9px] font-medium">POS Sales</span>
+        <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px] font-medium">POS Sales</span>
       </a>
       <a href="ai-ceo.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-robot text-sm text-purple-400"></i>
-        <span class="text-[9px] font-medium">AI CEO</span>
+        <i class="fa-solid fa-robot text-sm text-purple-400"></i><span class="text-[9px] font-medium">AI CEO</span>
       </a>
     </nav>
-
   </div>
 
-  <!-- QUICK ACTION BOTTOM SHEET -->
   <div id="action-sheet" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="w-full max-w-md bg-[#121224] border-t border-purple-500/30 rounded-t-[32px] p-6 space-y-5 transform translate-y-full transition-transform duration-300" id="action-sheet-content">
       <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto"></div>
@@ -210,50 +171,37 @@
       </div>
       <div class="grid grid-cols-3 gap-3">
         <a href="pos.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
-          <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-cash-register"></i>
-          </div>
+          <div class="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-sm"><i class="fa-solid fa-cash-register"></i></div>
           <span class="text-[11px] font-medium text-slate-200">New Sale</span>
         </a>
         <button onclick="openAddDebtModal()" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-file-invoice-dollar"></i>
-          </div>
+          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm"><i class="fa-solid fa-file-invoice-dollar"></i></div>
           <span class="text-[11px] font-medium text-slate-200">Add Debt</span>
         </button>
         <a href="inventory.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
-          <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-boxes-stacked"></i>
-          </div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm"><i class="fa-solid fa-boxes-stacked"></i></div>
           <span class="text-[11px] font-medium text-slate-200">Inventory</span>
         </a>
         <a href="ai-ceo.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
-          <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-robot"></i>
-          </div>
+          <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm"><i class="fa-solid fa-robot"></i></div>
           <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
         </a>
-        <button onclick="alert('Reports module coming next. Your sales data is already ready.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-chart-pie"></i>
-          </div>
+        <button onclick="alert('Reports coming next.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm"><i class="fa-solid fa-chart-pie"></i></div>
           <span class="text-[11px] font-medium text-slate-200">Reports</span>
         </button>
         <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm">
-            <i class="fa-solid fa-right-from-bracket"></i>
-          </div>
+          <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm"><i class="fa-solid fa-right-from-bracket"></i></div>
           <span class="text-[11px] font-medium text-rose-300">Log Out</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ADD DEBT MODAL -->
   <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Customer Debt</h3>
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-file-invoice-dollar text-rose-400 mr-2"></i>Record New Debt</h3>
         <button onclick="closeAddDebtModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="space-y-3 text-xs">
@@ -263,7 +211,7 @@
         </div>
         <div>
           <label class="text-[10px] text-slate-400 font-medium">Item Bought</label>
-          <input type="text" id="debt-item" placeholder="e.g. iPhone 13 Case, Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
+          <input type="text" id="debt-item" placeholder="e.g. Sneakers" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-purple-500">
         </div>
         <div>
           <label class="text-[10px] text-slate-400 font-medium">Amount Owing (₦) *</label>
@@ -282,7 +230,6 @@
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const LOW_STOCK_UNITS = 3;
 
     let salesChartInstance = null;
@@ -294,10 +241,7 @@
 
     function getLocalDateString(dateObj) {
       const d = new Date(dateObj);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
     function toggleActionSheet() {
@@ -323,9 +267,7 @@
     }
 
     async function handleLogout() {
-      try {
-        await supabaseClient.auth.signOut();
-      } catch (e) {}
+      try { await supabaseClient.auth.signOut(); } catch (e) {}
       window.location.href = 'index.html';
     }
 
@@ -337,69 +279,55 @@
           return;
         }
 
-        const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
+        const rawName = user.user_metadata?.full_name || user.email.split('@')[0];
         const firstName = rawName.split(' ')[0];
         const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-
-        const currentHour = new Date().getHours();
-        let timeGreeting = "Good evening";
-        if (currentHour < 12) timeGreeting = "Good morning";
-        else if (currentHour < 17) timeGreeting = "Good afternoon";
-
-        document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
+        const hour = new Date().getHours();
+        let greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+        document.getElementById('greeting-title').textContent = `${greeting}, ${capitalizedName} 👋`;
         document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
 
-        // ========== STRICT COMPANY LOOKUP ==========
+        // Load THIS user's company only
         userCompanyId = null;
-
-        // 1. From company_users (correct relation)
-        const { data: memberData } = await supabaseClient
+        const { data: member } = await supabaseClient
           .from('company_users')
           .select('company_id, companies(company_name)')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (memberData?.company_id) {
-          userCompanyId = memberData.company_id;
-          if (memberData.companies?.company_name) {
-            document.getElementById('current-branch-name').textContent = memberData.companies.company_name;
+        if (member?.company_id) {
+          userCompanyId = member.company_id;
+          if (member.companies?.company_name) {
+            document.getElementById('current-branch-name').textContent = member.companies.company_name;
           }
         } else {
-          // 2. Fallback: owner of a company
-          const { data: companyData } = await supabaseClient
+          // Fallback: company they own
+          const { data: owned } = await supabaseClient
             .from('companies')
             .select('id, company_name')
             .eq('owner_id', user.id)
             .maybeSingle();
-
-          if (companyData?.id) {
-            userCompanyId = companyData.id;
-            if (companyData.company_name) {
-              document.getElementById('current-branch-name').textContent = companyData.company_name;
-            }
+          if (owned?.id) {
+            userCompanyId = owned.id;
+            document.getElementById('current-branch-name').textContent = owned.company_name || 'My Business';
           }
         }
 
-        // Only load metrics if we have a company
         await fetchAllLiveMetrics();
 
-        // Realtime
         if (userCompanyId) {
-          supabaseClient
-            .channel('quantum-live-' + userCompanyId)
+          supabaseClient.channel('live-' + userCompanyId)
             .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
             .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
             .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
             .subscribe();
         }
-
       } catch (err) {
-        console.error("Initialization error:", err);
+        console.error(err);
       }
     }
 
     async function fetchAllLiveMetrics() {
-      // HARD RULE: never show other users' data
       if (!userCompanyId) {
         processSalesMetrics([]);
         processInventoryMetrics([]);
@@ -416,38 +344,27 @@
         supabaseClient.from('debtors').select('*').eq('company_id', userCompanyId)
       ]);
 
-      const sales = salesRes.data || [];
-      const products = productsRes.data || [];
-      const debtors = debtorsRes.data || [];
-
-      processSalesMetrics(sales);
-      processInventoryMetrics(products);
-      processDebtorsMetrics(debtors);
-      renderSalesChart(sales);
-      renderTopProducts(sales);
-      renderRecentActivities(sales);
+      processSalesMetrics(salesRes.data || []);
+      processInventoryMetrics(productsRes.data || []);
+      processDebtorsMetrics(debtorsRes.data || []);
+      renderSalesChart(salesRes.data || []);
+      renderTopProducts(salesRes.data || []);
+      renderRecentActivities(salesRes.data || []);
     }
 
     function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
-      let todaySales = 0;
-      let todayProfit = 0;
-      let todayCount = 0;
-      let weeklyTotal = 0;
-
-      sales.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
-        const profit = parseFloat(sale.profit || sale.total_profit || 0);
-        const saleDateStr = getLocalDateString(new Date(sale.created_at || sale.date || Date.now()));
-
+      let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0;
+      sales.forEach(s => {
+        const amount = parseFloat(s.total_amount || s.total || 0);
+        const profit = parseFloat(s.profit || s.total_profit || 0);
         weeklyTotal += amount;
-        if (saleDateStr === todayStr) {
+        if (getLocalDateString(new Date(s.created_at)) === todayStr) {
           todaySales += amount;
           todayProfit += profit;
-          todayCount += 1;
+          todayCount++;
         }
       });
-
       document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
       document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
       document.getElementById('val-transactions').textContent = todayCount;
@@ -455,170 +372,100 @@
     }
 
     function processInventoryMetrics(products) {
-      let lowStockCount = 0;
-      products.forEach(item => {
-        const totalPieces = parseFloat(item.stock || 0);
-        const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
-        const remainingUnits = totalPieces / piecesPerUnit;
-        if (totalPieces > 0 && remainingUnits <= LOW_STOCK_UNITS) lowStockCount++;
+      let low = 0;
+      products.forEach(p => {
+        const pieces = parseFloat(p.stock || 0);
+        const pack = parseFloat(p.items_per_pack || 24) || 24;
+        if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
       });
-      document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
-      let health = 100;
-      if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
-      document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
+      document.getElementById('val-low-stock').textContent = low + ' Items';
+      document.getElementById('val-business-health').textContent = Math.max(100 - low * 5, 40) + '%';
     }
 
     function processDebtorsMetrics(debtors) {
-      let totalDebt = 0;
-      debtors.forEach(d => totalDebt += parseFloat(d.amount_owing || d.amount || 0));
-      document.getElementById('val-outstanding-debt').textContent = formatCurrency(totalDebt);
-      document.getElementById('val-debt-customers').textContent = `${debtors.length} Customers`;
+      let total = 0;
+      debtors.forEach(d => total += parseFloat(d.amount_owing || 0));
+      document.getElementById('val-outstanding-debt').textContent = formatCurrency(total);
+      document.getElementById('val-debt-customers').textContent = debtors.length + ' Customers';
     }
 
     function renderSalesChart(sales) {
       const ctx = document.getElementById('salesOverviewChart').getContext('2d');
       if (salesChartInstance) salesChartInstance.destroy();
-
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
-
-      sales.forEach(sale => {
-        const dateObj = new Date(sale.created_at || sale.date || Date.now());
-        let dayIdx = dateObj.getDay() - 1;
-        if (dayIdx === -1) dayIdx = 6;
-        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.total || sale.amount || 0);
+      const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      const totals = [0,0,0,0,0,0,0];
+      sales.forEach(s => {
+        let idx = new Date(s.created_at).getDay() - 1;
+        if (idx === -1) idx = 6;
+        totals[idx] += parseFloat(s.total_amount || s.total || 0);
       });
-
       salesChartInstance = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: days,
-          datasets: [{
-            label: 'Sales (₦)',
-            data: dailyTotals,
-            borderColor: '#A78BFA',
-            backgroundColor: 'rgba(108, 92, 231, 0.15)',
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#C084FC',
-            pointRadius: 3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 9 } } },
-            y: {
-              grid: { color: 'rgba(255,255,255,0.03)' },
-              ticks: {
-                color: '#94A3B8',
-                font: { size: 9 },
-                callback: val => '₦' + (val / 1000).toFixed(0) + 'k'
-              }
-            }
-          }
-        }
+        data: { labels: days, datasets: [{ data: totals, borderColor: '#A78BFA', backgroundColor: 'rgba(108,92,231,0.15)', borderWidth: 2, fill: true, tension: 0.4, pointBackgroundColor: '#C084FC', pointRadius: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#94A3B8', font: { size: 9 } } }, y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#94A3B8', font: { size: 9 }, callback: v => '₦' + (v/1000).toFixed(0) + 'k' } } } }
       });
     }
 
     function renderTopProducts(sales) {
       const container = document.getElementById('top-products-list');
-      const productCounts = {};
-
-      sales.forEach(sale => {
-        if (Array.isArray(sale.items) && sale.items.length > 0) {
-          sale.items.forEach(item => {
-            const name = item.name || item.product_name || 'Product';
-            const qty = parseInt(item.qty || item.quantity || 1);
-            const amount = parseFloat(item.total || (item.price * qty) || 0);
-            if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
-            productCounts[name].qty += qty;
-            productCounts[name].revenue += amount;
+      const counts = {};
+      sales.forEach(s => {
+        if (Array.isArray(s.items)) {
+          s.items.forEach(i => {
+            const n = i.name || 'Product';
+            if (!counts[n]) counts[n] = { qty: 0, revenue: 0 };
+            counts[n].qty += parseInt(i.qty || 1);
+            counts[n].revenue += parseFloat(i.price || 0) * parseInt(i.qty || 1);
           });
-        } else {
-          const name = sale.product_name || sale.item_name || 'General Product';
-          const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
-          if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
-          productCounts[name].qty += parseInt(sale.quantity || 1);
-          productCounts[name].revenue += amount;
         }
       });
-
-      const sortedProducts = Object.entries(productCounts)
-        .sort((a, b) => b[1].revenue - a[1].revenue)
-        .slice(0, 5);
-
-      if (sortedProducts.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>`;
+      const sorted = Object.entries(counts).sort((a,b) => b[1].revenue - a[1].revenue).slice(0,5);
+      if (!sorted.length) {
+        container.innerHTML = '<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>';
         return;
       }
-
-      let html = '';
-      sortedProducts.forEach(([name, data], idx) => {
-        html += `
-          <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
-            <span class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">${idx + 1}</span>
-              ${name} (${data.qty} sold)
-            </span>
-            <span class="text-white font-semibold">${formatCurrency(data.revenue)}</span>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
+      container.innerHTML = sorted.map(([name, d], i) => `
+        <div class="flex items-center justify-between text-slate-400 text-[11px] py-1">
+          <span class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-purple-600/30 text-purple-300 text-[9px] flex items-center justify-center font-bold">${i+1}</span>${name} (${d.qty} sold)</span>
+          <span class="text-white font-semibold">${formatCurrency(d.revenue)}</span>
+        </div>`).join('');
     }
 
     function renderRecentActivities(sales) {
       const container = document.getElementById('recent-activities-list');
-      if (!sales || sales.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>`;
+      if (!sales.length) {
+        container.innerHTML = '<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>';
         return;
       }
-
-      const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
-      let html = '';
-
-      sorted.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
+      const sorted = [...sales].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,5);
+      container.innerHTML = sorted.map(s => {
+        const amount = parseFloat(s.total_amount || s.total || 0);
         let label = 'New Sale';
-        if (Array.isArray(sale.items) && sale.items.length > 0) {
-          label = sale.items[0].name || sale.items[0].product_name || 'New Sale';
-          if (sale.items.length > 1) label += ` +${sale.items.length - 1} more`;
-        } else {
-          label = sale.product_name || sale.item_name || sale.customer_name || 'New Sale';
-        }
-
-        html += `
+        if (Array.isArray(s.items) && s.items[0]) label = s.items[0].name || 'New Sale';
+        return `
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-[11px]">
-                <i class="fa-solid fa-cart-shopping"></i>
-              </div>
+              <div class="w-7 h-7 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center border border-purple-500/30 text-[11px]"><i class="fa-solid fa-cart-shopping"></i></div>
               <div>
                 <p class="font-medium text-white text-[11px]">${label}</p>
-                <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash'}</p>
+                <p class="text-[9px] text-slate-400">${s.payment_method || 'Cash'}</p>
               </div>
             </div>
             <div class="text-right">
               <p class="font-semibold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
-              <p class="text-[9px] text-slate-500">${getTimeAgo(sale.created_at)}</p>
+              <p class="text-[9px] text-slate-500">${getTimeAgo(s.created_at)}</p>
             </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
+          </div>`;
+      }).join('');
     }
 
     function getTimeAgo(dateString) {
       if (!dateString) return 'Just now';
-      const diffMins = Math.floor((new Date() - new Date(dateString)) / 60000);
-      if (diffMins < 1) return 'Just now';
-      if (diffMins < 60) return `${diffMins} min ago`;
-      const diffHours = Math.floor(diffMins / 60);
-      if (diffHours < 24) return `${diffHours}h ago`;
+      const mins = Math.floor((new Date() - new Date(dateString)) / 60000);
+      if (mins < 1) return 'Just now';
+      if (mins < 60) return mins + ' min ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
       return getLocalDateString(new Date(dateString));
     }
 
@@ -627,14 +474,12 @@
       const item = document.getElementById('debt-item').value.trim();
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
-
-      if (!customer) { alert('Please enter Customer Name.'); return; }
-      if (!amount || parseFloat(amount) <= 0) { alert('Please enter a valid Amount.'); return; }
-      if (!userCompanyId) { alert('Company not loaded. Please refresh the page.'); return; }
+      if (!customer) return alert('Enter customer name');
+      if (!amount || parseFloat(amount) <= 0) return alert('Enter valid amount');
+      if (!userCompanyId) return alert('Company not loaded. Refresh page.');
 
       const btn = document.getElementById('save-debt-btn');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
+      btn.disabled = true; btn.textContent = 'Saving...';
 
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
@@ -645,12 +490,9 @@
         status: 'unpaid'
       }]);
 
-      btn.disabled = false;
-      btn.textContent = 'Save Debt Record';
-
-      if (error) {
-        alert('Error saving debt: ' + error.message);
-      } else {
+      btn.disabled = false; btn.textContent = 'Save Debt Record';
+      if (error) alert(error.message);
+      else {
         closeAddDebtModal();
         document.getElementById('debt-customer').value = '';
         document.getElementById('debt-item').value = '';
@@ -660,10 +502,7 @@
       }
     }
 
-    function toggleMenu() {
-      toggleActionSheet();
-    }
-
+    function toggleMenu() { toggleActionSheet(); }
     window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
