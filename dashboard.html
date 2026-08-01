@@ -1,16 +1,12 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quantum OPS Elite - Mobile Business OS</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Supabase JS Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     tailwind.config = {
@@ -33,7 +29,6 @@
     body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
-    .led-glow { box-shadow: 0 0 20px rgba(108, 92, 231, 0.25); }
     .iphone-frame {
       width: 100%;
       max-width: 410px;
@@ -57,7 +52,7 @@
   </style>
 </head>
 <body>
-  <!-- MOBILE DEVICE FRAME CONTAINER -->
+
   <div class="iphone-frame">
     
     <!-- TOP APP BAR -->
@@ -76,11 +71,10 @@
           <i class="fa-regular fa-bell text-sm"></i>
           <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center text-white">0</span>
         </button>
-        <div class="w-8 h-8 rounded-full overflow-hidden border border-purple-500/30 bg-purple-950 flex items-center justify-center text-xs font-semibold text-purple-200" id="user-avatar-initial">
-          C
-        </div>
+        <div class="w-8 h-8 rounded-full overflow-hidden border border-purple-500/30 bg-purple-950 flex items-center justify-center text-xs font-semibold text-purple-200" id="user-avatar-initial">C</div>
       </div>
     </div>
+
     <!-- MAIN SCROLLABLE VIEWPORT -->
     <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
       
@@ -96,9 +90,9 @@
           <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
         </div>
       </div>
+
       <!-- KPI CARDS GRID -->
       <div class="grid grid-cols-3 gap-2.5">
-        <!-- Today's Sales -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Total Sales (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-sales">₦0</h3>
@@ -106,7 +100,6 @@
             <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
           </div>
         </div>
-        <!-- Today's Profit -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-profit">₦0</h3>
@@ -114,7 +107,6 @@
             <i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live
           </div>
         </div>
-        <!-- Transactions (Today) -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
           <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
@@ -123,21 +115,19 @@
           </div>
         </div>
       </div>
+
       <!-- SECONDARY KPI ROW -->
       <div class="grid grid-cols-3 gap-2.5">
-        <!-- Outstanding Debt -->
         <a href="debtors.html" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 block transition cursor-pointer">
           <p class="text-[10px] text-slate-400 font-medium">Outstanding Debt</p>
           <h3 class="text-xs font-bold text-rose-400" id="val-outstanding-debt">₦0</h3>
           <p class="text-[9px] text-slate-500" id="val-debt-customers">0 Customers</p>
         </a>
-        <!-- Low Stock Alerts -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1">
           <p class="text-[10px] text-slate-400 font-medium">Low Stock Alerts</p>
           <h3 class="text-xs font-bold text-amber-400" id="val-low-stock">0 Items</h3>
           <p class="text-[9px] text-slate-500">Need attention</p>
         </div>
-        <!-- Business Health -->
         <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 flex flex-col justify-between">
           <p class="text-[10px] text-slate-400 font-medium">Business Health</p>
           <div class="flex items-center gap-1.5">
@@ -146,6 +136,7 @@
           </div>
         </div>
       </div>
+
       <!-- SALES OVERVIEW CHART -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
@@ -159,6 +150,7 @@
           <canvas id="salesOverviewChart"></canvas>
         </div>
       </div>
+
       <!-- TOP SELLING PRODUCTS -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
@@ -169,6 +161,7 @@
           <div class="text-slate-500 text-[11px] text-center py-2">Loading top products...</div>
         </div>
       </div>
+
       <!-- RECENT ACTIVITIES FEED -->
       <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
         <div class="flex justify-between items-center">
@@ -179,7 +172,9 @@
           <div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>
         </div>
       </div>
+
     </div>
+
     <!-- BOTTOM FLOATING NAVIGATION BAR -->
     <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
       <a href="dashboard.html" class="flex flex-col items-center gap-1 text-purple-400">
@@ -190,7 +185,6 @@
         <i class="fa-solid fa-boxes-stacked text-sm"></i>
         <span class="text-[9px] font-medium">Inventory</span>
       </a>
-      
       <button onclick="toggleActionSheet()" class="relative -top-4 w-12 h-12 bg-gradient-to-tr from-purple-600 to-indigo-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-500/50 border-3 border-[#0B0B16] hover:scale-105 transition-transform focus:outline-none">
         <i class="fa-solid fa-plus text-base" id="action-btn-icon"></i>
       </button>
@@ -203,12 +197,13 @@
         <span class="text-[9px] font-medium">AI CEO</span>
       </a>
     </nav>
+
   </div>
+
   <!-- QUICK ACTION BOTTOM SHEET -->
   <div id="action-sheet" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="w-full max-w-md bg-[#121224] border-t border-purple-500/30 rounded-t-[32px] p-6 space-y-5 transform translate-y-full transition-transform duration-300" id="action-sheet-content">
       <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto"></div>
-      
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-bold text-white tracking-wide">Quick Business Actions</h3>
         <button onclick="toggleActionSheet()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
@@ -253,7 +248,8 @@
       </div>
     </div>
   </div>
-  <!-- ADD DEBT MODAL (FULL SAFE FORM WITH ITEM BOUGHT) -->
+
+  <!-- ADD DEBT MODAL -->
   <div id="debt-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
@@ -281,18 +277,21 @@
       </div>
     </div>
   </div>
-  <!-- REAL-TIME ENGINE -->
+
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    // Low stock = 3 units or less (same rule as inventory)
+
     const LOW_STOCK_UNITS = 3;
+
     let salesChartInstance = null;
     let userCompanyId = null;
+
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
+
     function getLocalDateString(dateObj) {
       const d = new Date(dateObj);
       const year = d.getFullYear();
@@ -300,11 +299,11 @@
       const day = String(d.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
+
     function toggleActionSheet() {
       const sheet = document.getElementById('action-sheet');
       const content = document.getElementById('action-sheet-content');
       const isHidden = sheet.classList.contains('opacity-0');
-      
       if (isHidden) {
         sheet.classList.remove('opacity-0', 'pointer-events-none');
         content.classList.remove('translate-y-full');
@@ -313,22 +312,23 @@
         content.classList.add('translate-y-full');
       }
     }
+
     function openAddDebtModal() {
       toggleActionSheet();
       document.getElementById('debt-modal').classList.remove('hidden');
     }
+
     function closeAddDebtModal() {
       document.getElementById('debt-modal').classList.add('hidden');
     }
+
     async function handleLogout() {
       try {
         await supabaseClient.auth.signOut();
-      } catch (e) {
-        console.error("Sign out error:", e);
-      }
-      // Force immediate redirect to login page
+      } catch (e) {}
       window.location.href = 'index.html';
     }
+
     async function initializeApp() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
@@ -336,87 +336,90 @@
           window.location.href = 'index.html';
           return;
         }
+
         const rawName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
         const firstName = rawName.split(' ')[0];
         const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+
         const currentHour = new Date().getHours();
         let timeGreeting = "Good evening";
         if (currentHour < 12) timeGreeting = "Good morning";
         else if (currentHour < 17) timeGreeting = "Good afternoon";
+
         document.getElementById('greeting-title').textContent = `${timeGreeting}, ${capitalizedName} 👋`;
         document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
-        // --- SAFE MULTI-TABLE COMPANY LOOKUP ---
+
+        // ========== STRICT COMPANY LOOKUP ==========
         userCompanyId = null;
-        // Approach 1: Check company_users join table
-        const { data: memberData, error: memberErr } = await supabaseClient
+
+        // 1. From company_users (correct relation)
+        const { data: memberData } = await supabaseClient
           .from('company_users')
-          .select('company_id, companies(name)')
+          .select('company_id, companies(company_name)')
           .eq('user_id', user.id)
           .maybeSingle();
-        if (memberData && memberData.company_id) {
+
+        if (memberData?.company_id) {
           userCompanyId = memberData.company_id;
-          if (memberData.companies?.name) {
-            document.getElementById('current-branch-name').textContent = memberData.companies.name;
+          if (memberData.companies?.company_name) {
+            document.getElementById('current-branch-name').textContent = memberData.companies.company_name;
           }
-          console.log("Company ID loaded from company_users:", userCompanyId);
         } else {
-          // Approach 2: Check direct ownership in companies table
-          const { data: companyData, error: companyErr } = await supabaseClient
+          // 2. Fallback: owner of a company
+          const { data: companyData } = await supabaseClient
             .from('companies')
-            .select('id, name')
+            .select('id, company_name')
             .eq('owner_id', user.id)
             .maybeSingle();
-          if (companyData && companyData.id) {
+
+          if (companyData?.id) {
             userCompanyId = companyData.id;
-            if (companyData.name) {
-              document.getElementById('current-branch-name').textContent = companyData.name;
-            }
-            console.log("Company ID loaded from companies table:", userCompanyId);
-          } else {
-            // Approach 3: Check profiles table
-            const { data: profileData } = await supabaseClient
-              .from('profiles')
-              .select('company_id')
-              .eq('id', user.id)
-              .maybeSingle();
-            if (profileData && profileData.company_id) {
-              userCompanyId = profileData.company_id;
-              console.log("Company ID loaded from profiles table:", userCompanyId);
+            if (companyData.company_name) {
+              document.getElementById('current-branch-name').textContent = companyData.company_name;
             }
           }
         }
-        if (!userCompanyId) {
-          console.warn("No company ID found for this user in company_users, companies, or profiles.");
-        }
+
+        // Only load metrics if we have a company
         await fetchAllLiveMetrics();
-        // Realtime – listen to changes on tables
-        supabaseClient
-          .channel('quantum-live')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
-          .subscribe();
+
+        // Realtime
+        if (userCompanyId) {
+          supabaseClient
+            .channel('quantum-live-' + userCompanyId)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
+            .subscribe();
+        }
+
       } catch (err) {
         console.error("Initialization error:", err);
       }
     }
+
     async function fetchAllLiveMetrics() {
-      let salesQuery = supabaseClient.from('sales').select('*').order('created_at', { ascending: false });
-      let productsQuery = supabaseClient.from('products').select('*');
-      let debtorsQuery = supabaseClient.from('debtors').select('*');
-      if (userCompanyId) {
-        salesQuery = salesQuery.eq('company_id', userCompanyId);
-        productsQuery = productsQuery.eq('company_id', userCompanyId);
-        debtorsQuery = debtorsQuery.eq('company_id', userCompanyId);
+      // HARD RULE: never show other users' data
+      if (!userCompanyId) {
+        processSalesMetrics([]);
+        processInventoryMetrics([]);
+        processDebtorsMetrics([]);
+        renderSalesChart([]);
+        renderTopProducts([]);
+        renderRecentActivities([]);
+        return;
       }
+
       const [salesRes, productsRes, debtorsRes] = await Promise.all([
-        salesQuery,
-        productsQuery,
-        debtorsQuery
+        supabaseClient.from('sales').select('*').eq('company_id', userCompanyId).order('created_at', { ascending: false }),
+        supabaseClient.from('products').select('*').eq('company_id', userCompanyId),
+        supabaseClient.from('debtors').select('*').eq('company_id', userCompanyId)
       ]);
+
       const sales = salesRes.data || [];
       const products = productsRes.data || [];
       const debtors = debtorsRes.data || [];
+
       processSalesMetrics(sales);
       processInventoryMetrics(products);
       processDebtorsMetrics(debtors);
@@ -424,17 +427,19 @@
       renderTopProducts(sales);
       renderRecentActivities(sales);
     }
+
     function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0;
       let todayProfit = 0;
       let todayCount = 0;
       let weeklyTotal = 0;
+
       sales.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
-        const profit = parseFloat(sale.profit || 0);
-        const rawDate = sale.created_at || sale.date || new Date();
-        const saleDateStr = getLocalDateString(new Date(rawDate));
+        const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
+        const profit = parseFloat(sale.profit || sale.total_profit || 0);
+        const saleDateStr = getLocalDateString(new Date(sale.created_at || sale.date || Date.now()));
+
         weeklyTotal += amount;
         if (saleDateStr === todayStr) {
           todaySales += amount;
@@ -442,45 +447,48 @@
           todayCount += 1;
         }
       });
+
       document.getElementById('val-today-sales').textContent = formatCurrency(todaySales);
       document.getElementById('val-today-profit').textContent = formatCurrency(todayProfit);
       document.getElementById('val-transactions').textContent = todayCount;
       document.getElementById('val-weekly-total').textContent = formatCurrency(weeklyTotal);
     }
+
     function processInventoryMetrics(products) {
       let lowStockCount = 0;
       products.forEach(item => {
         const totalPieces = parseFloat(item.stock || 0);
         const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
         const remainingUnits = totalPieces / piecesPerUnit;
-        if (totalPieces > 0 && remainingUnits <= LOW_STOCK_UNITS) {
-          lowStockCount++;
-        }
+        if (totalPieces > 0 && remainingUnits <= LOW_STOCK_UNITS) lowStockCount++;
       });
       document.getElementById('val-low-stock').textContent = `${lowStockCount} Items`;
       let health = 100;
       if (lowStockCount > 0) health -= Math.min(lowStockCount * 5, 30);
       document.getElementById('val-business-health').textContent = `${Math.max(health, 40)}%`;
     }
+
     function processDebtorsMetrics(debtors) {
       let totalDebt = 0;
-      debtors.forEach(d => {
-        totalDebt += parseFloat(d.amount_owing || d.amount || 0);
-      });
+      debtors.forEach(d => totalDebt += parseFloat(d.amount_owing || d.amount || 0));
       document.getElementById('val-outstanding-debt').textContent = formatCurrency(totalDebt);
       document.getElementById('val-debt-customers').textContent = `${debtors.length} Customers`;
     }
+
     function renderSalesChart(sales) {
       const ctx = document.getElementById('salesOverviewChart').getContext('2d');
       if (salesChartInstance) salesChartInstance.destroy();
+
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
+
       sales.forEach(sale => {
         const dateObj = new Date(sale.created_at || sale.date || Date.now());
         let dayIdx = dateObj.getDay() - 1;
         if (dayIdx === -1) dayIdx = 6;
-        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.amount || sale.total || 0);
+        dailyTotals[dayIdx] += parseFloat(sale.total_amount || sale.total || sale.amount || 0);
       });
+
       salesChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -515,23 +523,39 @@
         }
       });
     }
+
     function renderTopProducts(sales) {
       const container = document.getElementById('top-products-list');
       const productCounts = {};
+
       sales.forEach(sale => {
-        const name = sale.product_name || sale.item_name || 'General Product';
-        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
-        if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
-        productCounts[name].qty += parseInt(sale.quantity || 1);
-        productCounts[name].revenue += amount;
+        if (Array.isArray(sale.items) && sale.items.length > 0) {
+          sale.items.forEach(item => {
+            const name = item.name || item.product_name || 'Product';
+            const qty = parseInt(item.qty || item.quantity || 1);
+            const amount = parseFloat(item.total || (item.price * qty) || 0);
+            if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
+            productCounts[name].qty += qty;
+            productCounts[name].revenue += amount;
+          });
+        } else {
+          const name = sale.product_name || sale.item_name || 'General Product';
+          const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
+          if (!productCounts[name]) productCounts[name] = { qty: 0, revenue: 0 };
+          productCounts[name].qty += parseInt(sale.quantity || 1);
+          productCounts[name].revenue += amount;
+        }
       });
+
       const sortedProducts = Object.entries(productCounts)
         .sort((a, b) => b[1].revenue - a[1].revenue)
         .slice(0, 5);
+
       if (sortedProducts.length === 0) {
         container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No product sales recorded yet.</div>`;
         return;
       }
+
       let html = '';
       sortedProducts.forEach(([name, data], idx) => {
         html += `
@@ -546,17 +570,27 @@
       });
       container.innerHTML = html;
     }
+
     function renderRecentActivities(sales) {
       const container = document.getElementById('recent-activities-list');
       if (!sales || sales.length === 0) {
         container.innerHTML = `<div class="text-slate-500 text-[11px] text-center py-2">No recent activity recorded yet.</div>`;
         return;
       }
+
       const sorted = [...sales].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 5);
       let html = '';
+
       sorted.forEach(sale => {
-        const amount = parseFloat(sale.total_amount || sale.amount || sale.total || 0);
-        const timeAgo = getTimeAgo(sale.created_at);
+        const amount = parseFloat(sale.total_amount || sale.total || sale.amount || 0);
+        let label = 'New Sale';
+        if (Array.isArray(sale.items) && sale.items.length > 0) {
+          label = sale.items[0].name || sale.items[0].product_name || 'New Sale';
+          if (sale.items.length > 1) label += ` +${sale.items.length - 1} more`;
+        } else {
+          label = sale.product_name || sale.item_name || sale.customer_name || 'New Sale';
+        }
+
         html += `
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -564,52 +598,44 @@
                 <i class="fa-solid fa-cart-shopping"></i>
               </div>
               <div>
-                <p class="font-medium text-white text-[11px]">${sale.product_name || sale.item_name || 'New Sale'}</p>
+                <p class="font-medium text-white text-[11px]">${label}</p>
                 <p class="text-[9px] text-slate-400">${sale.payment_method || 'Cash'}</p>
               </div>
             </div>
             <div class="text-right">
               <p class="font-semibold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
-              <p class="text-[9px] text-slate-500">${timeAgo}</p>
+              <p class="text-[9px] text-slate-500">${getTimeAgo(sale.created_at)}</p>
             </div>
           </div>
         `;
       });
       container.innerHTML = html;
     }
+
     function getTimeAgo(dateString) {
       if (!dateString) return 'Just now';
-      const now = new Date();
-      const past = new Date(dateString);
-      const diffMs = now - past;
-      const diffMins = Math.floor(diffMs / 60000);
+      const diffMins = Math.floor((new Date() - new Date(dateString)) / 60000);
       if (diffMins < 1) return 'Just now';
       if (diffMins < 60) return `${diffMins} min ago`;
       const diffHours = Math.floor(diffMins / 60);
       if (diffHours < 24) return `${diffHours}h ago`;
-      return getLocalDateString(past);
+      return getLocalDateString(new Date(dateString));
     }
+
     async function submitNewDebt() {
       const customer = document.getElementById('debt-customer').value.trim();
       const item = document.getElementById('debt-item').value.trim();
       const amount = document.getElementById('debt-amount').value;
       const duedate = document.getElementById('debt-duedate').value;
-      if (!customer) {
-        alert('Please enter Customer Name.');
-        return;
-      }
-      if (!amount || parseFloat(amount) <= 0) {
-        alert('Please enter a valid Amount.');
-        return;
-      }
-      if (!userCompanyId) {
-        alert('Company not loaded yet. Please refresh the page and try again.');
-        return;
-      }
+
+      if (!customer) { alert('Please enter Customer Name.'); return; }
+      if (!amount || parseFloat(amount) <= 0) { alert('Please enter a valid Amount.'); return; }
+      if (!userCompanyId) { alert('Company not loaded. Please refresh the page.'); return; }
+
       const btn = document.getElementById('save-debt-btn');
-      const originalText = btn.textContent;
       btn.disabled = true;
       btn.textContent = 'Saving...';
+
       const { error } = await supabaseClient.from('debtors').insert([{
         company_id: userCompanyId,
         customer_name: customer,
@@ -618,8 +644,10 @@
         due_date: duedate || null,
         status: 'unpaid'
       }]);
+
       btn.disabled = false;
-      btn.textContent = originalText;
+      btn.textContent = 'Save Debt Record';
+
       if (error) {
         alert('Error saving debt: ' + error.message);
       } else {
@@ -631,11 +659,12 @@
         fetchAllLiveMetrics();
       }
     }
+
     function toggleMenu() {
       toggleActionSheet();
     }
+
     window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
-
