@@ -32,40 +32,31 @@
 
   <div class="w-full max-w-md bg-brand-card border border-brand-border rounded-2xl p-8 shadow-2xl led-glow relative overflow-hidden">
     
-    <!-- BRAND LOGO HEADER -->
     <div class="flex flex-col items-center mb-6">
-      <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center font-bold text-2xl text-white shadow-lg shadow-purple-500/40 mb-3">
-        Q
-      </div>
+      <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center font-bold text-2xl text-white shadow-lg shadow-purple-500/40 mb-3">Q</div>
       <h1 class="text-xl font-bold tracking-wider text-white">QUANTUM OPS</h1>
       <p class="text-xs text-purple-400 font-semibold tracking-widest mt-0.5">AI BUSINESS OS</p>
     </div>
 
-    <!-- FORM TITLE & SUBTITLE -->
     <div class="text-center mb-6">
       <h2 id="form-title" class="text-lg font-semibold text-white">Sign in to your account</h2>
       <p id="form-subtitle" class="text-xs text-gray-400 mt-1">Enter your credentials to access your dashboard</p>
     </div>
 
-    <!-- DYNAMIC ALERT MESSAGE BOX -->
     <div id="alert" class="hidden mb-5 p-3 rounded-xl text-xs border transition-all flex items-center gap-2">
       <i id="alert-icon" class="fa-solid fa-circle-info text-sm"></i>
       <span id="alert-text"></span>
     </div>
 
-    <!-- MAIN FORM -->
     <form id="auth-form" class="space-y-4">
-      
-      <!-- FULL NAME FIELD (SIGNUP ONLY) -->
       <div id="name-field" class="hidden">
-        <label class="block text-xs font-medium text-gray-400 mb-1.5">Full Name / Shop Name</label>
+        <label class="block text-xs font-medium text-gray-400 mb-1.5">Shop / Business Name</label>
         <div class="relative">
           <i class="fa-regular fa-user absolute left-3.5 top-3 text-gray-500 text-xs"></i>
-          <input type="text" id="full_name" placeholder="e.g. Rise Beyond or John Doe" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+          <input type="text" id="full_name" placeholder="e.g. Rise Beyond" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
         </div>
       </div>
 
-      <!-- EMAIL ADDRESS FIELD -->
       <div>
         <label class="block text-xs font-medium text-gray-400 mb-1.5">Email Address</label>
         <div class="relative">
@@ -74,7 +65,6 @@
         </div>
       </div>
 
-      <!-- PASSWORD FIELD -->
       <div id="password-field">
         <div class="flex justify-between items-center mb-1.5">
           <label class="block text-xs font-medium text-gray-400">Password</label>
@@ -86,25 +76,20 @@
         </div>
       </div>
 
-      <!-- SUBMIT BUTTON -->
       <button type="submit" id="submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 mt-2">
         <span>Sign In</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
       </button>
-
     </form>
 
-    <!-- NAVIGATION TOGGLES -->
     <div class="mt-6 text-center text-xs text-gray-400 border-t border-gray-800/80 pt-4">
       <p id="toggle-signup">Don't have an account? <a href="#" onclick="showSignUp()" class="text-purple-400 font-medium hover:underline ml-1">Create Account</a></p>
       <p id="toggle-login" class="hidden">Already have an account? <a href="#" onclick="showLogin()" class="text-purple-400 font-medium hover:underline ml-1">Sign In</a></p>
     </div>
-
   </div>
 
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
-    
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentMode = "login";
@@ -121,16 +106,13 @@
 
     async function checkExistingSession() {
       const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        window.location.href = "dashboard.html";
-      }
+      if (session) window.location.href = "dashboard.html";
     }
     checkExistingSession();
 
     function showAlert(msg, isError = true) {
       alertText.textContent = msg;
       alertBox.classList.remove("hidden", "bg-rose-950/60", "border-rose-500/40", "text-rose-300", "bg-emerald-950/60", "border-emerald-500/40", "text-emerald-300");
-      
       if (isError) {
         alertBox.classList.add("bg-rose-950/60", "border-rose-500/40", "text-rose-300");
         alertIcon.className = "fa-solid fa-circle-exclamation text-sm";
@@ -178,45 +160,31 @@
       alertBox.classList.add("hidden");
     }
 
-    // ========== CREATE UNIQUE COMPANY FOR NEW USER ==========
-    async function createCompanyForUser(user, fullName) {
-      const shopName = (fullName && fullName.trim()) 
-        ? fullName.trim() 
-        : (user.email ? user.email.split('@')[0] : 'My Business');
+    // Create a unique company for this user
+    async function createCompanyForUser(user, shopName) {
+      const name = (shopName && shopName.trim()) ? shopName.trim() : (user.email?.split('@')[0] || 'My Business');
 
-      // 1. Create company
       const { data: company, error: companyError } = await supabaseClient
         .from('companies')
         .insert([{
           owner_id: user.id,
-          company_name: shopName,
-          currency: 'NGN',
-          subscription_plan: 'free',
-          subscription_status: 'active'
+          company_name: name,
+          currency: 'NGN'
         }])
         .select()
         .single();
 
-      if (companyError) {
-        console.error('Company create error:', companyError);
-        throw new Error('Could not create your business account: ' + companyError.message);
-      }
+      if (companyError) throw new Error('Could not create business: ' + companyError.message);
 
-      // 2. Link user as owner in company_users
       const { error: linkError } = await supabaseClient
         .from('company_users')
         .insert([{
           company_id: company.id,
           user_id: user.id,
-          role: 'owner',
-          invitation_status: 'accepted',
-          joined_at: new Date().toISOString()
+          role: 'owner'
         }]);
 
-      if (linkError) {
-        console.error('company_users link error:', linkError);
-        throw new Error('Could not link your account to the business: ' + linkError.message);
-      }
+      if (linkError) throw new Error('Could not link account: ' + linkError.message);
 
       return company;
     }
@@ -234,65 +202,50 @@
 
       try {
         if (currentMode === "signup") {
-          if (!fullName) {
-            throw new Error('Please enter your Full Name or Shop Name.');
-          }
-          if (!password || password.length < 6) {
-            throw new Error('Password must be at least 6 characters.');
-          }
+          if (!fullName) throw new Error('Please enter your Shop / Business Name.');
+          if (!password || password.length < 6) throw new Error('Password must be at least 6 characters.');
 
-          // 1. Create auth user
           const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
-            options: { 
-              data: { full_name: fullName }
-            }
+            options: { data: { full_name: fullName } }
           });
-          
-          if (error) throw error;
-          if (!data.user) throw new Error('Account created but user data missing. Please try again.');
 
-          // 2. Create unique company + link
+          if (error) throw error;
+          if (!data.user) throw new Error('Account created but user missing. Try again.');
+
+          // Create unique company
           await createCompanyForUser(data.user, fullName);
 
-          showAlert("Account created successfully! You can now sign in.", false);
-          
-          // Switch to login after short delay
+          showAlert("Account created! You can now sign in.", false);
           setTimeout(() => {
             showLogin();
             document.getElementById("email").value = email;
-          }, 1500);
+          }, 1200);
 
-        } 
-        else if (currentMode === "login") {
+        } else if (currentMode === "login") {
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-          
           if (error) throw error;
 
-          // Safety net: if this user somehow has no company, create one now
-          const { data: existingLink } = await supabaseClient
+          // Safety: if user has no company yet, create one
+          const { data: link } = await supabaseClient
             .from('company_users')
             .select('id')
             .eq('user_id', data.user.id)
             .maybeSingle();
 
-          if (!existingLink) {
+          if (!link) {
             const name = data.user.user_metadata?.full_name || data.user.email.split('@')[0];
             await createCompanyForUser(data.user, name);
           }
 
-          showAlert("Login Successful! Redirecting to Dashboard...", false);
-          
-          setTimeout(() => {
-            window.location.href = "dashboard.html";
-          }, 800);
-        } 
-        else if (currentMode === "forgot") {
+          showAlert("Login successful! Redirecting...", false);
+          setTimeout(() => { window.location.href = "dashboard.html"; }, 700);
+
+        } else if (currentMode === "forgot") {
           const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/index.html',
+            redirectTo: window.location.origin + '/index.html'
           });
-          
           if (error) throw error;
           showAlert("Password reset link sent! Check your inbox.", false);
         }
