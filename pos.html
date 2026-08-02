@@ -192,9 +192,9 @@
         <i class="fa-solid fa-cash-register text-sm"></i>
         <span class="text-[9px] font-medium">POS Sales</span>
       </a>
-      <a href="ai-ceo.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-robot text-sm text-purple-400"></i>
-        <span class="text-[9px] font-medium">AI CEO</span>
+      <a href="settings.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-gear text-sm"></i>
+        <span class="text-[9px] font-medium">Settings</span>
       </a>
     </nav>
   </div>
@@ -209,12 +209,23 @@
         <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div id="receipt-paper" style="background-color:#ffffff;color:#0f172a;padding:20px;font-family:monospace;font-size:11px;width:100%;box-sizing:border-box;">
+      <!-- WHITE RECEIPT PAPER -->
+      <div id="receipt-paper" style="background-color:#ffffff;color:#0f172a;padding:18px;font-family:monospace;font-size:11px;width:100%;box-sizing:border-box;">
+        
+        <!-- LOGO + BUSINESS HEADER -->
         <div style="text-align:center;border-bottom:2px dashed #cbd5e1;padding-bottom:12px;margin-bottom:12px;">
+          <div id="receipt-logo-wrap" style="display:none;margin-bottom:8px;">
+            <img id="receipt-logo" src="" alt="Logo" style="max-height:48px;max-width:120px;margin:0 auto;display:block;object-fit:contain;">
+          </div>
           <h3 id="receipt-biz-name" style="font-size:15px;font-weight:900;margin:0 0 4px 0;text-transform:uppercase;color:#020617;">MY STORE</h3>
           <p id="receipt-biz-address" style="font-size:10px;color:#475569;margin:2px 0;"></p>
           <p id="receipt-biz-phone" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-email" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-website" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-tax" style="font-size:9px;color:#64748b;margin:2px 0;"></p>
         </div>
+
+        <!-- RECEIPT META -->
         <div style="display:flex;justify-content:space-between;font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
           <div>
             <p style="margin:0;font-weight:bold;">RECEIPT</p>
@@ -224,16 +235,22 @@
             <p id="receipt-date" style="margin:0;color:#0f172a;"></p>
           </div>
         </div>
+
+        <!-- CUSTOMER / CASHIER -->
         <div style="font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
           <p style="margin:2px 0;"><b>Customer:</b> <span id="receipt-customer-name">Walk-in</span></p>
           <p style="margin:2px 0;"><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
         </div>
+
+        <!-- ITEMS -->
         <div style="margin-bottom:10px;">
           <div style="display:grid;grid-template-columns:6fr 2fr 4fr;font-weight:bold;border-bottom:1px solid #0f172a;padding-bottom:4px;font-size:10px;">
             <span>ITEM</span><span style="text-align:center;">QTY</span><span style="text-align:right;">AMOUNT</span>
           </div>
           <div id="receipt-items-list" style="margin-top:6px;"></div>
         </div>
+
+        <!-- TOTALS -->
         <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
           <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Subtotal:</span><span id="receipt-subtotal">₦0</span></div>
           <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Discount:</span><span id="receipt-discount">-₦0</span></div>
@@ -242,25 +259,30 @@
             <span>TOTAL:</span><span id="receipt-total">₦0</span>
           </div>
         </div>
+
+        <!-- PAYMENT -->
         <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
           <p style="margin:2px 0;"><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
           <p style="margin:2px 0;"><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
           <p style="margin:2px 0;"><b>Change:</b> <span id="receipt-change">₦0</span></p>
         </div>
+
+        <!-- FOOTER -->
         <div style="text-align:center;padding-top:12px;border-top:2px dashed #cbd5e1;margin-top:12px;font-size:9px;color:#64748b;">
-          <p style="margin:2px 0;">Thank you for your patronage!</p>
+          <p id="receipt-thank-you" style="margin:2px 0;font-weight:600;color:#0f172a;">Thank you for your patronage!</p>
           <p style="margin:2px 0;font-weight:bold;color:#0f172a;" id="receipt-footer-biz">Business Store</p>
           <p style="margin:4px 0;font-size:8px;">Powered by Quantum OPS Elite</p>
         </div>
       </div>
 
+      <!-- SHARE ACTIONS -->
       <div class="space-y-2 pt-1">
         <p class="text-[10px] font-semibold text-slate-300 text-center">Send Receipt</p>
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="sendReceiptViaWhatsApp()" class="py-2 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+          <button onclick="sendReceiptViaWhatsApp()" class="py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
             <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
           </button>
-          <button onclick="downloadReceiptPDF()" class="py-2 px-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+          <button onclick="downloadReceiptPDF()" class="py-2.5 px-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
             <i class="fa-solid fa-download text-sm"></i> Download PDF
           </button>
         </div>
@@ -294,6 +316,30 @@
       return Number.isInteger(num) ? num : parseFloat(num.toFixed(2));
     }
 
+    function applyCompanyToReceiptHeader() {
+      const c = userCompanyDetails || {};
+      const bizName = c.company_name || 'MY STORE';
+
+      document.getElementById('receipt-biz-name').textContent = bizName;
+      document.getElementById('receipt-footer-biz').textContent = bizName;
+      document.getElementById('receipt-biz-address').textContent = c.address || '';
+      document.getElementById('receipt-biz-phone').textContent = c.phone ? ('Tel: ' + c.phone) : '';
+      document.getElementById('receipt-biz-email').textContent = c.email || '';
+      document.getElementById('receipt-biz-website').textContent = c.website || '';
+      document.getElementById('receipt-biz-tax').textContent = c.tax_id ? ('Tax/RC: ' + c.tax_id) : '';
+      document.getElementById('receipt-thank-you').textContent = c.thank_you_message || 'Thank you for your patronage!';
+
+      const logoWrap = document.getElementById('receipt-logo-wrap');
+      const logoImg = document.getElementById('receipt-logo');
+      if (c.logo) {
+        logoImg.src = c.logo;
+        logoWrap.style.display = 'block';
+      } else {
+        logoWrap.style.display = 'none';
+        logoImg.src = '';
+      }
+    }
+
     async function initializePOS() {
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
@@ -315,11 +361,7 @@
           userCompanyId = member.company_id;
           if (member.companies) {
             userCompanyDetails = member.companies;
-            const bizName = member.companies.company_name || 'MY STORE';
-            document.getElementById('receipt-biz-name').textContent = bizName;
-            document.getElementById('receipt-footer-biz').textContent = bizName;
-            document.getElementById('receipt-biz-address').textContent = member.companies.address || '';
-            document.getElementById('receipt-biz-phone').textContent = member.companies.phone || '';
+            applyCompanyToReceiptHeader();
           }
         } else {
           const { data: owned } = await supabaseClient
@@ -330,8 +372,7 @@
           if (owned?.id) {
             userCompanyId = owned.id;
             userCompanyDetails = owned;
-            document.getElementById('receipt-biz-name').textContent = owned.company_name || 'MY STORE';
-            document.getElementById('receipt-footer-biz').textContent = owned.company_name || 'MY STORE';
+            applyCompanyToReceiptHeader();
           }
         }
 
@@ -582,7 +623,6 @@
         return;
       }
 
-      // Deduct stock (pieces)
       for (const item of cart) {
         const product = inventoryCatalog.find(p => p.id === item.id);
         if (product) {
@@ -615,13 +655,7 @@
       const t = lastCompletedTransaction;
       if (!t) return;
 
-      if (userCompanyDetails) {
-        const bizName = userCompanyDetails.company_name || 'MY STORE';
-        document.getElementById('receipt-biz-name').textContent = bizName;
-        document.getElementById('receipt-footer-biz').textContent = bizName;
-        document.getElementById('receipt-biz-address').textContent = userCompanyDetails.address || '';
-        document.getElementById('receipt-biz-phone').textContent = userCompanyDetails.phone || '';
-      }
+      applyCompanyToReceiptHeader();
 
       document.getElementById('receipt-trx-id').textContent = t.trxId;
       document.getElementById('receipt-date').textContent = t.date;
@@ -652,6 +686,39 @@
       document.getElementById('receipt-modal').classList.add('hidden');
     }
 
+    function buildWhatsAppText() {
+      const t = lastCompletedTransaction;
+      const c = userCompanyDetails || {};
+      if (!t) return '';
+
+      let lines = [];
+      lines.push('🧾 *RECEIPT*');
+      lines.push('*' + (c.company_name || 'MY STORE') + '*');
+      if (c.address) lines.push(c.address);
+      if (c.phone) lines.push('Tel: ' + c.phone);
+      if (c.email) lines.push(c.email);
+      lines.push('-------------------');
+      lines.push('Receipt: ' + t.trxId);
+      lines.push('Date: ' + t.date);
+      lines.push('Customer: ' + t.customer);
+      lines.push('Cashier: ' + t.cashier);
+      lines.push('-------------------');
+      t.items.forEach(i => {
+        lines.push(i.name + ' ×' + i.qty + '  ' + formatCurrency(i.price * i.qty));
+      });
+      lines.push('-------------------');
+      lines.push('Subtotal: ' + formatCurrency(t.subtotal));
+      if (t.discount > 0) lines.push('Discount: -' + formatCurrency(t.discount));
+      lines.push('*TOTAL: ' + formatCurrency(t.grandTotal) + '*');
+      lines.push('Paid (' + t.paymentMethod + '): ' + formatCurrency(t.paid));
+      lines.push('Change: ' + formatCurrency(t.balance));
+      lines.push('-------------------');
+      lines.push(c.thank_you_message || 'Thank you for your patronage!');
+      if (c.website) lines.push(c.website);
+
+      return lines.join('\n');
+    }
+
     async function downloadReceiptPDF() {
       const element = document.getElementById('receipt-paper');
       const opt = {
@@ -659,19 +726,16 @@
         filename: (lastCompletedTransaction?.trxId || 'receipt') + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 3, useCORS: true },
-        jsPDF: { unit: 'mm', format: [80, 160], orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: [80, 180], orientation: 'portrait' }
       };
       html2pdf().from(element).set(opt).save();
     }
 
-    async function sendReceiptViaWhatsApp() {
+    function sendReceiptViaWhatsApp() {
       const t = lastCompletedTransaction;
       if (!t) return;
-      await downloadReceiptPDF();
-      const text = encodeURIComponent(
-        `Receipt ${t.trxId} from ${userCompanyDetails?.company_name || 'Store'}. Total: ${formatCurrency(t.grandTotal)}. Thank you!`
-      );
-      window.open(`https://wa.me/?text=${text}`, '_blank');
+      const text = encodeURIComponent(buildWhatsAppText());
+      window.open('https://wa.me/?text=' + text, '_blank');
     }
 
     window.addEventListener('DOMContentLoaded', initializePOS);
