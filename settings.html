@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Settings - Quantum OPS Elite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { bg: '#07070F', card: '#121224', purple: '#6C5CE7' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+    .iphone-frame {
+      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
+      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
+      .iphone-frame { border-radius: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    
+    <!-- TOP BAR -->
+    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
+      <div class="flex items-center gap-3">
+        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
+          <i class="fa-solid fa-arrow-left text-sm"></i>
+        </a>
+        <div>
+          <h2 class="font-bold tracking-wider text-xs text-white">BUSINESS SETTINGS</h2>
+          <p class="text-[9px] text-slate-400">Used on every receipt</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
+      
+      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-4">
+        
+        <!-- LOGO -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Business Logo</label>
+          <div class="mt-1.5 flex items-center gap-3">
+            <div id="logo-preview" class="w-16 h-16 rounded-2xl bg-purple-950/40 border border-purple-500/30 flex items-center justify-center text-purple-400 overflow-hidden flex-shrink-0">
+              <i class="fa-solid fa-store text-lg"></i>
+            </div>
+            <div class="flex-1">
+              <input type="file" id="logo-file" accept="image/*" onchange="previewLogo(event)" class="w-full text-[10px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500">
+              <p class="text-[9px] text-slate-500 mt-1">Square image works best</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- BUSINESS NAME -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Business / Shop Name *</label>
+          <input type="text" id="company_name" placeholder="e.g. Rise Beyond Stores" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <!-- ADDRESS -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Business Address *</label>
+          <textarea id="address" rows="2" placeholder="e.g. 12 Allen Avenue, Ikeja, Lagos" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500 resize-none"></textarea>
+        </div>
+
+        <!-- PHONE -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Phone Number *</label>
+          <input type="tel" id="phone" placeholder="e.g. +234 801 234 5678" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <!-- EMAIL -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Business Email</label>
+          <input type="email" id="email" placeholder="e.g. info@yourshop.com" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <!-- WEBSITE -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Website (optional)</label>
+          <input type="url" id="website" placeholder="e.g. https://yourshop.com" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <!-- TAX ID -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Tax ID / RC Number (optional)</label>
+          <input type="text" id="tax_id" placeholder="e.g. RC-1234567" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <!-- THANK YOU MESSAGE -->
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Receipt Thank-You Message</label>
+          <input type="text" id="thank_you_message" placeholder="Thank you for your patronage!" class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+      </div>
+
+      <p class="text-[10px] text-slate-500 text-center px-2">
+        These details appear on every receipt, WhatsApp share, and PDF.
+      </p>
+
+      <button onclick="saveSettings()" id="save-btn" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl text-white font-bold text-xs shadow-lg shadow-purple-600/40 hover:opacity-95 transition">
+        Save Business Profile
+      </button>
+
+      <div id="status-msg" class="hidden text-center text-[11px] py-2 rounded-xl"></div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
+      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-gauge-high text-sm"></i>
+        <span class="text-[9px] font-medium">Dashboard</span>
+      </a>
+      <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-boxes-stacked text-sm"></i>
+        <span class="text-[9px] font-medium">Inventory</span>
+      </a>
+      <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-cash-register text-sm"></i>
+        <span class="text-[9px] font-medium">POS Sales</span>
+      </a>
+      <a href="settings.html" class="flex flex-col items-center gap-1 text-purple-400">
+        <i class="fa-solid fa-gear text-sm"></i>
+        <span class="text-[9px] font-medium">Settings</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let userCompanyId = null;
+    let logoBase64 = null;
+
+    function previewLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        logoBase64 = e.target.result;
+        document.getElementById('logo-preview').innerHTML =
+          `<img src="${logoBase64}" class="w-full h-full object-cover">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showStatus(msg, isError) {
+      const el = document.getElementById('status-msg');
+      el.classList.remove('hidden', 'bg-emerald-950/50', 'text-emerald-300', 'bg-rose-950/50', 'text-rose-300');
+      el.classList.add(isError ? 'bg-rose-950/50' : 'bg-emerald-950/50', isError ? 'text-rose-300' : 'text-emerald-300');
+      el.textContent = msg;
+    }
+
+    async function init() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Find this user's company
+      const { data: member } = await supabaseClient
+        .from('company_users')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (member?.company_id) {
+        userCompanyId = member.company_id;
+      } else {
+        const { data: owned } = await supabaseClient
+          .from('companies')
+          .select('id')
+          .eq('owner_id', user.id)
+          .maybeSingle();
+        if (owned?.id) userCompanyId = owned.id;
+      }
+
+      if (!userCompanyId) {
+        showStatus('No company found. Please re-login.', true);
+        return;
+      }
+
+      // Load existing profile
+      const { data: company, error } = await supabaseClient
+        .from('companies')
+        .select('*')
+        .eq('id', userCompanyId)
+        .single();
+
+      if (error || !company) {
+        showStatus('Could not load business profile.', true);
+        return;
+      }
+
+      document.getElementById('company_name').value = company.company_name || '';
+      document.getElementById('address').value = company.address || '';
+      document.getElementById('phone').value = company.phone || '';
+      document.getElementById('email').value = company.email || '';
+      document.getElementById('website').value = company.website || '';
+      document.getElementById('tax_id').value = company.tax_id || '';
+      document.getElementById('thank_you_message').value = company.thank_you_message || 'Thank you for your patronage!';
+
+      if (company.logo) {
+        logoBase64 = company.logo;
+        document.getElementById('logo-preview').innerHTML =
+          `<img src="${company.logo}" class="w-full h-full object-cover">`;
+      }
+    }
+
+    async function saveSettings() {
+      const company_name = document.getElementById('company_name').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const website = document.getElementById('website').value.trim();
+      const tax_id = document.getElementById('tax_id').value.trim();
+      const thank_you_message = document.getElementById('thank_you_message').value.trim() || 'Thank you for your patronage!';
+
+      if (!company_name) return alert('Business name is required.');
+      if (!address) return alert('Business address is required.');
+      if (!phone) return alert('Phone number is required.');
+      if (!userCompanyId) return alert('Company not loaded. Refresh the page.');
+
+      const btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const payload = {
+        company_name,
+        address,
+        phone,
+        email: email || null,
+        website: website || null,
+        tax_id: tax_id || null,
+        thank_you_message,
+        logo: logoBase64 || null
+      };
+
+      const { error } = await supabaseClient
+        .from('companies')
+        .update(payload)
+        .eq('id', userCompanyId);
+
+      btn.disabled = false;
+      btn.textContent = 'Save Business Profile';
+
+      if (error) {
+        showStatus('Error: ' + error.message, true);
+        return;
+      }
+
+      showStatus('Business profile saved. Receipts will use these details.', false);
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
