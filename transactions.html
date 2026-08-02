@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -47,14 +48,14 @@
         </a>
         <div>
           <h2 class="font-bold tracking-wider text-xs text-white">BUSINESS HISTORY</h2>
-          <p class="text-[9px] text-slate-400">Permanent records — never deleted</p>
+          <p class="text-[9px] text-slate-400">Permanent receipts — never deleted</p>
         </div>
       </div>
     </div>
 
     <!-- TABS -->
     <div class="px-4 py-2.5 flex gap-2 flex-shrink-0 bg-[#0B0B16]/90 border-b border-purple-500/10">
-      <button onclick="setView('transactions')" id="tab-transactions" class="tab-active px-3 py-1.5 rounded-xl text-[11px] font-semibold transition flex-1">Transactions</button>
+      <button onclick="setView('transactions')" id="tab-transactions" class="tab-active px-3 py-1.5 rounded-xl text-[11px] font-semibold transition flex-1">Receipts</button>
       <button onclick="setView('sales')" id="tab-sales" class="tab-inactive px-3 py-1.5 rounded-xl text-[11px] font-semibold transition flex-1">Sales</button>
       <button onclick="setView('profit')" id="tab-profit" class="tab-inactive px-3 py-1.5 rounded-xl text-[11px] font-semibold transition flex-1">Profit</button>
     </div>
@@ -105,20 +106,81 @@
         <span class="text-[9px] font-medium">POS Sales</span>
       </a>
       <a href="transactions.html" class="flex flex-col items-center gap-1 text-purple-400">
-        <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+        <i class="fa-solid fa-receipt text-sm"></i>
         <span class="text-[9px] font-medium">History</span>
       </a>
     </nav>
   </div>
 
-  <!-- DETAIL MODAL -->
-  <div id="detail-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-5 space-y-3 shadow-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-white">Receipt Details</h3>
-        <button onclick="closeDetail()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+  <!-- FULL RECEIPT MODAL -->
+  <div id="receipt-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
+    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-purple-500/10 pb-2">
+        <div class="flex items-center gap-2 text-white text-xs font-bold">
+          <i class="fa-solid fa-receipt text-purple-400"></i> Receipt
+        </div>
+        <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div id="detail-content" class="text-xs space-y-2 text-slate-300"></div>
+
+      <div id="receipt-paper" style="background-color:#ffffff;color:#0f172a;padding:18px;font-family:monospace;font-size:11px;width:100%;box-sizing:border-box;">
+        <div style="text-align:center;border-bottom:2px dashed #cbd5e1;padding-bottom:12px;margin-bottom:12px;">
+          <div id="receipt-logo-wrap" style="display:none;margin-bottom:8px;">
+            <img id="receipt-logo" src="" alt="Logo" style="max-height:48px;max-width:120px;margin:0 auto;display:block;object-fit:contain;">
+          </div>
+          <h3 id="receipt-biz-name" style="font-size:15px;font-weight:900;margin:0 0 4px 0;text-transform:uppercase;color:#020617;">MY STORE</h3>
+          <p id="receipt-biz-address" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-phone" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-email" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-website" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-tax" style="font-size:9px;color:#64748b;margin:2px 0;"></p>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
+          <div>
+            <p style="margin:0;font-weight:bold;">RECEIPT</p>
+            <p id="receipt-trx-id" style="margin:2px 0;color:#64748b;">SAL-000000</p>
+          </div>
+          <div style="text-align:right;">
+            <p id="receipt-date" style="margin:0;color:#0f172a;"></p>
+          </div>
+        </div>
+        <div style="font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
+          <p style="margin:2px 0;"><b>Customer:</b> <span id="receipt-customer-name">Walk-in</span></p>
+          <p style="margin:2px 0;"><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="display:grid;grid-template-columns:6fr 2fr 4fr;font-weight:bold;border-bottom:1px solid #0f172a;padding-bottom:4px;font-size:10px;">
+            <span>ITEM</span><span style="text-align:center;">QTY</span><span style="text-align:right;">AMOUNT</span>
+          </div>
+          <div id="receipt-items-list" style="margin-top:6px;"></div>
+        </div>
+        <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Subtotal:</span><span id="receipt-subtotal">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Discount:</span><span id="receipt-discount">-₦0</span></div>
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Tax:</span><span id="receipt-tax">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:13px;border-top:1px solid #0f172a;padding-top:6px;margin-top:6px;">
+            <span>TOTAL:</span><span id="receipt-total">₦0</span>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
+          <p style="margin:2px 0;"><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
+          <p style="margin:2px 0;"><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
+          <p style="margin:2px 0;"><b>Change:</b> <span id="receipt-change">₦0</span></p>
+        </div>
+        <div style="text-align:center;padding-top:12px;border-top:2px dashed #cbd5e1;margin-top:12px;font-size:9px;color:#64748b;">
+          <p id="receipt-thank-you" style="margin:2px 0;font-weight:600;color:#0f172a;">Thank you for your patronage!</p>
+          <p style="margin:2px 0;font-weight:bold;color:#0f172a;" id="receipt-footer-biz">Business Store</p>
+          <p style="margin:4px 0;font-size:8px;">Powered by Quantum OPS Elite</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="sendReceiptViaWhatsApp()" class="py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+          <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+        </button>
+        <button onclick="downloadReceiptPDF()" class="py-2.5 px-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-download text-sm"></i> Download PDF
+        </button>
+      </div>
     </div>
   </div>
 
@@ -128,11 +190,12 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let userCompanyId = null;
+    let userCompanyDetails = null;
     let allSales = [];
-    let currentView = 'transactions'; // transactions | sales | profit
+    let currentView = 'transactions';
     let currentPeriod = 'all';
+    let selectedSale = null;
 
-    // Read ?view= from URL
     const urlParams = new URLSearchParams(window.location.search);
     if (['transactions', 'sales', 'profit'].includes(urlParams.get('view'))) {
       currentView = urlParams.get('view');
@@ -190,9 +253,7 @@
         monday.setDate(d.getDate() - day + 1);
         return saleDateStr >= getLocalDateString(monday);
       }
-      if (currentPeriod === 'month') {
-        return saleDateStr.startsWith(today.slice(0, 7));
-      }
+      if (currentPeriod === 'month') return saleDateStr.startsWith(today.slice(0, 7));
       return true;
     }
 
@@ -202,16 +263,20 @@
 
       const { data: member } = await supabaseClient
         .from('company_users')
-        .select('company_id')
+        .select('company_id, companies(*)')
         .eq('user_id', user.id)
         .maybeSingle();
 
       if (member?.company_id) {
         userCompanyId = member.company_id;
+        userCompanyDetails = member.companies || null;
       } else {
         const { data: owned } = await supabaseClient
-          .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
-        if (owned?.id) userCompanyId = owned.id;
+          .from('companies').select('*').eq('owner_id', user.id).maybeSingle();
+        if (owned?.id) {
+          userCompanyId = owned.id;
+          userCompanyDetails = owned;
+        }
       }
 
       if (!userCompanyId) {
@@ -244,38 +309,33 @@
         const dateStr = getLocalDateString(s.created_at);
         if (!inPeriod(dateStr)) return false;
         if (!keyword) return true;
-
         const itemsText = Array.isArray(s.items)
           ? s.items.map(i => (i.name || '') + ' ' + (i.product_name || '')).join(' ')
           : '';
-        const hay = [
-          s.customer_name, s.cashier_name, s.payment_method,
-          s.sale_number, s.transaction_id, itemsText
-        ].join(' ').toLowerCase();
+        const hay = [s.customer_name, s.cashier_name, s.payment_method, s.sale_number, s.transaction_id, itemsText].join(' ').toLowerCase();
         return hay.includes(keyword);
       });
 
-      if (currentView === 'transactions') renderTransactions(filtered);
+      if (currentView === 'transactions') renderReceipts(filtered);
       else if (currentView === 'sales') renderDailyAggregate(filtered, 'sales');
       else renderDailyAggregate(filtered, 'profit');
     }
 
-    function renderTransactions(sales) {
+    function renderReceipts(sales) {
       const container = document.getElementById('history-list');
       let total = 0;
       sales.forEach(s => total += parseFloat(s.total_amount || s.total || 0));
 
-      document.getElementById('summary-label').textContent = 'Transactions';
+      document.getElementById('summary-label').textContent = 'Receipts';
       document.getElementById('summary-count').textContent = sales.length + ' records';
       document.getElementById('summary-amount-label').textContent = 'Total Sales';
       document.getElementById('summary-amount').textContent = formatCurrency(total);
 
       if (sales.length === 0) {
-        container.innerHTML = '<div class="text-center py-16 text-slate-500 text-xs">No transactions found for this period.</div>';
+        container.innerHTML = '<div class="text-center py-16 text-slate-500 text-xs">No receipts found for this period.</div>';
         return;
       }
 
-      // Group by date
       const groups = {};
       sales.forEach(s => {
         const d = getLocalDateString(s.created_at);
@@ -287,32 +347,31 @@
       Object.keys(groups).forEach(dateStr => {
         html += `<div class="mb-4">
           <p class="text-[10px] font-bold text-purple-300 mb-2 sticky top-0 bg-[#0B0B16]/95 py-1">${formatDateLabel(dateStr)}</p>`;
+
         groups[dateStr].forEach(s => {
           const amount = parseFloat(s.total_amount || s.total || 0);
-          const profit = parseFloat(s.profit || s.total_profit || 0);
-          let itemLabel = 'Sale';
+          const receiptNo = s.sale_number || s.transaction_id || (s.id || '').slice(0, 8);
+          let itemsLine = 'Sale';
           if (Array.isArray(s.items) && s.items.length) {
-            itemLabel = s.items[0].name || s.items[0].product_name || 'Sale';
-            if (s.items.length > 1) itemLabel += ` +${s.items.length - 1} more`;
+            itemsLine = s.items.map(i => (i.name || 'Item') + ' ×' + (i.qty || 1)).join(', ');
+            if (itemsLine.length > 42) itemsLine = itemsLine.slice(0, 40) + '…';
           }
-          const receiptNo = s.sale_number || s.transaction_id || s.id.slice(0, 8);
 
           html += `
-            <div onclick="showDetail('${s.id}')" class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl mb-2 cursor-pointer hover:border-purple-500/40 transition">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <div class="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center text-[11px] flex-shrink-0">
-                    <i class="fa-solid fa-receipt"></i>
+            <div onclick="openReceipt('${s.id}')" class="bg-[#121224] border border-purple-500/15 p-3.5 rounded-2xl mb-2 cursor-pointer hover:border-purple-500/50 transition">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[10px] font-bold text-purple-300">🧾 #${receiptNo}</span>
+                    <span class="text-[9px] text-slate-500">${formatTime(s.created_at)}</span>
                   </div>
-                  <div class="min-w-0">
-                    <p class="font-semibold text-white text-[11px] truncate">${itemLabel}</p>
-                    <p class="text-[9px] text-slate-400">${formatTime(s.created_at)} · ${s.customer_name || 'Walk-in'} · ${s.payment_method || 'Cash'}</p>
-                    <p class="text-[8px] text-slate-500 mt-0.5">#${receiptNo}</p>
-                  </div>
+                  <p class="text-[11px] text-white font-medium truncate">${s.customer_name || 'Walk-in Customer'}</p>
+                  <p class="text-[10px] text-slate-400 mt-0.5 truncate">${itemsLine}</p>
+                  <p class="text-[9px] text-slate-500 mt-1">${s.payment_method || 'Cash'} · ${s.cashier_name || 'Staff'}</p>
                 </div>
                 <div class="text-right flex-shrink-0">
-                  <p class="font-bold text-emerald-400 text-[11px]">${formatCurrency(amount)}</p>
-                  <p class="text-[9px] text-slate-400">P: ${formatCurrency(profit)}</p>
+                  <p class="font-bold text-emerald-400 text-sm">${formatCurrency(amount)}</p>
+                  <p class="text-[9px] text-purple-300 mt-1">View Receipt →</p>
                 </div>
               </div>
             </div>`;
@@ -325,7 +384,6 @@
     function renderDailyAggregate(sales, mode) {
       const container = document.getElementById('history-list');
       const byDay = {};
-
       sales.forEach(s => {
         const d = getLocalDateString(s.created_at);
         if (!byDay[d]) byDay[d] = { sales: 0, profit: 0, count: 0 };
@@ -339,7 +397,7 @@
       days.forEach(d => grand += mode === 'profit' ? byDay[d].profit : byDay[d].sales);
 
       document.getElementById('summary-label').textContent = mode === 'profit' ? 'Profit by day' : 'Sales by day';
-      document.getElementById('summary-count').textContent = days.length + ' days · ' + sales.length + ' txns';
+      document.getElementById('summary-count').textContent = days.length + ' days · ' + sales.length + ' receipts';
       document.getElementById('summary-amount-label').textContent = mode === 'profit' ? 'Total Profit' : 'Total Sales';
       document.getElementById('summary-amount').textContent = formatCurrency(grand);
 
@@ -355,7 +413,7 @@
           <div class="bg-[#121224] border border-purple-500/15 p-3.5 rounded-2xl mb-2 flex items-center justify-between">
             <div>
               <p class="font-semibold text-white text-xs">${formatDateLabel(d)}</p>
-              <p class="text-[9px] text-slate-400">${byDay[d].count} transaction${byDay[d].count !== 1 ? 's' : ''}</p>
+              <p class="text-[9px] text-slate-400">${byDay[d].count} receipt${byDay[d].count !== 1 ? 's' : ''}</p>
             </div>
             <div class="text-right">
               <p class="font-bold ${mode === 'profit' ? 'text-emerald-400' : 'text-purple-300'} text-sm">${formatCurrency(val)}</p>
@@ -366,47 +424,128 @@
       container.innerHTML = html;
     }
 
-    function showDetail(id) {
+    function openReceipt(id) {
       const s = allSales.find(x => x.id === id);
       if (!s) return;
+      selectedSale = s;
+
+      const c = userCompanyDetails || {};
+      const bizName = c.company_name || 'MY STORE';
+      document.getElementById('receipt-biz-name').textContent = bizName;
+      document.getElementById('receipt-footer-biz').textContent = bizName;
+      document.getElementById('receipt-biz-address').textContent = c.address || '';
+      document.getElementById('receipt-biz-phone').textContent = c.phone ? ('Tel: ' + c.phone) : '';
+      document.getElementById('receipt-biz-email').textContent = c.email || '';
+      document.getElementById('receipt-biz-website').textContent = c.website || '';
+      document.getElementById('receipt-biz-tax').textContent = c.tax_id ? ('Tax/RC: ' + c.tax_id) : '';
+      document.getElementById('receipt-thank-you').textContent = c.thank_you_message || 'Thank you for your patronage!';
+
+      const logoWrap = document.getElementById('receipt-logo-wrap');
+      const logoImg = document.getElementById('receipt-logo');
+      if (c.logo) {
+        logoImg.src = c.logo;
+        logoWrap.style.display = 'block';
+      } else {
+        logoWrap.style.display = 'none';
+      }
+
       const amount = parseFloat(s.total_amount || s.total || 0);
-      const profit = parseFloat(s.profit || s.total_profit || 0);
+      const discount = parseFloat(s.discount || 0);
+      const paid = parseFloat(s.paid_amount || amount);
+      const balance = parseFloat(s.balance != null ? s.balance : (paid - amount));
+
+      document.getElementById('receipt-trx-id').textContent = s.sale_number || s.transaction_id || s.id.slice(0, 8);
+      document.getElementById('receipt-date').textContent = new Date(s.created_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      document.getElementById('receipt-customer-name').textContent = s.customer_name || 'Walk-in';
+      document.getElementById('receipt-cashier-name').textContent = s.cashier_name || 'Staff';
+      document.getElementById('receipt-subtotal').textContent = formatCurrency(s.subtotal || amount);
+      document.getElementById('receipt-discount').textContent = '-' + formatCurrency(discount);
+      document.getElementById('receipt-tax').textContent = formatCurrency(s.tax || 0);
+      document.getElementById('receipt-total').textContent = formatCurrency(amount);
+      document.getElementById('receipt-payment-method').textContent = s.payment_method || 'Cash';
+      document.getElementById('receipt-paid-amount').textContent = formatCurrency(paid);
+      document.getElementById('receipt-change').textContent = formatCurrency(balance);
+
       let itemsHtml = '';
       if (Array.isArray(s.items) && s.items.length) {
         s.items.forEach(i => {
           const q = i.qty || i.quantity || 1;
           const p = parseFloat(i.price || 0);
-          itemsHtml += `<div class="flex justify-between py-1 border-b border-purple-500/10">
-            <span>${i.name || i.product_name || 'Item'} × ${q}</span>
-            <span class="text-white font-medium">${formatCurrency(p * q)}</span>
-          </div>`;
+          itemsHtml += `
+            <div style="display:grid;grid-template-columns:6fr 2fr 4fr;font-size:10px;margin:3px 0;border-bottom:1px dotted #f1f5f9;padding-bottom:2px;">
+              <span style="font-weight:600;color:#0f172a;">${i.name || i.product_name || 'Item'}</span>
+              <span style="text-align:center;color:#334155;">${q}</span>
+              <span style="text-align:right;color:#0f172a;font-weight:600;">${formatCurrency(p * q)}</span>
+            </div>`;
         });
       } else {
-        itemsHtml = '<p class="text-slate-500">No line items stored</p>';
+        itemsHtml = '<p style="color:#64748b;font-size:10px;">No line items stored</p>';
       }
-
-      document.getElementById('detail-content').innerHTML = `
-        <div class="space-y-1">
-          <p><span class="text-slate-500">Receipt:</span> <span class="text-white font-mono">${s.sale_number || s.transaction_id || s.id.slice(0,8)}</span></p>
-          <p><span class="text-slate-500">Date:</span> ${new Date(s.created_at).toLocaleString()}</p>
-          <p><span class="text-slate-500">Customer:</span> ${s.customer_name || 'Walk-in'}</p>
-          <p><span class="text-slate-500">Cashier:</span> ${s.cashier_name || 'Staff'}</p>
-          <p><span class="text-slate-500">Payment:</span> ${s.payment_method || 'Cash'}</p>
-        </div>
-        <div class="pt-2 border-t border-purple-500/20">
-          <p class="text-[10px] text-slate-400 mb-1 font-semibold">ITEMS</p>
-          ${itemsHtml}
-        </div>
-        <div class="pt-2 border-t border-purple-500/20 space-y-1">
-          <div class="flex justify-between"><span class="text-slate-400">Total</span><span class="text-white font-bold">${formatCurrency(amount)}</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Profit</span><span class="text-emerald-400 font-bold">${formatCurrency(profit)}</span></div>
-          <div class="flex justify-between"><span class="text-slate-400">Paid</span><span class="text-white">${formatCurrency(s.paid_amount || amount)}</span></div>
-        </div>`;
-      document.getElementById('detail-modal').classList.remove('hidden');
+      document.getElementById('receipt-items-list').innerHTML = itemsHtml;
+      document.getElementById('receipt-modal').classList.remove('hidden');
     }
 
-    function closeDetail() {
-      document.getElementById('detail-modal').classList.add('hidden');
+    function closeReceiptModal() {
+      document.getElementById('receipt-modal').classList.add('hidden');
+      selectedSale = null;
+    }
+
+    function buildWhatsAppText() {
+      const s = selectedSale;
+      const c = userCompanyDetails || {};
+      if (!s) return '';
+      const amount = parseFloat(s.total_amount || s.total || 0);
+      const discount = parseFloat(s.discount || 0);
+      const paid = parseFloat(s.paid_amount || amount);
+      const balance = parseFloat(s.balance != null ? s.balance : (paid - amount));
+
+      let lines = [];
+      lines.push('🧾 *RECEIPT*');
+      lines.push('*' + (c.company_name || 'MY STORE') + '*');
+      if (c.address) lines.push(c.address);
+      if (c.phone) lines.push('Tel: ' + c.phone);
+      if (c.email) lines.push(c.email);
+      lines.push('-------------------');
+      lines.push('Receipt: ' + (s.sale_number || s.transaction_id || s.id.slice(0, 8)));
+      lines.push('Date: ' + new Date(s.created_at).toLocaleString());
+      lines.push('Customer: ' + (s.customer_name || 'Walk-in'));
+      lines.push('Cashier: ' + (s.cashier_name || 'Staff'));
+      lines.push('-------------------');
+      if (Array.isArray(s.items)) {
+        s.items.forEach(i => {
+          const q = i.qty || i.quantity || 1;
+          lines.push((i.name || 'Item') + ' ×' + q + '  ' + formatCurrency((i.price || 0) * q));
+        });
+      }
+      lines.push('-------------------');
+      lines.push('Subtotal: ' + formatCurrency(s.subtotal || amount));
+      if (discount > 0) lines.push('Discount: -' + formatCurrency(discount));
+      lines.push('*TOTAL: ' + formatCurrency(amount) + '*');
+      lines.push('Paid (' + (s.payment_method || 'Cash') + '): ' + formatCurrency(paid));
+      lines.push('Change: ' + formatCurrency(balance));
+      lines.push('-------------------');
+      lines.push(c.thank_you_message || 'Thank you for your patronage!');
+      if (c.website) lines.push(c.website);
+      return lines.join('\n');
+    }
+
+    function sendReceiptViaWhatsApp() {
+      if (!selectedSale) return;
+      const text = encodeURIComponent(buildWhatsAppText());
+      window.open('https://wa.me/?text=' + text, '_blank');
+    }
+
+    function downloadReceiptPDF() {
+      if (!selectedSale) return;
+      const element = document.getElementById('receipt-paper');
+      const opt = {
+        margin: 5,
+        filename: (selectedSale.sale_number || selectedSale.transaction_id || 'receipt') + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 3, useCORS: true },
+        jsPDF: { unit: 'mm', format: [80, 180], orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
     }
 
     window.addEventListener('DOMContentLoaded', init);
