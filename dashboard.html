@@ -73,22 +73,23 @@
         </div>
       </div>
 
+      <!-- 3 KPI CARDS → open permanent history -->
       <div class="grid grid-cols-3 gap-2.5">
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
+        <a href="transactions.html?view=sales" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25 block transition cursor-pointer">
           <p class="text-[10px] text-slate-400 font-medium">Total Sales (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-sales">₦0</h3>
           <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live</div>
-        </div>
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
+        </a>
+        <a href="transactions.html?view=profit" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25 block transition cursor-pointer">
           <p class="text-[10px] text-slate-400 font-medium">Total Profit (Today)</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-today-profit">₦0</h3>
           <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live</div>
-        </div>
-        <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25">
+        </a>
+        <a href="transactions.html?view=transactions" class="bg-[#121224] border border-purple-500/15 hover:border-purple-500/50 p-3 rounded-2xl space-y-1 shadow-lg shadow-purple-950/25 block transition cursor-pointer">
           <p class="text-[10px] text-slate-400 font-medium">Transactions</p>
           <h3 class="text-xs font-bold text-white tracking-tight" id="val-transactions">0</h3>
           <div class="flex items-center gap-1 text-[9px] text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up text-[8px]"></i> Live</div>
-        </div>
+        </a>
       </div>
 
       <div class="grid grid-cols-3 gap-2.5">
@@ -287,7 +288,6 @@
         document.getElementById('greeting-title').textContent = `${greeting}, ${capitalizedName} 👋`;
         document.getElementById('user-avatar-initial').textContent = capitalizedName.charAt(0).toUpperCase();
 
-        // Load THIS user's company only
         userCompanyId = null;
         const { data: member } = await supabaseClient
           .from('company_users')
@@ -301,7 +301,6 @@
             document.getElementById('current-branch-name').textContent = member.companies.company_name;
           }
         } else {
-          // Fallback: company they own
           const { data: owned } = await supabaseClient
             .from('companies')
             .select('id, company_name')
