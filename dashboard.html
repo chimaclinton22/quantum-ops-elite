@@ -53,6 +53,9 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
+        <a href="settings.html" class="p-2 rounded-xl bg-[#131326] border border-purple-500/10 text-slate-300 hover:text-white" title="Settings">
+          <i class="fa-solid fa-gear text-sm"></i>
+        </a>
         <button class="relative p-2 rounded-xl bg-[#131326] border border-purple-500/10 text-slate-300 hover:text-white">
           <i class="fa-regular fa-bell text-sm"></i>
           <span id="notif-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full text-[9px] font-bold flex items-center justify-center text-white">0</span>
@@ -157,8 +160,8 @@
       <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
         <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px] font-medium">POS Sales</span>
       </a>
-      <a href="ai-ceo.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-robot text-sm text-purple-400"></i><span class="text-[9px] font-medium">AI CEO</span>
+      <a href="settings.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-gear text-sm"></i><span class="text-[9px] font-medium">Settings</span>
       </a>
     </nav>
   </div>
@@ -187,10 +190,10 @@
           <div class="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-sm"><i class="fa-solid fa-robot"></i></div>
           <span class="text-[11px] font-medium text-slate-200">AI CEO</span>
         </a>
-        <button onclick="alert('Reports coming next.')" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
-          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm"><i class="fa-solid fa-chart-pie"></i></div>
-          <span class="text-[11px] font-medium text-slate-200">Reports</span>
-        </button>
+        <a href="settings.html" class="bg-[#191932] border border-purple-500/20 hover:border-purple-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition">
+          <div class="w-10 h-10 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-sm"><i class="fa-solid fa-gear"></i></div>
+          <span class="text-[11px] font-medium text-slate-200">Settings</span>
+        </a>
         <button onclick="handleLogout()" class="bg-[#191932] border border-rose-500/20 hover:border-rose-500 p-3.5 rounded-2xl flex flex-col items-center gap-2 text-center transition focus:outline-none">
           <div class="w-10 h-10 rounded-xl bg-rose-600/20 text-rose-400 flex items-center justify-center text-sm"><i class="fa-solid fa-right-from-bracket"></i></div>
           <span class="text-[11px] font-medium text-rose-300">Log Out</span>
@@ -238,6 +241,14 @@
 
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function parseMoney(value) {
+      if (value == null || value === '') return 0;
+      if (typeof value === 'number') return isNaN(value) ? 0 : value;
+      let raw = String(value).replace(/[₦$,\s]/g, '');
+      const amount = parseFloat(raw);
+      return isNaN(amount) ? 0 : amount;
     }
 
     function getLocalDateString(dateObj) {
@@ -355,8 +366,8 @@
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0;
       sales.forEach(s => {
-        const amount = parseFloat(s.total_amount || s.total || 0);
-        const profit = parseFloat(s.profit || s.total_profit || 0);
+        const amount = parseMoney(s.total_amount ?? s.total);
+        const profit = parseMoney(s.profit ?? s.total_profit);
         weeklyTotal += amount;
         if (getLocalDateString(new Date(s.created_at)) === todayStr) {
           todaySales += amount;
@@ -383,7 +394,9 @@
 
     function processDebtorsMetrics(debtors) {
       let total = 0;
-      debtors.forEach(d => total += parseFloat(d.amount_owing || 0));
+      debtors.forEach(d => {
+        total += parseMoney(d.amount_owing ?? d.amount ?? d.total);
+      });
       document.getElementById('val-outstanding-debt').textContent = formatCurrency(total);
       document.getElementById('val-debt-customers').textContent = debtors.length + ' Customers';
     }
@@ -396,7 +409,7 @@
       sales.forEach(s => {
         let idx = new Date(s.created_at).getDay() - 1;
         if (idx === -1) idx = 6;
-        totals[idx] += parseFloat(s.total_amount || s.total || 0);
+        totals[idx] += parseMoney(s.total_amount ?? s.total);
       });
       salesChartInstance = new Chart(ctx, {
         type: 'line',
@@ -438,7 +451,7 @@
       }
       const sorted = [...sales].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,5);
       container.innerHTML = sorted.map(s => {
-        const amount = parseFloat(s.total_amount || s.total || 0);
+        const amount = parseMoney(s.total_amount ?? s.total);
         let label = 'New Sale';
         if (Array.isArray(s.items) && s.items[0]) label = s.items[0].name || 'New Sale';
         return `
@@ -506,4 +519,3 @@
   </script>
 </body>
 </html>
-
