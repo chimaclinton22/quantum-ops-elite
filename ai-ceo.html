@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI CEO - Quantum OPS Elite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { bg: '#07070F', card: '#121224', purple: '#6C5CE7' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+    .iphone-frame {
+      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
+      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
+      .iphone-frame { border-radius: 48px; }
+    }
+    .msg-ai { background: #121224; border: 1px solid rgba(139,92,246,0.2); }
+    .msg-user { background: linear-gradient(135deg, #6C5CE7, #5B4BC4); }
+    .chip { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <!-- TOP BAR -->
+    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
+      <div class="flex items-center gap-3">
+        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
+          <i class="fa-solid fa-arrow-left text-sm"></i>
+        </a>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-500 flex items-center justify-center text-white text-sm shadow-lg shadow-purple-500/30">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <h2 class="font-bold tracking-wider text-xs text-white">AI CEO</h2>
+            <p class="text-[9px] text-purple-300" id="ceo-status">Analyzing your business…</p>
+          </div>
+        </div>
+      </div>
+      <span class="text-[9px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Live Data</span>
+    </div>
+
+    <!-- CHAT AREA -->
+    <div id="chat-area" class="flex-1 overflow-y-auto px-3 py-3 space-y-3 custom-scrollbar pb-4">
+      <div class="text-center py-10 text-slate-500 text-xs">
+        <i class="fa-solid fa-robot text-2xl text-purple-400 mb-2 block"></i>
+        Loading your business briefing…
+      </div>
+    </div>
+
+    <!-- QUICK CHIPS -->
+    <div class="px-3 py-2 flex gap-2 overflow-x-auto custom-scrollbar flex-shrink-0 border-t border-purple-500/10 bg-[#0B0B16]/95">
+      <button onclick="runAction('sales')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">📈 Sales</button>
+      <button onclick="runAction('profit')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">💰 Profit</button>
+      <button onclick="runAction('restock')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">📦 Restock</button>
+      <button onclick="runAction('debtors')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">👥 Debtors</button>
+      <button onclick="runAction('bestsellers')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">🔥 Best Sellers</button>
+      <button onclick="runAction('risks')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">⚠️ Risks</button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="px-3 py-2.5 flex gap-2 flex-shrink-0 border-t border-purple-500/10 bg-[#0E0E1C]">
+      <input id="chat-input" type="text" placeholder="Ask your AI CEO…" 
+        class="flex-1 bg-[#121224] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+        onkeydown="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-purple-500/30">
+        <i class="fa-solid fa-paper-plane text-xs"></i>
+      </button>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="h-14 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between flex-shrink-0">
+      <a href="dashboard.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px]">Dashboard</span>
+      </a>
+      <a href="inventory.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px]">Inventory</span>
+      </a>
+      <a href="pos.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px]">POS</span>
+      </a>
+      <a href="ai-ceo.html" class="flex flex-col items-center gap-0.5 text-purple-400">
+        <i class="fa-solid fa-robot text-sm"></i><span class="text-[9px]">AI CEO</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const LOW_STOCK_UNITS = 3;
+
+    let userCompanyId = null;
+    let ownerName = 'Owner';
+    let biz = { sales: [], products: [], debtors: [] };
+
+    function formatCurrency(n) {
+      return '₦' + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function parseMoney(v) {
+      if (v == null || v === '') return 0;
+      if (typeof v === 'number') return isNaN(v) ? 0 : v;
+      const n = parseFloat(String(v).replace(/[₦$,\s]/g, ''));
+      return isNaN(n) ? 0 : n;
+    }
+
+    function getLocalDateString(d) {
+      const x = new Date(d);
+      return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+    }
+
+    function daysAgo(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return getLocalDateString(d);
+    }
+
+    function greeting() {
+      const h = new Date().getHours();
+      if (h < 12) return 'Good morning';
+      if (h < 17) return 'Good afternoon';
+      return 'Good evening';
+    }
+
+    function addMessage(html, isUser = false) {
+      const area = document.getElementById('chat-area');
+      const div = document.createElement('div');
+      div.className = isUser
+        ? 'msg-user ml-8 px-3.5 py-2.5 rounded-2xl rounded-br-md text-[12px] text-white leading-relaxed'
+        : 'msg-ai mr-6 px-3.5 py-2.5 rounded-2xl rounded-bl-md text-[12px] text-slate-200 leading-relaxed';
+      div.innerHTML = html;
+      area.appendChild(div);
+      area.scrollTop = area.scrollHeight;
+    }
+
+    function clearChat() {
+      document.getElementById('chat-area').innerHTML = '';
+    }
+
+    // ---------- DATA HELPERS ----------
+    function todaySales() {
+      const t = getLocalDateString(new Date());
+      return biz.sales.filter(s => getLocalDateString(s.created_at) === t);
+    }
+
+    function salesInRange(fromStr, toStr) {
+      return biz.sales.filter(s => {
+        const d = getLocalDateString(s.created_at);
+        return d >= fromStr && d <= toStr;
+      });
+    }
+
+    function sumAmount(list) {
+      return list.reduce((a, s) => a + parseMoney(s.total_amount ?? s.total), 0);
+    }
+
+    function sumProfit(list) {
+      return list.reduce((a, s) => a + parseMoney(s.profit ?? s.total_profit), 0);
+    }
+
+    function productStats(list) {
+      const map = {};
+      list.forEach(s => {
+        if (!Array.isArray(s.items)) return;
+        s.items.forEach(i => {
+          const name = i.name || i.product_name || 'Product';
+          if (!map[name]) map[name] = { qty: 0, revenue: 0, profit: 0 };
+          const qty = parseInt(i.qty || i.quantity || 1);
+          const price = parseMoney(i.price);
+          const cost = parseMoney(i.cost_price ?? i.unit_cost);
+          map[name].qty += qty;
+          map[name].revenue += price * qty;
+          map[name].profit += (price - cost) * qty;
+        });
+      });
+      return map;
+    }
+
+    function topProducts(list, by = 'revenue', limit = 5) {
+      const map = productStats(list);
+      return Object.entries(map)
+        .map(([name, d]) => ({ name, ...d }))
+        .sort((a, b) => b[by] - a[by])
+        .slice(0, limit);
+    }
+
+    function lowStockProducts() {
+      return biz.products.filter(p => {
+        const pieces = parseFloat(p.stock || 0);
+        const pack = parseFloat(p.items_per_pack || 24) || 24;
+        return pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS;
+      }).map(p => {
+        const pieces = parseFloat(p.stock || 0);
+        const pack = parseFloat(p.items_per_pack || 24) || 24;
+        return { name: p.name || 'Product', units: (pieces / pack).toFixed(1), pieces };
+      });
+    }
+
+    function debtTotal() {
+      return biz.debtors.reduce((a, d) => a + parseMoney(d.amount_owing), 0);
+    }
+
+    function topDebtors(limit = 5) {
+      return [...biz.debtors]
+        .sort((a, b) => parseMoney(b.amount_owing) - parseMoney(a.amount_owing))
+        .slice(0, limit);
+    }
+
+    // ---------- BRIEFING ----------
+    function buildBriefing() {
+      const today = todaySales();
+      const sales = sumAmount(today);
+      const profit = sumProfit(today);
+      const tx = today.length;
+      const tops = topProducts(today, 'revenue', 1);
+      const best = tops[0]?.name || '—';
+      const low = lowStockProducts();
+      const debts = debtTotal();
+      const debtCount = biz.debtors.length;
+
+      let rec = [];
+      if (low.length) rec.push(`Restock ${low.slice(0, 2).map(p => p.name).join(' & ')} today.`);
+      if (debtCount >= 2) rec.push(`Follow up with your top debtors (${formatCurrency(debts)} outstanding).`);
+      if (!tx) rec.push('No sales yet today — open POS when ready.');
+      if (tops[0] && tops[0].revenue > 0) rec.push(`${best} is leading sales — keep it stocked.`);
+      if (!rec.length) rec.push('Business looks stable. Keep recording every sale.');
+
+      return `
+        <div class="space-y-2">
+          <p class="font-bold text-white text-[13px]">${greeting()}, ${ownerName} 👋</p>
+          <p class="text-slate-300">Here’s your business snapshot:</p>
+          <div class="grid grid-cols-2 gap-1.5 my-2">
+            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
+              <p class="text-[9px] text-slate-400">Sales today</p>
+              <p class="text-sm font-bold text-white">${formatCurrency(sales)}</p>
+            </div>
+            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
+              <p class="text-[9px] text-slate-400">Profit today</p>
+              <p class="text-sm font-bold text-emerald-400">${formatCurrency(profit)}</p>
+            </div>
+            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
+              <p class="text-[9px] text-slate-400">Transactions</p>
+              <p class="text-sm font-bold text-white">${tx}</p>
+            </div>
+            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
+              <p class="text-[9px] text-slate-400">Best seller</p>
+              <p class="text-sm font-bold text-purple-300 truncate">${best}</p>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-300">
+            📦 <b>${low.length}</b> product${low.length !== 1 ? 's' : ''} running low<br>
+            👥 <b>${debtCount}</b> customer${debtCount !== 1 ? 's' : ''} owe <b class="text-rose-400">${formatCurrency(debts)}</b>
+          </p>
+          <div class="mt-2 p-2.5 rounded-xl bg-purple-600/15 border border-purple-500/30">
+            <p class="text-[10px] font-bold text-purple-300 mb-0.5">CEO Recommendation</p>
+            <p class="text-[11px] text-slate-200">${rec.join(' ')}</p>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Ask me anything, or tap a button below.</p>
+        </div>`;
+    }
+
+    // ---------- ACTIONS / Q&A ----------
+    function answerSales() {
+      const today = todaySales();
+      const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
+      return `
+        <p class="font-bold text-white mb-1">📈 Sales Summary</p>
+        <p>Today: <b>${formatCurrency(sumAmount(today))}</b> · ${today.length} transactions</p>
+        <p>Last 7 days: <b>${formatCurrency(sumAmount(week))}</b> · ${week.length} transactions</p>
+        <p class="mt-1"><a href="transactions.html?view=sales" class="text-purple-300 underline text-[11px]">View full sales history →</a></p>`;
+    }
+
+    function answerProfit() {
+      const today = todaySales();
+      const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
+      const tops = topProducts(week, 'profit', 3);
+      let lines = tops.map((p, i) => `${i + 1}. ${p.name} — ${formatCurrency(p.profit)} profit`).join('<br>');
+      if (!lines) lines = 'No product-level profit data yet. Make sales with cost prices set.';
+      return `
+        <p class="font-bold text-white mb-1">💰 Profit Analysis</p>
+        <p>Today’s profit: <b class="text-emerald-400">${formatCurrency(sumProfit(today))}</b></p>
+        <p>Last 7 days: <b class="text-emerald-400">${formatCurrency(sumProfit(week))}</b></p>
+        <p class="mt-1.5 text-[11px] text-slate-300"><b>Top profit products (7 days):</b><br>${lines}</p>
+        <p class="mt-1"><a href="transactions.html?view=profit" class="text-purple-300 underline text-[11px]">View profit history →</a></p>`;
+    }
+
+    function answerRestock() {
+      const low = lowStockProducts();
+      if (!low.length) {
+        return `<p class="font-bold text-white mb-1">📦 Restock Advice</p><p>All tracked products look healthy. No urgent restock needed.</p>`;
+      }
+      const lines = low.map(p => `• <b>${p.name}</b> — ${p.units} units left (${p.pieces} pcs)`).join('<br>');
+      return `
+        <p class="font-bold text-white mb-1">📦 Restock Advice</p>
+        <p class="text-amber-300 text-[11px] mb-1">${low.length} product(s) at or below ${LOW_STOCK_UNITS} units:</p>
+        <p class="text-[11px]">${lines}</p>
+        <p class="mt-1.5 text-[11px] text-slate-400">CEO tip: Restock your best sellers first so you don’t lose sales.</p>
+        <p class="mt-1"><a href="inventory.html" class="text-purple-300 underline text-[11px]">Open Inventory →</a></p>`;
+    }
+
+    function answerDebtors() {
+      const total = debtTotal();
+      const list = topDebtors(5);
+      if (!list.length) {
+        return `<p class="font-bold text-white mb-1">👥 Debtors</p><p>No outstanding debts. Great cash discipline.</p>`;
+      }
+      const lines = list.map((d, i) => `${i + 1}. <b>${d.customer_name || 'Customer'}</b> — ${formatCurrency(d.amount_owing)}`).join('<br>');
+      return `
+        <p class="font-bold text-white mb-1">👥 Outstanding Debt</p>
+        <p>Total: <b class="text-rose-400">${formatCurrency(total)}</b> from ${biz.debtors.length} customer(s)</p>
+        <p class="mt-1.5 text-[11px]"><b>Highest balances:</b><br>${lines}</p>
+        <p class="mt-1.5 text-[11px] text-slate-400">CEO tip: Contact the largest overdue balances first.</p>
+        <p class="mt-1"><a href="debtors.html" class="text-purple-300 underline text-[11px]">Open Debtors →</a></p>`;
+    }
+
+    function answerBestsellers() {
+      const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
+      const tops = topProducts(week, 'revenue', 5);
+      if (!tops.length) {
+        return `<p class="font-bold text-white mb-1">🔥 Best Sellers</p><p>No sales data yet this week.</p>`;
+      }
+      const lines = tops.map((p, i) => `${i + 1}. <b>${p.name}</b> — ${p.qty} sold · ${formatCurrency(p.revenue)}`).join('<br>');
+      return `
+        <p class="font-bold text-white mb-1">🔥 Best Sellers (7 days)</p>
+        <p class="text-[11px]">${lines}</p>
+        <p class="mt-1"><a href="transactions.html?view=sales" class="text-purple-300 underline text-[11px]">View sales →</a></p>`;
+    }
+
+    function answerRisks() {
+      const low = lowStockProducts();
+      const debts = debtTotal();
+      const today = todaySales();
+      const yesterday = salesInRange(daysAgo(1), daysAgo(1));
+      const todayAmt = sumAmount(today);
+      const yAmt = sumAmount(yesterday);
+      let risks = [];
+      if (low.length) risks.push(`• ${low.length} product(s) running low on stock`);
+      if (debts > 0) risks.push(`• ${formatCurrency(debts)} tied up in customer debt`);
+      if (yAmt > 0 && todayAmt < yAmt * 0.7) risks.push(`• Sales today are well below yesterday (${formatCurrency(todayAmt)} vs ${formatCurrency(yAmt)})`);
+      if (!today.length && new Date().getHours() >= 12) risks.push(`• No sales recorded yet today`);
+      if (!risks.length) risks.push('• No major risks detected right now. Keep going.');
+      return `
+        <p class="font-bold text-white mb-1">⚠️ Business Risks</p>
+        <p class="text-[11px]">${risks.join('<br>')}</p>
+        <p class="mt-1.5 text-[11px] text-slate-400">CEO tip: Fix stock and debt issues before they hurt cash flow.</p>`;
+    }
+
+    function runAction(key) {
+      const map = {
+        sales: answerSales,
+        profit: answerProfit,
+        restock: answerRestock,
+        debtors: answerDebtors,
+        bestsellers: answerBestsellers,
+        risks: answerRisks
+      };
+      const fn = map[key];
+      if (fn) addMessage(fn());
+    }
+
+    function handleQuestion(q) {
+      const t = q.toLowerCase().trim();
+
+      if (/profit|margin/.test(t)) return answerProfit();
+      if (/restock|low stock|inventory|stock/.test(t)) return answerRestock();
+      if (/debt|owe|owes|debtor/.test(t)) return answerDebtors();
+      if (/best.?sell|top.?sell|popular|most.?sold/.test(t)) return answerBestsellers();
+      if (/risk|problem|warning|issue/.test(t)) return answerRisks();
+      if (/today|sales today|how much.*(make|made)|revenue/.test(t)) return answerSales();
+      if (/week|this week|7 day/.test(t)) {
+        const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
+        return `
+          <p class="font-bold text-white mb-1">This week</p>
+          <p>Sales: <b>${formatCurrency(sumAmount(week))}</b></p>
+          <p>Profit: <b class="text-emerald-400">${formatCurrency(sumProfit(week))}</b></p>
+          <p>Transactions: <b>${week.length}</b></p>
+          <p class="mt-1"><a href="transactions.html?view=sales" class="text-purple-300 underline text-[11px]">View history →</a></p>`;
+      }
+      if (/yesterday/.test(t)) {
+        const y = salesInRange(daysAgo(1), daysAgo(1));
+        return `
+          <p class="font-bold text-white mb-1">Yesterday</p>
+          <p>Sales: <b>${formatCurrency(sumAmount(y))}</b></p>
+          <p>Profit: <b class="text-emerald-400">${formatCurrency(sumProfit(y))}</b></p>
+          <p>Transactions: <b>${y.length}</b></p>`;
+      }
+      if (/hello|hi |hey|good morning|good afternoon/.test(t)) {
+        return buildBriefing();
+      }
+
+      return `
+        <p>I can help with sales, profit, restock, debtors, best sellers, and risks.</p>
+        <p class="mt-1 text-[11px] text-slate-400">Try: “How much profit this week?” · “Who owes me?” · “What should I restock?”</p>
+        <p class="mt-1 text-[11px]">Or tap a button below.</p>`;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chat-input');
+      const q = (input.value || '').trim();
+      if (!q) return;
+      addMessage(q, true);
+      input.value = '';
+      setTimeout(() => addMessage(handleQuestion(q)), 200);
+    }
+
+    // ---------- INIT ----------
+    async function init() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) { window.location.href = 'index.html'; return; }
+
+      ownerName = (user.user_metadata?.full_name || user.email.split('@')[0] || 'Owner').split(' ')[0];
+      ownerName = ownerName.charAt(0).toUpperCase() + ownerName.slice(1).toLowerCase();
+
+      const { data: member } = await supabaseClient
+        .from('company_users')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (member?.company_id) {
+        userCompanyId = member.company_id;
+      } else {
+        const { data: owned } = await supabaseClient
+          .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
+        if (owned?.id) userCompanyId = owned.id;
+      }
+
+      if (!userCompanyId) {
+        clearChat();
+        addMessage('<p class="text-rose-400">No business found. Please re-login.</p>');
+        document.getElementById('ceo-status').textContent = 'Offline';
+        return;
+      }
+
+      const [salesRes, productsRes, debtorsRes] = await Promise.all([
+        supabaseClient.from('sales')
+          .select('id, total_amount, total, profit, total_profit, created_at, items, payment_method')
+          .eq('company_id', userCompanyId)
+          .order('created_at', { ascending: false })
+          .limit(400),
+        supabaseClient.from('products')
+          .select('id, name, stock, items_per_pack')
+          .eq('company_id', userCompanyId),
+        supabaseClient.from('debtors')
+          .select('id, customer_name, amount_owing, status')
+          .eq('company_id', userCompanyId)
+      ]);
+
+      biz.sales = salesRes.data || [];
+      biz.products = productsRes.data || [];
+      biz.debtors = debtorsRes.data || [];
+
+      document.getElementById('ceo-status').textContent = 'Ready · Live data';
+      clearChat();
+      addMessage(buildBriefing());
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
