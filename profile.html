@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Profile - Quantum OPS Elite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { bg: '#07070F', card: '#121224', purple: '#6C5CE7' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+    .iphone-frame {
+      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
+      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
+      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
+    }
+    @media (min-width: 768px) {
+      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
+      .iphone-frame { border-radius: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <!-- TOP BAR -->
+    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
+      <div class="flex items-center gap-3">
+        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
+          <i class="fa-solid fa-arrow-left text-sm"></i>
+        </a>
+        <div>
+          <h2 class="font-bold tracking-wider text-xs text-white">BUSINESS PROFILE</h2>
+          <p class="text-[9px] text-slate-400">Your shop identity & verification</p>
+        </div>
+      </div>
+      <span id="verified-badge" class="hidden text-[9px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
+        <i class="fa-solid fa-circle-check mr-0.5"></i> Verified
+      </span>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
+      <!-- PROFILE HEADER CARD -->
+      <div class="bg-[#121224] border border-purple-500/15 rounded-2xl p-4 flex items-center gap-3">
+        <div class="relative">
+          <div id="profile-avatar" class="w-16 h-16 rounded-2xl bg-purple-950 border border-purple-500/40 overflow-hidden flex items-center justify-center text-xl font-bold text-purple-200">
+            <span id="avatar-letter">B</span>
+            <img id="avatar-logo" src="" alt="" class="w-full h-full object-cover hidden">
+          </div>
+          <div id="avatar-verified-dot" class="hidden absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#121224] flex items-center justify-center">
+            <i class="fa-solid fa-check text-[8px] text-white"></i>
+          </div>
+        </div>
+        <div class="min-w-0 flex-1">
+          <h3 id="display-name" class="font-bold text-white text-sm truncate">Your Business</h3>
+          <p id="display-status" class="text-[10px] text-slate-400 mt-0.5">Complete your profile to get verified</p>
+          <p id="display-address" class="text-[10px] text-slate-500 mt-0.5 truncate"></p>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <div class="bg-[#121224] border border-purple-500/15 rounded-2xl p-4 space-y-3">
+        <h4 class="text-[11px] font-semibold text-slate-300">Business Details</h4>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Shop Logo</label>
+          <div class="mt-1 flex items-center gap-3">
+            <div class="w-14 h-14 rounded-xl bg-[#191932] border border-purple-500/20 overflow-hidden flex items-center justify-center">
+              <img id="logo-preview" src="" class="w-full h-full object-cover hidden">
+              <i id="logo-placeholder" class="fa-solid fa-image text-slate-500"></i>
+            </div>
+            <label class="px-3 py-2 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-300 text-[10px] font-semibold cursor-pointer hover:bg-purple-600/30 transition">
+              Upload Logo
+              <input type="file" id="logo-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Business Name *</label>
+          <input type="text" id="company_name" placeholder="e.g. Rise Beyond Store"
+            class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Address *</label>
+          <input type="text" id="address" placeholder="Shop address / location"
+            class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Phone *</label>
+          <input type="text" id="phone" placeholder="e.g. 08012345678"
+            class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Email</label>
+          <input type="email" id="email" placeholder="business@email.com"
+            class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Website</label>
+          <input type="text" id="website" placeholder="https://..."
+            class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Tax / RC Number</label>
+          <input type="text" id="tax_id" placeholder="Optional"
+            class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-medium">Receipt Thank-you Message</label>
+          <input type="text" id="thank_you_message" placeholder="Thank you for your patronage!"
+            class="w-full mt-1 bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+
+        <p id="save-status" class="text-[10px] text-center hidden"></p>
+
+        <button onclick="saveProfile()" id="save-btn"
+          class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 transition">
+          Save Profile
+        </button>
+      </div>
+
+      <p class="text-[9px] text-slate-500 text-center px-2">
+        Fill Business Name, Address and Phone, then Save to get a <span class="text-emerald-400">Verified</span> account. Logo appears on your profile and receipts.
+      </p>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
+      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px] font-medium">Dashboard</span>
+      </a>
+      <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px] font-medium">Inventory</span>
+      </a>
+      <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px] font-medium">POS</span>
+      </a>
+      <a href="profile.html" class="flex flex-col items-center gap-1 text-purple-400">
+        <i class="fa-solid fa-user text-sm"></i><span class="text-[9px] font-medium">Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let userCompanyId = null;
+    let logoDataUrl = null;
+
+    function isVerified(c) {
+      return !!(c?.company_name?.trim() && c?.address?.trim() && c?.phone?.trim());
+    }
+
+    function applyHeader(c) {
+      const name = c?.company_name || 'Your Business';
+      document.getElementById('display-name').textContent = name;
+      document.getElementById('display-address').textContent = c?.address || '';
+
+      const verified = isVerified(c);
+      document.getElementById('verified-badge').classList.toggle('hidden', !verified);
+      document.getElementById('avatar-verified-dot').classList.toggle('hidden', !verified);
+      document.getElementById('display-status').textContent = verified
+        ? 'Verified business account'
+        : 'Complete your profile to get verified';
+      document.getElementById('display-status').className = verified
+        ? 'text-[10px] text-emerald-400 mt-0.5'
+        : 'text-[10px] text-slate-400 mt-0.5';
+
+      const letter = document.getElementById('avatar-letter');
+      const logoImg = document.getElementById('avatar-logo');
+      const preview = document.getElementById('logo-preview');
+      const placeholder = document.getElementById('logo-placeholder');
+
+      if (c?.logo) {
+        logoDataUrl = c.logo;
+        logoImg.src = c.logo;
+        logoImg.classList.remove('hidden');
+        letter.classList.add('hidden');
+        preview.src = c.logo;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      } else {
+        logoImg.classList.add('hidden');
+        letter.classList.remove('hidden');
+        letter.textContent = (name.charAt(0) || 'B').toUpperCase();
+        preview.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+      }
+    }
+
+    function fillForm(c) {
+      document.getElementById('company_name').value = c?.company_name || '';
+      document.getElementById('address').value = c?.address || '';
+      document.getElementById('phone').value = c?.phone || '';
+      document.getElementById('email').value = c?.email || '';
+      document.getElementById('website').value = c?.website || '';
+      document.getElementById('tax_id').value = c?.tax_id || '';
+      document.getElementById('thank_you_message').value = c?.thank_you_message || 'Thank you for your patronage!';
+    }
+
+    function handleLogoUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      if (file.size > 1.5 * 1024 * 1024) {
+        alert('Logo must be under 1.5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        logoDataUrl = reader.result;
+        const preview = document.getElementById('logo-preview');
+        const placeholder = document.getElementById('logo-placeholder');
+        preview.src = logoDataUrl;
+        preview.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveProfile() {
+      const company_name = document.getElementById('company_name').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const website = document.getElementById('website').value.trim();
+      const tax_id = document.getElementById('tax_id').value.trim();
+      const thank_you_message = document.getElementById('thank_you_message').value.trim();
+
+      if (!company_name) return alert('Business name is required');
+      if (!address) return alert('Address is required for verification');
+      if (!phone) return alert('Phone is required for verification');
+      if (!userCompanyId) return alert('Company not loaded. Refresh page.');
+
+      const btn = document.getElementById('save-btn');
+      const status = document.getElementById('save-status');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      status.classList.add('hidden');
+
+      const payload = {
+        company_name,
+        address,
+        phone,
+        email: email || null,
+        website: website || null,
+        tax_id: tax_id || null,
+        thank_you_message: thank_you_message || 'Thank you for your patronage!'
+      };
+      if (logoDataUrl) payload.logo = logoDataUrl;
+
+      const { data, error } = await supabaseClient
+        .from('companies')
+        .update(payload)
+        .eq('id', userCompanyId)
+        .select()
+        .maybeSingle();
+
+      btn.disabled = false;
+      btn.textContent = 'Save Profile';
+
+      if (error) {
+        status.textContent = error.message;
+        status.className = 'text-[10px] text-center text-rose-400';
+        status.classList.remove('hidden');
+        return;
+      }
+
+      applyHeader(data || payload);
+      fillForm(data || payload);
+      status.textContent = isVerified(data || payload)
+        ? 'Saved — your account is Verified ✓'
+        : 'Saved successfully';
+      status.className = 'text-[10px] text-center text-emerald-400';
+      status.classList.remove('hidden');
+    }
+
+    async function init() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) { window.location.href = 'index.html'; return; }
+
+      const { data: member } = await supabaseClient
+        .from('company_users')
+        .select('company_id, companies(*)')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      let company = null;
+      if (member?.company_id) {
+        userCompanyId = member.company_id;
+        company = member.companies;
+      } else {
+        const { data: owned } = await supabaseClient
+          .from('companies').select('*').eq('owner_id', user.id).maybeSingle();
+        if (owned?.id) {
+          userCompanyId = owned.id;
+          company = owned;
+        }
+      }
+
+      if (!userCompanyId) {
+        document.getElementById('display-status').textContent = 'No business found. Please re-login.';
+        return;
+      }
+
+      applyHeader(company || {});
+      fillForm(company || {});
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
