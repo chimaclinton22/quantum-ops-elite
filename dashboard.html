@@ -238,9 +238,6 @@
 
     let salesChartInstance = null;
     let userCompanyId = null;
-    let isFetchingMetrics = false;
-    let liveRefreshTimer = null;
-    let liveChannel = null;
 
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -282,21 +279,8 @@
     }
 
     async function handleLogout() {
-      try {
-        if (liveChannel) {
-          await supabaseClient.removeChannel(liveChannel);
-          liveChannel = null;
-        }
-        await supabaseClient.auth.signOut();
-      } catch (e) {}
+      try { await supabaseClient.auth.signOut(); } catch (e) {}
       window.location.href = 'index.html';
-    }
-
-    function scheduleLiveRefresh() {
-      if (liveRefreshTimer) clearTimeout(liveRefreshTimer);
-      liveRefreshTimer = setTimeout(() => {
-        fetchAllLiveMetrics();
-      }, 400);
     }
 
     async function initializeApp() {
@@ -342,15 +326,10 @@
         await fetchAllLiveMetrics();
 
         if (userCompanyId) {
-          if (liveChannel) {
-            try { await supabaseClient.removeChannel(liveChannel); } catch (e) {}
-            liveChannel = null;
-          }
-
-          liveChannel = supabaseClient.channel('live-' + userCompanyId)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => scheduleLiveRefresh())
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => scheduleLiveRefresh())
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => scheduleLiveRefresh())
+          supabaseClient.channel('live-' + userCompanyId)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, () => fetchAllLiveMetrics())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchAllLiveMetrics())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, () => fetchAllLiveMetrics())
             .subscribe();
         }
       } catch (err) {
@@ -369,38 +348,18 @@
         return;
       }
 
-      if (isFetchingMetrics) return;
-      isFetchingMetrics = true;
+      const [salesRes, productsRes, debtorsRes] = await Promise.all([
+        supabaseClient.from('sales').select('*').eq('company_id', userCompanyId).order('created_at', { ascending: false }),
+        supabaseClient.from('products').select('*').eq('company_id', userCompanyId),
+        supabaseClient.from('debtors').select('*').eq('company_id', userCompanyId)
+      ]);
 
-      try {
-        const [salesRes, productsRes, debtorsRes] = await Promise.all([
-          supabaseClient
-            .from('sales')
-            .select('id, total_amount, total, profit, total_profit, created_at, payment_method, items')
-            .eq('company_id', userCompanyId)
-            .order('created_at', { ascending: false })
-            .limit(300),
-          supabaseClient
-            .from('products')
-            .select('id, stock, items_per_pack')
-            .eq('company_id', userCompanyId),
-          supabaseClient
-            .from('debtors')
-            .select('id, amount_owing, amount, total')
-            .eq('company_id', userCompanyId)
-        ]);
-
-        processSalesMetrics(salesRes.data || []);
-        processInventoryMetrics(productsRes.data || []);
-        processDebtorsMetrics(debtorsRes.data || []);
-        renderSalesChart(salesRes.data || []);
-        renderTopProducts(salesRes.data || []);
-        renderRecentActivities(salesRes.data || []);
-      } catch (err) {
-        console.error('Metrics fetch error:', err);
-      } finally {
-        isFetchingMetrics = false;
-      }
+      processSalesMetrics(salesRes.data || []);
+      processInventoryMetrics(productsRes.data || []);
+      processDebtorsMetrics(debtorsRes.data || []);
+      renderSalesChart(salesRes.data || []);
+      renderTopProducts(salesRes.data || []);
+      renderRecentActivities(salesRes.data || []);
     }
 
     function processSalesMetrics(sales) {
@@ -443,13 +402,8 @@
     }
 
     function renderSalesChart(sales) {
-      const canvas = document.getElementById('salesOverviewChart');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (salesChartInstance) {
-        try { salesChartInstance.destroy(); } catch (e) {}
-        salesChartInstance = null;
-      }
+      const ctx = document.getElementById('salesOverviewChart').getContext('2d');
+      if (salesChartInstance) salesChartInstance.destroy();
       const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
       const totals = [0,0,0,0,0,0,0];
       sales.forEach(s => {
