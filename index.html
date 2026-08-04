@@ -68,7 +68,7 @@
       <div id="password-field">
         <div class="flex justify-between items-center mb-1.5">
           <label class="block text-xs font-medium text-gray-400">Password</label>
-          <a href="#" id="forgot-link" onclick="showForgotPassword()" class="text-[11px] text-purple-400 hover:underline">Forgot Password?</a>
+          <a href="#" id="forgot-link" onclick="showForgotPassword(); return false;" class="text-[11px] text-purple-400 hover:underline">Forgot Password?</a>
         </div>
         <div class="relative">
           <i class="fa-solid fa-lock absolute left-3.5 top-3 text-gray-500 text-xs"></i>
@@ -82,17 +82,24 @@
     </form>
 
     <div class="mt-6 text-center text-xs text-gray-400 border-t border-gray-800/80 pt-4">
-      <p id="toggle-signup">Don't have an account? <a href="#" onclick="showSignUp()" class="text-purple-400 font-medium hover:underline ml-1">Create Account</a></p>
-      <p id="toggle-login" class="hidden">Already have an account? <a href="#" onclick="showLogin()" class="text-purple-400 font-medium hover:underline ml-1">Sign In</a></p>
+      <p id="toggle-signup">Don't have an account? <a href="#" onclick="showSignUp(); return false;" class="text-purple-400 font-medium hover:underline ml-1">Create Account</a></p>
+      <p id="toggle-login" class="hidden">Already have an account? <a href="#" onclick="showLogin(); return false;" class="text-purple-400 font-medium hover:underline ml-1">Sign In</a></p>
     </div>
   </div>
 
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
 
     let currentMode = "login";
+    let isBusy = false;
 
     const alertBox = document.getElementById("alert");
     const alertText = document.getElementById("alert-text");
@@ -105,8 +112,14 @@
     const forgotLink = document.getElementById("forgot-link");
 
     async function checkExistingSession() {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) window.location.href = "dashboard.html";
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session?.user) {
+          window.location.replace("dashboard.html");
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
     checkExistingSession();
 
@@ -120,6 +133,12 @@
         alertBox.classList.add("bg-emerald-950/60", "border-emerald-500/40", "text-emerald-300");
         alertIcon.className = "fa-solid fa-circle-check text-sm";
       }
+    }
+
+    function setBusy(busy) {
+      isBusy = busy;
+      submitBtn.disabled = busy;
+      submitBtn.classList.toggle("opacity-70", busy);
     }
 
     function showSignUp() {
@@ -160,9 +179,34 @@
       alertBox.classList.add("hidden");
     }
 
-    // Create a unique company for this user
     async function createCompanyForUser(user, shopName) {
-      const name = (shopName && shopName.trim()) ? shopName.trim() : (user.email?.split('@')[0] || 'My Business');
+      const name = (shopName && shopName.trim())
+        ? shopName.trim()
+        : (user.email?.split('@')[0] || 'My Business');
+
+      // Avoid duplicate company if one already exists
+      const { data: existing } = await supabaseClient
+        .from('companies')
+        .select('id')
+        .eq('owner_id', user.id)
+        .maybeSingle();
+
+      if (existing?.id) {
+        const { data: link } = await supabaseClient
+          .from('company_users')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('company_id', existing.id)
+          .maybeSingle();
+        if (!link) {
+          await supabaseClient.from('company_users').insert([{
+            company_id: existing.id,
+            user_id: user.id,
+            role: 'owner'
+          }]);
+        }
+        return existing;
+      }
 
       const { data: company, error: companyError } = await supabaseClient
         .from('companies')
@@ -185,20 +229,19 @@
         }]);
 
       if (linkError) throw new Error('Could not link account: ' + linkError.message);
-
       return company;
     }
 
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (isBusy) return;
       alertBox.classList.add("hidden");
 
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const fullName = document.getElementById("full_name").value.trim();
 
-      submitBtn.disabled = true;
-      submitBtn.classList.add("opacity-70");
+      setBusy(true);
 
       try {
         if (currentMode === "signup") {
@@ -214,20 +257,29 @@
           if (error) throw error;
           if (!data.user) throw new Error('Account created but user missing. Try again.');
 
-          // Create unique company
-          await createCompanyForUser(data.user, fullName);
+          // If email confirm is OFF, session exists → go dashboard
+          if (data.session) {
+            try { await createCompanyForUser(data.user, fullName); } catch (ce) { console.error(ce); }
+            showAlert("Account created! Redirecting...", false);
+            setTimeout(() => { window.location.replace("dashboard.html"); }, 600);
+            return;
+          }
 
-          showAlert("Account created! You can now sign in.", false);
+          // Email confirm ON → company may need RLS fix; still try
+          try { await createCompanyForUser(data.user, fullName); } catch (ce) { console.error(ce); }
+          showAlert("Account created! Check email if required, then sign in.", false);
           setTimeout(() => {
             showLogin();
             document.getElementById("email").value = email;
           }, 1200);
 
         } else if (currentMode === "login") {
+          if (!password) throw new Error('Enter your password.');
+
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
+          if (!data.user) throw new Error('Login failed. Try again.');
 
-          // Safety: if user has no company yet, create one
           const { data: link } = await supabaseClient
             .from('company_users')
             .select('id')
@@ -240,7 +292,7 @@
           }
 
           showAlert("Login successful! Redirecting...", false);
-          setTimeout(() => { window.location.href = "dashboard.html"; }, 700);
+          setTimeout(() => { window.location.replace("dashboard.html"); }, 500);
 
         } else if (currentMode === "forgot") {
           const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
@@ -252,8 +304,7 @@
       } catch (err) {
         showAlert(err.message || 'Something went wrong.', true);
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove("opacity-70");
+        setBusy(false);
       }
     });
   </script>
