@@ -2,139 +2,159 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6C5CE7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>AI CEO - Quantum OPS Elite</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { bg: '#07070F', card: '#121224', purple: '#6C5CE7' }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
     .iphone-frame {
-      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
-      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
-      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
-      position: relative; overflow: hidden; display: flex; flex-direction: column;
+      width: 100%; max-width: 100%; height: 100dvh;
+      background: #0B0B16; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
     }
     @media (min-width: 768px) {
-      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
-      .iphone-frame { border-radius: 48px; }
+      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
+      .iphone-frame {
+        max-width: 410px; max-height: 860px; border-radius: 48px;
+        border: 1px solid rgba(139,92,246,0.2);
+        box-shadow: 0 25px 50px -12px rgba(15,13,35,0.7);
+      }
     }
-    .msg-ai { background: #121224; border: 1px solid rgba(139,92,246,0.2); }
-    .msg-user { background: linear-gradient(135deg, #6C5CE7, #5B4BC4); }
-    .chip { white-space: nowrap; }
+    .top-bar {
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
+    }
+    .chat-area { flex: 1; overflow-y: auto; padding: 12px; }
+    .msg-ai {
+      margin-right: 24px; padding: 10px 14px; border-radius: 16px 16px 16px 6px;
+      background: #121224; border: 1px solid rgba(139,92,246,0.2);
+      font-size: 12px; color: #e2e8f0; line-height: 1.5; margin-bottom: 10px;
+    }
+    .msg-user {
+      margin-left: 32px; padding: 10px 14px; border-radius: 16px 16px 6px 16px;
+      background: linear-gradient(135deg, #6C5CE7, #5B4BC4);
+      font-size: 12px; color: #fff; line-height: 1.5; margin-bottom: 10px;
+    }
+    .chips {
+      display: flex; gap: 8px; overflow-x: auto; padding: 8px 12px;
+      border-top: 1px solid rgba(139,92,246,0.1); background: rgba(11,11,22,0.95); flex-shrink: 0;
+    }
+    .chip {
+      white-space: nowrap; padding: 6px 12px; border-radius: 999px;
+      font-size: 10px; font-weight: 600; background: #121224;
+      border: 1px solid rgba(139,92,246,0.25); color: #e2e8f0; cursor: pointer;
+    }
+    .input-bar {
+      display: flex; gap: 8px; padding: 10px 12px;
+      border-top: 1px solid rgba(139,92,246,0.1); background: #0E0E1C; flex-shrink: 0;
+    }
+    .input-bar input {
+      flex: 1; background: #121224; border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
+    }
+    .input-bar button {
+      width: 40px; height: 40px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5); color: #fff; cursor: pointer;
+    }
+    .bottom-nav {
+      height: 56px; background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0;
+    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #94a3b8; text-decoration: none; font-size: 9px; }
+    .nav-item.active { color: #a78bfa; }
+    .nav-item i { font-size: 14px; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+    .stat-box { background: #191932; border-radius: 12px; padding: 8px; border: 1px solid rgba(139,92,246,0.15); }
+    .stat-box p { margin: 0; font-size: 9px; color: #94a3b8; }
+    .stat-box h4 { margin: 2px 0 0; font-size: 14px; font-weight: 700; color: #fff; }
+    .rec-box { margin-top: 8px; padding: 10px; border-radius: 12px; background: rgba(108,92,231,0.15); border: 1px solid rgba(139,92,246,0.3); }
+    a.link { color: #c4b5fd; text-decoration: underline; font-size: 11px; }
   </style>
 </head>
 <body>
   <div class="iphone-frame">
-    <!-- TOP BAR -->
-    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
-      <div class="flex items-center gap-3">
-        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
-          <i class="fa-solid fa-arrow-left text-sm"></i>
-        </a>
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-500 flex items-center justify-center text-white text-sm shadow-lg shadow-purple-500/30">
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:32px;height:32px;border-radius:12px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">
             <i class="fa-solid fa-robot"></i>
           </div>
           <div>
-            <h2 class="font-bold tracking-wider text-xs text-white">AI CEO</h2>
-            <p class="text-[9px] text-purple-300" id="ceo-status">Analyzing your business…</p>
+            <div style="font-weight:700;font-size:12px;color:#fff;">AI CEO</div>
+            <div style="font-size:9px;color:#c4b5fd;" id="ceo-status">Analyzing…</div>
           </div>
         </div>
       </div>
-      <span class="text-[9px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-medium">Live Data</span>
+      <span style="font-size:9px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:2px 8px;border-radius:999px;font-weight:600;">Live Data</span>
     </div>
 
-    <!-- CHAT AREA -->
-    <div id="chat-area" class="flex-1 overflow-y-auto px-3 py-3 space-y-3 custom-scrollbar pb-4">
-      <div class="text-center py-10 text-slate-500 text-xs">
-        <i class="fa-solid fa-robot text-2xl text-purple-400 mb-2 block"></i>
+    <div id="chat-area" class="chat-area custom-scrollbar">
+      <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">
+        <i class="fa-solid fa-robot" style="font-size:24px;color:#a78bfa;display:block;margin-bottom:8px;"></i>
         Loading your business briefing…
       </div>
     </div>
 
-    <!-- QUICK CHIPS -->
-    <div class="px-3 py-2 flex gap-2 overflow-x-auto custom-scrollbar flex-shrink-0 border-t border-purple-500/10 bg-[#0B0B16]/95">
-      <button onclick="runAction('sales')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">📈 Sales</button>
-      <button onclick="runAction('profit')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">💰 Profit</button>
-      <button onclick="runAction('restock')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">📦 Restock</button>
-      <button onclick="runAction('debtors')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">👥 Debtors</button>
-      <button onclick="runAction('bestsellers')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">🔥 Best Sellers</button>
-      <button onclick="runAction('risks')" class="chip px-3 py-1.5 rounded-full text-[10px] font-semibold bg-[#121224] border border-purple-500/25 text-slate-200 hover:border-purple-400 transition">⚠️ Risks</button>
+    <div class="chips custom-scrollbar">
+      <button class="chip" onclick="runAction('sales')">📈 Sales</button>
+      <button class="chip" onclick="runAction('profit')">💰 Profit</button>
+      <button class="chip" onclick="runAction('restock')">📦 Restock</button>
+      <button class="chip" onclick="runAction('debtors')">👥 Debtors</button>
+      <button class="chip" onclick="runAction('bestsellers')">🔥 Best Sellers</button>
+      <button class="chip" onclick="runAction('risks')">⚠️ Risks</button>
     </div>
 
-    <!-- INPUT -->
-    <div class="px-3 py-2.5 flex gap-2 flex-shrink-0 border-t border-purple-500/10 bg-[#0E0E1C]">
-      <input id="chat-input" type="text" placeholder="Ask your AI CEO…" 
-        class="flex-1 bg-[#121224] border border-purple-500/20 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-        onkeydown="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-purple-500/30">
-        <i class="fa-solid fa-paper-plane text-xs"></i>
-      </button>
+    <div class="input-bar">
+      <input id="chat-input" type="text" placeholder="Ask your AI CEO…" onkeydown="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane" style="font-size:12px;"></i></button>
     </div>
 
-    <!-- BOTTOM NAV -->
-    <nav class="h-14 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between flex-shrink-0">
-      <a href="dashboard.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px]">Dashboard</span>
-      </a>
-      <a href="inventory.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px]">Inventory</span>
-      </a>
-      <a href="pos.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px]">POS</span>
-      </a>
-      <a href="ai-ceo.html" class="flex flex-col items-center gap-0.5 text-purple-400">
-        <i class="fa-solid fa-robot text-sm"></i><span class="text-[9px]">AI CEO</span>
-      </a>
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
+      <a href="ai-ceo.html" class="nav-item active"><i class="fa-solid fa-robot"></i>AI CEO</a>
     </nav>
   </div>
 
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
     const LOW_STOCK_UNITS = 3;
 
     let userCompanyId = null;
     let ownerName = 'Owner';
-    let biz = { sales: [], products: [], debtors: [] };
+    let biz = { sales: [], products: [], debtors: [], expenses: [] };
+    let ready = false;
 
     function formatCurrency(n) {
       return '₦' + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
-
     function parseMoney(v) {
       if (v == null || v === '') return 0;
       if (typeof v === 'number') return isNaN(v) ? 0 : v;
       const n = parseFloat(String(v).replace(/[₦$,\s]/g, ''));
       return isNaN(n) ? 0 : n;
     }
-
     function getLocalDateString(d) {
       const x = new Date(d);
       return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
     }
-
     function daysAgo(n) {
       const d = new Date();
       d.setDate(d.getDate() - n);
       return getLocalDateString(d);
     }
-
     function greeting() {
       const h = new Date().getHours();
       if (h < 12) return 'Good morning';
@@ -142,42 +162,40 @@
       return 'Good evening';
     }
 
-    function addMessage(html, isUser = false) {
+    function addMessage(html, isUser) {
       const area = document.getElementById('chat-area');
       const div = document.createElement('div');
-      div.className = isUser
-        ? 'msg-user ml-8 px-3.5 py-2.5 rounded-2xl rounded-br-md text-[12px] text-white leading-relaxed'
-        : 'msg-ai mr-6 px-3.5 py-2.5 rounded-2xl rounded-bl-md text-[12px] text-slate-200 leading-relaxed';
+      div.className = isUser ? 'msg-user' : 'msg-ai';
       div.innerHTML = html;
       area.appendChild(div);
       area.scrollTop = area.scrollHeight;
     }
-
     function clearChat() {
       document.getElementById('chat-area').innerHTML = '';
     }
 
-    // ---------- DATA HELPERS ----------
     function todaySales() {
       const t = getLocalDateString(new Date());
       return biz.sales.filter(s => getLocalDateString(s.created_at) === t);
     }
-
     function salesInRange(fromStr, toStr) {
       return biz.sales.filter(s => {
         const d = getLocalDateString(s.created_at);
         return d >= fromStr && d <= toStr;
       });
     }
-
     function sumAmount(list) {
       return list.reduce((a, s) => a + parseMoney(s.total_amount ?? s.total), 0);
     }
-
     function sumProfit(list) {
       return list.reduce((a, s) => a + parseMoney(s.profit ?? s.total_profit), 0);
     }
-
+    function todayExpenses() {
+      const t = getLocalDateString(new Date());
+      return biz.expenses
+        .filter(e => getLocalDateString(e.created_at) === t)
+        .reduce((a, e) => a + parseMoney(e.amount), 0);
+    }
     function productStats(list) {
       const map = {};
       list.forEach(s => {
@@ -195,15 +213,12 @@
       });
       return map;
     }
-
-    function topProducts(list, by = 'revenue', limit = 5) {
-      const map = productStats(list);
-      return Object.entries(map)
+    function topProducts(list, by, limit) {
+      return Object.entries(productStats(list))
         .map(([name, d]) => ({ name, ...d }))
         .sort((a, b) => b[by] - a[by])
-        .slice(0, limit);
+        .slice(0, limit || 5);
     }
-
     function lowStockProducts() {
       return biz.products.filter(p => {
         const pieces = parseFloat(p.stock || 0);
@@ -212,138 +227,122 @@
       }).map(p => {
         const pieces = parseFloat(p.stock || 0);
         const pack = parseFloat(p.items_per_pack || 24) || 24;
-        return { name: p.name || 'Product', units: (pieces / pack).toFixed(1), pieces };
+        return { name: p.name || 'Product', units: (pieces / pack).toFixed(1), pieces: pieces };
       });
     }
-
     function debtTotal() {
       return biz.debtors.reduce((a, d) => a + parseMoney(d.amount_owing), 0);
     }
-
-    function topDebtors(limit = 5) {
+    function topDebtors(limit) {
       return [...biz.debtors]
         .sort((a, b) => parseMoney(b.amount_owing) - parseMoney(a.amount_owing))
-        .slice(0, limit);
+        .slice(0, limit || 5);
     }
 
-    // ---------- BRIEFING ----------
     function buildBriefing() {
       const today = todaySales();
       const sales = sumAmount(today);
       const profit = sumProfit(today);
+      const exp = todayExpenses();
+      const net = profit - exp;
       const tx = today.length;
       const tops = topProducts(today, 'revenue', 1);
-      const best = tops[0]?.name || '—';
+      const best = tops[0] ? tops[0].name : '—';
       const low = lowStockProducts();
       const debts = debtTotal();
       const debtCount = biz.debtors.length;
 
-      let rec = [];
-      if (low.length) rec.push(`Restock ${low.slice(0, 2).map(p => p.name).join(' & ')} today.`);
-      if (debtCount >= 2) rec.push(`Follow up with your top debtors (${formatCurrency(debts)} outstanding).`);
+      const rec = [];
+      if (low.length) rec.push('Restock ' + low.slice(0, 2).map(p => p.name).join(' & ') + ' today.');
+      if (debtCount >= 2) rec.push('Follow up with top debtors (' + formatCurrency(debts) + ' outstanding).');
       if (!tx) rec.push('No sales yet today — open POS when ready.');
-      if (tops[0] && tops[0].revenue > 0) rec.push(`${best} is leading sales — keep it stocked.`);
+      if (tops[0] && tops[0].revenue > 0) rec.push(best + ' is leading sales — keep it stocked.');
+      if (exp > 0 && net < profit * 0.5) rec.push('Expenses are eating profit today — review costs.');
       if (!rec.length) rec.push('Business looks stable. Keep recording every sale.');
 
-      return `
-        <div class="space-y-2">
-          <p class="font-bold text-white text-[13px]">${greeting()}, ${ownerName} 👋</p>
-          <p class="text-slate-300">Here’s your business snapshot:</p>
-          <div class="grid grid-cols-2 gap-1.5 my-2">
-            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
-              <p class="text-[9px] text-slate-400">Sales today</p>
-              <p class="text-sm font-bold text-white">${formatCurrency(sales)}</p>
-            </div>
-            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
-              <p class="text-[9px] text-slate-400">Profit today</p>
-              <p class="text-sm font-bold text-emerald-400">${formatCurrency(profit)}</p>
-            </div>
-            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
-              <p class="text-[9px] text-slate-400">Transactions</p>
-              <p class="text-sm font-bold text-white">${tx}</p>
-            </div>
-            <div class="bg-[#191932] rounded-xl p-2 border border-purple-500/15">
-              <p class="text-[9px] text-slate-400">Best seller</p>
-              <p class="text-sm font-bold text-purple-300 truncate">${best}</p>
-            </div>
-          </div>
-          <p class="text-[11px] text-slate-300">
-            📦 <b>${low.length}</b> product${low.length !== 1 ? 's' : ''} running low<br>
-            👥 <b>${debtCount}</b> customer${debtCount !== 1 ? 's' : ''} owe <b class="text-rose-400">${formatCurrency(debts)}</b>
-          </p>
-          <div class="mt-2 p-2.5 rounded-xl bg-purple-600/15 border border-purple-500/30">
-            <p class="text-[10px] font-bold text-purple-300 mb-0.5">CEO Recommendation</p>
-            <p class="text-[11px] text-slate-200">${rec.join(' ')}</p>
-          </div>
-          <p class="text-[10px] text-slate-500 mt-1">Ask me anything, or tap a button below.</p>
-        </div>`;
+      return ''
+        + '<p style="font-weight:700;color:#fff;font-size:13px;margin:0 0 6px;">' + greeting() + ', ' + ownerName + ' 👋</p>'
+        + '<p style="color:#cbd5e1;margin:0 0 8px;">Here\'s your business snapshot:</p>'
+        + '<div class="stat-grid">'
+        +   '<div class="stat-box"><p>Sales today</p><h4>' + formatCurrency(sales) + '</h4></div>'
+        +   '<div class="stat-box"><p>Gross profit</p><h4 style="color:#34d399;">' + formatCurrency(profit) + '</h4></div>'
+        +   '<div class="stat-box"><p>Expenses today</p><h4 style="color:#fb7185;">' + formatCurrency(exp) + '</h4></div>'
+        +   '<div class="stat-box"><p>Net profit</p><h4 style="color:' + (net >= 0 ? '#34d399' : '#fb7185') + ';">' + formatCurrency(net) + '</h4></div>'
+        + '</div>'
+        + '<p style="font-size:11px;color:#cbd5e1;margin:8px 0;">'
+        +   '🧾 <b>' + tx + '</b> transactions · Best: <b style="color:#c4b5fd;">' + best + '</b><br>'
+        +   '📦 <b>' + low.length + '</b> low stock · 👥 <b>' + debtCount + '</b> owe <b style="color:#fb7185;">' + formatCurrency(debts) + '</b>'
+        + '</p>'
+        + '<div class="rec-box">'
+        +   '<p style="margin:0 0 4px;font-size:10px;font-weight:700;color:#c4b5fd;">CEO Recommendation</p>'
+        +   '<p style="margin:0;font-size:11px;color:#e2e8f0;">' + rec.join(' ') + '</p>'
+        + '</div>'
+        + '<p style="font-size:10px;color:#64748b;margin:8px 0 0;">Ask me anything, or tap a button below.</p>';
     }
 
-    // ---------- ACTIONS / Q&A ----------
     function answerSales() {
       const today = todaySales();
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
-      return `
-        <p class="font-bold text-white mb-1">📈 Sales Summary</p>
-        <p>Today: <b>${formatCurrency(sumAmount(today))}</b> · ${today.length} transactions</p>
-        <p>Last 7 days: <b>${formatCurrency(sumAmount(week))}</b> · ${week.length} transactions</p>
-        <p class="mt-1"><a href="transactions.html?view=sales" class="text-purple-300 underline text-[11px]">View full sales history →</a></p>`;
+      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">📈 Sales Summary</p>'
+        + '<p style="margin:0;">Today: <b>' + formatCurrency(sumAmount(today)) + '</b> · ' + today.length + ' transactions</p>'
+        + '<p style="margin:4px 0 0;">Last 7 days: <b>' + formatCurrency(sumAmount(week)) + '</b> · ' + week.length + ' transactions</p>'
+        + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View full sales history →</a></p>';
     }
 
     function answerProfit() {
       const today = todaySales();
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
+      const exp = todayExpenses();
+      const net = sumProfit(today) - exp;
       const tops = topProducts(week, 'profit', 3);
-      let lines = tops.map((p, i) => `${i + 1}. ${p.name} — ${formatCurrency(p.profit)} profit`).join('<br>');
-      if (!lines) lines = 'No product-level profit data yet. Make sales with cost prices set.';
-      return `
-        <p class="font-bold text-white mb-1">💰 Profit Analysis</p>
-        <p>Today’s profit: <b class="text-emerald-400">${formatCurrency(sumProfit(today))}</b></p>
-        <p>Last 7 days: <b class="text-emerald-400">${formatCurrency(sumProfit(week))}</b></p>
-        <p class="mt-1.5 text-[11px] text-slate-300"><b>Top profit products (7 days):</b><br>${lines}</p>
-        <p class="mt-1"><a href="transactions.html?view=profit" class="text-purple-300 underline text-[11px]">View profit history →</a></p>`;
+      let lines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.profit) + ' profit').join('<br>');
+      if (!lines) lines = 'No product-level profit data yet. Set cost prices on products.';
+      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">💰 Profit Analysis</p>'
+        + '<p style="margin:0;">Gross today: <b style="color:#34d399;">' + formatCurrency(sumProfit(today)) + '</b></p>'
+        + '<p style="margin:4px 0 0;">Expenses today: <b style="color:#fb7185;">' + formatCurrency(exp) + '</b></p>'
+        + '<p style="margin:4px 0 0;">Net today: <b style="color:' + (net >= 0 ? '#34d399' : '#fb7185') + ';">' + formatCurrency(net) + '</b></p>'
+        + '<p style="margin:4px 0 0;">Last 7 days gross: <b style="color:#34d399;">' + formatCurrency(sumProfit(week)) + '</b></p>'
+        + '<p style="margin:8px 0 0;font-size:11px;color:#cbd5e1;"><b>Top profit products (7 days):</b><br>' + lines + '</p>'
+        + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=profit">View profit history →</a></p>';
     }
 
     function answerRestock() {
       const low = lowStockProducts();
       if (!low.length) {
-        return `<p class="font-bold text-white mb-1">📦 Restock Advice</p><p>All tracked products look healthy. No urgent restock needed.</p>`;
+        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Advice</p><p style="margin:0;">All tracked products look healthy. No urgent restock needed.</p>';
       }
-      const lines = low.map(p => `• <b>${p.name}</b> — ${p.units} units left (${p.pieces} pcs)`).join('<br>');
-      return `
-        <p class="font-bold text-white mb-1">📦 Restock Advice</p>
-        <p class="text-amber-300 text-[11px] mb-1">${low.length} product(s) at or below ${LOW_STOCK_UNITS} units:</p>
-        <p class="text-[11px]">${lines}</p>
-        <p class="mt-1.5 text-[11px] text-slate-400">CEO tip: Restock your best sellers first so you don’t lose sales.</p>
-        <p class="mt-1"><a href="inventory.html" class="text-purple-300 underline text-[11px]">Open Inventory →</a></p>`;
+      const lines = low.map(p => '• <b>' + p.name + '</b> — ' + p.units + ' units left (' + p.pieces + ' pcs)').join('<br>');
+      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Advice</p>'
+        + '<p style="margin:0 0 6px;color:#fbbf24;font-size:11px;">' + low.length + ' product(s) at or below ' + LOW_STOCK_UNITS + ' units:</p>'
+        + '<p style="margin:0;font-size:11px;">' + lines + '</p>'
+        + '<p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Restock best sellers first.</p>'
+        + '<p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>';
     }
 
     function answerDebtors() {
       const total = debtTotal();
       const list = topDebtors(5);
       if (!list.length) {
-        return `<p class="font-bold text-white mb-1">👥 Debtors</p><p>No outstanding debts. Great cash discipline.</p>`;
+        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Debtors</p><p style="margin:0;">No outstanding debts. Great cash discipline.</p>';
       }
-      const lines = list.map((d, i) => `${i + 1}. <b>${d.customer_name || 'Customer'}</b> — ${formatCurrency(d.amount_owing)}`).join('<br>');
-      return `
-        <p class="font-bold text-white mb-1">👥 Outstanding Debt</p>
-        <p>Total: <b class="text-rose-400">${formatCurrency(total)}</b> from ${biz.debtors.length} customer(s)</p>
-        <p class="mt-1.5 text-[11px]"><b>Highest balances:</b><br>${lines}</p>
-        <p class="mt-1.5 text-[11px] text-slate-400">CEO tip: Contact the largest overdue balances first.</p>
-        <p class="mt-1"><a href="debtors.html" class="text-purple-300 underline text-[11px]">Open Debtors →</a></p>`;
+      const lines = list.map((d, i) => (i + 1) + '. <b>' + (d.customer_name || 'Customer') + '</b> — ' + formatCurrency(d.amount_owing)).join('<br>');
+      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Outstanding Debt</p>'
+        + '<p style="margin:0;">Total: <b style="color:#fb7185;">' + formatCurrency(total) + '</b> from ' + biz.debtors.length + ' customer(s)</p>'
+        + '<p style="margin:8px 0 0;font-size:11px;"><b>Highest balances:</b><br>' + lines + '</p>'
+        + '<p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Contact the largest balances first.</p>'
+        + '<p style="margin:8px 0 0;"><a class="link" href="debtors.html">Open Debtors →</a></p>';
     }
 
     function answerBestsellers() {
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
       const tops = topProducts(week, 'revenue', 5);
       if (!tops.length) {
-        return `<p class="font-bold text-white mb-1">🔥 Best Sellers</p><p>No sales data yet this week.</p>`;
+        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">🔥 Best Sellers</p><p style="margin:0;">No sales data yet this week.</p>';
       }
-      const lines = tops.map((p, i) => `${i + 1}. <b>${p.name}</b> — ${p.qty} sold · ${formatCurrency(p.revenue)}`).join('<br>');
-      return `
-        <p class="font-bold text-white mb-1">🔥 Best Sellers (7 days)</p>
-        <p class="text-[11px]">${lines}</p>
-        <p class="mt-1"><a href="transactions.html?view=sales" class="text-purple-300 underline text-[11px]">View sales →</a></p>`;
+      const lines = tops.map((p, i) => (i + 1) + '. <b>' + p.name + '</b> — ' + p.qty + ' sold · ' + formatCurrency(p.revenue)).join('<br>');
+      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">🔥 Best Sellers (7 days)</p>'
+        + '<p style="margin:0;font-size:11px;">' + lines + '</p>'
+        + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View sales →</a></p>';
     }
 
     function answerRisks() {
@@ -353,19 +352,21 @@
       const yesterday = salesInRange(daysAgo(1), daysAgo(1));
       const todayAmt = sumAmount(today);
       const yAmt = sumAmount(yesterday);
-      let risks = [];
-      if (low.length) risks.push(`• ${low.length} product(s) running low on stock`);
-      if (debts > 0) risks.push(`• ${formatCurrency(debts)} tied up in customer debt`);
-      if (yAmt > 0 && todayAmt < yAmt * 0.7) risks.push(`• Sales today are well below yesterday (${formatCurrency(todayAmt)} vs ${formatCurrency(yAmt)})`);
-      if (!today.length && new Date().getHours() >= 12) risks.push(`• No sales recorded yet today`);
+      const exp = todayExpenses();
+      const risks = [];
+      if (low.length) risks.push('• ' + low.length + ' product(s) running low on stock');
+      if (debts > 0) risks.push('• ' + formatCurrency(debts) + ' tied up in customer debt');
+      if (exp > sumProfit(today) && today.length) risks.push('• Expenses exceed today\'s gross profit');
+      if (yAmt > 0 && todayAmt < yAmt * 0.7) risks.push('• Sales today well below yesterday (' + formatCurrency(todayAmt) + ' vs ' + formatCurrency(yAmt) + ')');
+      if (!today.length && new Date().getHours() >= 12) risks.push('• No sales recorded yet today');
       if (!risks.length) risks.push('• No major risks detected right now. Keep going.');
-      return `
-        <p class="font-bold text-white mb-1">⚠️ Business Risks</p>
-        <p class="text-[11px]">${risks.join('<br>')}</p>
-        <p class="mt-1.5 text-[11px] text-slate-400">CEO tip: Fix stock and debt issues before they hurt cash flow.</p>`;
+      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">⚠️ Business Risks</p>'
+        + '<p style="margin:0;font-size:11px;">' + risks.join('<br>') + '</p>'
+        + '<p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Fix stock and debt before they hurt cash flow.</p>';
     }
 
     function runAction(key) {
+      if (!ready) return;
       const map = {
         sales: answerSales,
         profit: answerProfit,
@@ -374,105 +375,121 @@
         bestsellers: answerBestsellers,
         risks: answerRisks
       };
-      const fn = map[key];
-      if (fn) addMessage(fn());
+      if (map[key]) addMessage(map[key](), false);
     }
 
     function handleQuestion(q) {
       const t = q.toLowerCase().trim();
-
-      if (/profit|margin/.test(t)) return answerProfit();
+      if (/profit|margin|net/.test(t)) return answerProfit();
       if (/restock|low stock|inventory|stock/.test(t)) return answerRestock();
       if (/debt|owe|owes|debtor/.test(t)) return answerDebtors();
       if (/best.?sell|top.?sell|popular|most.?sold/.test(t)) return answerBestsellers();
       if (/risk|problem|warning|issue/.test(t)) return answerRisks();
+      if (/expense|cost|spent/.test(t)) {
+        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">💸 Expenses</p>'
+          + '<p style="margin:0;">Today: <b style="color:#fb7185;">' + formatCurrency(todayExpenses()) + '</b></p>'
+          + '<p style="margin:8px 0 0;"><a class="link" href="expenses.html">Open Expenses →</a></p>';
+      }
       if (/today|sales today|how much.*(make|made)|revenue/.test(t)) return answerSales();
       if (/week|this week|7 day/.test(t)) {
         const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
-        return `
-          <p class="font-bold text-white mb-1">This week</p>
-          <p>Sales: <b>${formatCurrency(sumAmount(week))}</b></p>
-          <p>Profit: <b class="text-emerald-400">${formatCurrency(sumProfit(week))}</b></p>
-          <p>Transactions: <b>${week.length}</b></p>
-          <p class="mt-1"><a href="transactions.html?view=sales" class="text-purple-300 underline text-[11px]">View history →</a></p>`;
+        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">This week</p>'
+          + '<p style="margin:0;">Sales: <b>' + formatCurrency(sumAmount(week)) + '</b></p>'
+          + '<p style="margin:4px 0 0;">Profit: <b style="color:#34d399;">' + formatCurrency(sumProfit(week)) + '</b></p>'
+          + '<p style="margin:4px 0 0;">Transactions: <b>' + week.length + '</b></p>'
+          + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View history →</a></p>';
       }
       if (/yesterday/.test(t)) {
         const y = salesInRange(daysAgo(1), daysAgo(1));
-        return `
-          <p class="font-bold text-white mb-1">Yesterday</p>
-          <p>Sales: <b>${formatCurrency(sumAmount(y))}</b></p>
-          <p>Profit: <b class="text-emerald-400">${formatCurrency(sumProfit(y))}</b></p>
-          <p>Transactions: <b>${y.length}</b></p>`;
+        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">Yesterday</p>'
+          + '<p style="margin:0;">Sales: <b>' + formatCurrency(sumAmount(y)) + '</b></p>'
+          + '<p style="margin:4px 0 0;">Profit: <b style="color:#34d399;">' + formatCurrency(sumProfit(y)) + '</b></p>'
+          + '<p style="margin:4px 0 0;">Transactions: <b>' + y.length + '</b></p>';
       }
-      if (/hello|hi |hey|good morning|good afternoon/.test(t)) {
-        return buildBriefing();
-      }
-
-      return `
-        <p>I can help with sales, profit, restock, debtors, best sellers, and risks.</p>
-        <p class="mt-1 text-[11px] text-slate-400">Try: “How much profit this week?” · “Who owes me?” · “What should I restock?”</p>
-        <p class="mt-1 text-[11px]">Or tap a button below.</p>`;
+      if (/hello|hi |hey|good morning|good afternoon|briefing/.test(t)) return buildBriefing();
+      return '<p style="margin:0;">I can help with sales, profit, expenses, restock, debtors, best sellers, and risks.</p>'
+        + '<p style="margin:6px 0 0;font-size:11px;color:#94a3b8;">Try: “How much profit this week?” · “Who owes me?” · “What should I restock?”</p>';
     }
 
     function sendMessage() {
+      if (!ready) return;
       const input = document.getElementById('chat-input');
       const q = (input.value || '').trim();
       if (!q) return;
       addMessage(q, true);
       input.value = '';
-      setTimeout(() => addMessage(handleQuestion(q)), 200);
+      setTimeout(function () { addMessage(handleQuestion(q), false); }, 150);
     }
 
-    // ---------- INIT ----------
     async function init() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user) { window.location.href = 'index.html'; return; }
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace('index.html');
+          return;
+        }
+        const user = session.user;
+        ownerName = (user.user_metadata && user.user_metadata.full_name) || (user.email || 'Owner').split('@')[0] || 'Owner';
+        ownerName = String(ownerName).split(' ')[0];
+        ownerName = ownerName.charAt(0).toUpperCase() + ownerName.slice(1).toLowerCase();
 
-      ownerName = (user.user_metadata?.full_name || user.email.split('@')[0] || 'Owner').split(' ')[0];
-      ownerName = ownerName.charAt(0).toUpperCase() + ownerName.slice(1).toLowerCase();
+        const { data: member } = await supabaseClient
+          .from('company_users')
+          .select('company_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      const { data: member } = await supabaseClient
-        .from('company_users')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        if (member && member.company_id) {
+          userCompanyId = member.company_id;
+        } else {
+          const { data: owned } = await supabaseClient
+            .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
+          if (owned && owned.id) userCompanyId = owned.id;
+        }
 
-      if (member?.company_id) {
-        userCompanyId = member.company_id;
-      } else {
-        const { data: owned } = await supabaseClient
-          .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
-        if (owned?.id) userCompanyId = owned.id;
-      }
+        if (!userCompanyId) {
+          clearChat();
+          addMessage('<p style="color:#fb7185;margin:0;">No business found. Please re-login.</p>', false);
+          document.getElementById('ceo-status').textContent = 'Offline';
+          return;
+        }
 
-      if (!userCompanyId) {
+        const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
+          supabaseClient.from('sales')
+            .select('id, total_amount, total, profit, total_profit, created_at, items, payment_method')
+            .eq('company_id', userCompanyId)
+            .order('created_at', { ascending: false })
+            .limit(200),
+          supabaseClient.from('products')
+            .select('id, name, stock, items_per_pack')
+            .eq('company_id', userCompanyId)
+            .limit(150),
+          supabaseClient.from('debtors')
+            .select('id, customer_name, amount_owing, status')
+            .eq('company_id', userCompanyId)
+            .limit(100),
+          supabaseClient.from('expenses')
+            .select('id, amount, created_at')
+            .eq('company_id', userCompanyId)
+            .order('created_at', { ascending: false })
+            .limit(100)
+        ]);
+
+        biz.sales = salesRes.data || [];
+        biz.products = productsRes.data || [];
+        biz.debtors = debtorsRes.data || [];
+        biz.expenses = expensesRes.data || [];
+
+        document.getElementById('ceo-status').textContent = 'Ready · Live data';
         clearChat();
-        addMessage('<p class="text-rose-400">No business found. Please re-login.</p>');
-        document.getElementById('ceo-status').textContent = 'Offline';
-        return;
+        addMessage(buildBriefing(), false);
+        ready = true;
+      } catch (err) {
+        console.error(err);
+        clearChat();
+        addMessage('<p style="color:#fb7185;margin:0;">Could not load data. Check connection and refresh.</p>', false);
+        document.getElementById('ceo-status').textContent = 'Error';
       }
-
-      const [salesRes, productsRes, debtorsRes] = await Promise.all([
-        supabaseClient.from('sales')
-          .select('id, total_amount, total, profit, total_profit, created_at, items, payment_method')
-          .eq('company_id', userCompanyId)
-          .order('created_at', { ascending: false })
-          .limit(400),
-        supabaseClient.from('products')
-          .select('id, name, stock, items_per_pack')
-          .eq('company_id', userCompanyId),
-        supabaseClient.from('debtors')
-          .select('id, customer_name, amount_owing, status')
-          .eq('company_id', userCompanyId)
-      ]);
-
-      biz.sales = salesRes.data || [];
-      biz.products = productsRes.data || [];
-      biz.debtors = debtorsRes.data || [];
-
-      document.getElementById('ceo-status').textContent = 'Ready · Live data';
-      clearChat();
-      addMessage(buildBriefing());
     }
 
     window.addEventListener('DOMContentLoaded', init);
