@@ -121,7 +121,7 @@
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
     #scanner-modal.hidden { display: none; }
-    #scanner-reader { width: 100%; min-height: 260px; background: #000; border-radius: 12px; overflow: hidden; }
+    #scanner-reader { width: 100%; min-height: 280px; background: #000; border-radius: 12px; overflow: hidden; }
   </style>
 </head>
 <body>
@@ -160,7 +160,6 @@
     </nav>
   </div>
 
-  <!-- ADD / EDIT PRODUCT MODAL -->
   <div id="product-modal" class="modal-bg hidden">
     <div class="modal custom-scrollbar">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -193,7 +192,7 @@
             <i class="fa-solid fa-barcode"></i>
           </button>
         </div>
-        <p style="font-size:9px;color:#64748b;margin:4px 0 0;">Tap barcode button → point camera → SKU fills instantly</p>
+        <p style="font-size:9px;color:#64748b;margin:4px 0 0;">Tap barcode → point camera → SKU fills instantly</p>
       </div>
 
       <div class="grid-2">
@@ -238,7 +237,6 @@
     </div>
   </div>
 
-  <!-- BARCODE SCANNER -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -246,7 +244,7 @@
         <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="scanner-reader"></div>
-      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Point at product barcode</p>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode steady inside the box</p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
     </div>
   </div>
@@ -356,7 +354,7 @@
       reader.readAsDataURL(file);
     }
 
-    // ========== FAST BARCODE SCAN ==========
+    // ========== PRODUCT BARCODE SCAN (fixed) ==========
     async function startBarcodeScanner() {
       if (typeof Html5Qrcode === 'undefined') {
         alert('Scanner not loaded. Check internet and refresh.');
@@ -371,17 +369,43 @@
           try { await html5QrCode.stop(); } catch (e) {}
           html5QrCode = null;
         }
-        html5QrCode = new Html5Qrcode('scanner-reader');
+
+        var formats = [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.ITF,
+          Html5QrcodeSupportedFormats.CODABAR,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ];
+
+        html5QrCode = new Html5Qrcode('scanner-reader', {
+          formatsToSupport: formats,
+          verbose: false
+        });
+
         await html5QrCode.start(
           { facingMode: 'environment' },
-          { fps: 12, qrbox: { width: 280, height: 120 }, aspectRatio: 1.777 },
+          {
+            fps: 15,
+            qrbox: function (viewfinderWidth, viewfinderHeight) {
+              var width = Math.floor(viewfinderWidth * 0.92);
+              var height = Math.floor(Math.min(150, viewfinderHeight * 0.38));
+              return { width: width, height: height };
+            },
+            aspectRatio: 1.777,
+            disableFlip: false
+          },
           onInventoryScanSuccess,
           function () {}
         );
-        document.getElementById('scanner-status').textContent = 'Point at barcode…';
+        document.getElementById('scanner-status').textContent = 'Hold barcode steady inside the box…';
       } catch (err) {
         console.error(err);
-        document.getElementById('scanner-status').textContent = 'Allow camera permission and try again.';
+        document.getElementById('scanner-status').textContent = 'Allow camera permission. Use back camera.';
         document.getElementById('scanner-status').style.color = '#fb7185';
       }
     }
@@ -399,64 +423,65 @@
     }
 
     function onInventoryScanSuccess(decodedText) {
-      const now = Date.now();
-      if (now - lastScanTime < 800) return;
+      var now = Date.now();
+      if (now - lastScanTime < 700) return;
       lastScanTime = now;
 
-      const code = String(decodedText || '').trim();
+      var code = String(decodedText || '').trim();
       if (!code) return;
 
       document.getElementById('prod-sku').value = code;
       document.getElementById('scanner-status').textContent = 'Captured: ' + code;
       document.getElementById('scanner-status').style.color = '#34d399';
 
-      // Close fast so user can continue filling cost / price
-      setTimeout(function () { stopBarcodeScanner(); }, 350);
+      setTimeout(function () { stopBarcodeScanner(); }, 300);
     }
 
     function calculateUnitCost() {
-      const pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-      const bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
+      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
+      var bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
       document.getElementById('prod-unit-cost').value = (bulkCost / pack).toFixed(2);
       calculateProfit();
     }
 
     function calculateProfit() {
-      const unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
-      const sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
-      const profit = sellingPrice - unitCost;
-      const field = document.getElementById('prod-expected-profit');
+      var unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
+      var profit = sellingPrice - unitCost;
+      var field = document.getElementById('prod-expected-profit');
       field.value = formatCurrency(profit);
       field.style.color = profit >= 0 ? '#34d399' : '#fb7185';
     }
 
     function updatePreviewUnits() {
-      const units = parseFloat(document.getElementById('prod-units').value) || 0;
-      const pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-      const totalPieces = Math.round(units * pack);
+      var units = parseFloat(document.getElementById('prod-units').value) || 0;
+      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
+      var totalPieces = Math.round(units * pack);
       document.getElementById('preview-units-pcs').textContent = formatUnits(units) + ' units = ' + totalPieces.toLocaleString() + ' pcs';
     }
 
     async function initializeInventory() {
       try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
+        var sessionRes = await supabaseClient.auth.getSession();
+        var session = sessionRes.data && sessionRes.data.session;
         if (!session || !session.user) {
           window.location.replace('index.html');
           return;
         }
         userCompanyId = null;
-        const { data: member } = await supabaseClient
+        var memberRes = await supabaseClient
           .from('company_users')
           .select('company_id')
           .eq('user_id', session.user.id)
           .maybeSingle();
+        var member = memberRes.data;
 
         if (member && member.company_id) {
           userCompanyId = member.company_id;
         } else {
-          const { data: owned } = await supabaseClient
+          var ownedRes = await supabaseClient
             .from('companies').select('id').eq('owner_id', session.user.id).maybeSingle();
-          if (owned && owned.id) userCompanyId = owned.id;
+          if (ownedRes.data && ownedRes.data.id) userCompanyId = ownedRes.data.id;
         }
         await fetchProducts();
       } catch (err) {
@@ -475,14 +500,14 @@
       if (isFetching) return;
       isFetching = true;
       try {
-        const { data, error } = await supabaseClient
+        var res = await supabaseClient
           .from('products')
           .select('id, name, sku, stock, items_per_pack, unit_cost, bulk_cost, selling_price, image_url, created_at')
           .eq('company_id', userCompanyId)
           .order('created_at', { ascending: false })
           .limit(300);
-        if (error) throw error;
-        allProducts = data || [];
+        if (res.error) throw res.error;
+        allProducts = res.data || [];
         filterProducts();
       } catch (err) {
         console.error('Fetch error:', err);
@@ -501,14 +526,14 @@
     }
 
     function filterProducts() {
-      const keyword = (document.getElementById('search-input') && document.getElementById('search-input').value || '').toLowerCase();
-      const filtered = allProducts.filter(function (p) {
-        const nameMatch = (p.name || '').toLowerCase().indexOf(keyword) >= 0 ||
+      var keyword = (document.getElementById('search-input') && document.getElementById('search-input').value || '').toLowerCase();
+      var filtered = allProducts.filter(function (p) {
+        var nameMatch = (p.name || '').toLowerCase().indexOf(keyword) >= 0 ||
           (p.sku && p.sku.toLowerCase().indexOf(keyword) >= 0);
         if (!nameMatch) return false;
-        const totalPieces = parseFloat(p.stock || 0);
-        const piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
-        const remainingUnits = totalPieces / piecesPerUnit;
+        var totalPieces = parseFloat(p.stock || 0);
+        var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
+        var remainingUnits = totalPieces / piecesPerUnit;
         if (currentFilter === 'instock') return remainingUnits > LOW_STOCK_UNITS;
         if (currentFilter === 'lowstock') return remainingUnits > 0 && remainingUnits <= LOW_STOCK_UNITS;
         if (currentFilter === 'outofstock') return totalPieces === 0;
@@ -518,14 +543,14 @@
     }
 
     function getStockStatus(totalPieces, piecesPerUnit) {
-      const remainingUnits = totalPieces / (piecesPerUnit || 1);
+      var remainingUnits = totalPieces / (piecesPerUnit || 1);
       if (totalPieces === 0) return { cls: 'badge-out', text: 'Out of Stock' };
       if (remainingUnits <= LOW_STOCK_UNITS) return { cls: 'badge-low', text: 'Low Stock' };
       return { cls: 'badge-ok', text: 'In Stock' };
     }
 
     function renderProducts(products) {
-      const container = document.getElementById('products-list-container');
+      var container = document.getElementById('products-list-container');
       document.getElementById('product-count-label').textContent = products.length + ' products';
       if (!products.length) {
         container.innerHTML =
@@ -536,16 +561,16 @@
         return;
       }
       container.innerHTML = products.map(function (p) {
-        const totalPieces = parseFloat(p.stock || 0);
-        const piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
-        const remainingUnits = totalPieces / piecesPerUnit;
-        const displayUnits = formatUnits(remainingUnits);
-        const status = getStockStatus(totalPieces, piecesPerUnit);
-        const cost = parseFloat(p.unit_cost || 0);
-        const price = parseFloat(p.selling_price || 0);
-        const profit = price - cost;
-        const imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
-        const safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        var totalPieces = parseFloat(p.stock || 0);
+        var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
+        var remainingUnits = totalPieces / piecesPerUnit;
+        var displayUnits = formatUnits(remainingUnits);
+        var status = getStockStatus(totalPieces, piecesPerUnit);
+        var cost = parseFloat(p.unit_cost || 0);
+        var price = parseFloat(p.selling_price || 0);
+        var profit = price - cost;
+        var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
+        var safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         return ''
           + '<div class="card">'
           +   '<div style="display:flex;align-items:flex-start;gap:12px;">'
