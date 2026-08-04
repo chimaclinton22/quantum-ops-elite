@@ -89,11 +89,10 @@
     .pay-btn.active { background: rgba(108,92,231,0.2); border-color: #6C5CE7; color: #fff; }
     .hidden { display: none !important; }
     #receipt-modal, #scanner-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 60;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 60;
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
-    #scanner-box { width: 100%; max-width: 360px; border-radius: 16px; overflow: hidden; background: #000; }
-    #scanner-reader { width: 100%; min-height: 280px; }
+    #scanner-reader { width: 100%; min-height: 300px; background: #000; border-radius: 12px; overflow: hidden; }
   </style>
 </head>
 <body>
@@ -198,22 +197,29 @@
     </nav>
   </div>
 
-  <!-- BARCODE SCANNER MODAL -->
+  <!-- SCANNER -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-weight:700;font-size:13px;color:#fff;"><i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode</div>
-        <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;"><i class="fa-solid fa-xmark"></i></button>
+        <div style="font-weight:700;font-size:13px;color:#fff;">
+          <i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode
+        </div>
+        <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <div id="scanner-box">
-        <div id="scanner-reader"></div>
-      </div>
-      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Point camera at product barcode</p>
+      <div id="scanner-reader"></div>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">
+        Hold barcode in the thin line · good light · 10–20 cm away
+      </p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
+      <button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
+        Close &amp; search by name instead
+      </button>
     </div>
   </div>
 
-  <!-- RECEIPT MODAL -->
+  <!-- RECEIPT -->
   <div id="receipt-modal" class="hidden">
     <div style="width:100%;max-width:384px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:92vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
@@ -298,6 +304,7 @@
     let isSavingSale = false;
     let html5QrCode = null;
     let lastScanTime = 0;
+    let scannerStarting = false;
 
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -424,12 +431,15 @@
       }));
     }
 
-    // ========== BARCODE SCANNER ==========
+    // ========== PWA BARCODE (same as inventory) ==========
     async function startBarcodeScanner() {
+      if (scannerStarting) return;
       if (typeof Html5Qrcode === 'undefined') {
-        alert('Scanner library not loaded. Check internet and refresh.');
+        alert('Scanner library not loaded. Check internet, then close & reopen the app.');
         return;
       }
+
+      scannerStarting = true;
       document.getElementById('scanner-modal').classList.remove('hidden');
       document.getElementById('scanner-status').textContent = 'Starting camera…';
       document.getElementById('scanner-status').style.color = '#a78bfa';
@@ -437,20 +447,56 @@
       try {
         if (html5QrCode) {
           try { await html5QrCode.stop(); } catch (e) {}
+          try { html5QrCode.clear(); } catch (e) {}
           html5QrCode = null;
         }
-        html5QrCode = new Html5Qrcode('scanner-reader');
+
+        var formats = [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.ITF,
+          Html5QrcodeSupportedFormats.CODABAR,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ];
+
+        html5QrCode = new Html5Qrcode('scanner-reader', {
+          formatsToSupport: formats,
+          verbose: false
+        });
+
         await html5QrCode.start(
           { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 250, height: 120 }, aspectRatio: 1.777 },
+          {
+            fps: 30,
+            qrbox: function (viewfinderWidth, viewfinderHeight) {
+              var width = Math.floor(viewfinderWidth * 0.94);
+              var height = Math.floor(Math.min(88, viewfinderHeight * 0.20));
+              return { width: width, height: height };
+            },
+            aspectRatio: 1.777,
+            disableFlip: false
+          },
           onScanSuccess,
           function () {}
         );
-        document.getElementById('scanner-status').textContent = 'Point at barcode…';
+
+        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line…';
       } catch (err) {
         console.error(err);
-        document.getElementById('scanner-status').textContent = 'Camera error. Allow camera permission.';
+        var msg = 'Camera error. Allow permission or search by name.';
+        if (err && err.name === 'NotAllowedError') {
+          msg = 'Camera blocked. Allow camera in phone Settings for this app.';
+        } else if (err && (err.name === 'NotFoundError' || err.name === 'NotReadableError')) {
+          msg = 'No camera or camera in use. Close other apps and retry.';
+        }
+        document.getElementById('scanner-status').textContent = msg;
         document.getElementById('scanner-status').style.color = '#fb7185';
+      } finally {
+        scannerStarting = false;
       }
     }
 
@@ -467,25 +513,27 @@
     }
 
     function onScanSuccess(decodedText) {
-      const now = Date.now();
-      if (now - lastScanTime < 1500) return;
+      var now = Date.now();
+      if (now - lastScanTime < 700) return;
       lastScanTime = now;
 
-      const code = String(decodedText || '').trim();
+      var code = String(decodedText || '').trim();
       if (!code) return;
 
-      const product = inventoryCatalog.find(function (p) {
-        const sku = String(p.sku || '').trim().toLowerCase();
-        return sku && (sku === code.toLowerCase() || sku.indexOf(code.toLowerCase()) >= 0 || code.toLowerCase().indexOf(sku) >= 0);
+      var product = inventoryCatalog.find(function (p) {
+        var sku = String(p.sku || '').trim().toLowerCase();
+        var c = code.toLowerCase();
+        return sku && (sku === c || sku.indexOf(c) >= 0 || c.indexOf(sku) >= 0);
       });
 
       if (product) {
         document.getElementById('scanner-status').textContent = 'Found: ' + product.name;
         document.getElementById('scanner-status').style.color = '#34d399';
+        try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
         addToCart(product.id);
-        setTimeout(function () { stopBarcodeScanner(); }, 600);
+        setTimeout(function () { stopBarcodeScanner(); }, 350);
       } else {
-        document.getElementById('scanner-status').textContent = 'No product with barcode/SKU: ' + code;
+        document.getElementById('scanner-status').textContent = 'No product with SKU: ' + code;
         document.getElementById('scanner-status').style.color = '#fbbf24';
       }
     }
