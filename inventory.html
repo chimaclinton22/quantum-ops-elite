@@ -8,6 +8,7 @@
   <title>Quantum OPS Elite - Inventory</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
@@ -36,9 +37,7 @@
       cursor: pointer;
     }
     .icon-btn.primary { background: #6C5CE7; border: none; color: #fff; }
-    .search-box {
-      padding: 8px 16px; background: #0E0E1C; border-bottom: 1px solid rgba(139,92,246,0.1);
-    }
+    .search-box { padding: 8px 16px; background: #0E0E1C; border-bottom: 1px solid rgba(139,92,246,0.1); }
     .search-box input {
       width: 100%; background: #16162d; border: 1px solid rgba(139,92,246,0.2);
       border-radius: 12px; padding: 8px 12px; font-size: 12px; color: #fff; outline: none;
@@ -117,6 +116,12 @@
       background: rgba(88,28,135,0.2); border: 1px solid rgba(139,92,246,0.2);
       border-radius: 12px; padding: 8px 12px; font-size: 11px; color: #e9d5ff; margin-bottom: 12px;
     }
+    #scanner-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 80;
+      display: flex; align-items: center; justify-content: center; padding: 12px;
+    }
+    #scanner-modal.hidden { display: none; }
+    #scanner-reader { width: 100%; min-height: 260px; background: #000; border-radius: 12px; overflow: hidden; }
   </style>
 </head>
 <body>
@@ -155,6 +160,7 @@
     </nav>
   </div>
 
+  <!-- ADD / EDIT PRODUCT MODAL -->
   <div id="product-modal" class="modal-bg hidden">
     <div class="modal custom-scrollbar">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -180,13 +186,14 @@
       </div>
 
       <div class="field">
-        <label>Barcode / SKU (Optional)</label>
-        <div style="position:relative;">
-          <input type="text" id="prod-sku" placeholder="e.g. 123456789" style="padding-right:40px;">
-          <button type="button" onclick="triggerBarcodeScan()" style="position:absolute;right:10px;top:10px;background:none;border:none;color:#a78bfa;cursor:pointer;">
-            <i class="fa-solid fa-camera"></i>
+        <label>Barcode / SKU</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="prod-sku" placeholder="Scan or type barcode" style="flex:1;">
+          <button type="button" onclick="startBarcodeScanner()" style="width:48px;background:#6C5CE7;border:none;border-radius:12px;color:#fff;cursor:pointer;flex-shrink:0;">
+            <i class="fa-solid fa-barcode"></i>
           </button>
         </div>
+        <p style="font-size:9px;color:#64748b;margin:4px 0 0;">Tap barcode button → point camera → SKU fills instantly</p>
       </div>
 
       <div class="grid-2">
@@ -231,6 +238,19 @@
     </div>
   </div>
 
+  <!-- BARCODE SCANNER -->
+  <div id="scanner-modal" class="hidden">
+    <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:13px;color:#fff;"><i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode</div>
+        <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="scanner-reader"></div>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Point at product barcode</p>
+      <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
@@ -246,6 +266,8 @@
     let editingProductId = null;
     let isSaving = false;
     let isFetching = false;
+    let html5QrCode = null;
+    let lastScanTime = 0;
 
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -334,8 +356,62 @@
       reader.readAsDataURL(file);
     }
 
-    function triggerBarcodeScan() {
-      document.getElementById('prod-sku').value = 'SKU-' + Math.floor(100000 + Math.random() * 900000);
+    // ========== FAST BARCODE SCAN ==========
+    async function startBarcodeScanner() {
+      if (typeof Html5Qrcode === 'undefined') {
+        alert('Scanner not loaded. Check internet and refresh.');
+        return;
+      }
+      document.getElementById('scanner-modal').classList.remove('hidden');
+      document.getElementById('scanner-status').textContent = 'Starting camera…';
+      document.getElementById('scanner-status').style.color = '#a78bfa';
+
+      try {
+        if (html5QrCode) {
+          try { await html5QrCode.stop(); } catch (e) {}
+          html5QrCode = null;
+        }
+        html5QrCode = new Html5Qrcode('scanner-reader');
+        await html5QrCode.start(
+          { facingMode: 'environment' },
+          { fps: 12, qrbox: { width: 280, height: 120 }, aspectRatio: 1.777 },
+          onInventoryScanSuccess,
+          function () {}
+        );
+        document.getElementById('scanner-status').textContent = 'Point at barcode…';
+      } catch (err) {
+        console.error(err);
+        document.getElementById('scanner-status').textContent = 'Allow camera permission and try again.';
+        document.getElementById('scanner-status').style.color = '#fb7185';
+      }
+    }
+
+    async function stopBarcodeScanner() {
+      try {
+        if (html5QrCode) {
+          await html5QrCode.stop();
+          html5QrCode.clear();
+        }
+      } catch (e) {}
+      html5QrCode = null;
+      document.getElementById('scanner-modal').classList.add('hidden');
+      document.getElementById('scanner-status').textContent = '';
+    }
+
+    function onInventoryScanSuccess(decodedText) {
+      const now = Date.now();
+      if (now - lastScanTime < 800) return;
+      lastScanTime = now;
+
+      const code = String(decodedText || '').trim();
+      if (!code) return;
+
+      document.getElementById('prod-sku').value = code;
+      document.getElementById('scanner-status').textContent = 'Captured: ' + code;
+      document.getElementById('scanner-status').style.color = '#34d399';
+
+      // Close fast so user can continue filling cost / price
+      setTimeout(function () { stopBarcodeScanner(); }, 350);
     }
 
     function calculateUnitCost() {
@@ -427,8 +503,8 @@
     function filterProducts() {
       const keyword = (document.getElementById('search-input') && document.getElementById('search-input').value || '').toLowerCase();
       const filtered = allProducts.filter(function (p) {
-        const nameMatch = (p.name || '').toLowerCase().includes(keyword) ||
-          (p.sku && p.sku.toLowerCase().includes(keyword));
+        const nameMatch = (p.name || '').toLowerCase().indexOf(keyword) >= 0 ||
+          (p.sku && p.sku.toLowerCase().indexOf(keyword) >= 0);
         if (!nameMatch) return false;
         const totalPieces = parseFloat(p.stock || 0);
         const piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
