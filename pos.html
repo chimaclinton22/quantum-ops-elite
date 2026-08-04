@@ -2,167 +2,294 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6C5CE7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>POS Sales - Quantum OPS Elite</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { bg: '#07070F', card: '#121224', sidebar: '#0E0E1C', purple: '#6C5CE7', accent: '#8B5CF6' }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background-color: #07070F;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #E2E8F0;
+    }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
     .iphone-frame {
-      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
-      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
-      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
-      position: relative; overflow: hidden; display: flex; flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+      height: 100dvh;
+      background: #0B0B16;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     @media (min-width: 768px) {
       body { align-items: center; justify-content: center; display: flex; height: 100vh; }
-      .iphone-frame { border-radius: 48px; }
+      .iphone-frame {
+        max-width: 410px;
+        max-height: 860px;
+        border-radius: 48px;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
+      }
+    }
+    .top-bar {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(11,11,22,0.9);
+      border-bottom: 1px solid rgba(139,92,246,0.1);
+      flex-shrink: 0;
+    }
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: 96px;
+    }
+    .card {
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .input {
+      width: 100%;
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px;
+      padding: 10px 12px 10px 36px;
+      font-size: 12px;
+      color: #fff;
+      outline: none;
+    }
+    .input:focus { border-color: #6C5CE7; }
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(to right, #6C5CE7, #4F46E5);
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .bottom-nav {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(14,14,28,0.95);
+      border-top: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 40;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 9px;
+    }
+    .nav-item.active { color: #a78bfa; }
+    .nav-item i { font-size: 14px; }
+    .product-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: #191932;
+      border: 1px solid rgba(139,92,246,0.1);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .product-row.disabled { opacity: 0.5; pointer-events: none; }
+    .product-row img {
+      width: 48px; height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: rgba(88,28,135,0.3);
+      flex-shrink: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .badge-ok { background: rgba(6,78,59,0.5); color: #34d399; border-color: rgba(16,185,129,0.3); }
+    .badge-low { background: rgba(120,53,15,0.5); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+    .badge-out { background: rgba(136,19,55,0.5); color: #fb7185; border-color: rgba(244,63,94,0.3); }
+    .tools { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .tool {
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #e2e8f0;
+      cursor: pointer;
+    }
+    .pay-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+    .pay-btn {
+      padding: 10px 4px;
+      border-radius: 12px;
+      background: #191932;
+      border: 1px solid rgba(139,92,246,0.2);
+      color: #94a3b8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .pay-btn.active {
+      background: rgba(108,92,231,0.2);
+      border-color: #6C5CE7;
+      color: #fff;
+    }
+    .hidden { display: none !important; }
+    #receipt-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
     }
   </style>
 </head>
 <body>
   <div class="iphone-frame">
-    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
-      <div class="flex items-center gap-3">
-        <a href="dashboard.html" class="text-slate-300 hover:text-white transition"><i class="fa-solid fa-arrow-left text-sm"></i></a>
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
         <div>
-          <h2 class="font-bold tracking-wider text-xs text-white">POS Sales</h2>
-          <p class="text-[9px] text-slate-400">Create new sale</p>
+          <div style="font-weight:700;font-size:12px;color:#fff;">POS Sales</div>
+          <div style="font-size:9px;color:#94a3b8;">Create new sale</div>
         </div>
       </div>
-      <button onclick="clearCart()" class="p-2 rounded-xl bg-[#121224] border border-purple-500/20 text-slate-300 hover:text-white text-xs">
+      <button onclick="clearCart()" style="padding:8px;border-radius:12px;background:#121224;border:1px solid rgba(139,92,246,0.2);color:#cbd5e1;cursor:pointer;">
         <i class="fa-solid fa-trash"></i>
       </button>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4 custom-scrollbar pb-24">
-      <div class="relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name or SKU"
-          class="w-full bg-[#121224] border border-purple-500/20 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition">
+    <div class="main-scroll custom-scrollbar">
+      <div style="position:relative;margin-bottom:12px;">
+        <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:12px;color:#64748b;font-size:12px;"></i>
+        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name or SKU" class="input">
       </div>
 
-      <div class="grid grid-cols-3 gap-2">
-        <button onclick="alert('Camera AI recognition coming soon.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
-          <div class="w-7 h-7 rounded-lg bg-purple-600/20 text-purple-400 flex items-center justify-center text-xs"><i class="fa-solid fa-camera"></i></div>
-          <div><p class="text-[10px] font-bold text-white">Smart Camera</p><p class="text-[8px] text-slate-400">AI Recognition</p></div>
-        </button>
-        <button onclick="alert('Barcode scanner ready.')" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
-          <div class="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xs"><i class="fa-solid fa-barcode"></i></div>
-          <div><p class="text-[10px] font-bold text-white">Barcode</p><p class="text-[8px] text-slate-400">Scanner</p></div>
-        </button>
-        <button onclick="promptCustomer()" class="bg-[#121224] border border-purple-500/20 p-2.5 rounded-xl flex items-center gap-2 text-left hover:border-purple-500 transition">
-          <div class="w-7 h-7 rounded-lg bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
-          <div><p class="text-[10px] font-bold text-white" id="selected-customer-label">Customer</p><p class="text-[8px] text-slate-400">Select</p></div>
-        </button>
+      <div class="tools">
+        <div class="tool" onclick="alert('Camera AI recognition coming soon.')">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(108,92,231,0.2);color:#a78bfa;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-camera"></i></div>
+          <div><div style="font-size:10px;font-weight:700;">Smart Camera</div><div style="font-size:8px;color:#94a3b8;">AI Recognition</div></div>
+        </div>
+        <div class="tool" onclick="alert('Barcode scanner ready.')">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(79,70,229,0.2);color:#818cf8;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-barcode"></i></div>
+          <div><div style="font-size:10px;font-weight:700;">Barcode</div><div style="font-size:8px;color:#94a3b8;">Scanner</div></div>
+        </div>
+        <div class="tool" onclick="promptCustomer()">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(16,185,129,0.2);color:#34d399;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-user"></i></div>
+          <div><div style="font-size:10px;font-weight:700;" id="selected-customer-label">Customer</div><div style="font-size:8px;color:#94a3b8;">Select</div></div>
+        </div>
       </div>
 
-      <div class="bg-[#121224] border border-purple-500/15 p-3 rounded-2xl space-y-2 shadow-lg">
-        <div class="flex items-center justify-between text-xs font-semibold text-slate-300">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">
           <span>Available Products (Tap to Add)</span>
-          <span class="text-[10px] text-purple-400">Live Inventory</span>
+          <span style="font-size:10px;color:#a78bfa;">Live Inventory</span>
         </div>
-        <div id="product-catalog-list" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar">
-          <div class="text-slate-500 text-[11px] text-center py-2">Loading inventory...</div>
-        </div>
-      </div>
-
-      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
-        <div class="flex items-center justify-between border-b border-purple-500/10 pb-2">
-          <h3 class="text-xs font-bold text-white" id="cart-title-count">Cart (0 items)</h3>
-          <button onclick="clearCart()" class="text-[10px] text-rose-400 hover:text-rose-300 font-medium">Clear Cart</button>
-        </div>
-        <div id="cart-items-container" class="space-y-3">
-          <div class="text-center py-6 text-slate-500 text-xs">Your cart is empty. Select products above.</div>
+        <div id="product-catalog-list" class="custom-scrollbar" style="max-height:220px;overflow-y:auto;">
+          <div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">Loading inventory...</div>
         </div>
       </div>
 
-      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-2 text-xs shadow-xl">
-        <div class="flex justify-between text-slate-400"><span>Subtotal</span><span class="font-semibold text-white" id="val-subtotal">₦0</span></div>
-        <div class="flex justify-between text-slate-400 items-center">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:12px;font-weight:700;color:#fff;" id="cart-title-count">Cart (0 items)</h3>
+          <button onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:10px;cursor:pointer;">Clear Cart</button>
+        </div>
+        <div id="cart-items-container">
+          <div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>
+        </div>
+      </div>
+
+      <div class="card" style="font-size:12px;">
+        <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Subtotal</span><span style="color:#fff;font-weight:600;" id="val-subtotal">₦0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;margin-bottom:6px;">
           <span>Discount (₦)</span>
-          <input type="number" id="input-discount" value="0" oninput="calculateTotals()" class="w-24 bg-[#191932] border border-purple-500/20 rounded-lg px-2 py-1 text-right text-white font-semibold focus:outline-none focus:border-purple-500 text-xs">
+          <input type="number" id="input-discount" value="0" oninput="calculateTotals()" style="width:96px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:6px 8px;text-align:right;color:#fff;font-size:12px;">
         </div>
-        <div class="flex justify-between text-slate-400"><span>Tax</span><span class="font-semibold text-white" id="val-tax">₦0</span></div>
-        <div class="pt-2 border-t border-purple-500/10 flex justify-between items-center">
-          <span class="font-bold text-white text-sm">TOTAL</span>
-          <span class="font-extrabold text-purple-400 text-base" id="val-grand-total">₦0</span>
-        </div>
-      </div>
-
-      <div class="bg-[#121224] border border-purple-500/15 p-4 rounded-2xl space-y-3 shadow-xl">
-        <div class="flex justify-between items-center">
-          <span class="text-xs font-semibold text-slate-300">Payment Method</span>
-          <span class="text-[10px] text-purple-400 font-medium">Secure</span>
-        </div>
-        <div class="grid grid-cols-4 gap-2">
-          <button onclick="setPaymentMethod('Cash')" id="pm-Cash" class="p-2.5 rounded-xl bg-purple-600/20 border border-purple-500 text-white flex flex-col items-center gap-1 transition">
-            <i class="fa-solid fa-money-bill-wave text-xs text-purple-400"></i><span class="text-[10px] font-medium">Cash</span>
-          </button>
-          <button onclick="setPaymentMethod('Transfer')" id="pm-Transfer" class="p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition">
-            <i class="fa-solid fa-building-columns text-xs"></i><span class="text-[10px] font-medium">Transfer</span>
-          </button>
-          <button onclick="setPaymentMethod('POS')" id="pm-POS" class="p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition">
-            <i class="fa-solid fa-credit-card text-xs"></i><span class="text-[10px] font-medium">POS</span>
-          </button>
-          <button onclick="setPaymentMethod('Online')" id="pm-Online" class="p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition">
-            <i class="fa-solid fa-globe text-xs"></i><span class="text-[10px] font-medium">Online</span>
-          </button>
-        </div>
-        <div class="space-y-1 pt-1">
-          <label class="text-[10px] text-slate-400 font-medium">Paid Amount (₦)</label>
-          <input type="number" id="input-paid-amount" oninput="calculateBalance()" placeholder="Enter amount paid" class="w-full bg-[#191932] border border-purple-500/20 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
-        </div>
-        <div class="flex justify-between items-center text-xs pt-1">
-          <span class="text-slate-400">Balance / Change:</span>
-          <span class="font-bold text-emerald-400" id="val-balance">₦0</span>
+        <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Tax</span><span style="color:#fff;font-weight:600;" id="val-tax">₦0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(139,92,246,0.1);padding-top:8px;margin-top:4px;">
+          <span style="font-weight:700;color:#fff;font-size:14px;">TOTAL</span>
+          <span style="font-weight:800;color:#a78bfa;font-size:16px;" id="val-grand-total">₦0</span>
         </div>
       </div>
 
-      <button id="complete-sale-btn" onclick="completeSale()" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl text-white font-bold text-xs shadow-lg shadow-purple-600/40 hover:opacity-95 transition flex items-center justify-center gap-2">
-        <i class="fa-solid fa-circle-check text-sm"></i> <span id="complete-sale-label">Complete Sale & Generate Receipt</span>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:600;color:#cbd5e1;">Payment Method</span>
+          <span style="font-size:10px;color:#a78bfa;">Secure</span>
+        </div>
+        <div class="pay-grid" style="margin-bottom:10px;">
+          <button type="button" onclick="setPaymentMethod('Cash')" id="pm-Cash" class="pay-btn active"><i class="fa-solid fa-money-bill-wave"></i>Cash</button>
+          <button type="button" onclick="setPaymentMethod('Transfer')" id="pm-Transfer" class="pay-btn"><i class="fa-solid fa-building-columns"></i>Transfer</button>
+          <button type="button" onclick="setPaymentMethod('POS')" id="pm-POS" class="pay-btn"><i class="fa-solid fa-credit-card"></i>POS</button>
+          <button type="button" onclick="setPaymentMethod('Online')" id="pm-Online" class="pay-btn"><i class="fa-solid fa-globe"></i>Online</button>
+        </div>
+        <label style="font-size:10px;color:#94a3b8;">Paid Amount (₦)</label>
+        <input type="number" id="input-paid-amount" oninput="calculateBalance()" placeholder="Enter amount paid"
+          style="width:100%;margin-top:4px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:10px 12px;font-size:12px;color:#fff;">
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;">
+          <span style="color:#94a3b8;">Balance / Change:</span>
+          <span class="font-bold" style="font-weight:700;color:#34d399;" id="val-balance">₦0</span>
+        </div>
+      </div>
+
+      <button id="complete-sale-btn" onclick="completeSale()" class="btn-primary">
+        <i class="fa-solid fa-circle-check"></i> <span id="complete-sale-label">Complete Sale & Generate Receipt</span>
       </button>
     </div>
 
-    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
-      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px] font-medium">Dashboard</span>
-      </a>
-      <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px] font-medium">Inventory</span>
-      </a>
-      <a href="pos.html" class="flex flex-col items-center gap-1 text-purple-400">
-        <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px] font-medium">POS Sales</span>
-      </a>
-      <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-user text-sm"></i><span class="text-[9px] font-medium">Profile</span>
-      </a>
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+      <a href="pos.html" class="nav-item active"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
     </nav>
   </div>
 
-  <!-- RECEIPT MODAL (same as yours) -->
-  <div id="receipt-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-    <div class="w-full max-w-sm bg-[#121224] border border-purple-500/30 rounded-3xl p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between border-b border-purple-500/10 pb-2">
-        <div class="flex items-center gap-2 text-emerald-400 text-xs font-bold"><i class="fa-solid fa-circle-check"></i> Receipt Generated Successfully!</div>
-        <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+  <div id="receipt-modal" class="hidden">
+    <div style="width:100%;max-width:384px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:92vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
+        <div style="color:#34d399;font-size:12px;font-weight:700;"><i class="fa-solid fa-circle-check"></i> Receipt Generated Successfully!</div>
+        <button onclick="closeReceiptModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div id="receipt-paper" style="background-color:#ffffff;color:#0f172a;padding:18px;font-family:monospace;font-size:11px;width:100%;box-sizing:border-box;">
+      <div id="receipt-paper" style="background:#fff;color:#0f172a;padding:18px;font-family:monospace;font-size:11px;width:100%;box-sizing:border-box;">
         <div style="text-align:center;border-bottom:2px dashed #cbd5e1;padding-bottom:12px;margin-bottom:12px;">
           <div id="receipt-logo-wrap" style="display:none;margin-bottom:8px;">
             <img id="receipt-logo" src="" alt="Logo" style="max-height:48px;max-width:120px;margin:0 auto;display:block;object-fit:contain;">
@@ -207,14 +334,14 @@
           <p style="margin:4px 0;font-size:8px;">Powered by Quantum OPS Elite</p>
         </div>
       </div>
-      <div class="space-y-2 pt-1">
-        <p class="text-[10px] font-semibold text-slate-300 text-center">Send Receipt</p>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="sendReceiptViaWhatsApp()" class="py-2.5 px-3 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+      <div style="margin-top:12px;">
+        <p style="text-align:center;font-size:10px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">Send Receipt</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button onclick="sendReceiptViaWhatsApp()" style="padding:10px;background:rgba(5,150,105,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);border-radius:12px;font-size:12px;cursor:pointer;">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
           </button>
-          <button onclick="downloadReceiptPDF()" class="py-2.5 px-3 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-download text-sm"></i> Download PDF
+          <button onclick="downloadReceiptPDF()" style="padding:10px;background:rgba(108,92,231,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);border-radius:12px;font-size:12px;cursor:pointer;">
+            <i class="fa-solid fa-download"></i> Download PDF
           </button>
         </div>
       </div>
@@ -269,13 +396,12 @@
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session?.user) { window.location.replace('index.html'); return; }
-
         currentUserProfile = session.user;
         userCompanyId = null;
 
         const { data: member } = await supabaseClient
           .from('company_users')
-          .select('company_id, companies(*)')
+          .select('company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo)')
           .eq('user_id', session.user.id)
           .maybeSingle();
 
@@ -283,48 +409,55 @@
           userCompanyId = member.company_id;
           if (member.companies) { userCompanyDetails = member.companies; applyCompanyToReceiptHeader(); }
         } else {
-          const { data: owned } = await supabaseClient.from('companies').select('*').eq('owner_id', session.user.id).maybeSingle();
+          const { data: owned } = await supabaseClient
+            .from('companies')
+            .select('id, company_name, address, phone, email, website, tax_id, thank_you_message, logo')
+            .eq('owner_id', session.user.id)
+            .maybeSingle();
           if (owned?.id) { userCompanyId = owned.id; userCompanyDetails = owned; applyCompanyToReceiptHeader(); }
         }
-
         await fetchInventory();
       } catch (err) {
         console.error('POS init error:', err);
         document.getElementById('product-catalog-list').innerHTML =
-          '<div class="text-rose-400 text-[11px] text-center py-2">Could not load. Refresh page.</div>';
+          '<div style="text-align:center;color:#fb7185;font-size:11px;padding:12px;">Could not load. Refresh page.</div>';
       }
     }
 
     async function fetchInventory() {
       if (!userCompanyId) {
         document.getElementById('product-catalog-list').innerHTML =
-          '<div class="text-slate-500 text-[11px] text-center py-2">No company found. Please re-login.</div>';
+          '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No company found. Please re-login.</div>';
         return;
       }
       try {
         const { data, error } = await supabaseClient
-          .from('products').select('*').eq('company_id', userCompanyId).order('name').limit(300);
+          .from('products')
+          .select('id, name, sku, stock, items_per_pack, selling_price, unit_cost, image_url')
+          .eq('company_id', userCompanyId)
+          .order('name')
+          .limit(150);
         if (error) throw error;
         inventoryCatalog = data || [];
         renderInventoryCatalog(inventoryCatalog);
       } catch (e) {
         console.error(e);
         document.getElementById('product-catalog-list').innerHTML =
-          '<div class="text-rose-400 text-[11px] text-center py-2">Error loading inventory.</div>';
+          '<div style="text-align:center;color:#fb7185;font-size:11px;padding:12px;">Error loading inventory.</div>';
       }
     }
 
     function getStockStatus(totalPieces, piecesPerUnit) {
       const remainingUnits = totalPieces / (piecesPerUnit || 1);
-      if (totalPieces === 0) return { badgeBg: 'bg-rose-950/50 text-rose-400 border-rose-500/30', badgeText: 'Out of Stock' };
-      if (remainingUnits <= LOW_STOCK_UNITS) return { badgeBg: 'bg-amber-950/50 text-amber-400 border-amber-500/30', badgeText: 'Low Stock' };
-      return { badgeBg: 'bg-emerald-950/50 text-emerald-400 border-emerald-500/30', badgeText: 'In Stock' };
+      if (totalPieces === 0) return { cls: 'badge-out', text: 'Out of Stock' };
+      if (remainingUnits <= LOW_STOCK_UNITS) return { cls: 'badge-low', text: 'Low Stock' };
+      return { cls: 'badge-ok', text: 'In Stock' };
     }
 
     function renderInventoryCatalog(items) {
       const container = document.getElementById('product-catalog-list');
       if (!items.length) {
-        container.innerHTML = '<div class="text-slate-500 text-[11px] text-center py-2">No products. Add items in Inventory first.</div>';
+        container.innerHTML = '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No products. Add items in Inventory first.</div>';
         return;
       }
       container.innerHTML = items.map(item => {
@@ -334,21 +467,21 @@
         const status = getStockStatus(totalPieces, piecesPerUnit);
         const price = parseFloat(item.selling_price || 0);
         const imgUrl = item.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100';
-        const disabled = totalPieces <= 0 ? 'opacity-50 pointer-events-none' : '';
+        const disabled = totalPieces <= 0 ? 'disabled' : '';
         return `
-          <div onclick="addToCart('${item.id}')" class="flex items-center gap-3 p-2.5 bg-[#191932] border border-purple-500/10 hover:border-purple-500 rounded-xl cursor-pointer transition ${disabled}">
-            <img src="${imgUrl}" class="w-12 h-12 rounded-lg object-cover bg-purple-950/30 border border-purple-500/20 flex-shrink-0" onerror="this.src='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100'">
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-white text-[11px] truncate">${item.name || 'Product'}</p>
-              <p class="text-[9px] text-slate-400">SKU: ${item.sku || 'N/A'}</p>
-              <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                <span class="px-1.5 py-0.5 rounded text-[8px] font-semibold border ${status.badgeBg}">${status.badgeText}</span>
-                <span class="text-[9px] text-slate-300">${displayUnits} units = <span class="text-white font-semibold">${totalPieces} pcs</span></span>
+          <div onclick="addToCart('${item.id}')" class="product-row ${disabled}">
+            <img src="${imgUrl}" onerror="this.src='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100'">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;color:#fff;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name || 'Product'}</div>
+              <div style="font-size:9px;color:#94a3b8;">SKU: ${item.sku || 'N/A'}</div>
+              <div style="margin-top:4px;">
+                <span class="badge ${status.cls}">${status.text}</span>
+                <span style="font-size:9px;color:#cbd5e1;margin-left:6px;">${displayUnits} units = <b style="color:#fff;">${totalPieces} pcs</b></span>
               </div>
             </div>
-            <div class="text-right flex-shrink-0">
-              <span class="text-xs font-bold text-purple-300">${formatCurrency(price)}</span>
-              <p class="text-[8px] text-emerald-400 mt-0.5"><i class="fa-solid fa-plus"></i> Add</p>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-size:12px;font-weight:700;color:#c4b5fd;">${formatCurrency(price)}</div>
+              <div style="font-size:8px;color:#34d399;margin-top:2px;"><i class="fa-solid fa-plus"></i> Add</div>
             </div>
           </div>`;
       }).join('');
@@ -398,25 +531,25 @@
     function renderCart() {
       const container = document.getElementById('cart-items-container');
       const totalQty = cart.reduce((a, i) => a + i.qty, 0);
-      document.getElementById('cart-title-count').textContent = `Cart (${totalQty} items)`;
+      document.getElementById('cart-title-count').textContent = 'Cart (' + totalQty + ' items)';
       if (!cart.length) {
-        container.innerHTML = '<div class="text-center py-6 text-slate-500 text-xs">Your cart is empty. Select products above.</div>';
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>';
         calculateTotals();
         return;
       }
       container.innerHTML = cart.map(item => `
-        <div class="flex items-center justify-between bg-[#191932] border border-purple-500/10 p-2.5 rounded-xl">
-          <div class="flex-1 pr-2">
-            <h4 class="font-bold text-white text-[11px]">${item.name}</h4>
-            <p class="text-[10px] text-purple-400 font-semibold">${formatCurrency(item.price)} each</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#191932;border:1px solid rgba(139,92,246,0.1);padding:10px;border-radius:12px;margin-bottom:8px;">
+          <div style="flex:1;padding-right:8px;">
+            <div style="font-weight:700;color:#fff;font-size:11px;">${item.name}</div>
+            <div style="font-size:10px;color:#a78bfa;font-weight:600;">${formatCurrency(item.price)} each</div>
           </div>
-          <div class="flex items-center gap-2">
-            <div class="flex items-center bg-[#121224] border border-purple-500/20 rounded-lg overflow-hidden">
-              <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-1 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-minus text-[9px]"></i></button>
-              <span class="px-2 text-xs font-bold text-white">${item.qty}</span>
-              <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-1 text-slate-300 hover:text-white text-xs"><i class="fa-solid fa-plus text-[9px]"></i></button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="display:flex;align-items:center;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">
+              <button onclick="updateCartQty('${item.id}', -1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-minus" style="font-size:9px;"></i></button>
+              <span style="padding:0 8px;font-size:12px;font-weight:700;color:#fff;">${item.qty}</span>
+              <button onclick="updateCartQty('${item.id}', 1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-plus" style="font-size:9px;"></i></button>
             </div>
-            <span class="text-xs font-bold text-white w-16 text-right">${formatCurrency(item.price * item.qty)}</span>
+            <span style="font-size:12px;font-weight:700;color:#fff;width:64px;text-align:right;">${formatCurrency(item.price * item.qty)}</span>
           </div>
         </div>`).join('');
       calculateTotals();
@@ -442,17 +575,14 @@
       const balance = paid - grandTotal;
       const el = document.getElementById('val-balance');
       el.textContent = formatCurrency(balance);
-      el.className = balance >= 0 ? 'font-bold text-emerald-400' : 'font-bold text-rose-400';
+      el.style.color = balance >= 0 ? '#34d399' : '#fb7185';
     }
 
     function setPaymentMethod(method) {
       selectedPaymentMethod = method;
       ['Cash', 'Transfer', 'POS', 'Online'].forEach(m => {
         const btn = document.getElementById('pm-' + m);
-        if (!btn) return;
-        btn.className = m === method
-          ? 'p-2.5 rounded-xl bg-purple-600/20 border border-purple-500 text-white flex flex-col items-center gap-1 transition'
-          : 'p-2.5 rounded-xl bg-[#191932] border border-purple-500/20 text-slate-400 hover:text-white flex flex-col items-center gap-1 transition';
+        if (btn) btn.classList.toggle('active', m === method);
       });
     }
 
@@ -466,7 +596,7 @@
 
     async function completeSale() {
       if (isSavingSale) return;
-      if (cart.length === 0) return alert('Add items to cart first.');
+      if (!cart.length) return alert('Add items to cart first.');
       if (!userCompanyId) return alert('Company not loaded. Please refresh.');
 
       isSavingSale = true;
@@ -499,7 +629,6 @@
           total_cost: totalCost, profit: totalProfit, total_profit: totalProfit,
           paid_amount: paid, balance, payment_method: selectedPaymentMethod
         }]);
-
         if (error) throw error;
 
         for (const item of cartSnapshot) {
@@ -557,7 +686,9 @@
       document.getElementById('receipt-modal').classList.remove('hidden');
     }
 
-    function closeReceiptModal() { document.getElementById('receipt-modal').classList.add('hidden'); }
+    function closeReceiptModal() {
+      document.getElementById('receipt-modal').classList.add('hidden');
+    }
 
     function buildWhatsAppText() {
       const t = lastCompletedTransaction;
@@ -576,15 +707,28 @@
       return lines.join('\n');
     }
 
-    function downloadReceiptPDF() {
+    async function downloadReceiptPDF() {
       if (!lastCompletedTransaction) return;
-      html2pdf().from(document.getElementById('receipt-paper')).set({
-        margin: 5,
-        filename: (lastCompletedTransaction.trxId || 'receipt') + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true },
-        jsPDF: { unit: 'mm', format: [80, 180], orientation: 'portrait' }
-      }).save();
+      try {
+        if (!window.html2pdf) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+        html2pdf().from(document.getElementById('receipt-paper')).set({
+          margin: 5,
+          filename: (lastCompletedTransaction.trxId || 'receipt') + '.pdf',
+          image: { type: 'jpeg', quality: 0.9 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: [80, 180], orientation: 'portrait' }
+        }).save();
+      } catch (e) {
+        alert('Could not create PDF. Try WhatsApp share instead.');
+      }
     }
 
     function sendReceiptViaWhatsApp() {
