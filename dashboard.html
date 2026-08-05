@@ -7,428 +7,356 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Quantum OPS Elite - Mobile Business OS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      /* Primary Backgrounds */
-      --bg-main: #05060B;
-      --bg-panel: #0A0D18;
-      --bg-card: #101326;
-      --bg-elevated: #131832;
-
-      /* LED Neon Glow System */
-      --blue-core: #2EA8FF;
-      --blue-edge: #5CC8FF;
-      --blue-glow: rgba(46,168,255,0.35);
-
-      --purple-core: #8B5CFF;
-      --purple-edge: #B07CFF;
-      --purple-glow: rgba(139,92,255,0.35);
-
-      --cyan-core: #00E5FF;
-      --cyan-edge: #66F2FF;
-      --cyan-glow: rgba(0,229,255,0.35);
-
-      --magenta-core: #FF3DCE;
-      --magenta-edge: #FF7AE6;
-      --magenta-glow: rgba(255,61,206,0.35);
-
-      /* Text Colors */
-      --text-main: #FFFFFF;
-      --text-primary: #F8FAFF;
-      --text-secondary: #A8B3CF;
-      --text-muted: #7C88A5;
-
-      /* Status Colors */
-      --success: #22F5A0;
-      --success-glow: rgba(34,245,160,0.35);
-      --live: #00FFB2;
-      --warning: #FFD54A;
-      --danger: #FF5A7A;
-    }
-
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: var(--bg-main);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      color: var(--text-primary);
-      -webkit-font-smoothing: antialiased;
+      background: #05060B;
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #F8FAFF;
     }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(139,92,255,0.4); border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
 
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
-      background: radial-gradient(circle at top right, rgba(46,168,255,0.05), transparent 40%),
-                  radial-gradient(circle at bottom left, rgba(139,92,255,0.05), transparent 40%);
-      background-color: var(--bg-main);
-      position: relative; overflow: hidden;
+      background: #05060B; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
     }
     @media (min-width: 768px) {
       body { display: flex; align-items: center; justify-content: center; height: 100vh; }
       .iphone-frame {
-        max-width: 480px; max-height: 900px; border-radius: 48px;
+        max-width: 410px; max-height: 860px; border-radius: 48px;
         border: 1px solid rgba(46,168,255,0.2);
         box-shadow: 0 0 40px rgba(139,92,255,0.15), 0 25px 50px rgba(0,0,0,0.6);
       }
     }
 
-    /* Top Bar */
-    .top-bar {
-      padding: 24px 20px 16px 20px;
-      display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
+    /* LED neon cards */
+    .neon-card {
+      background: #101326;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      padding: 12px;
+      position: relative;
+      background-clip: padding-box;
+      box-shadow:
+        0 0 0 1px rgba(46,168,255,0.25),
+        0 0 12px rgba(46,168,255,0.12),
+        0 0 20px rgba(139,92,255,0.08);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
     }
-    .icon-btn {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: var(--bg-card); border: 1px solid rgba(46,168,255,0.2);
-      color: var(--blue-core); display: flex; align-items: center; justify-content: center;
-      text-decoration: none; cursor: pointer;
-      box-shadow: 0 0 10px rgba(46,168,255,0.1);
-      font-size: 16px;
-      transition: all 0.2s ease;
+    .neon-card:hover {
+      box-shadow:
+        0 0 0 1px rgba(139,92,255,0.45),
+        0 0 16px rgba(46,168,255,0.2),
+        0 0 28px rgba(139,92,255,0.15);
     }
-    .icon-btn:hover { color: var(--blue-edge); border-color: var(--blue-edge); box-shadow: 0 0 15px var(--blue-glow); }
+    .neon-card-elevated {
+      background: #131832;
+      box-shadow:
+        0 0 0 1px rgba(139,92,255,0.3),
+        0 0 14px rgba(139,92,255,0.15),
+        0 0 24px rgba(46,168,255,0.1);
+    }
 
+    .top-bar {
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(8,10,20,0.92);
+      border-bottom: 1px solid rgba(46,168,255,0.15);
+      flex-shrink: 0;
+      backdrop-filter: blur(12px);
+    }
     .main-scroll {
       flex: 1; overflow-y: auto;
-      padding: 0 20px 100px 20px;
+      padding: 16px; padding-bottom: 96px;
     }
 
-    /* Cards & Grids */
-    .neon-card {
-      background: var(--bg-card);
-      border-radius: 14px;
-      padding: 16px;
-      position: relative;
-      text-decoration: none;
-      display: block;
-      color: inherit;
+    .text-main { color: #FFFFFF; }
+    .text-value { color: #F8FAFF; }
+    .text-sec { color: #A8B3CF; }
+    .text-muted { color: #7C88A5; }
+    .text-success { color: #22F5A0; }
+    .text-live { color: #00FFB2; }
+    .text-warn { color: #FFD54A; }
+    .text-loss { color: #FF5A7A; }
+    .text-cyan { color: #00E5FF; }
+    .text-blue { color: #5CC8FF; }
+    .text-purple { color: #B07CFF; }
+
+    .kpi-label { font-size: 10px; color: #A8B3CF; font-weight: 500; margin: 0 0 4px 0; }
+    .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; letter-spacing: -0.02em; }
+    .kpi-live { font-size: 9px; color: #00FFB2; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+
+    .icon-btn {
+      width: 32px; height: 32px; border-radius: 12px;
+      background: #12162B; border: 1px solid rgba(46,168,255,0.25);
+      color: #A8B3CF; display: flex; align-items: center; justify-content: center;
+      text-decoration: none; cursor: pointer;
+      box-shadow: 0 0 10px rgba(46,168,255,0.12);
+    }
+    .icon-btn:hover { color: #fff; border-color: #5CC8FF; }
+
+    .branch-chip {
+      display: flex; align-items: center; gap: 6px;
+      background: #12162B; border: 1px solid rgba(139,92,255,0.35);
+      padding: 6px 10px; border-radius: 12px; font-size: 11px; color: #B07CFF; font-weight: 600;
+      box-shadow: 0 0 12px rgba(139,92,255,0.2);
     }
 
-    .glow-blue { border: 1px solid var(--blue-core); box-shadow: 0 0 15px var(--blue-glow); }
-    .glow-purple { border: 1px solid var(--purple-core); box-shadow: 0 0 15px var(--purple-glow); }
-    .glow-cyan { border: 1px solid var(--cyan-core); box-shadow: 0 0 15px var(--cyan-glow); }
-    .glow-magenta { border: 1px solid var(--magenta-core); box-shadow: 0 0 15px var(--magenta-glow); }
-    .glow-green { border: 1px solid var(--success); box-shadow: 0 0 15px var(--success-glow); }
-    .glow-dark { border: 1px solid rgba(139,92,255,0.4); box-shadow: 0 0 10px rgba(139,92,255,0.1); }
-
-    .card-icon {
-      position: absolute; top: 16px; right: 16px;
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 12px;
-    }
-    .icon-blue { background: rgba(46,168,255,0.15); color: var(--blue-core); border: 1px solid var(--blue-core); }
-    .icon-purple { background: rgba(139,92,255,0.15); color: var(--purple-core); border: 1px solid var(--purple-core); }
-    .icon-cyan { background: rgba(0,229,255,0.15); color: var(--cyan-core); border: 1px solid var(--cyan-core); }
-    .icon-magenta { background: rgba(255,61,206,0.15); color: var(--magenta-core); border: 1px solid var(--magenta-core); }
-    .icon-green { background: rgba(34,245,160,0.15); color: var(--success); border: 1px solid var(--success); }
-    
-    .chart-card {
-      border: 1px solid transparent;
-      background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box, 
-                  linear-gradient(to right, var(--blue-core), var(--purple-core), var(--cyan-core)) border-box;
-      box-shadow: 0 0 18px var(--blue-glow);
-      margin-bottom: 12px;
-      border-radius: 14px;
-      padding: 16px;
-    }
-
-    .kpi-label { font-size: 13px; color: var(--text-secondary); margin: 0 0 8px 0; }
-    .kpi-label span { font-size: 11px; color: var(--text-muted); }
-    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0; }
-    .kpi-live { font-size: 11px; color: var(--live); display: flex; align-items: center; gap: 4px; margin-top: 8px; text-shadow: 0 0 5px rgba(0, 255, 178, 0.5); }
-
-    .text-success { color: var(--success); }
-    .text-loss { color: var(--danger); }
-    .text-warn { color: var(--warning); }
-    .text-cyan { color: var(--cyan-core); }
-
-    .btn-apex {
-      background: linear-gradient(90deg, rgba(139,92,255,0.1), rgba(46,168,255,0.1));
-      border: 1px solid transparent; border-radius: 8px; padding: 8px 12px;
-      color: var(--purple-edge); font-size: 13px; font-weight: 600;
-      display: flex; align-items: center; gap: 6px; position: relative;
-      background-clip: padding-box;
-    }
-    .btn-apex::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      border-radius: 8px; padding: 1px;
-      background: linear-gradient(90deg, var(--purple-core), var(--blue-core));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude;
-      box-shadow: inset 0 0 10px var(--purple-glow), 0 0 10px var(--blue-glow);
-    }
-
-    /* Bottom Navigation */
     .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 75px;
-      background: rgba(8,10,20,0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+      background: rgba(8,10,20,0.94);
       border-top: 1px solid rgba(46,168,255,0.25);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; z-index: 40;
+      padding: 0 20px; z-index: 40; backdrop-filter: blur(16px);
     }
     .nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      color: #8A93B2; text-decoration: none; font-size: 11px;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #8A93B2; text-decoration: none; font-size: 9px;
     }
-    .nav-item.active { color: var(--purple-core); text-shadow: 0 0 10px var(--purple-glow); }
-    .nav-item i { font-size: 18px; }
+    .nav-item.active { color: #B07CFF; text-shadow: 0 0 10px rgba(139,92,255,0.6); }
+    .nav-item i { font-size: 14px; }
 
     .fab-plus {
-      position: relative; top: -20px;
-      width: 56px; height: 56px; border-radius: 50%;
-      background: linear-gradient(135deg, #5B3DFF, var(--purple-core));
-      border: 2px solid var(--purple-edge);
-      color: white; display: flex; align-items: center; justify-content: center; font-size: 24px;
-      box-shadow: 0 0 25px var(--purple-glow);
+      position: relative; top: -18px;
+      width: 52px; height: 52px; border-radius: 999px; border: 3px solid #05060B;
+      background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px rgba(139,92,255,0.55), 0 8px 20px rgba(0,0,0,0.4);
       cursor: pointer;
     }
 
     .hidden { display: none !important; }
 
-    /* Action Sheet / Modals */
     #action-sheet {
       position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50;
       display: flex; align-items: flex-end; justify-content: center;
       opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-      backdrop-filter: blur(4px);
     }
     #action-sheet.open { opacity: 1; pointer-events: auto; }
     #action-sheet-content {
-      width: 100%; max-width: 480px;
-      background: var(--bg-card);
-      border-top: 1px solid var(--purple-core);
+      width: 100%; max-width: 410px;
+      background: #101326;
+      border-top: 1px solid rgba(139,92,255,0.35);
       border-radius: 28px 28px 0 0;
-      padding: 24px; transform: translateY(100%);
+      padding: 20px; transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
-      box-shadow: 0 -8px 40px var(--purple-glow);
+      box-shadow: 0 -8px 40px rgba(46,168,255,0.15);
     }
     #action-sheet.open #action-sheet-content { transform: translateY(0); }
 
     .action-tile {
-      background: var(--bg-elevated); border: 1px solid rgba(46,168,255,0.2);
+      background: #131832; border: 1px solid rgba(46,168,255,0.2);
       border-radius: 16px; padding: 14px; text-align: center; text-decoration: none;
-      color: var(--text-primary); display: flex; flex-direction: column; align-items: center; gap: 8px;
-      box-shadow: 0 0 12px rgba(46,168,255,0.08); transition: all 0.2s ease;
+      color: #F8FAFF; display: flex; flex-direction: column; align-items: center; gap: 8px;
+      box-shadow: 0 0 12px rgba(46,168,255,0.08);
     }
-    .action-tile:hover { border-color: var(--blue-edge); box-shadow: 0 0 16px var(--blue-glow); }
+    .action-tile:hover { border-color: #8B5CFF; box-shadow: 0 0 16px rgba(139,92,255,0.25); }
 
     #debt-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60;
       display: flex; align-items: center; justify-content: center; padding: 16px;
-      backdrop-filter: blur(4px);
     }
     .modal-panel {
-      width: 100%; max-width: 380px; background: var(--bg-card);
-      border: 1px solid var(--purple-core); border-radius: 24px; padding: 24px;
-      box-shadow: 0 0 30px var(--purple-glow);
+      width: 100%; max-width: 360px; background: #101326;
+      border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 20px;
+      box-shadow: 0 0 30px rgba(139,92,255,0.2);
     }
-    .field { margin-bottom: 16px; }
-    .field label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 10px; color: #A8B3CF; margin-bottom: 4px; }
     .field input {
-      width: 100%; background: var(--bg-elevated); border: 1px solid rgba(46,168,255,0.25);
-      border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--text-main); outline: none;
-      font-family: inherit;
+      width: 100%; background: #131832; border: 1px solid rgba(46,168,255,0.25);
+      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
     }
-    .field input:focus { border-color: var(--blue-edge); box-shadow: 0 0 12px var(--blue-glow); }
+    .field input:focus { border-color: #8B5CFF; box-shadow: 0 0 12px rgba(139,92,255,0.25); }
     .btn-primary {
-      width: 100%; padding: 14px; border: none; border-radius: 12px;
-      background: linear-gradient(135deg, #5B3DFF, var(--purple-core)); border: 1px solid var(--purple-edge);
-      color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
-      box-shadow: 0 0 18px var(--purple-glow);
+      width: 100%; padding: 12px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff;
+      font-weight: 700; font-size: 12px; cursor: pointer;
+      box-shadow: 0 0 18px rgba(139,92,255,0.4);
     }
     .btn-primary:disabled { opacity: 0.6; }
+
+    a.neon-card { text-decoration: none; color: inherit; display: block; }
   </style>
 </head>
 <body>
   <div class="iphone-frame">
     <!-- TOP BAR -->
     <div class="top-bar">
-      <button onclick="toggleActionSheet()" class="icon-btn" style="border-color: rgba(46,168,255,0.4);"><i class="fa-solid fa-bars"></i></button>
-      
-      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;letter-spacing:1px;color:var(--text-main);">
-        QUANTUM OPS 
-        <span style="background:rgba(46,168,255,0.1);border:1px solid var(--blue-core);color:var(--blue-core);font-size:10px;padding:2px 6px;border-radius:4px;box-shadow:0 0 8px var(--blue-glow);">ELITE</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="toggleActionSheet()" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;box-shadow:0 0 12px rgba(139,92,255,0.35);">Q</div>
+          <span style="font-weight:800;font-size:11px;letter-spacing:0.06em;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;margin-left:2px;">ELITE</span></span>
+        </div>
       </div>
-      
-      <div style="display:flex;align-items:center;gap:12px;">
-        <a href="ai-ceo.html" class="icon-btn" style="border-color: var(--purple-core); color: var(--purple-core); box-shadow: 0 0 10px var(--purple-glow);" title="AI CEO"><i class="fa-solid fa-robot"></i></a>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <a href="ai-ceo.html" class="icon-btn" title="AI CEO"><i class="fa-solid fa-robot" style="font-size:12px;color:#B07CFF;"></i></a>
         <a href="notifications.html" class="icon-btn" style="position:relative;" title="Notifications">
-          <i class="fa-regular fa-bell"></i>
-          <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;padding:0 4px;background:var(--danger);border-radius:999px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow: 0 0 10px rgba(255,90,122,0.5);">0</span>
+          <i class="fa-regular fa-bell" style="font-size:12px;"></i>
+          <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;background:#FF5A7A;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;">0</span>
         </a>
-        <a href="profile.html" style="position:relative;width:40px;height:40px;border-radius:50%;overflow:hidden;border:1px solid var(--cyan-core);background:linear-gradient(135deg, var(--bg-card), var(--bg-elevated));display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--cyan-core);text-decoration:none;box-shadow:0 0 12px var(--cyan-glow);">
+        <a href="profile.html" style="position:relative;width:32px;height:32px;border-radius:999px;overflow:hidden;border:1px solid rgba(139,92,255,0.4);background:#12162B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B07CFF;text-decoration:none;box-shadow:0 0 12px rgba(139,92,255,0.25);">
           <span id="user-avatar-initial">C</span>
           <img id="user-avatar-logo" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
-          <span id="user-verified-dot" class="hidden" style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--success);border-radius:50%;border:2px solid var(--bg-main);"></span>
+          <span id="user-verified-dot" class="hidden" style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;background:#22F5A0;border-radius:999px;border:2px solid #05060B;"></span>
         </a>
       </div>
     </div>
 
     <div class="main-scroll custom-scrollbar">
       <!-- Greeting -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
         <div>
-          <h1 class="text-main" style="margin:0;font-size:22px;font-weight:600;" id="greeting-title">Good evening, Chima 👋</h1>
-          <p style="margin:6px 0 0;font-size:13px;color:var(--text-secondary);">Here's what's happening with your business<br>today.</p>
+          <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day, User 👋</h1>
+          <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
         </div>
-        <div class="btn-apex" id="current-branch-name-container">
-          <i class="fa-solid fa-store"></i> <span id="current-branch-name">Apex doctrine</span> <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
+        <div class="branch-chip">
+          <i class="fa-solid fa-store" style="font-size:10px;"></i>
+          <span id="current-branch-name">My Business</span>
         </div>
       </div>
 
-      <!-- KPI row 1 (Grid-3) -->
-      <div style="display:grid;grid-template-columns:1.1fr 1fr 0.9fr;gap:12px;margin-bottom:12px;">
-        <a href="transactions.html?view=sales" class="neon-card glow-blue">
-          <div class="card-icon icon-blue"><i class="fa-solid fa-dollar-sign"></i></div>
-          <p class="kpi-label">Total Sales<br><span>(Today)</span></p>
+      <!-- KPI row 1 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+        <a href="transactions.html?view=sales" class="neon-card">
+          <p class="kpi-label">Total Sales (Today)</p>
           <h3 class="kpi-value" id="val-today-sales">₦0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
         </a>
-        <a href="transactions.html?view=profit" class="neon-card glow-purple">
-          <div class="card-icon icon-purple"><i class="fa-solid fa-chart-column"></i></div>
-          <p class="kpi-label">Gross Profit<br><span>(Today)</span></p>
+        <a href="transactions.html?view=profit" class="neon-card">
+          <p class="kpi-label">Gross Profit (Today)</p>
           <h3 class="kpi-value" id="val-today-profit">₦0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
         </a>
-        <a href="transactions.html?view=transactions" class="neon-card glow-cyan">
-          <div class="card-icon icon-cyan"><i class="fa-solid fa-right-left"></i></div>
-          <p class="kpi-label">Transactions<br>&nbsp;</p>
+        <a href="transactions.html?view=transactions" class="neon-card">
+          <p class="kpi-label">Transactions</p>
           <h3 class="kpi-value" id="val-transactions">0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
         </a>
       </div>
 
-      <!-- KPI row 2 (Grid-2) -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-        <a href="expenses.html" class="neon-card glow-magenta">
-          <div class="card-icon icon-magenta"><i class="fa-solid fa-file-invoice"></i></div>
-          <p class="kpi-label">Expenses <span>(Today)</span></p>
+      <!-- KPI row 2 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <a href="expenses.html" class="neon-card">
+          <p class="kpi-label">Expenses (Today)</p>
           <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
-          <p style="margin:4px 0 0;font-size:11px;color:var(--text-muted);">Operating costs</p>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
         </a>
-        <div class="neon-card glow-green">
-          <div class="card-icon icon-green"><i class="fa-solid fa-award"></i></div>
-          <p class="kpi-label">Net Profit <span>(Today)</span></p>
+        <div class="neon-card">
+          <p class="kpi-label">Net Profit (Today)</p>
           <h3 class="kpi-value text-success" id="val-net-profit">₦0</h3>
-          <p style="margin:4px 0 0;font-size:11px;color:var(--text-muted);">After expenses</p>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
         </div>
       </div>
 
-      <!-- KPI row 3 (Grid-3 Bottom) -->
-      <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:12px;">
-        <a href="debtors.html" class="neon-card glow-dark">
-          <div class="card-icon" style="color:var(--blue-core);right:8px;top:8px;"><i class="fa-solid fa-user-group"></i></div>
+      <!-- KPI row 3 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+        <a href="debtors.html" class="neon-card">
           <p class="kpi-label">Outstanding Debt</p>
-          <h3 class="kpi-value text-loss" style="font-size:16px;" id="val-outstanding-debt">₦0</h3>
-          <p style="margin:4px 0 0;font-size:11px;color:var(--text-muted);" id="val-debt-customers">0 Customers</p>
+          <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
         </a>
-        <div class="neon-card glow-dark">
-          <div class="card-icon" style="color:var(--blue-core);right:8px;top:8px;"><i class="fa-regular fa-bell"></i></div>
+        <div class="neon-card">
           <p class="kpi-label">Low Stock Alerts</p>
-          <h3 class="kpi-value text-warn" style="font-size:16px;" id="val-low-stock">0 Items</h3>
-          <p style="margin:4px 0 0;font-size:11px;color:var(--text-muted);">Need attention</p>
+          <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
         </div>
-        <div class="neon-card glow-dark">
+        <div class="neon-card">
           <p class="kpi-label">Business Health</p>
           <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
-            <i class="fa-solid fa-shield-halved text-cyan" style="font-size:16px;"></i>
-            <span class="kpi-value text-cyan" id="val-business-health" style="font-size:16px;">100%</span>
+            <i class="fa-solid fa-shield-halved text-cyan" style="font-size:14px;"></i>
+            <span class="kpi-value text-cyan" id="val-business-health" style="font-size:13px;">100%</span>
           </div>
-          <p style="margin:4px 0 0;font-size:11px;">&nbsp;</p>
         </div>
       </div>
 
       <!-- Sales chart -->
-      <div class="chart-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div>
-            <div style="font-size:16px;font-weight:600;color:var(--text-primary);">Sales Overview</div>
-            <div class="kpi-value" style="margin-top:8px;" id="val-weekly-total">₦0</div>
+            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
+            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">₦0</h3>
           </div>
-          <div style="background:var(--bg-elevated);border:1px solid rgba(168,179,207,0.2);color:var(--text-secondary);padding:4px 10px;border-radius:6px;font-size:12px;display:flex;align-items:center;gap:6px;">
-            This Week <i class="fa-solid fa-chevron-down"></i>
-          </div>
+          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
         </div>
         <div style="height:140px;width:100%;position:relative;">
           <canvas id="salesOverviewChart"></canvas>
-          <p id="chart-fallback" class="hidden" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted);">Chart unavailable</p>
+          <p id="chart-fallback" class="hidden" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#7C88A5;">Chart unavailable</p>
         </div>
       </div>
 
       <!-- Top products -->
-      <div class="neon-card glow-dark" style="margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <div style="font-size:16px;font-weight:600;color:var(--text-primary);">Top Selling Products</div>
-          <div style="font-size:11px;color:var(--purple-core);">Real-time <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></div>
+      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
+          <span class="text-purple" style="font-size:10px;font-weight:600;">Real-time</span>
         </div>
-        <div id="top-products-list" style="display:flex;flex-direction:column;gap:16px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;font-size:13px;">No product sales recorded yet.</div>
+        <div id="top-products-list" style="font-size:11px;">
+          <div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>
         </div>
       </div>
 
       <!-- Recent activities -->
-      <div class="neon-card glow-dark">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <div style="font-size:16px;font-weight:600;color:var(--text-primary);">Recent Activities</div>
-          <div style="font-size:11px;color:var(--purple-core);">Live Feed <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></div>
+      <div class="neon-card neon-card-elevated" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Recent Activities</h4>
+          <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
         </div>
-        <div id="recent-activities-list" style="display:flex;flex-direction:column;gap:0;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;font-size:13px;">No recent activity recorded yet.</div>
+        <div id="recent-activities-list" style="font-size:11px;">
+          <div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>
         </div>
       </div>
     </div>
 
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-table-cells-large"></i><span>Dashboard</span></a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-box-open"></i><span>Inventory</span></a>
-      <div style="position:relative;top:-10px;">
-        <div onclick="toggleActionSheet()" class="fab-plus"><i class="fa-solid fa-plus"></i></div>
-      </div>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cart-shopping"></i><span>POS Sales</span></a>
-      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+      <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+      <button onclick="toggleActionSheet()" class="fab-plus"><i class="fa-solid fa-plus"></i></button>
+      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
     </nav>
   </div>
 
   <!-- ACTION SHEET -->
   <div id="action-sheet">
     <div id="action-sheet-content">
-      <div style="width:40px;height:4px;background:var(--text-muted);border-radius:4px;margin:0 auto 20px;"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <h3 class="text-main" style="margin:0;font-size:16px;font-weight:700;">Quick Business Actions</h3>
-        <button onclick="toggleActionSheet()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:18px;"><i class="fa-solid fa-xmark"></i></button>
+      <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;">Quick Business Actions</h3>
+        <button onclick="toggleActionSheet()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
         <a href="pos.html" class="action-tile">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(139,92,255,0.2);color:var(--purple-edge);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 12px var(--purple-glow);"><i class="fa-solid fa-cash-register"></i></div>
-          <span style="font-size:12px;font-weight:500;">New Sale</span>
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-cash-register"></i></div>
+          <span style="font-size:11px;">New Sale</span>
         </a>
-        <button onclick="openAddDebtModal()" class="action-tile" style="cursor:pointer;font-family:inherit;border:1px solid rgba(46,168,255,0.2);">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,90,122,0.15);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 12px rgba(255,90,122,0.3);"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-          <span style="font-size:12px;font-weight:500;">Add Debt</span>
+        <button onclick="openAddDebtModal()" class="action-tile" style="cursor:pointer;font-family:inherit;">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          <span style="font-size:11px;">Add Debt</span>
         </button>
         <a href="inventory.html" class="action-tile">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(34,245,160,0.12);color:var(--success);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 12px var(--success-glow);"><i class="fa-solid fa-boxes-stacked"></i></div>
-          <span style="font-size:12px;font-weight:500;">Inventory</span>
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(34,245,160,0.12);color:#22F5A0;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <span style="font-size:11px;">Inventory</span>
         </a>
         <a href="expenses.html" class="action-tile">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,90,122,0.15);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 12px rgba(255,90,122,0.3);"><i class="fa-solid fa-money-bill-wave"></i></div>
-          <span style="font-size:12px;font-weight:500;">Expenses</span>
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-money-bill-wave"></i></div>
+          <span style="font-size:11px;">Expenses</span>
         </a>
         <a href="ai-ceo.html" class="action-tile">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(46,168,255,0.15);color:var(--blue-edge);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 12px var(--blue-glow);"><i class="fa-solid fa-robot"></i></div>
-          <span style="font-size:12px;font-weight:500;">AI CEO</span>
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(46,168,255,0.15);color:#5CC8FF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-robot"></i></div>
+          <span style="font-size:11px;">AI CEO</span>
         </a>
-        <button onclick="handleLogout()" id="logout-btn" class="action-tile" style="cursor:pointer;font-family:inherit;border:1px solid rgba(46,168,255,0.2);">
-          <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,90,122,0.15);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 12px rgba(255,90,122,0.3);"><i class="fa-solid fa-right-from-bracket"></i></div>
-          <span style="font-size:12px;color:var(--danger);font-weight:500;">Log Out</span>
+        <button onclick="handleLogout()" id="logout-btn" class="action-tile" style="cursor:pointer;font-family:inherit;">
+          <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-right-from-bracket"></i></div>
+          <span style="font-size:11px;color:#FF5A7A;">Log Out</span>
         </button>
       </div>
     </div>
@@ -437,9 +365,9 @@
   <!-- DEBT MODAL -->
   <div id="debt-modal" class="hidden">
     <div class="modal-panel">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-        <h3 class="text-main" style="margin:0;font-size:16px;font-weight:700;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;text-shadow:0 0 10px rgba(255,90,122,0.5);"></i>Record New Debt</h3>
-        <button onclick="closeAddDebtModal()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:18px;"><i class="fa-solid fa-xmark"></i></button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;"></i>Record New Debt</h3>
+        <button onclick="closeAddDebtModal()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="field">
         <label>Customer Name *</label>
@@ -765,10 +693,6 @@
         gradient.addColorStop(0.5, '#C86BFF');
         gradient.addColorStop(1, '#2EA8FF');
 
-        const areaGradient = ctx.createLinearGradient(0, 0, 0, 140);
-        areaGradient.addColorStop(0, 'rgba(139,92,255,0.4)');
-        areaGradient.addColorStop(1, 'rgba(46,168,255,0)');
-
         salesChartInstance = new Chart(ctx, {
           type: 'line',
           data: {
@@ -776,13 +700,13 @@
             datasets: [{
               data: totals,
               borderColor: gradient,
-              backgroundColor: areaGradient,
-              borderWidth: 3,
+              backgroundColor: 'rgba(139,92,255,0.12)',
+              borderWidth: 2.5,
               fill: true,
               tension: 0.4,
-              pointBackgroundColor: '#fff',
-              pointBorderColor: 'transparent',
-              pointRadius: 3,
+              pointBackgroundColor: '#5CC8FF',
+              pointBorderColor: '#8B5CFF',
+              pointRadius: 4,
               pointHoverRadius: 6
             }]
           },
@@ -794,13 +718,13 @@
             scales: {
               x: {
                 grid: { display: false },
-                ticks: { color: '#7C88A5', font: { size: 10 } }
+                ticks: { color: '#7C88A5', font: { size: 9 } }
               },
               y: {
-                grid: { color: 'rgba(168,179,207,0.05)' },
+                grid: { color: 'rgba(46,168,255,0.06)' },
                 ticks: {
                   color: '#7C88A5',
-                  font: { size: 10 },
+                  font: { size: 9 },
                   callback: function (v) { return '₦' + (v / 1000).toFixed(0) + 'k'; }
                 }
               }
@@ -827,41 +751,20 @@
           counts[n].revenue += parseFloat(i.price || 0) * parseInt(i.qty || 1, 10);
         });
       });
-      const sorted = Object.entries(counts).sort(function (a, b) { return b[1].revenue - a[1].revenue; }).slice(0, 3);
+      const sorted = Object.entries(counts).sort(function (a, b) { return b[1].revenue - a[1].revenue; }).slice(0, 5);
       if (!sorted.length) {
-        container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;font-size:13px;">No product sales recorded yet.</div>';
+        container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>';
         return;
       }
-      
-      const maxRevenue = sorted[0][1].revenue;
-      const icons = ['fa-mobile-screen-button', 'fa-mobile-screen', 'fa-laptop'];
-      const gradients = [
-        'linear-gradient(90deg, var(--purple-core), var(--blue-core))',
-        'linear-gradient(90deg, var(--purple-core), var(--magenta-core))',
-        'linear-gradient(90deg, var(--purple-core), var(--blue-core))'
-      ];
-      const shadows = [
-        '0 0 8px var(--blue-glow)',
-        '0 0 8px var(--magenta-glow)',
-        '0 0 8px var(--blue-glow)'
-      ];
-
       container.innerHTML = sorted.map(function (entry, i) {
         var name = entry[0], d = entry[1];
-        var width = Math.max(10, Math.min(100, (d.revenue / maxRevenue) * 60));
-        var icon = icons[i % icons.length];
-        var grad = gradients[i % gradients.length];
-        var shadow = shadows[i % shadows.length];
-
         return ''
-          + '<div style="display:flex;align-items:center;gap:12px;position:relative;padding-bottom:8px;">'
-          +   '<div style="width:40px;height:40px;border-radius:8px;background:var(--bg-elevated);border:1px solid rgba(139,92,255,0.3);display:flex;align-items:center;justify-content:center;color:var(--purple-edge);font-size:18px;box-shadow:0 0 10px rgba(139,92,255,0.15);"><i class="fa-solid ' + icon + '"></i></div>'
-          +   '<div style="flex:1;">'
-          +     '<span style="background:rgba(139,92,255,0.2);color:var(--purple-edge);font-size:10px;padding:2px 6px;border-radius:4px;margin-right:6px;border:1px solid var(--purple-core);">' + (i + 1) + '</span>'
-          +     '<span style="font-size:13px;color:var(--text-primary);">' + name + ' <span style="font-size:11px;color:var(--text-muted);">(' + d.qty + ' sold)</span></span>'
-          +   '</div>'
-          +   '<div style="font-size:14px;font-weight:600;color:var(--text-main);text-align:right;">' + formatCurrency(d.revenue) + '</div>'
-          +   '<div style="position:absolute;bottom:0;left:52px;height:2px;background:' + grad + ';border-radius:2px;box-shadow:' + shadow + ';width:' + width + '%;"></div>'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(46,168,255,0.08);">'
+          +   '<span style="display:flex;align-items:center;gap:8px;color:#A8B3CF;">'
+          +     '<span style="width:18px;height:18px;border-radius:6px;background:rgba(139,92,255,0.25);color:#B07CFF;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + (i + 1) + '</span>'
+          +     name + ' <span style="color:#7C88A5;">(' + d.qty + ' sold)</span>'
+          +   '</span>'
+          +   '<span style="color:#F8FAFF;font-weight:700;">' + formatCurrency(d.revenue) + '</span>'
           + '</div>';
       }).join('');
     }
@@ -870,7 +773,7 @@
       const container = $('recent-activities-list');
       if (!container) return;
       if (!sales || !sales.length) {
-        container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;font-size:13px;">No recent activity recorded yet.</div>';
+        container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>';
         return;
       }
       const sorted = sales.slice().sort(function (a, b) { return new Date(b.created_at) - new Date(a.created_at); }).slice(0, 5);
@@ -879,17 +782,17 @@
         let label = 'New Sale';
         if (Array.isArray(s.items) && s.items[0]) label = s.items[0].name || 'New Sale';
         return ''
-          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(46,168,255,0.08);">'
-          +   '<div style="display:flex;align-items:center;gap:12px;">'
-          +     '<div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,255,0.15);color:var(--purple-core);border:1px solid var(--purple-core);box-shadow:0 0 10px var(--purple-glow);display:flex;align-items:center;justify-content:center;font-size:14px;"><i class="fa-solid fa-cart-shopping"></i></div>'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">'
+          +   '<div style="display:flex;align-items:center;gap:10px;">'
+          +     '<div style="width:28px;height:28px;border-radius:10px;background:rgba(139,92,255,0.2);color:#B07CFF;border:1px solid rgba(139,92,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;"><i class="fa-solid fa-cart-shopping"></i></div>'
           +     '<div>'
-          +       '<p style="margin:0;font-weight:600;color:var(--text-primary);font-size:13px;">' + label + '</p>'
-          +       '<p style="margin:4px 0 0;font-size:11px;color:var(--text-muted);">' + (s.payment_method || 'Cash') + '</p>'
+          +       '<p style="margin:0;font-weight:600;color:#fff;font-size:11px;">' + label + '</p>'
+          +       '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + (s.payment_method || 'Cash') + '</p>'
           +     '</div>'
           +   '</div>'
           +   '<div style="text-align:right;">'
-          +     '<p style="margin:0;font-weight:700;color:var(--success);font-size:13px;text-shadow:0 0 10px var(--success-glow);">' + formatCurrency(amount) + '</p>'
-          +     '<p style="margin:4px 0 0;font-size:11px;color:var(--text-muted);">' + getTimeAgo(s.created_at) + '</p>'
+          +     '<p style="margin:0;font-weight:700;color:#22F5A0;font-size:11px;">' + formatCurrency(amount) + '</p>'
+          +     '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + getTimeAgo(s.created_at) + '</p>'
           +   '</div>'
           + '</div>';
       }).join('');
