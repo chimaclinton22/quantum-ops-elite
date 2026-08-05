@@ -116,12 +116,18 @@
       background: rgba(88,28,135,0.2); border: 1px solid rgba(139,92,246,0.2);
       border-radius: 12px; padding: 8px 12px; font-size: 11px; color: #e9d5ff; margin-bottom: 12px;
     }
+    .hint-box {
+      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 12px; padding: 10px 12px; font-size: 11px; color: #6ee7b7; margin-bottom: 12px;
+      display: none;
+    }
+    .hint-box.show { display: block; }
     #scanner-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 80;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 80;
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
     #scanner-modal.hidden { display: none; }
-    #scanner-reader { width: 100%; min-height: 280px; background: #000; border-radius: 12px; overflow: hidden; }
+    #scanner-reader { width: 100%; min-height: 300px; background: #000; border-radius: 12px; overflow: hidden; }
   </style>
 </head>
 <body>
@@ -160,6 +166,7 @@
     </nav>
   </div>
 
+  <!-- ADD / EDIT -->
   <div id="product-modal" class="modal-bg hidden">
     <div class="modal custom-scrollbar">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -168,6 +175,8 @@
         </h3>
         <button onclick="closeProductModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
+
+      <div id="smart-hint" class="hint-box"></div>
 
       <div class="field">
         <label>Product Photo</label>
@@ -181,18 +190,18 @@
 
       <div class="field">
         <label>Product Name *</label>
-        <input type="text" id="prod-name" placeholder="e.g. Coca Cola">
+        <input type="text" id="prod-name" placeholder="Scan barcode to auto-fill, or type">
       </div>
 
       <div class="field">
         <label>Barcode / SKU</label>
         <div style="display:flex;gap:8px;">
-          <input type="text" id="prod-sku" placeholder="Scan or type barcode" style="flex:1;">
+          <input type="text" id="prod-sku" placeholder="Scan or type" style="flex:1;">
           <button type="button" onclick="startBarcodeScanner()" style="width:48px;background:#6C5CE7;border:none;border-radius:12px;color:#fff;cursor:pointer;flex-shrink:0;">
             <i class="fa-solid fa-barcode"></i>
           </button>
         </div>
-        <p style="font-size:9px;color:#64748b;margin:4px 0 0;">Tap barcode → point camera → SKU fills instantly</p>
+        <p style="font-size:9px;color:#64748b;margin:4px 0 0;">Scan once → name fills → you only add cost, price & quantity</p>
       </div>
 
       <div class="grid-2">
@@ -237,15 +246,23 @@
     </div>
   </div>
 
+  <!-- SCANNER -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <div style="font-weight:700;font-size:13px;color:#fff;"><i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode</div>
-        <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;"><i class="fa-solid fa-xmark"></i></button>
+        <div style="font-weight:700;font-size:13px;color:#fff;">
+          <i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode
+        </div>
+        <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
       <div id="scanner-reader"></div>
-      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode steady inside the box</p>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light</p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
+      <button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
+        Close &amp; type instead
+      </button>
     </div>
   </div>
 
@@ -266,6 +283,7 @@
     let isFetching = false;
     let html5QrCode = null;
     let lastScanTime = 0;
+    let scannerStarting = false;
 
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -274,6 +292,18 @@
       const num = Number(value);
       if (isNaN(num)) return 0;
       return Number.isInteger(num) ? num : parseFloat(num.toFixed(2));
+    }
+
+    function showHint(msg, isOk) {
+      var el = document.getElementById('smart-hint');
+      el.textContent = msg;
+      el.classList.add('show');
+      el.style.background = isOk ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
+      el.style.borderColor = isOk ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)';
+      el.style.color = isOk ? '#6ee7b7' : '#fbbf24';
+    }
+    function hideHint() {
+      document.getElementById('smart-hint').classList.remove('show');
     }
 
     function toggleSearch() {
@@ -291,6 +321,7 @@
       document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-box" style="color:#a78bfa;margin-right:8px;"></i>Add New Product';
       document.getElementById('save-product-btn').textContent = 'Save Product to Inventory';
       clearForm();
+      hideHint();
       document.getElementById('product-modal').classList.remove('hidden');
       updatePreviewUnits();
     }
@@ -299,14 +330,20 @@
       editingProductId = product.id;
       document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Edit Product';
       document.getElementById('save-product-btn').textContent = 'Update Product';
+      hideHint();
+      fillFormFromProduct(product);
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    function fillFormFromProduct(product) {
       document.getElementById('prod-name').value = product.name || '';
       document.getElementById('prod-sku').value = product.sku || '';
       document.getElementById('prod-pack').value = product.items_per_pack || 24;
       document.getElementById('prod-bulk-cost').value = product.bulk_cost || '';
       document.getElementById('prod-unit-cost').value = product.unit_cost || '';
       document.getElementById('prod-selling').value = product.selling_price || '';
-      const pieces = parseFloat(product.stock || 0);
-      const pack = parseFloat(product.items_per_pack || 24) || 24;
+      var pieces = parseFloat(product.stock || 0);
+      var pack = parseFloat(product.items_per_pack || 24) || 24;
       document.getElementById('prod-units').value = formatUnits(pieces / pack);
       uploadedImageBase64 = product.image_url || '';
       if (uploadedImageBase64) {
@@ -317,12 +354,12 @@
       calculateUnitCost();
       calculateProfit();
       updatePreviewUnits();
-      document.getElementById('product-modal').classList.remove('hidden');
     }
 
     function closeProductModal() {
       document.getElementById('product-modal').classList.add('hidden');
       editingProductId = null;
+      hideHint();
     }
 
     function clearForm() {
@@ -354,12 +391,20 @@
       reader.readAsDataURL(file);
     }
 
-    // ========== PRODUCT BARCODE SCAN (fixed) ==========
+    function setPhotoFromUrl(url) {
+      if (!url) return;
+      uploadedImageBase64 = url;
+      document.getElementById('photo-preview-box').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML=\'<i class=\\\'fa-solid fa-image\\\'></i>\'">';
+    }
+
+    // ========== SMART BARCODE FLOW ==========
     async function startBarcodeScanner() {
+      if (scannerStarting) return;
       if (typeof Html5Qrcode === 'undefined') {
-        alert('Scanner not loaded. Check internet and refresh.');
+        alert('Scanner not loaded. Check internet, close & reopen app.');
         return;
       }
+      scannerStarting = true;
       document.getElementById('scanner-modal').classList.remove('hidden');
       document.getElementById('scanner-status').textContent = 'Starting camera…';
       document.getElementById('scanner-status').style.color = '#a78bfa';
@@ -367,6 +412,7 @@
       try {
         if (html5QrCode) {
           try { await html5QrCode.stop(); } catch (e) {}
+          try { html5QrCode.clear(); } catch (e) {}
           html5QrCode = null;
         }
 
@@ -382,19 +428,14 @@
           Html5QrcodeSupportedFormats.QR_CODE
         ];
 
-        html5QrCode = new Html5Qrcode('scanner-reader', {
-          formatsToSupport: formats,
-          verbose: false
-        });
+        html5QrCode = new Html5Qrcode('scanner-reader', { formatsToSupport: formats, verbose: false });
 
         await html5QrCode.start(
           { facingMode: 'environment' },
           {
-            fps: 15,
-            qrbox: function (viewfinderWidth, viewfinderHeight) {
-              var width = Math.floor(viewfinderWidth * 0.92);
-              var height = Math.floor(Math.min(150, viewfinderHeight * 0.38));
-              return { width: width, height: height };
+            fps: 30,
+            qrbox: function (w, h) {
+              return { width: Math.floor(w * 0.94), height: Math.floor(Math.min(88, h * 0.20)) };
             },
             aspectRatio: 1.777,
             disableFlip: false
@@ -402,11 +443,15 @@
           onInventoryScanSuccess,
           function () {}
         );
-        document.getElementById('scanner-status').textContent = 'Hold barcode steady inside the box…';
+        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line…';
       } catch (err) {
         console.error(err);
-        document.getElementById('scanner-status').textContent = 'Allow camera permission. Use back camera.';
+        var msg = 'Camera error. Allow permission or type the barcode.';
+        if (err && err.name === 'NotAllowedError') msg = 'Camera blocked. Allow camera in Settings.';
+        document.getElementById('scanner-status').textContent = msg;
         document.getElementById('scanner-status').style.color = '#fb7185';
+      } finally {
+        scannerStarting = false;
       }
     }
 
@@ -422,9 +467,9 @@
       document.getElementById('scanner-status').textContent = '';
     }
 
-    function onInventoryScanSuccess(decodedText) {
+    async function onInventoryScanSuccess(decodedText) {
       var now = Date.now();
-      if (now - lastScanTime < 700) return;
+      if (now - lastScanTime < 800) return;
       lastScanTime = now;
 
       var code = String(decodedText || '').trim();
@@ -433,8 +478,61 @@
       document.getElementById('prod-sku').value = code;
       document.getElementById('scanner-status').textContent = 'Captured: ' + code;
       document.getElementById('scanner-status').style.color = '#34d399';
+      try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
 
-      setTimeout(function () { stopBarcodeScanner(); }, 300);
+      await stopBarcodeScanner();
+      await handleScannedBarcode(code);
+    }
+
+    async function handleScannedBarcode(code) {
+      // 1) Check YOUR shop products first
+      var existing = allProducts.find(function (p) {
+        return String(p.sku || '').trim().toLowerCase() === code.toLowerCase();
+      });
+
+      if (existing) {
+        // Already in this shop → fill everything, treat as restock/edit helper
+        editingProductId = existing.id;
+        document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Update Stock';
+        document.getElementById('save-product-btn').textContent = 'Update Product';
+        fillFormFromProduct(existing);
+        // Focus user on quantity
+        document.getElementById('prod-units').focus();
+        showHint('Already in your shop: ' + (existing.name || code) + '. Adjust units / prices then save.', true);
+        return;
+      }
+
+      // 2) New product → free online lookup (Open Food Facts)
+      showHint('Looking up product name…', true);
+      try {
+        var info = await lookupBarcodeFree(code);
+        if (info && info.name) {
+          document.getElementById('prod-name').value = info.name;
+          if (info.image) setPhotoFromUrl(info.image);
+          showHint('Name filled. Now enter cost, selling price & quantity only.', true);
+          document.getElementById('prod-bulk-cost').focus();
+        } else {
+          showHint('Barcode saved. Type the product name, then cost & price.', false);
+          document.getElementById('prod-name').focus();
+        }
+      } catch (e) {
+        showHint('Barcode saved. Type the product name, then cost & price.', false);
+        document.getElementById('prod-name').focus();
+      }
+    }
+
+    // Free product lookup – Open Food Facts (no API key)
+    async function lookupBarcodeFree(barcode) {
+      var url = 'https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(barcode) + '.json';
+      var res = await fetch(url, { method: 'GET' });
+      if (!res.ok) return null;
+      var data = await res.json();
+      if (!data || data.status !== 1 || !data.product) return null;
+      var p = data.product;
+      var name = p.product_name || p.product_name_en || p.generic_name || '';
+      var image = p.image_front_small_url || p.image_url || p.image_front_url || '';
+      if (!name) return null;
+      return { name: name.trim(), image: image };
     }
 
     function calculateUnitCost() {
@@ -557,7 +655,7 @@
           '<div style="text-align:center;padding:48px 16px;background:#121224;border:1px solid rgba(139,92,246,0.1);border-radius:16px;">'
           + '<i class="fa-solid fa-boxes-stacked" style="color:#a78bfa;font-size:24px;"></i>'
           + '<p style="color:#cbd5e1;font-size:12px;font-weight:500;margin:8px 0 4px;">No products found</p>'
-          + '<p style="color:#64748b;font-size:10px;margin:0;">Tap the + button to add your first product.</p></div>';
+          + '<p style="color:#64748b;font-size:10px;margin:0;">Tap + then Scan barcode — fastest way to add.</p></div>';
         return;
       }
       container.innerHTML = products.map(function (p) {
