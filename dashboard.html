@@ -35,7 +35,6 @@
       }
     }
 
-    /* LED neon cards */
     .neon-card {
       background: #101326;
       border: 1px solid transparent;
@@ -47,7 +46,7 @@
         0 0 0 1px rgba(46,168,255,0.25),
         0 0 12px rgba(46,168,255,0.12),
         0 0 20px rgba(139,92,255,0.08);
-      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+      transition: box-shadow 0.25s ease, border-color 0.25s ease;
     }
     .neon-card:hover {
       box-shadow:
@@ -61,6 +60,44 @@
         0 0 0 1px rgba(139,92,255,0.3),
         0 0 14px rgba(139,92,255,0.15),
         0 0 24px rgba(46,168,255,0.1);
+    }
+
+    /* ===== BREATHING ALERTS ===== */
+    @keyframes breathe-red {
+      0%, 100% {
+        box-shadow:
+          0 0 0 1px rgba(255,90,122,0.55),
+          0 0 14px rgba(255,90,122,0.35),
+          0 0 28px rgba(255,90,122,0.18);
+      }
+      50% {
+        box-shadow:
+          0 0 0 1px rgba(255,90,122,0.9),
+          0 0 22px rgba(255,90,122,0.55),
+          0 0 40px rgba(255,90,122,0.3);
+      }
+    }
+    @keyframes breathe-amber {
+      0%, 100% {
+        box-shadow:
+          0 0 0 1px rgba(255,213,74,0.5),
+          0 0 12px rgba(255,213,74,0.3),
+          0 0 24px rgba(255,213,74,0.15);
+      }
+      50% {
+        box-shadow:
+          0 0 0 1px rgba(255,213,74,0.85),
+          0 0 20px rgba(255,213,74,0.5),
+          0 0 36px rgba(255,213,74,0.28);
+      }
+    }
+    .alert-breathing-red {
+      animation: breathe-red 1.8s ease-in-out infinite;
+      border-color: rgba(255,90,122,0.5) !important;
+    }
+    .alert-breathing-amber {
+      animation: breathe-amber 1.8s ease-in-out infinite;
+      border-color: rgba(255,213,74,0.45) !important;
     }
 
     .top-bar {
@@ -256,14 +293,14 @@
         </div>
       </div>
 
-      <!-- KPI row 3 -->
+      <!-- KPI row 3 – Debt + Low Stock (with breathing alerts) -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
-        <a href="debtors.html" class="neon-card">
+        <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
           <p class="kpi-label">Outstanding Debt</p>
           <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
           <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
         </a>
-        <div class="neon-card">
+        <div id="card-low-stock" class="neon-card">
           <p class="kpi-label">Low Stock Alerts</p>
           <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
           <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
@@ -659,6 +696,13 @@
       });
       setText('val-low-stock', low + ' Items');
       setText('val-business-health', Math.max(100 - low * 5, 40) + '%');
+
+      // Breathing amber alert for low stock
+      var lowCard = $('card-low-stock');
+      if (lowCard) {
+        if (low > 0) lowCard.classList.add('alert-breathing-amber');
+        else lowCard.classList.remove('alert-breathing-amber');
+      }
     }
 
     function processDebtorsMetrics(debtors) {
@@ -666,6 +710,13 @@
       (debtors || []).forEach(function (d) { total += parseMoney(d.amount_owing); });
       setText('val-outstanding-debt', formatCurrency(total));
       setText('val-debt-customers', (debtors || []).length + ' Customers');
+
+      // Breathing red alert for outstanding debt
+      var debtCard = $('card-outstanding-debt');
+      if (debtCard) {
+        if (total > 0) debtCard.classList.add('alert-breathing-red');
+        else debtCard.classList.remove('alert-breathing-red');
+      }
     }
 
     function renderSalesChart(sales) {
