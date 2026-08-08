@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#6C5CE7">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Quantum OPS Elite - Inventory</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -127,7 +128,13 @@
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
     #scanner-modal.hidden { display: none; }
-    #scanner-reader { width: 100%; min-height: 300px; background: #000; border-radius: 12px; overflow: hidden; }
+    #scanner-reader {
+      width: 100%;
+      height: 280px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
@@ -166,7 +173,7 @@
     </nav>
   </div>
 
-  <!-- ADD / EDIT -->
+  <!-- ADD / EDIT PRODUCT -->
   <div id="product-modal" class="modal-bg hidden">
     <div class="modal custom-scrollbar">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -246,7 +253,7 @@
     </div>
   </div>
 
-  <!-- SCANNER -->
+  <!-- SCANNER MODAL -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -258,7 +265,7 @@
         </button>
       </div>
       <div id="scanner-reader"></div>
-      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light</p>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light · 10–15 cm away</p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
       <button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
         Close &amp; type instead
@@ -397,13 +404,14 @@
       document.getElementById('photo-preview-box').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML=\'<i class=\\\'fa-solid fa-image\\\'></i>\'">';
     }
 
-    // ========== SMART BARCODE FLOW ==========
+    // ========== FIXED BARCODE SCANNER (iPhone PWA) ==========
     async function startBarcodeScanner() {
       if (scannerStarting) return;
       if (typeof Html5Qrcode === 'undefined') {
-        alert('Scanner not loaded. Check internet, close & reopen app.');
+        alert('Scanner not loaded. Check internet, close & reopen the app.');
         return;
       }
+
       scannerStarting = true;
       document.getElementById('scanner-modal').classList.remove('hidden');
       document.getElementById('scanner-status').textContent = 'Starting camera…';
@@ -415,6 +423,9 @@
           try { html5QrCode.clear(); } catch (e) {}
           html5QrCode = null;
         }
+
+        var reader = document.getElementById('scanner-reader');
+        if (reader) reader.innerHTML = '';
 
         var formats = [
           Html5QrcodeSupportedFormats.EAN_13,
@@ -428,26 +439,51 @@
           Html5QrcodeSupportedFormats.QR_CODE
         ];
 
-        html5QrCode = new Html5Qrcode('scanner-reader', { formatsToSupport: formats, verbose: false });
+        html5QrCode = new Html5Qrcode('scanner-reader', {
+          formatsToSupport: formats,
+          verbose: false,
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true
+          }
+        });
 
-        await html5QrCode.start(
-          { facingMode: 'environment' },
-          {
-            fps: 30,
-            qrbox: function (w, h) {
-              return { width: Math.floor(w * 0.94), height: Math.floor(Math.min(88, h * 0.20)) };
-            },
-            aspectRatio: 1.777,
-            disableFlip: false
+        var config = {
+          fps: 15,
+          qrbox: function (viewfinderWidth, viewfinderHeight) {
+            var width = Math.floor(viewfinderWidth * 0.92);
+            var height = Math.floor(Math.min(70, viewfinderHeight * 0.18));
+            return { width: width, height: height };
           },
-          onInventoryScanSuccess,
-          function () {}
-        );
-        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line…';
+          aspectRatio: 1.777778,
+          disableFlip: false
+        };
+
+        try {
+          await html5QrCode.start(
+            { facingMode: { exact: "environment" } },
+            config,
+            onInventoryScanSuccess,
+            function () {}
+          );
+        } catch (exactErr) {
+          await html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            onInventoryScanSuccess,
+            function () {}
+          );
+        }
+
+        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line · steady · good light';
+        document.getElementById('scanner-status').style.color = '#a78bfa';
       } catch (err) {
         console.error(err);
-        var msg = 'Camera error. Allow permission or type the barcode.';
-        if (err && err.name === 'NotAllowedError') msg = 'Camera blocked. Allow camera in Settings.';
+        var msg = 'Camera failed. Allow permission or type the barcode.';
+        if (err && err.name === 'NotAllowedError') {
+          msg = 'Camera blocked. Go to Settings → allow Camera for this app.';
+        } else if (err && (err.name === 'NotFoundError' || err.name === 'NotReadableError')) {
+          msg = 'No camera found or camera in use.';
+        }
         document.getElementById('scanner-status').textContent = msg;
         document.getElementById('scanner-status').style.color = '#fb7185';
       } finally {
@@ -463,13 +499,15 @@
         }
       } catch (e) {}
       html5QrCode = null;
+      var reader = document.getElementById('scanner-reader');
+      if (reader) reader.innerHTML = '';
       document.getElementById('scanner-modal').classList.add('hidden');
       document.getElementById('scanner-status').textContent = '';
     }
 
     async function onInventoryScanSuccess(decodedText) {
       var now = Date.now();
-      if (now - lastScanTime < 800) return;
+      if (now - lastScanTime < 1200) return;
       lastScanTime = now;
 
       var code = String(decodedText || '').trim();
@@ -478,31 +516,30 @@
       document.getElementById('prod-sku').value = code;
       document.getElementById('scanner-status').textContent = 'Captured: ' + code;
       document.getElementById('scanner-status').style.color = '#34d399';
-      try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
 
-      await stopBarcodeScanner();
-      await handleScannedBarcode(code);
+      try { if (navigator.vibrate) navigator.vibrate(50); } catch (e) {}
+
+      setTimeout(async function () {
+        await stopBarcodeScanner();
+        await handleScannedBarcode(code);
+      }, 350);
     }
 
     async function handleScannedBarcode(code) {
-      // 1) Check YOUR shop products first
       var existing = allProducts.find(function (p) {
         return String(p.sku || '').trim().toLowerCase() === code.toLowerCase();
       });
 
       if (existing) {
-        // Already in this shop → fill everything, treat as restock/edit helper
         editingProductId = existing.id;
         document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Update Stock';
         document.getElementById('save-product-btn').textContent = 'Update Product';
         fillFormFromProduct(existing);
-        // Focus user on quantity
         document.getElementById('prod-units').focus();
         showHint('Already in your shop: ' + (existing.name || code) + '. Adjust units / prices then save.', true);
         return;
       }
 
-      // 2) New product → free online lookup (Open Food Facts)
       showHint('Looking up product name…', true);
       try {
         var info = await lookupBarcodeFree(code);
@@ -521,7 +558,6 @@
       }
     }
 
-    // Free product lookup – Open Food Facts (no API key)
     async function lookupBarcodeFree(barcode) {
       var url = 'https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(barcode) + '.json';
       var res = await fetch(url, { method: 'GET' });
