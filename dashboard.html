@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Quantum OPS Elite - Mobile Business OS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; }
@@ -99,6 +99,24 @@
       animation: breathe-amber 1.8s ease-in-out infinite;
       border-color: rgba(255,213,74,0.45) !important;
     }
+
+    /* Premium badge */
+    .premium-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(139,92,255,0.22));
+      border: 1px solid rgba(255,215,0,0.5);
+      color: #FFD54A;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.04em;
+      box-shadow: 0 0 12px rgba(255,215,0,0.22);
+      flex-shrink: 0;
+    }
+    .premium-badge i { font-size: 9px; }
 
     .top-bar {
       padding: 12px 16px;
@@ -248,15 +266,21 @@
     </div>
 
     <div class="main-scroll custom-scrollbar">
-      <!-- Greeting -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <div>
+      <!-- Greeting + Premium -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px;">
+        <div style="min-width:0;flex:1;">
           <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day, User 👋</h1>
           <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
         </div>
-        <div class="branch-chip">
-          <i class="fa-solid fa-store" style="font-size:10px;"></i>
-          <span id="current-branch-name">My Business</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <div class="branch-chip">
+            <i class="fa-solid fa-store" style="font-size:10px;"></i>
+            <span id="current-branch-name">My Business</span>
+          </div>
+          <div class="premium-badge" id="premium-badge" title="Subscription status">
+            <i class="fa-solid fa-crown"></i>
+            <span id="premium-label">TRIAL</span>
+          </div>
         </div>
       </div>
 
@@ -281,7 +305,7 @@
 
       <!-- KPI row 2 -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-        <a href="expenses.html" class="neon-card">
+        <a href="expenses.html" id="card-expenses" class="neon-card">
           <p class="kpi-label">Expenses (Today)</p>
           <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
           <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
@@ -440,8 +464,10 @@
     let liveRefreshTimer = null;
     let liveChannel = null;
     let todayGrossProfit = 0;
+    let todaySalesAmount = 0;
     let appReady = false;
     let loggingOut = false;
+    let lastChartKey = '';
 
     function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
@@ -498,7 +524,7 @@
       liveRefreshTimer = setTimeout(function () {
         fetchAllLiveMetrics();
         loadUnreadBadge();
-      }, 600);
+      }, 900);
     }
 
     function applyCompanyProfile(c) {
@@ -515,6 +541,9 @@
       if (dot && c.company_name && c.address && c.phone) {
         dot.classList.remove('hidden');
       }
+      // Premium badge (safe default – no subscription_status column yet)
+      var label = $('premium-label');
+      if (label) label.textContent = 'TRIAL';
     }
 
     async function loadUnreadBadge() {
@@ -620,20 +649,20 @@
             .select('id, total_amount, total, profit, total_profit, created_at, payment_method, items')
             .eq('company_id', userCompanyId)
             .order('created_at', { ascending: false })
-            .limit(200),
+            .limit(120),
           supabaseClient.from('products')
             .select('id, stock, items_per_pack')
             .eq('company_id', userCompanyId)
-            .limit(200),
+            .limit(150),
           supabaseClient.from('debtors')
             .select('id, amount_owing, customer_name, status')
             .eq('company_id', userCompanyId)
-            .limit(200),
+            .limit(100),
           supabaseClient.from('expenses')
             .select('id, amount, created_at')
             .eq('company_id', userCompanyId)
             .order('created_at', { ascending: false })
-            .limit(100)
+            .limit(60)
         ]);
 
         processSalesMetrics(salesRes.data || []);
@@ -664,6 +693,7 @@
         }
       });
       todayGrossProfit = todayProfit;
+      todaySalesAmount = todaySales;
       setText('val-today-sales', formatCurrency(todaySales));
       setText('val-today-profit', formatCurrency(todayProfit));
       setText('val-transactions', String(todayCount));
@@ -685,6 +715,14 @@
         netEl.textContent = formatCurrency(net);
         netEl.className = 'kpi-value ' + (net >= 0 ? 'text-success' : 'text-loss');
       }
+
+      // Expenses too high → breathe red (same as debt)
+      var expCard = $('card-expenses');
+      if (expCard) {
+        var tooHigh = todayExp > 0 && (todayExp >= todayGrossProfit || (todaySalesAmount > 0 && todayExp > todaySalesAmount * 0.35));
+        if (tooHigh) expCard.classList.add('alert-breathing-red');
+        else expCard.classList.remove('alert-breathing-red');
+      }
     }
 
     function processInventoryMetrics(products) {
@@ -697,7 +735,6 @@
       setText('val-low-stock', low + ' Items');
       setText('val-business-health', Math.max(100 - low * 5, 40) + '%');
 
-      // Breathing amber alert for low stock
       var lowCard = $('card-low-stock');
       if (lowCard) {
         if (low > 0) lowCard.classList.add('alert-breathing-amber');
@@ -711,7 +748,6 @@
       setText('val-outstanding-debt', formatCurrency(total));
       setText('val-debt-customers', (debtors || []).length + ' Customers');
 
-      // Breathing red alert for outstanding debt
       var debtCard = $('card-outstanding-debt');
       if (debtCard) {
         if (total > 0) debtCard.classList.add('alert-breathing-red');
@@ -723,6 +759,18 @@
       const canvas = $('salesOverviewChart');
       const fallback = $('chart-fallback');
       if (!canvas) return;
+
+      const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      const totals = [0,0,0,0,0,0,0];
+      (sales || []).forEach(function (s) {
+        let idx = new Date(s.created_at).getDay() - 1;
+        if (idx === -1) idx = 6;
+        totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
+      });
+      const chartKey = totals.join(',');
+      if (chartKey === lastChartKey && salesChartInstance) return;
+      lastChartKey = chartKey;
+
       try {
         if (fallback) fallback.classList.add('hidden');
         canvas.classList.remove('hidden');
@@ -731,13 +779,6 @@
           try { salesChartInstance.destroy(); } catch (e) {}
           salesChartInstance = null;
         }
-        const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-        const totals = [0,0,0,0,0,0,0];
-        (sales || []).forEach(function (s) {
-          let idx = new Date(s.created_at).getDay() - 1;
-          if (idx === -1) idx = 6;
-          totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
-        });
 
         const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
         gradient.addColorStop(0, '#8B5CFF');
@@ -757,8 +798,8 @@
               tension: 0.4,
               pointBackgroundColor: '#5CC8FF',
               pointBorderColor: '#8B5CFF',
-              pointRadius: 4,
-              pointHoverRadius: 6
+              pointRadius: 3,
+              pointHoverRadius: 5
             }]
           },
           options: {
