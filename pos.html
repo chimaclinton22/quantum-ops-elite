@@ -6,141 +6,46 @@
   <meta name="theme-color" content="#6C5CE7">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Quantum OPS Elite - Inventory</title>
+  <title>POS Sales - Quantum OPS Elite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; overflow: hidden; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
-    
-    /* Base Mobile View */
-    @media (max-width: 767px) {
-      .iphone-frame {
-        width: 100%; max-width: 100%; height: 100dvh;
-        background: #0B0B16; position: relative; overflow: hidden;
-        display: flex; flex-direction: column;
-      }
-      .desktop-sidebar { display: none; }
-      .search-box-desktop { display: none; }
-      .grid-products { display: flex; flex-direction: column; }
+    .iphone-frame {
+      width: 100vw; height: 100vh; height: 100dvh;
+      background: #0B0B16; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
     }
-
-    /* Desktop & Laptop Responsive View */
     @media (min-width: 768px) {
-      body { display: flex; height: 100vh; overflow: hidden; background: #07070F; }
+      body { display: block; height: 100vh; }
       .iphone-frame {
-        width: 100%; max-width: 100%; height: 100vh;
+        width: 100vw; max-width: 100vw; height: 100vh; max-height: 100vh;
         border-radius: 0; border: none; box-shadow: none;
-        display: flex; flex-direction: row; background: #07070F;
       }
-      
-      /* Sidebar Navigation */
-      .desktop-sidebar {
-        width: 240px; background: #0B0B16; border-right: 1px solid rgba(139,92,246,0.15);
-        display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; justify-content: space-between;
-      }
-      .sidebar-brand {
-        font-size: 18px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; margin-bottom: 32px;
-      }
-      .sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
-      .sidebar-link {
-        display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px;
-        color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.2s;
-      }
-      .sidebar-link:hover { background: #121224; color: #fff; }
-      .sidebar-link.active { background: #6C5CE7; color: #fff; }
-      .bottom-nav { display: none !important; }
-
-      /* Main Workspace Area */
-      .main-workspace {
-        flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #0B0B16;
-      }
-      .top-bar {
-        padding: 20px 32px; background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.1);
-      }
-      .top-bar-title { font-size: 20px !important; }
-      
-      /* Content Layout */
-      .content-header {
-        padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
-        background: #0E0E1C; border-bottom: 1px solid rgba(139,92,246,0.1);
-      }
-      .search-box-desktop {
-        flex: 1; max-width: 400px;
-      }
-      .search-box-desktop input {
-        width: 100%; background: #16162d; border: 1px solid rgba(139,92,246,0.2);
-        border-radius: 12px; padding: 10px 14px; font-size: 13px; color: #fff; outline: none;
-      }
-      .filters { padding: 0; background: transparent; }
-      
-      /* Product Cards Grid Layout */
-      .list {
-        padding: 24px 32px;
-      }
-      .grid-products {
-        display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;
-      }
-      .card { margin-bottom: 0; }
-      
-      /* Modal Expansion */
-      .modal { max-width: 650px; }
-      .modal-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     }
-
     .top-bar {
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
+      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(11,11,22,0.9); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
     }
-    .icon-btn {
-      width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(139,92,246,0.2);
-      background: #121224; color: #cbd5e1; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .icon-btn.primary { background: #6C5CE7; border: none; color: #fff; }
-    .icon-btn.primary:hover { background: #5b4bc4; }
-    .search-box { padding: 8px 16px; background: #0E0E1C; border-bottom: 1px solid rgba(139,92,246,0.1); }
-    .search-box input {
-      width: 100%; background: #16162d; border: 1px solid rgba(139,92,246,0.2);
-      border-radius: 12px; padding: 8px 12px; font-size: 12px; color: #fff; outline: none;
-    }
-    .filters {
-      display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0;
-    }
-    .filter-tab {
-      padding: 8px 16px; border-radius: 12px; font-size: 12px; font-weight: 600;
-      background: #121224; color: #94a3b8; border: 1px solid rgba(139,92,246,0.15);
-      cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.2s;
-    }
-    .filter-tab.active { background: #6C5CE7; color: #fff; border-color: transparent; }
-    .list { flex: 1; overflow-y: auto; }
+    .main-scroll { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 96px; }
     .card {
-      position: relative; background: #121224; border: 1px solid rgba(139,92,246,0.15);
-      border-radius: 16px; padding: 14px;
+      background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px; padding: 12px; margin-bottom: 12px;
     }
-    .menu-btn {
-      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      border-radius: 8px; color: #94a3b8; background: transparent; border: none; cursor: pointer;
+    .input {
+      width: 100%; background: #121224; border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px; padding: 10px 12px 10px 36px; font-size: 12px; color: #fff; outline: none;
     }
-    .action-menu {
-      position: absolute; right: 8px; top: 40px; background: #1a1a2e;
-      border: 1px solid rgba(139,92,246,0.4); border-radius: 12px; min-width: 140px;
-      z-index: 100; box-shadow: 0 12px 30px rgba(0,0,0,0.6); overflow: hidden; display: none;
+    .btn-primary {
+      width: 100%; padding: 14px; border: none; border-radius: 16px;
+      background: linear-gradient(to right, #6C5CE7, #4F46E5); color: #fff;
+      font-weight: 700; font-size: 12px; cursor: pointer;
     }
-    .action-menu.show { display: block; }
-    .action-menu button {
-      width: 100%; text-align: left; padding: 11px 14px; font-size: 12px; color: #e2e8f0;
-      display: flex; align-items: center; gap: 10px; background: transparent; border: none; cursor: pointer;
-    }
-    .badge {
-      display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 600; border: 1px solid;
-    }
-    .badge-ok { background: rgba(6,78,59,0.5); color: #34d399; border-color: rgba(16,185,129,0.3); }
-    .badge-low { background: rgba(120,53,15,0.5); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
-    .badge-out { background: rgba(136,19,55,0.5); color: #fb7185; border-color: rgba(244,63,94,0.3); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
       background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
@@ -152,203 +57,146 @@
     }
     .nav-item.active { color: #a78bfa; }
     .nav-item i { font-size: 14px; }
-    .modal-bg {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50;
-      display: flex; align-items: center; justify-content: center; padding: 16px;
+    .product-row {
+      display: flex; align-items: center; gap: 12px; padding: 10px;
+      background: #191932; border: 1px solid rgba(139,92,246,0.1);
+      border-radius: 12px; margin-bottom: 8px; cursor: pointer;
     }
-    .modal-bg.hidden { display: none; }
-    .modal {
-      width: 100%; max-height: 90vh; overflow-y: auto;
-      background: #121224; border: 1px solid rgba(139,92,246,0.3); border-radius: 24px; padding: 24px;
+    .product-row.disabled { opacity: 0.5; pointer-events: none; }
+    .product-row img {
+      width: 48px; height: 48px; border-radius: 8px; object-fit: cover;
+      background: rgba(88,28,135,0.3); flex-shrink: 0;
     }
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: 11px; color: #94a3b8; font-weight: 500; margin-bottom: 4px; }
-    .field input {
-      width: 100%; background: #191932; border: 1px solid rgba(139,92,246,0.2);
-      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
+    .badge {
+      display: inline-block; padding: 2px 6px; border-radius: 4px;
+      font-size: 8px; font-weight: 600; border: 1px solid;
     }
-    .field input:focus { border-color: #6C5CE7; }
-    .field input[readonly] { background: #15152a; color: #94a3b8; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .btn-save {
-      width: 100%; padding: 12px; border: none; border-radius: 12px;
-      background: linear-gradient(to right, #6C5CE7, #4F46E5); color: #fff;
-      font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 8px; transition: opacity 0.2s;
+    .badge-ok { background: rgba(6,78,59,0.5); color: #34d399; border-color: rgba(16,185,129,0.3); }
+    .badge-low { background: rgba(120,53,15,0.5); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+    .badge-out { background: rgba(136,19,55,0.5); color: #fb7185; border-color: rgba(244,63,94,0.3); }
+    .tools { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .tool {
+      background: #121224; border: 1px solid rgba(139,92,246,0.2); border-radius: 12px;
+      padding: 10px; display: flex; align-items: center; gap: 8px; color: #e2e8f0; cursor: pointer;
     }
-    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
-    .preview-box {
-      background: rgba(88,28,135,0.2); border: 1px solid rgba(139,92,246,0.2);
-      border-radius: 12px; padding: 10px 14px; font-size: 12px; color: #e9d5ff; margin-bottom: 12px;
+    .pay-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+    .pay-btn {
+      padding: 10px 4px; border-radius: 12px; background: #191932;
+      border: 1px solid rgba(139,92,246,0.2); color: #94a3b8;
+      display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; cursor: pointer;
     }
-    .hint-box {
-      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
-      border-radius: 12px; padding: 10px 12px; font-size: 11px; color: #6ee7b7; margin-bottom: 12px;
-      display: none;
-    }
-    .hint-box.show { display: block; }
-    #scanner-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 80;
+    .pay-btn.active { background: rgba(108,92,231,0.2); border-color: #6C5CE7; color: #fff; }
+    .hidden { display: none !important; }
+    #receipt-modal, #scanner-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 60;
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
-    #scanner-modal.hidden { display: none; }
-    #scanner-reader {
-      width: 100%; height: 280px; background: #000; border-radius: 12px; overflow: hidden;
-    }
+    #scanner-reader { width: 100%; min-height: 300px; background: #000; border-radius: 12px; overflow: hidden; }
   </style>
 </head>
 <body>
   <div class="iphone-frame">
-    <!-- Desktop Sidebar Navigation -->
-    <aside class="desktop-sidebar">
-      <div>
-        <div class="sidebar-brand">
-          <i class="fa-solid fa-atom" style="color: #6C5CE7;"></i> Quantum OPS
-        </div>
-        <nav class="sidebar-nav">
-          <a href="dashboard.html" class="sidebar-link"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-          <a href="inventory.html" class="sidebar-link active"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
-          <a href="pos.html" class="sidebar-link"><i class="fa-solid fa-cash-register"></i> POS Sales</a>
-          <a href="ai-ceo.html" class="sidebar-link"><i class="fa-solid fa-robot"></i> AI CEO</a>
-        </nav>
-      </div>
-      <div style="font-size:11px; color:#64748b; text-align:center;">
-        Quantum Ops Elite v2.0
-      </div>
-    </aside>
-
-    <!-- Main Workspace Content -->
-    <main class="main-workspace">
-      <div class="top-bar">
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
         <div>
-          <div class="top-bar-title" style="font-weight:800;color:#fff;font-size:16px;">All Products</div>
-          <div style="font-size:10px;color:#94a3b8;" id="product-count-label">0 products</div>
+          <div style="font-weight:700;font-size:12px;color:#fff;">POS Sales</div>
+          <div style="font-size:9px;color:#94a3b8;">Create new sale</div>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="icon-btn" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;"></i></button>
-          <button class="icon-btn primary" onclick="openAddProductModal()"><i class="fa-solid fa-plus" style="font-size:12px;"></i></button>
+      </div>
+      <button onclick="clearCart()" style="padding:8px;border-radius:12px;background:#121224;border:1px solid rgba(139,92,246,0.2);color:#cbd5e1;cursor:pointer;">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+
+    <div class="main-scroll custom-scrollbar">
+      <div style="position:relative;margin-bottom:12px;">
+        <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:12px;color:#64748b;font-size:12px;"></i>
+        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name or SKU" class="input">
+      </div>
+
+      <div class="tools">
+        <div class="tool" onclick="startBarcodeScanner()">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(108,92,231,0.2);color:#a78bfa;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-camera"></i></div>
+          <div><div style="font-size:10px;font-weight:700;">Scan</div><div style="font-size:8px;color:#94a3b8;">Camera</div></div>
+        </div>
+        <div class="tool" onclick="startBarcodeScanner()">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(79,70,229,0.2);color:#818cf8;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-barcode"></i></div>
+          <div><div style="font-size:10px;font-weight:700;">Barcode</div><div style="font-size:8px;color:#94a3b8;">Scanner</div></div>
+        </div>
+        <div class="tool" onclick="promptCustomer()">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(16,185,129,0.2);color:#34d399;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-user"></i></div>
+          <div><div style="font-size:10px;font-weight:700;" id="selected-customer-label">Customer</div><div style="font-size:8px;color:#94a3b8;">Select</div></div>
         </div>
       </div>
 
-      <!-- Content Header with Filters & Search for Desktop -->
-      <div class="content-header">
-        <div class="search-box-desktop">
-          <input type="text" id="desktop-search-input" oninput="syncSearchAndFilter(this.value)" placeholder="Search product name or SKU...">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">
+          <span>Available Products (Tap to Add)</span>
+          <span style="font-size:10px;color:#a78bfa;">Live Inventory</span>
         </div>
-        <div class="filters custom-scrollbar">
-          <button class="filter-tab active" onclick="setFilter('all', this)">All</button>
-          <button class="filter-tab" onclick="setFilter('instock', this)">In Stock</button>
-          <button class="filter-tab" onclick="setFilter('lowstock', this)">Low Stock</button>
-          <button class="filter-tab" onclick="setFilter('outofstock', this)">Out of Stock</button>
+        <div id="product-catalog-list" class="custom-scrollbar" style="max-height:220px;overflow-y:auto;">
+          <div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">Loading inventory...</div>
         </div>
       </div>
 
-      <div id="search-container" class="search-box" style="display:none;">
-        <input type="text" id="search-input" oninput="syncSearchAndFilter(this.value)" placeholder="Search product name or SKU...">
-      </div>
-
-      <div class="list custom-scrollbar">
-        <div class="grid-products" id="products-list-container">
-          <div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">Loading products...</div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
+          <h3 style="margin:0;font-size:12px;font-weight:700;color:#fff;" id="cart-title-count">Cart (0 items)</h3>
+          <button onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:10px;cursor:pointer;">Clear Cart</button>
+        </div>
+        <div id="cart-items-container">
+          <div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>
         </div>
       </div>
-    </main>
 
-    <!-- Mobile Bottom Navigation -->
+      <div class="card" style="font-size:12px;">
+        <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Subtotal</span><span style="color:#fff;font-weight:600;" id="val-subtotal">₦0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;margin-bottom:6px;">
+          <span>Discount (₦)</span>
+          <input type="number" id="input-discount" value="0" oninput="calculateTotals()" style="width:96px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:6px 8px;text-align:right;color:#fff;font-size:12px;">
+        </div>
+        <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Tax</span><span style="color:#fff;font-weight:600;" id="val-tax">₦0</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(139,92,246,0.1);padding-top:8px;margin-top:4px;">
+          <span style="font-weight:700;color:#fff;font-size:14px;">TOTAL</span>
+          <span style="font-weight:800;color:#a78bfa;font-size:16px;" id="val-grand-total">₦0</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:12px;font-weight:600;color:#cbd5e1;">Payment Method</span>
+          <span style="font-size:10px;color:#a78bfa;">Secure</span>
+        </div>
+        <div class="pay-grid" style="margin-bottom:10px;">
+          <button type="button" onclick="setPaymentMethod('Cash')" id="pm-Cash" class="pay-btn active"><i class="fa-solid fa-money-bill-wave"></i>Cash</button>
+          <button type="button" onclick="setPaymentMethod('Transfer')" id="pm-Transfer" class="pay-btn"><i class="fa-solid fa-building-columns"></i>Transfer</button>
+          <button type="button" onclick="setPaymentMethod('POS')" id="pm-POS" class="pay-btn"><i class="fa-solid fa-credit-card"></i>POS</button>
+          <button type="button" onclick="setPaymentMethod('Online')" id="pm-Online" class="pay-btn"><i class="fa-solid fa-globe"></i>Online</button>
+        </div>
+        <label style="font-size:10px;color:#94a3b8;">Paid Amount (₦)</label>
+        <input type="number" id="input-paid-amount" oninput="calculateBalance()" placeholder="Enter amount paid"
+          style="width:100%;margin-top:4px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:10px 12px;font-size:12px;color:#fff;">
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;">
+          <span style="color:#94a3b8;">Balance / Change:</span>
+          <span style="font-weight:700;color:#34d399;" id="val-balance">₦0</span>
+        </div>
+      </div>
+
+      <button id="complete-sale-btn" onclick="completeSale()" class="btn-primary">
+        <i class="fa-solid fa-circle-check"></i> <span id="complete-sale-label">Complete Sale & Generate Receipt</span>
+      </button>
+    </div>
+
     <nav class="bottom-nav">
       <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item active"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
-      <a href="ai-ceo.html" class="nav-item"><i class="fa-solid fa-robot"></i>AI CEO</a>
+      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+      <a href="pos.html" class="nav-item active"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
     </nav>
   </div>
 
-  <!-- ADD / EDIT PRODUCT MODAL -->
-  <div id="product-modal" class="modal-bg hidden">
-    <div class="modal custom-scrollbar">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h3 style="margin:0;font-size:16px;font-weight:700;color:#fff;" id="modal-title">
-          <i class="fa-solid fa-box" style="color:#a78bfa;margin-right:8px;"></i>Add New Product
-        </h3>
-        <button onclick="closeProductModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div id="smart-hint" class="hint-box"></div>
-
-      <div class="modal-grid-2">
-        <div>
-          <div class="field">
-            <label>Product Photo</label>
-            <div style="display:flex;align-items:center;gap:12px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:8px;">
-              <div id="photo-preview-box" style="width:48px;height:48px;border-radius:8px;background:rgba(88,28,135,0.3);border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center;color:#a78bfa;overflow:hidden;flex-shrink:0;">
-                <i class="fa-solid fa-image"></i>
-              </div>
-              <input type="file" id="product-image-file" accept="image/*" onchange="previewImage(event)" style="font-size:10px;color:#94a3b8;flex:1;">
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Product Name *</label>
-            <input type="text" id="prod-name" placeholder="Scan barcode to auto-fill, or type">
-          </div>
-
-          <div class="field">
-            <label>Barcode / SKU</label>
-            <div style="display:flex;gap:8px;">
-              <input type="text" id="prod-sku" placeholder="Scan or type" style="flex:1;">
-              <button type="button" onclick="startBarcodeScanner()" style="width:48px;background:#6C5CE7;border:none;border-radius:12px;color:#fff;cursor:pointer;flex-shrink:0;">
-                <i class="fa-solid fa-barcode"></i>
-              </button>
-            </div>
-            <p style="font-size:9px;color:#64748b;margin:4px 0 0;">Scan once → name fills → you only add cost, price & quantity</p>
-          </div>
-        </div>
-
-        <div>
-          <div class="grid-2">
-            <div class="field">
-              <label>Pieces Per Unit *</label>
-              <input type="number" id="prod-pack" value="24" min="1" oninput="calculateUnitCost(); updatePreviewUnits()">
-            </div>
-            <div class="field">
-              <label>Bulk Cost Price (₦)</label>
-              <input type="number" id="prod-bulk-cost" placeholder="0" oninput="calculateUnitCost()">
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="field">
-              <label>Single Unit Cost (₦)</label>
-              <input type="number" id="prod-unit-cost" placeholder="Auto" readonly>
-            </div>
-            <div class="field">
-              <label>Selling Price (₦) *</label>
-              <input type="number" id="prod-selling" placeholder="e.g. 700" oninput="calculateProfit()">
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="field">
-              <label>Number of Units *</label>
-              <input type="number" id="prod-units" value="5" min="0" step="any" oninput="updatePreviewUnits()">
-            </div>
-            <div class="field">
-              <label>Expected Profit / Piece</label>
-              <input type="text" id="prod-expected-profit" value="₦0" readonly style="color:#34d399;font-weight:700;">
-            </div>
-          </div>
-
-          <div class="preview-box">
-            <span style="color:#94a3b8;">Will store:</span>
-            <span id="preview-units-pcs" style="font-weight:600;color:#fff;margin-left:6px;">5 units = 120 pcs</span>
-          </div>
-        </div>
-      </div>
-
-      <button id="save-product-btn" onclick="submitProduct()" class="btn-save">Save Product to Inventory</button>
-    </div>
-  </div>
-
-  <!-- SCANNER MODAL -->
+  <!-- SCANNER -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -360,11 +208,79 @@
         </button>
       </div>
       <div id="scanner-reader"></div>
-      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light · 10–15 cm away</p>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">
+        Hold barcode in the thin line · good light · 10–20 cm away
+      </p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
       <button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
-        Close &amp; type instead
+        Close &amp; search by name instead
       </button>
+    </div>
+  </div>
+
+  <!-- RECEIPT -->
+  <div id="receipt-modal" class="hidden">
+    <div style="width:100%;max-width:384px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:92vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
+        <div style="color:#34d399;font-size:12px;font-weight:700;"><i class="fa-solid fa-circle-check"></i> Receipt Generated Successfully!</div>
+        <button onclick="closeReceiptModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="receipt-paper" style="background:#fff;color:#0f172a;padding:18px;font-family:monospace;font-size:11px;width:100%;box-sizing:border-box;">
+        <div style="text-align:center;border-bottom:2px dashed #cbd5e1;padding-bottom:12px;margin-bottom:12px;">
+          <div id="receipt-logo-wrap" style="display:none;margin-bottom:8px;">
+            <img id="receipt-logo" src="" alt="Logo" style="max-height:48px;max-width:120px;margin:0 auto;display:block;object-fit:contain;">
+          </div>
+          <h3 id="receipt-biz-name" style="font-size:15px;font-weight:900;margin:0 0 4px 0;text-transform:uppercase;color:#020617;">MY STORE</h3>
+          <p id="receipt-biz-address" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-phone" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-email" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-website" style="font-size:10px;color:#475569;margin:2px 0;"></p>
+          <p id="receipt-biz-tax" style="font-size:9px;color:#64748b;margin:2px 0;"></p>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
+          <div><p style="margin:0;font-weight:bold;">RECEIPT</p><p id="receipt-trx-id" style="margin:2px 0;color:#64748b;">SAL-000000</p></div>
+          <div style="text-align:right;"><p id="receipt-date" style="margin:0;color:#0f172a;"></p></div>
+        </div>
+        <div style="font-size:10px;border-bottom:1px dashed #cbd5e1;padding-bottom:8px;margin-bottom:8px;">
+          <p style="margin:2px 0;"><b>Customer:</b> <span id="receipt-customer-name">Walk-in</span></p>
+          <p style="margin:2px 0;"><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="display:grid;grid-template-columns:6fr 2fr 4fr;font-weight:bold;border-bottom:1px solid #0f172a;padding-bottom:4px;font-size:10px;">
+            <span>ITEM</span><span style="text-align:center;">QTY</span><span style="text-align:right;">AMOUNT</span>
+          </div>
+          <div id="receipt-items-list" style="margin-top:6px;"></div>
+        </div>
+        <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Subtotal:</span><span id="receipt-subtotal">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Discount:</span><span id="receipt-discount">-₦0</span></div>
+          <div style="display:flex;justify-content:space-between;margin:3px 0;"><span>Tax:</span><span id="receipt-tax">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;font-weight:bold;font-size:13px;border-top:1px solid #0f172a;padding-top:6px;margin-top:6px;">
+            <span>TOTAL:</span><span id="receipt-total">₦0</span>
+          </div>
+        </div>
+        <div style="border-top:1px dashed #cbd5e1;padding-top:8px;margin-top:8px;font-size:10px;">
+          <p style="margin:2px 0;"><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
+          <p style="margin:2px 0;"><b>Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
+          <p style="margin:2px 0;"><b>Change:</b> <span id="receipt-change">₦0</span></p>
+        </div>
+        <div style="text-align:center;padding-top:12px;border-top:2px dashed #cbd5e1;margin-top:12px;font-size:9px;color:#64748b;">
+          <p id="receipt-thank-you" style="margin:2px 0;font-weight:600;color:#0f172a;">Thank you for your patronage!</p>
+          <p style="margin:2px 0;font-weight:bold;color:#0f172a;" id="receipt-footer-biz">Business Store</p>
+          <p style="margin:4px 0;font-size:8px;">Powered by Quantum OPS Elite</p>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <p style="text-align:center;font-size:10px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">Send Receipt</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button onclick="sendReceiptViaWhatsApp()" style="padding:10px;background:rgba(5,150,105,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);border-radius:12px;font-size:12px;cursor:pointer;">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+          </button>
+          <button onclick="downloadReceiptPDF()" style="padding:10px;background:rgba(108,92,231,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);border-radius:12px;font-size:12px;cursor:pointer;">
+            <i class="fa-solid fa-download"></i> Download PDF
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -377,18 +293,20 @@
     const LOW_STOCK_UNITS = 3;
 
     let userCompanyId = null;
-    let allProducts = [];
-    let currentFilter = 'all';
-    let uploadedImageBase64 = '';
-    let editingProductId = null;
-    let isSaving = false;
-    let isFetching = false;
+    let currentUserProfile = null;
+    let userCompanyDetails = null;
+    let inventoryCatalog = [];
+    let cart = [];
+    let selectedPaymentMethod = 'Cash';
+    let selectedCustomer = 'Walk-in Customer';
+    let lastCompletedTransaction = null;
+    let isSavingSale = false;
     let html5QrCode = null;
     let lastScanTime = 0;
     let scannerStarting = false;
 
     function formatCurrency(amount) {
-      return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+      return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
     function formatUnits(value) {
       const num = Number(value);
@@ -396,121 +314,127 @@
       return Number.isInteger(num) ? num : parseFloat(num.toFixed(2));
     }
 
-    function syncSearchAndFilter(val) {
-      var mobileInput = document.getElementById('search-input');
-      var desktopInput = document.getElementById('desktop-search-input');
-      if (mobileInput && mobileInput.value !== val) mobileInput.value = val;
-      if (desktopInput && desktopInput.value !== val) desktopInput.value = val;
-      filterProducts();
+    function applyCompanyToReceiptHeader() {
+      const c = userCompanyDetails || {};
+      const bizName = c.company_name || 'MY STORE';
+      document.getElementById('receipt-biz-name').textContent = bizName;
+      document.getElementById('receipt-footer-biz').textContent = bizName;
+      document.getElementById('receipt-biz-address').textContent = c.address || '';
+      document.getElementById('receipt-biz-phone').textContent = c.phone ? ('Tel: ' + c.phone) : '';
+      document.getElementById('receipt-biz-email').textContent = c.email || '';
+      document.getElementById('receipt-biz-website').textContent = c.website || '';
+      document.getElementById('receipt-biz-tax').textContent = c.tax_id ? ('Tax/RC: ' + c.tax_id) : '';
+      document.getElementById('receipt-thank-you').textContent = c.thank_you_message || 'Thank you for your patronage!';
+      const logoWrap = document.getElementById('receipt-logo-wrap');
+      const logoImg = document.getElementById('receipt-logo');
+      if (c.logo) { logoImg.src = c.logo; logoWrap.style.display = 'block'; }
+      else { logoWrap.style.display = 'none'; logoImg.src = ''; }
     }
 
-    function showHint(msg, isOk) {
-      var el = document.getElementById('smart-hint');
-      el.textContent = msg;
-      el.classList.add('show');
-      el.style.background = isOk ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
-      el.style.borderColor = isOk ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)';
-      el.style.color = isOk ? '#6ee7b7' : '#fbbf24';
-    }
-    function hideHint() {
-      document.getElementById('smart-hint').classList.remove('show');
-    }
+    async function initializePOS() {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) { window.location.replace('index.html'); return; }
+        currentUserProfile = session.user;
+        userCompanyId = null;
 
-    function toggleSearch() {
-      const el = document.getElementById('search-container');
-      if (el.style.display === 'none' || !el.style.display) {
-        el.style.display = 'block';
-        document.getElementById('search-input').focus();
-      } else {
-        el.style.display = 'none';
+        const { data: member } = await supabaseClient
+          .from('company_users')
+          .select('company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo)')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (member && member.company_id) {
+          userCompanyId = member.company_id;
+          if (member.companies) { userCompanyDetails = member.companies; applyCompanyToReceiptHeader(); }
+        } else {
+          const { data: owned } = await supabaseClient
+            .from('companies')
+            .select('id, company_name, address, phone, email, website, tax_id, thank_you_message, logo')
+            .eq('owner_id', session.user.id)
+            .maybeSingle();
+          if (owned && owned.id) { userCompanyId = owned.id; userCompanyDetails = owned; applyCompanyToReceiptHeader(); }
+        }
+        await fetchInventory();
+      } catch (err) {
+        console.error('POS init error:', err);
+        document.getElementById('product-catalog-list').innerHTML =
+          '<div style="text-align:center;color:#fb7185;font-size:11px;padding:12px;">Could not load. Refresh page.</div>';
       }
     }
 
-    function openAddProductModal() {
-      editingProductId = null;
-      document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-box" style="color:#a78bfa;margin-right:8px;"></i>Add New Product';
-      document.getElementById('save-product-btn').textContent = 'Save Product to Inventory';
-      clearForm();
-      hideHint();
-      document.getElementById('product-modal').classList.remove('hidden');
-      updatePreviewUnits();
-    }
-
-    function openEditProductModal(product) {
-      editingProductId = product.id;
-      document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Edit Product';
-      document.getElementById('save-product-btn').textContent = 'Update Product';
-      hideHint();
-      fillFormFromProduct(product);
-      document.getElementById('product-modal').classList.remove('hidden');
-    }
-
-    function fillFormFromProduct(product) {
-      document.getElementById('prod-name').value = product.name || '';
-      document.getElementById('prod-sku').value = product.sku || '';
-      document.getElementById('prod-pack').value = product.items_per_pack || 24;
-      document.getElementById('prod-bulk-cost').value = product.bulk_cost || '';
-      document.getElementById('prod-unit-cost').value = product.unit_cost || '';
-      document.getElementById('prod-selling').value = product.selling_price || '';
-      var pieces = parseFloat(product.stock || 0);
-      var pack = parseFloat(product.items_per_pack || 24) || 24;
-      document.getElementById('prod-units').value = formatUnits(pieces / pack);
-      uploadedImageBase64 = product.image_url || '';
-      if (uploadedImageBase64) {
-        document.getElementById('photo-preview-box').innerHTML = '<img src="' + uploadedImageBase64 + '" style="width:100%;height:100%;object-fit:cover;">';
-      } else {
-        document.getElementById('photo-preview-box').innerHTML = '<i class="fa-solid fa-image"></i>';
-      }
-      calculateUnitCost();
-      calculateProfit();
-      updatePreviewUnits();
-    }
-
-    function closeProductModal() {
-      document.getElementById('product-modal').classList.add('hidden');
-      editingProductId = null;
-      hideHint();
-    }
-
-    function clearForm() {
-      document.getElementById('prod-name').value = '';
-      document.getElementById('prod-sku').value = '';
-      document.getElementById('prod-pack').value = '24';
-      document.getElementById('prod-bulk-cost').value = '';
-      document.getElementById('prod-unit-cost').value = '';
-      document.getElementById('prod-selling').value = '';
-      document.getElementById('prod-units').value = '5';
-      document.getElementById('prod-expected-profit').value = '₦0';
-      uploadedImageBase64 = '';
-      document.getElementById('photo-preview-box').innerHTML = '<i class="fa-solid fa-image"></i>';
-      document.getElementById('product-image-file').value = '';
-    }
-
-    function previewImage(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      if (file.size > 1.5 * 1024 * 1024) {
-        alert('Image must be under 1.5MB');
+    async function fetchInventory() {
+      if (!userCompanyId) {
+        document.getElementById('product-catalog-list').innerHTML =
+          '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No company found. Please re-login.</div>';
         return;
       }
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        uploadedImageBase64 = e.target.result;
-        document.getElementById('photo-preview-box').innerHTML = '<img src="' + uploadedImageBase64 + '" style="width:100%;height:100%;object-fit:cover;">';
-      };
-      reader.readAsDataURL(file);
+      try {
+        const { data, error } = await supabaseClient
+          .from('products')
+          .select('id, name, sku, stock, items_per_pack, selling_price, unit_cost, image_url')
+          .eq('company_id', userCompanyId)
+          .order('name')
+          .limit(200);
+        if (error) throw error;
+        inventoryCatalog = data || [];
+        renderInventoryCatalog(inventoryCatalog);
+      } catch (e) {
+        console.error(e);
+        document.getElementById('product-catalog-list').innerHTML =
+          '<div style="text-align:center;color:#fb7185;font-size:11px;padding:12px;">Error loading inventory.</div>';
+      }
     }
 
-    function setPhotoFromUrl(url) {
-      if (!url) return;
-      uploadedImageBase64 = url;
-      document.getElementById('photo-preview-box').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML=\'<i class=\\\'fa-solid fa-image\\\'></i>\'">';
+    function getStockStatus(totalPieces, piecesPerUnit) {
+      const remainingUnits = totalPieces / (piecesPerUnit || 1);
+      if (totalPieces === 0) return { cls: 'badge-out', text: 'Out of Stock' };
+      if (remainingUnits <= LOW_STOCK_UNITS) return { cls: 'badge-low', text: 'Low Stock' };
+      return { cls: 'badge-ok', text: 'In Stock' };
     }
 
+    function renderInventoryCatalog(items) {
+      const container = document.getElementById('product-catalog-list');
+      if (!items.length) {
+        container.innerHTML = '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No products. Add items in Inventory first.</div>';
+        return;
+      }
+      container.innerHTML = items.map(function (item) {
+        const totalPieces = parseFloat(item.stock || 0);
+        const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
+        const displayUnits = formatUnits(totalPieces / piecesPerUnit);
+        const status = getStockStatus(totalPieces, piecesPerUnit);
+        const price = parseFloat(item.selling_price || 0);
+        const imgUrl = item.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100';
+        const disabled = totalPieces <= 0 ? 'disabled' : '';
+        return ''
+          + '<div onclick="addToCart(\'' + item.id + '\')" class="product-row ' + disabled + '">'
+          +   '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
+          +   '<div style="flex:1;min-width:0;">'
+          +     '<div style="font-weight:700;color:#fff;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (item.name || 'Product') + '</div>'
+          +     '<div style="font-size:9px;color:#94a3b8;">SKU: ' + (item.sku || 'N/A') + '</div>'
+          +     '<div style="margin-top:4px;"><span class="badge ' + status.cls + '">' + status.text + '</span>'
+          +     '<span style="font-size:9px;color:#cbd5e1;margin-left:6px;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces + ' pcs</b></span></div>'
+          +   '</div>'
+          +   '<div style="text-align:right;flex-shrink:0;">'
+          +     '<div style="font-size:12px;font-weight:700;color:#c4b5fd;">' + formatCurrency(price) + '</div>'
+          +     '<div style="font-size:8px;color:#34d399;margin-top:2px;"><i class="fa-solid fa-plus"></i> Add</div>'
+          +   '</div></div>';
+      }).join('');
+    }
+
+    function filterProducts() {
+      const keyword = (document.getElementById('product-search').value || '').toLowerCase();
+      renderInventoryCatalog(inventoryCatalog.filter(function (i) {
+        return (i.name || '').toLowerCase().indexOf(keyword) >= 0 || (i.sku || '').toLowerCase().indexOf(keyword) >= 0;
+      }));
+    }
+
+    // ========== PWA BARCODE (same as inventory) ==========
     async function startBarcodeScanner() {
       if (scannerStarting) return;
       if (typeof Html5Qrcode === 'undefined') {
-        alert('Scanner not loaded. Check internet, close & reopen the app.');
+        alert('Scanner library not loaded. Check internet, then close & reopen the app.');
         return;
       }
 
@@ -526,9 +450,6 @@
           html5QrCode = null;
         }
 
-        var reader = document.getElementById('scanner-reader');
-        if (reader) reader.innerHTML = '';
-
         var formats = [
           Html5QrcodeSupportedFormats.EAN_13,
           Html5QrcodeSupportedFormats.EAN_8,
@@ -543,46 +464,33 @@
 
         html5QrCode = new Html5Qrcode('scanner-reader', {
           formatsToSupport: formats,
-          verbose: false,
-          experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+          verbose: false
         });
 
-        var config = {
-          fps: 15,
-          qrbox: function (viewfinderWidth, viewfinderHeight) {
-            var width = Math.floor(viewfinderWidth * 0.92);
-            var height = Math.floor(Math.min(70, viewfinderHeight * 0.18));
-            return { width: width, height: height };
+        await html5QrCode.start(
+          { facingMode: 'environment' },
+          {
+            fps: 30,
+            qrbox: function (viewfinderWidth, viewfinderHeight) {
+              var width = Math.floor(viewfinderWidth * 0.94);
+              var height = Math.floor(Math.min(88, viewfinderHeight * 0.20));
+              return { width: width, height: height };
+            },
+            aspectRatio: 1.777,
+            disableFlip: false
           },
-          aspectRatio: 1.777778,
-          disableFlip: false
-        };
+          onScanSuccess,
+          function () {}
+        );
 
-        try {
-          await html5QrCode.start(
-            { facingMode: { exact: "environment" } },
-            config,
-            onInventoryScanSuccess,
-            function () {}
-          );
-        } catch (exactErr) {
-          await html5QrCode.start(
-            { facingMode: "environment" },
-            config,
-            onInventoryScanSuccess,
-            function () {}
-          );
-        }
-
-        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line · steady · good light';
-        document.getElementById('scanner-status').style.color = '#a78bfa';
+        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line…';
       } catch (err) {
         console.error(err);
-        var msg = 'Camera failed. Allow permission or type the barcode.';
+        var msg = 'Camera error. Allow permission or search by name.';
         if (err && err.name === 'NotAllowedError') {
-          msg = 'Camera blocked. Go to Settings → allow Camera for this app.';
+          msg = 'Camera blocked. Allow camera in phone Settings for this app.';
         } else if (err && (err.name === 'NotFoundError' || err.name === 'NotReadableError')) {
-          msg = 'No camera found or camera in use.';
+          msg = 'No camera or camera in use. Close other apps and retry.';
         }
         document.getElementById('scanner-status').textContent = msg;
         document.getElementById('scanner-status').style.color = '#fb7185';
@@ -599,339 +507,229 @@
         }
       } catch (e) {}
       html5QrCode = null;
-      var reader = document.getElementById('scanner-reader');
-      if (reader) reader.innerHTML = '';
       document.getElementById('scanner-modal').classList.add('hidden');
       document.getElementById('scanner-status').textContent = '';
     }
 
-    async function onInventoryScanSuccess(decodedText) {
+    function onScanSuccess(decodedText) {
       var now = Date.now();
-      if (now - lastScanTime < 1200) return;
+      if (now - lastScanTime < 700) return;
       lastScanTime = now;
 
       var code = String(decodedText || '').trim();
       if (!code) return;
 
-      document.getElementById('prod-sku').value = code;
-      document.getElementById('scanner-status').textContent = 'Captured: ' + code;
-      document.getElementById('scanner-status').style.color = '#34d399';
-
-      try { if (navigator.vibrate) navigator.vibrate(50); } catch (e) {}
-
-      setTimeout(async function () {
-        await stopBarcodeScanner();
-        await handleScannedBarcode(code);
-      }, 350);
-    }
-
-    async function handleScannedBarcode(code) {
-      var existing = allProducts.find(function (p) {
-        return String(p.sku || '').trim().toLowerCase() === code.toLowerCase();
+      var product = inventoryCatalog.find(function (p) {
+        var sku = String(p.sku || '').trim().toLowerCase();
+        var c = code.toLowerCase();
+        return sku && (sku === c || sku.indexOf(c) >= 0 || c.indexOf(sku) >= 0);
       });
 
+      if (product) {
+        document.getElementById('scanner-status').textContent = 'Found: ' + product.name;
+        document.getElementById('scanner-status').style.color = '#34d399';
+        try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
+        addToCart(product.id);
+        setTimeout(function () { stopBarcodeScanner(); }, 350);
+      } else {
+        document.getElementById('scanner-status').textContent = 'No product with SKU: ' + code;
+        document.getElementById('scanner-status').style.color = '#fbbf24';
+      }
+    }
+
+    function addToCart(itemId) {
+      const product = inventoryCatalog.find(function (i) { return i.id === itemId; });
+      if (!product) return;
+      const available = parseInt(product.stock || 0, 10);
+      if (available <= 0) return alert('Out of stock.');
+      const existing = cart.find(function (c) { return c.id === itemId; });
       if (existing) {
-        editingProductId = existing.id;
-        document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Update Stock';
-        document.getElementById('save-product-btn').textContent = 'Update Product';
-        fillFormFromProduct(existing);
-        document.getElementById('prod-units').focus();
-        showHint('Already in your shop: ' + (existing.name || code) + '. Adjust units / prices then save.', true);
+        if (existing.qty >= available) return alert('Not enough stock.');
+        existing.qty += 1;
+      } else {
+        cart.push({
+          id: itemId,
+          name: product.name || 'Product',
+          price: parseFloat(product.selling_price || 0),
+          cost_price: parseFloat(product.unit_cost || 0),
+          qty: 1
+        });
+      }
+      renderCart();
+    }
+
+    function updateCartQty(itemId, change) {
+      const item = cart.find(function (c) { return c.id === itemId; });
+      if (!item) return;
+      const product = inventoryCatalog.find(function (p) { return p.id === itemId; });
+      const available = parseInt((product && product.stock) || 0, 10);
+      item.qty += change;
+      if (item.qty <= 0) cart = cart.filter(function (c) { return c.id !== itemId; });
+      else if (item.qty > available) { item.qty = available; alert('Maximum stock reached.'); }
+      renderCart();
+    }
+
+    function clearCart() { cart = []; renderCart(); }
+
+    function renderCart() {
+      const container = document.getElementById('cart-items-container');
+      const totalQty = cart.reduce(function (a, i) { return a + i.qty; }, 0);
+      document.getElementById('cart-title-count').textContent = 'Cart (' + totalQty + ' items)';
+      if (!cart.length) {
+        container.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>';
+        calculateTotals();
         return;
       }
-
-      showHint('Looking up product name…', true);
-      try {
-        var info = await lookupBarcodeFree(code);
-        if (info && info.name) {
-          document.getElementById('prod-name').value = info.name;
-          if (info.image) setPhotoFromUrl(info.image);
-          showHint('Name filled. Now enter cost, selling price & quantity only.', true);
-          document.getElementById('prod-bulk-cost').focus();
-        } else {
-          showHint('Barcode saved. Type the product name, then cost & price.', false);
-          document.getElementById('prod-name').focus();
-        }
-      } catch (e) {
-        showHint('Barcode saved. Type the product name, then cost & price.', false);
-        document.getElementById('prod-name').focus();
-      }
-    }
-
-    async function lookupBarcodeFree(barcode) {
-      var url = 'https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(barcode) + '.json';
-      var res = await fetch(url, { method: 'GET' });
-      if (!res.ok) return null;
-      var data = await res.json();
-      if (!data || data.status !== 1 || !data.product) return null;
-      var p = data.product;
-      var name = p.product_name || p.product_name_en || p.generic_name || '';
-      var image = p.image_front_small_url || p.image_url || p.image_front_url || '';
-      if (!name) return null;
-      return { name: name.trim(), image: image };
-    }
-
-    function calculateUnitCost() {
-      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-      var bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
-      document.getElementById('prod-unit-cost').value = (bulkCost / pack).toFixed(2);
-      calculateProfit();
-    }
-
-    function calculateProfit() {
-      var unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
-      var sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
-      var profit = sellingPrice - unitCost;
-      var field = document.getElementById('prod-expected-profit');
-      field.value = formatCurrency(profit);
-      field.style.color = profit >= 0 ? '#34d399' : '#fb7185';
-    }
-
-    function updatePreviewUnits() {
-      var units = parseFloat(document.getElementById('prod-units').value) || 0;
-      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-      var totalPieces = Math.round(units * pack);
-      document.getElementById('preview-units-pcs').textContent = formatUnits(units) + ' units = ' + totalPieces.toLocaleString() + ' pcs';
-    }
-
-    async function initializeInventory() {
-      try {
-        var sessionRes = await supabaseClient.auth.getSession();
-        var session = sessionRes.data && sessionRes.data.session;
-        if (!session || !session.user) {
-          window.location.replace('index.html');
-          return;
-        }
-        userCompanyId = null;
-        var memberRes = await supabaseClient
-          .from('company_users')
-          .select('company_id')
-          .eq('user_id', session.user.id)
-          .maybeSingle();
-        var member = memberRes.data;
-
-        if (member && member.company_id) {
-          userCompanyId = member.company_id;
-        } else {
-          var ownedRes = await supabaseClient
-            .from('companies').select('id').eq('owner_id', session.user.id).maybeSingle();
-          if (ownedRes.data && ownedRes.data.id) userCompanyId = ownedRes.data.id;
-        }
-        await fetchProducts();
-      } catch (err) {
-        console.error('Init error:', err);
-        document.getElementById('products-list-container').innerHTML =
-          '<div style="text-align:center;padding:48px 0;color:#fb7185;font-size:12px;grid-column:1/-1;">Could not load. Refresh page.</div>';
-      }
-    }
-
-    async function fetchProducts() {
-      if (!userCompanyId) {
-        allProducts = [];
-        renderProducts([]);
-        return;
-      }
-      if (isFetching) return;
-      isFetching = true;
-      try {
-        var res = await supabaseClient
-          .from('products')
-          .select('id, name, sku, stock, items_per_pack, unit_cost, bulk_cost, selling_price, image_url, created_at')
-          .eq('company_id', userCompanyId)
-          .order('created_at', { ascending: false })
-          .limit(300);
-        if (res.error) throw res.error;
-        allProducts = res.data || [];
-        filterProducts();
-      } catch (err) {
-        console.error('Fetch error:', err);
-        document.getElementById('products-list-container').innerHTML =
-          '<div style="text-align:center;padding:48px 0;color:#fb7185;font-size:12px;grid-column:1/-1;">Error loading products.</div>';
-      } finally {
-        isFetching = false;
-      }
-    }
-
-    function setFilter(filter, btn) {
-      currentFilter = filter;
-      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.remove('active'); });
-      if (btn) btn.classList.add('active');
-      filterProducts();
-    }
-
-    function filterProducts() {
-      var mobileVal = document.getElementById('search-input') ? document.getElementById('search-input').value : '';
-      var desktopVal = document.getElementById('desktop-search-input') ? document.getElementById('desktop-search-input').value : '';
-      var keyword = (desktopVal || mobileVal || '').toLowerCase();
-      
-      var filtered = allProducts.filter(function (p) {
-        var nameMatch = (p.name || '').toLowerCase().indexOf(keyword) >= 0 ||
-          (p.sku && p.sku.toLowerCase().indexOf(keyword) >= 0);
-        if (!nameMatch) return false;
-        var totalPieces = parseFloat(p.stock || 0);
-        var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
-        var remainingUnits = totalPieces / piecesPerUnit;
-        if (currentFilter === 'instock') return remainingUnits > LOW_STOCK_UNITS;
-        if (currentFilter === 'lowstock') return remainingUnits > 0 && remainingUnits <= LOW_STOCK_UNITS;
-        if (currentFilter === 'outofstock') return totalPieces === 0;
-        return true;
-      });
-      renderProducts(filtered);
-    }
-
-    function getStockStatus(totalPieces, piecesPerUnit) {
-      var remainingUnits = totalPieces / (piecesPerUnit || 1);
-      if (totalPieces === 0) return { cls: 'badge-out', text: 'Out of Stock' };
-      if (remainingUnits <= LOW_STOCK_UNITS) return { cls: 'badge-low', text: 'Low Stock' };
-      return { cls: 'badge-ok', text: 'In Stock' };
-    }
-
-    function renderProducts(products) {
-      var container = document.getElementById('products-list-container');
-      document.getElementById('product-count-label').textContent = products.length + ' products';
-      if (!products.length) {
-        container.innerHTML =
-          '<div style="text-align:center;padding:48px 16px;background:#121224;border:1px solid rgba(139,92,246,0.1);border-radius:16px;grid-column:1/-1;">'
-          + '<i class="fa-solid fa-boxes-stacked" style="color:#a78bfa;font-size:24px;"></i>'
-          + '<p style="color:#cbd5e1;font-size:12px;font-weight:500;margin:8px 0 4px;">No products found</p>'
-          + '<p style="color:#64748b;font-size:10px;margin:0;">Tap + then Scan barcode — fastest way to add.</p></div>';
-        return;
-      }
-      container.innerHTML = products.map(function (p) {
-        var totalPieces = parseFloat(p.stock || 0);
-        var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
-        var remainingUnits = totalPieces / piecesPerUnit;
-        var displayUnits = formatUnits(remainingUnits);
-        var status = getStockStatus(totalPieces, piecesPerUnit);
-        var cost = parseFloat(p.unit_cost || 0);
-        var price = parseFloat(p.selling_price || 0);
-        var profit = price - cost;
-        var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
-        var safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      container.innerHTML = cart.map(function (item) {
         return ''
-          + '<div class="card">'
-          +   '<div style="display:flex;align-items:flex-start;gap:12px;">'
-          +     '<img src="' + imgUrl + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover;background:rgba(88,28,135,0.3);border:1px solid rgba(139,92,246,0.2);flex-shrink:0;" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150\'">'
-          +     '<div style="flex:1;min-width:0;">'
-          +       '<div style="display:flex;justify-content:space-between;gap:8px;">'
-          +         '<div style="min-width:0;">'
-          +           '<div style="font-weight:700;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (p.name || 'Unnamed') + '</div>'
-          +           '<div style="font-size:10px;color:#94a3b8;margin-top:2px;">SKU: ' + (p.sku || 'N/A') + '</div>'
-          +         '</div>'
-          +         '<button class="menu-btn" onclick="toggleActionMenu(event, \'' + p.id + '\')"><i class="fa-solid fa-ellipsis-vertical"></i></button>'
-          +       '</div>'
-          +       '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
-          +         '<span class="badge ' + status.cls + '">' + status.text + '</span>'
-          +         '<span style="font-size:10px;color:#cbd5e1;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces.toLocaleString() + ' pcs</b></span>'
-          +       '</div>'
-          +       '<div style="display:flex;justify-content:space-between;margin-top:8px;">'
-          +         '<div style="font-size:10px;color:#94a3b8;">Cost: ' + formatCurrency(cost) + '</div>'
-          +         '<div style="text-align:right;">'
-          +           '<div style="font-weight:800;color:#fff;font-size:12px;">' + formatCurrency(price) + '</div>'
-          +           '<div style="font-size:10px;font-weight:600;color:' + (profit >= 0 ? '#34d399' : '#fb7185') + ';">Profit: ' + formatCurrency(profit) + '</div>'
-          +         '</div>'
-          +       '</div>'
-          +     '</div>'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(139,92,246,0.1);font-size:12px;">'
+          +   '<div style="flex:1;min-width:0;padding-right:8px;">'
+          +     '<div style="font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.name + '</div>'
+          +     '<div style="font-size:10px;color:#94a3b8;">' + formatCurrency(item.price) + ' each</div>'
           +   '</div>'
-          +   '<div id="menu-' + p.id + '" class="action-menu">'
-          +     '<button onclick="editProduct(\'' + p.id + '\')"><i class="fa-solid fa-pen" style="color:#a78bfa;"></i> Edit Product</button>'
-          +     '<button onclick="deleteProduct(\'' + p.id + '\', \'' + safeName + '\')" style="color:#fb7185;"><i class="fa-solid fa-trash"></i> Delete Product</button>'
+          +   '<div style="display:flex;align-items:center;gap:8px;">'
+          +     '<button onclick="updateCartQty(\'' + item.id + '\', -1)" style="width:24px;height:24px;border-radius:6px;background:#191932;border:1px solid rgba(139,92,246,0.2);color:#fff;cursor:pointer;">-</button>'
+          +     '<span style="font-weight:700;color:#fff;width:16px;text-align:center;">' + item.qty + '</span>'
+          +     '<button onclick="updateCartQty(\'' + item.id + '\', 1)" style="width:24px;height:24px;border-radius:6px;background:#191932;border:1px solid rgba(139,92,246,0.2);color:#fff;cursor:pointer;">+</button>'
           +   '</div>'
+          +   '<div style="width:70px;text-align:right;font-weight:700;color:#c4b5fd;">' + formatCurrency(item.price * item.qty) + '</div>'
           + '</div>';
       }).join('');
+      calculateTotals();
     }
 
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest('.menu-btn') && !e.target.closest('.action-menu')) {
-        document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
-      }
-    });
+    function calculateTotals() {
+      const subtotal = cart.reduce(function (a, i) { return a + (i.price * i.qty); }, 0);
+      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const grandTotal = Math.max(0, subtotal - discount);
+      document.getElementById('val-subtotal').textContent = formatCurrency(subtotal);
+      document.getElementById('val-grand-total').textContent = formatCurrency(grandTotal);
+      calculateBalance();
+    }
 
-    function toggleActionMenu(event, productId) {
-      event.stopPropagation();
-      document.querySelectorAll('.action-menu').forEach(function (m) {
-        if (m.id !== 'menu-' + productId) m.classList.remove('show');
+    function calculateBalance() {
+      const subtotal = cart.reduce(function (a, i) { return a + (i.price * i.qty); }, 0);
+      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const grandTotal = Math.max(0, subtotal - discount);
+      const paid = parseFloat(document.getElementById('input-paid-amount').value || 0);
+      const balance = paid - grandTotal;
+      document.getElementById('val-balance').textContent = formatCurrency(balance);
+    }
+
+    function setPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      ['Cash', 'Transfer', 'POS', 'Online'].forEach(function (m) {
+        const btn = document.getElementById('pm-' + m);
+        if (btn) {
+          if (m === method) btn.classList.add('active');
+          else btn.classList.remove('active');
+        }
       });
-      var menu = document.getElementById('menu-' + productId);
-      if (menu) menu.classList.toggle('show');
     }
 
-    function editProduct(productId) {
-      document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
-      var product = allProducts.find(function (p) { return p.id === productId; });
-      if (product) openEditProductModal(product);
-    }
-
-    async function deleteProduct(productId, productName) {
-      document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
-      if (!confirm('Delete "' + productName + '"?\n\nThis cannot be undone.')) return;
-      try {
-        var result = await supabaseClient.from('products').delete().eq('id', productId).eq('company_id', userCompanyId);
-        if (result.error) throw result.error;
-        allProducts = allProducts.filter(function (p) { return p.id !== productId; });
-        filterProducts();
-      } catch (err) {
-        alert('Failed to delete: ' + (err.message || 'Try again'));
+    function promptCustomer() {
+      const name = prompt('Enter Customer Name:', selectedCustomer);
+      if (name && name.trim()) {
+        selectedCustomer = name.trim();
+        document.getElementById('selected-customer-label').textContent = selectedCustomer;
       }
     }
 
-    async function submitProduct() {
-      if (isSaving) return;
-      var name = document.getElementById('prod-name').value.trim();
-      var sku = document.getElementById('prod-sku').value.trim();
-      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-      var unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
-      var bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
-      var sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
-      var units = parseFloat(document.getElementById('prod-units').value) || 0;
-      var totalPieces = Math.round(units * pack);
+    async function completeSale() {
+      if (!cart.length) return alert('Cart is empty.');
+      if (isSavingSale) return;
+      isSavingSale = true;
 
-      if (!name) return alert('Please enter the Product Name.');
-      if (!sellingPrice || sellingPrice <= 0) return alert('Please enter a valid Selling Price.');
-      if (pack < 1) return alert('Pieces per unit must be at least 1.');
-      if (!userCompanyId) return alert('Company not loaded. Please refresh the page.');
+      const subtotal = cart.reduce(function (a, i) { return a + (i.price * i.qty); }, 0);
+      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const grandTotal = Math.max(0, subtotal - discount);
+      const paid = parseFloat(document.getElementById('input-paid-amount').value || 0);
+      const balance = paid - grandTotal;
 
-      isSaving = true;
-      var btn = document.getElementById('save-product-btn');
-      var originalText = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = editingProductId ? 'Updating...' : 'Saving...';
+      const trxId = 'SAL-' + Math.floor(100000 + Math.random() * 900000);
+      const dateStr = new Date().toLocaleString();
 
-      var payload = {
-        company_id: userCompanyId,
-        name: name,
-        sku: sku || ('SKU-' + Math.floor(100000 + Math.random() * 900000)),
-        items_per_pack: pack,
-        bulk_cost: bulkCost,
-        unit_cost: unitCost,
-        selling_price: sellingPrice,
-        stock: totalPieces,
-        image_url: uploadedImageBase64 || null
+      lastCompletedTransaction = {
+        id: trxId,
+        date: dateStr,
+        customer: selectedCustomer,
+        paymentMethod: selectedPaymentMethod,
+        items: [...cart],
+        subtotal: subtotal,
+        discount: discount,
+        tax: 0,
+        total: grandTotal,
+        paid: paid,
+        change: balance
       };
 
       try {
-        var error = null;
-        if (editingProductId) {
-          var upd = await supabaseClient.from('products').update(payload).eq('id', editingProductId).eq('company_id', userCompanyId);
-          error = upd.error;
-        } else {
-          var ins = await supabaseClient.from('products').insert([payload]);
-          error = ins.error;
+        for (let item of cart) {
+          const p = inventoryCatalog.find(i => i.id === item.id);
+          if (p) {
+            const newStock = Math.max(0, parseInt(p.stock || 0, 10) - item.qty);
+            await supabaseClient.from('products').update({ stock: newStock }).eq('id', item.id);
+          }
         }
-        if (error) throw error;
-        closeProductModal();
-        clearForm();
-        await fetchProducts();
       } catch (err) {
-        alert('Error saving product: ' + (err.message || 'Try again'));
-      } finally {
-        isSaving = false;
-        btn.disabled = false;
-        btn.textContent = originalText;
+        console.error('Error updating stock in database:', err);
       }
+
+      showReceiptModal(lastCompletedTransaction);
+      clearCart();
+      document.getElementById('input-paid-amount').value = '';
+      document.getElementById('input-discount').value = '0';
+      await fetchInventory();
+      isSavingSale = false;
     }
 
-    window.addEventListener('DOMContentLoaded', initializeInventory);
+    function showReceiptModal(trx) {
+      document.getElementById('receipt-trx-id').textContent = trx.id;
+      document.getElementById('receipt-date').textContent = trx.date;
+      document.getElementById('receipt-customer-name').textContent = trx.customer;
+      document.getElementById('receipt-cashier-name').textContent = currentUserProfile ? (currentUserProfile.email || 'Staff') : 'Staff';
+      document.getElementById('receipt-subtotal').textContent = formatCurrency(trx.subtotal);
+      document.getElementById('receipt-discount').textContent = '-' + formatCurrency(trx.discount);
+      document.getElementById('receipt-tax').textContent = formatCurrency(trx.tax);
+      document.getElementById('receipt-total').textContent = formatCurrency(trx.total);
+      document.getElementById('receipt-payment-method').textContent = trx.paymentMethod;
+      document.getElementById('receipt-paid-amount').textContent = formatCurrency(trx.paid);
+      document.getElementById('receipt-change').textContent = formatCurrency(trx.change);
+
+      const itemsList = document.getElementById('receipt-items-list');
+      itemsList.innerHTML = trx.items.map(function (i) {
+        return ''
+          + '<div style="display:grid;grid-template-columns:6fr 2fr 4fr;margin:4px 0;">'
+          +   '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + i.name + '</span>'
+          +   '<span style="text-align:center;">' + i.qty + '</span>'
+          +   '<span style="text-align:right;">' + formatCurrency(i.price * i.qty) + '</span>'
+          + '</div>';
+      }).join('');
+
+      document.getElementById('receipt-modal').classList.remove('hidden');
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('receipt-modal').classList.add('hidden');
+    }
+
+    function sendReceiptViaWhatsApp() {
+      if (!lastCompletedTransaction) return;
+      const trx = lastCompletedTransaction;
+      let text = `*RECEIPT - ${userCompanyDetails?.company_name || 'MY STORE'}*\n`;
+      text += `Ref: ${trx.id}\nDate: ${trx.date}\nCustomer: ${trx.customer}\n---\n`;
+      trx.items.forEach(i => {
+        text += `${i.name} x${i.qty} = ${formatCurrency(i.price * i.qty)}\n`;
+      });
+      text += `---\nTotal: ${formatCurrency(trx.total)}\nPaid via ${trx.paymentMethod}\nThank you!`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function downloadReceiptPDF() {
+      window.print();
+    }
+
+    window.addEventListener('DOMContentLoaded', initializePOS);
   </script>
 </body>
 </html>
