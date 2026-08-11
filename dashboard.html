@@ -27,11 +27,17 @@
       display: flex; flex-direction: column;
     }
     @media (min-width: 768px) {
-      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
+      body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
       .iphone-frame {
-        max-width: 410px; max-height: 860px; border-radius: 48px;
+        max-width: 430px; width: 100%; max-height: 900px; height: 90vh;
+        border-radius: 40px;
         border: 1px solid rgba(46,168,255,0.2);
         box-shadow: 0 0 40px rgba(139,92,255,0.15), 0 25px 50px rgba(0,0,0,0.6);
+      }
+    }
+    @media (min-width: 1100px) {
+      .iphone-frame {
+        max-width: 460px;
       }
     }
 
@@ -123,7 +129,6 @@
       box-shadow: 0 0 12px rgba(255,90,122,0.25);
     }
 
-    /* Lock Screen */
     #subscription-lock {
       position: absolute;
       inset: 0;
@@ -224,7 +229,7 @@
     }
     #action-sheet.open { opacity: 1; pointer-events: auto; }
     #action-sheet-content {
-      width: 100%; max-width: 410px;
+      width: 100%; max-width: 430px;
       background: #101326;
       border-top: 1px solid rgba(139,92,255,0.35);
       border-radius: 28px 28px 0 0;
@@ -284,9 +289,9 @@
         <p style="margin:0 0 20px;font-size:12px;color:#7C88A5;line-height:1.5;">
           Subscribe to continue using Quantum OPS Elite and keep growing your business.
         </p>
-        <button onclick="alert('Payment coming soon. Contact support to activate.')" class="btn-primary" style="margin-bottom:10px;">
+        <a href="https://paystack.shop/pay/quantumopselite" target="_blank" rel="noopener" class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px;">
           <i class="fa-solid fa-crown" style="margin-right:6px;"></i> Upgrade Now
-        </button>
+        </a>
         <button onclick="handleLogout()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,90,122,0.35);background:transparent;color:#FF5A7A;font-size:12px;font-weight:600;cursor:pointer;">
           Log Out
         </button>
@@ -328,7 +333,7 @@
             <i class="fa-solid fa-store" style="font-size:10px;"></i>
             <span id="current-branch-name">My Business</span>
           </div>
-          <div class="premium-badge" id="premium-badge" title="Subscription status" onclick="alert('Subscription management coming soon')">
+          <div class="premium-badge" id="premium-badge" title="Upgrade / Manage Subscription" onclick="window.open('https://paystack.shop/pay/quantumopselite', '_blank')">
             <i class="fa-solid fa-crown"></i>
             <span id="premium-label">TRIAL</span>
           </div>
@@ -508,6 +513,7 @@
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const PAYSTACK_LINK = "https://paystack.shop/pay/quantumopselite";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
@@ -684,7 +690,6 @@
 
         userCompanyId = null;
 
-        // Load company with subscription fields
         const { data: member } = await supabaseClient
           .from('company_users')
           .select('company_id, companies(company_name, logo, address, phone, subscription_status, trial_ends_at, subscription_ends_at)')
@@ -1022,7 +1027,6 @@
           due_date: duedate || null,
           status: 'unpaid'
         };
-        // Only add phone if the column exists (safe)
         if (phone && phone.trim()) payload.phone = phone.trim();
 
         const { error } = await supabaseClient.from('debtors').insert([payload]);
