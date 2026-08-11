@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05060B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Quantum OPS Elite - Mobile Business OS</title>
+  <title>Quantum OPS Elite - Business OS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,41 +18,43 @@
       font-family: system-ui, -apple-system, sans-serif;
       color: #F8FAFF;
     }
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
 
-    .iphone-frame {
-      width: 100%; max-width: 100%; height: 100dvh;
-      background: #05060B; position: relative; overflow: hidden;
-      display: flex; flex-direction: column;
+    /* ===== BASE LAYOUT STRUCTURE ===== */
+    .app-wrapper {
+      width: 100%;
+      height: 100dvh;
+      background: #05060B;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
-    @media (min-width: 768px) {
-      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
-      .iphone-frame {
-        max-width: 410px; max-height: 860px; border-radius: 48px;
-        border: 1px solid rgba(46,168,255,0.2);
-        box-shadow: 0 0 40px rgba(139,92,255,0.15), 0 25px 50px rgba(0,0,0,0.6);
-      }
+
+    .desktop-sidebar {
+      display: none;
     }
 
     .neon-card {
       background: #101326;
       border: 1px solid transparent;
       border-radius: 16px;
-      padding: 12px;
+      padding: 14px;
       position: relative;
       background-clip: padding-box;
       box-shadow:
         0 0 0 1px rgba(46,168,255,0.25),
         0 0 12px rgba(46,168,255,0.12),
         0 0 20px rgba(139,92,255,0.08);
-      transition: box-shadow 0.25s ease, border-color 0.25s ease;
+      transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
     }
     .neon-card:hover {
       box-shadow:
         0 0 0 1px rgba(139,92,255,0.45),
         0 0 16px rgba(46,168,255,0.2),
         0 0 28px rgba(139,92,255,0.15);
+      transform: translateY(-2px);
     }
     .neon-card-elevated {
       background: #131832;
@@ -62,6 +64,7 @@
         0 0 24px rgba(46,168,255,0.1);
     }
 
+    /* ===== BREATHING ALERTS ===== */
     @keyframes breathe-red {
       0%, 100% {
         box-shadow:
@@ -99,6 +102,7 @@
       border-color: rgba(255,213,74,0.45) !important;
     }
 
+    /* Premium badge */
     .premium-badge {
       display: inline-flex;
       align-items: center;
@@ -113,39 +117,8 @@
       letter-spacing: 0.04em;
       box-shadow: 0 0 12px rgba(255,215,0,0.22);
       flex-shrink: 0;
-      cursor: pointer;
     }
     .premium-badge i { font-size: 9px; }
-    .premium-badge.expired {
-      background: linear-gradient(135deg, rgba(255,90,122,0.2), rgba(255,90,122,0.1));
-      border-color: rgba(255,90,122,0.55);
-      color: #FF5A7A;
-      box-shadow: 0 0 12px rgba(255,90,122,0.25);
-    }
-
-    /* Lock Screen */
-    #subscription-lock {
-      position: absolute;
-      inset: 0;
-      background: rgba(5,6,11,0.97);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
-    }
-    #subscription-lock.hidden { display: none !important; }
-    .lock-card {
-      background: #101326;
-      border: 1px solid rgba(139,92,255,0.4);
-      border-radius: 24px;
-      padding: 28px 22px;
-      max-width: 320px;
-      width: 100%;
-      box-shadow: 0 0 40px rgba(139,92,255,0.2);
-    }
 
     .top-bar {
       padding: 12px 16px;
@@ -154,6 +127,7 @@
       border-bottom: 1px solid rgba(46,168,255,0.15);
       flex-shrink: 0;
       backdrop-filter: blur(12px);
+      z-index: 30;
     }
     .main-scroll {
       flex: 1; overflow-y: auto;
@@ -172,23 +146,24 @@
     .text-blue { color: #5CC8FF; }
     .text-purple { color: #B07CFF; }
 
-    .kpi-label { font-size: 10px; color: #A8B3CF; font-weight: 500; margin: 0 0 4px 0; }
-    .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; letter-spacing: -0.02em; }
+    .kpi-label { font-size: 11px; color: #A8B3CF; font-weight: 500; margin: 0 0 6px 0; }
+    .kpi-value { font-size: 15px; font-weight: 800; color: #F8FAFF; margin: 0; letter-spacing: -0.02em; }
     .kpi-live { font-size: 9px; color: #00FFB2; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
 
     .icon-btn {
-      width: 32px; height: 32px; border-radius: 12px;
+      width: 36px; height: 36px; border-radius: 12px;
       background: #12162B; border: 1px solid rgba(46,168,255,0.25);
       color: #A8B3CF; display: flex; align-items: center; justify-content: center;
       text-decoration: none; cursor: pointer;
       box-shadow: 0 0 10px rgba(46,168,255,0.12);
+      transition: all 0.2s ease;
     }
-    .icon-btn:hover { color: #fff; border-color: #5CC8FF; }
+    .icon-btn:hover { color: #fff; border-color: #5CC8FF; background: #1a203d; }
 
     .branch-chip {
       display: flex; align-items: center; gap: 6px;
       background: #12162B; border: 1px solid rgba(139,92,255,0.35);
-      padding: 6px 10px; border-radius: 12px; font-size: 11px; color: #B07CFF; font-weight: 600;
+      padding: 6px 12px; border-radius: 12px; font-size: 11px; color: #B07CFF; font-weight: 600;
       box-shadow: 0 0 12px rgba(139,92,255,0.2);
     }
 
@@ -224,7 +199,7 @@
     }
     #action-sheet.open { opacity: 1; pointer-events: auto; }
     #action-sheet-content {
-      width: 100%; max-width: 410px;
+      width: 100%; max-width: 500px;
       background: #101326;
       border-top: 1px solid rgba(139,92,255,0.35);
       border-radius: 28px 28px 0 0;
@@ -238,203 +213,367 @@
       background: #131832; border: 1px solid rgba(46,168,255,0.2);
       border-radius: 16px; padding: 14px; text-align: center; text-decoration: none;
       color: #F8FAFF; display: flex; flex-direction: column; align-items: center; gap: 8px;
-      box-shadow: 0 0 12px rgba(46,168,255,0.08);
+      box-shadow: 0 0 12px rgba(46,168,255,0.08); transition: all 0.2s ease;
     }
-    .action-tile:hover { border-color: #8B5CFF; box-shadow: 0 0 16px rgba(139,92,255,0.25); }
+    .action-tile:hover { border-color: #8B5CFF; box-shadow: 0 0 16px rgba(139,92,255,0.25); transform: translateY(-2px); }
 
     #debt-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60;
       display: flex; align-items: center; justify-content: center; padding: 16px;
     }
     .modal-panel {
-      width: 100%; max-width: 360px; background: #101326;
-      border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 20px;
+      width: 100%; max-width: 420px; background: #101326;
+      border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 24px;
       box-shadow: 0 0 30px rgba(139,92,255,0.2);
     }
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: 10px; color: #A8B3CF; margin-bottom: 4px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; color: #A8B3CF; margin-bottom: 6px; }
     .field input {
       width: 100%; background: #131832; border: 1px solid rgba(46,168,255,0.25);
-      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
+      border-radius: 12px; padding: 12px 14px; font-size: 13px; color: #fff; outline: none;
     }
     .field input:focus { border-color: #8B5CFF; box-shadow: 0 0 12px rgba(139,92,255,0.25); }
     .btn-primary {
       width: 100%; padding: 12px; border: none; border-radius: 12px;
       background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff;
-      font-weight: 700; font-size: 12px; cursor: pointer;
+      font-weight: 700; font-size: 13px; cursor: pointer;
       box-shadow: 0 0 18px rgba(139,92,255,0.4);
     }
     .btn-primary:disabled { opacity: 0.6; }
 
     a.neon-card { text-decoration: none; color: inherit; display: block; }
+
+    /* Grid layout sections for responsive desktop scaling */
+    .kpi-row-primary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+    .kpi-row-secondary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
+    .kpi-row-tertiary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .analytics-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+
+    /* ===== LAPTOP & DESKTOP RESPONSIVE LAYOUT (≥ 768px) ===== */
+    @media (min-width: 768px) {
+      body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .app-wrapper {
+        flex-direction: row;
+        height: 100vh;
+      }
+
+      /* Desktop Sidebar Navigation */
+      .desktop-sidebar {
+        display: flex;
+        flex-direction: column;
+        width: 240px;
+        background: rgba(8,10,20,0.96);
+        border-right: 1px solid rgba(46,168,255,0.15);
+        padding: 20px 16px;
+        flex-shrink: 0;
+        z-index: 40;
+      }
+
+      .desktop-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 32px;
+        padding-left: 8px;
+      }
+
+      .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+
+      .sidebar-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        color: #8A93B2;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .sidebar-link:hover, .sidebar-link.active {
+        background: rgba(139,92,255,0.15);
+        color: #B07CFF;
+        border: 1px solid rgba(139,92,255,0.25);
+      }
+
+      .sidebar-link i {
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+      }
+
+      .sidebar-action-btn {
+        margin-top: auto;
+        background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
+        color: #fff;
+        border: none;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 0 20px rgba(139,92,255,0.4);
+      }
+
+      .main-content-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .top-bar {
+        padding: 16px 32px;
+      }
+
+      .mobile-only {
+        display: none !important;
+      }
+
+      .main-scroll {
+        padding: 24px 32px 32px 32px;
+      }
+
+      .bottom-nav {
+        display: none;
+      }
+
+      .kpi-value {
+        font-size: 18px;
+      }
+
+      .kpi-row-primary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .kpi-row-secondary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .kpi-row-tertiary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .analytics-grid {
+        grid-template-columns: 2fr 1.2fr;
+        gap: 20px;
+      }
+
+      #action-sheet {
+        align-items: center;
+      }
+
+      #action-sheet-content {
+        border-radius: 24px;
+        border: 1px solid rgba(139,92,255,0.35);
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .kpi-row-primary {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .kpi-row-secondary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .kpi-row-tertiary {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <!-- SUBSCRIPTION LOCK SCREEN -->
-    <div id="subscription-lock" class="hidden">
-      <div class="lock-card">
-        <div style="width:64px;height:64px;border-radius:20px;background:rgba(255,90,122,0.15);border:1px solid rgba(255,90,122,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-          <i class="fa-solid fa-lock" style="font-size:26px;color:#FF5A7A;"></i>
-        </div>
-        <h2 style="margin:0 0 8px;font-size:18px;font-weight:800;color:#fff;">Trial Ended</h2>
-        <p style="margin:0 0 6px;font-size:12px;color:#A8B3CF;line-height:1.5;">
-          Your 14-day free trial has expired.
-        </p>
-        <p style="margin:0 0 20px;font-size:12px;color:#7C88A5;line-height:1.5;">
-          Subscribe to continue using Quantum OPS Elite and keep growing your business.
-        </p>
-        <button onclick="alert('Payment coming soon. Contact support to activate.')" class="btn-primary" style="margin-bottom:10px;">
-          <i class="fa-solid fa-crown" style="margin-right:6px;"></i> Upgrade Now
-        </button>
-        <button onclick="handleLogout()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,90,122,0.35);background:transparent;color:#FF5A7A;font-size:12px;font-weight:600;cursor:pointer;">
-          Log Out
-        </button>
+  <div class="app-wrapper">
+    <!-- DESKTOP SIDEBAR -->
+    <aside class="desktop-sidebar">
+      <div class="desktop-brand">
+        <div style="width:32px;height:32px;border-radius:10px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:14px;box-shadow:0 0 12px rgba(139,92,255,0.35);">Q</div>
+        <span style="font-weight:800;font-size:13px;letter-spacing:0.06em;color:#fff;">QUANTUM OPS <span style="font-size:9px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;margin-left:2px;">ELITE</span></span>
       </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-link active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="inventory.html" class="sidebar-link"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+        <a href="pos.html" class="sidebar-link"><i class="fa-solid fa-cash-register"></i> POS Sales</a>
+        <a href="expenses.html" class="sidebar-link"><i class="fa-solid fa-money-bill-wave"></i> Expenses</a>
+        <a href="debtors.html" class="sidebar-link"><i class="fa-solid fa-file-invoice-dollar"></i> Debtors</a>
+        <a href="ai-ceo.html" class="sidebar-link"><i class="fa-solid fa-robot"></i> AI CEO</a>
+        <a href="profile.html" class="sidebar-link"><i class="fa-solid fa-user"></i> Profile</a>
+      </nav>
+
+      <button onclick="toggleActionSheet()" class="sidebar-action-btn">
+        <i class="fa-solid fa-plus"></i> Quick Action
+      </button>
+    </aside>
+
+    <div class="main-content-area">
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button onclick="toggleActionSheet()" class="icon-btn mobile-only"><i class="fa-solid fa-bars"></i></button>
+          <div style="display:flex;align-items:center;gap:8px;" class="mobile-only">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;box-shadow:0 0 12px rgba(139,92,255,0.35);">Q</div>
+            <span style="font-weight:800;font-size:11px;letter-spacing:0.06em;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;margin-left:2px;">ELITE</span></span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="ai-ceo.html" class="icon-btn" title="AI CEO"><i class="fa-solid fa-robot" style="font-size:14px;color:#B07CFF;"></i></a>
+          <a href="notifications.html" class="icon-btn" style="position:relative;" title="Notifications">
+            <i class="fa-regular fa-bell" style="font-size:14px;"></i>
+            <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;background:#FF5A7A;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;">0</span>
+          </a>
+          <a href="profile.html" style="position:relative;width:36px;height:36px;border-radius:999px;overflow:hidden;border:1px solid rgba(139,92,255,0.4);background:#12162B;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#B07CFF;text-decoration:none;box-shadow:0 0 12px rgba(139,92,255,0.25);">
+            <span id="user-avatar-initial">C</span>
+            <img id="user-avatar-logo" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
+            <span id="user-verified-dot" class="hidden" style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;background:#22F5A0;border-radius:999px;border:2px solid #05060B;"></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="main-scroll custom-scrollbar">
+        <!-- Greeting + Premium -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:8px;">
+          <div style="min-width:0;flex:1;">
+            <h1 class="text-main" style="margin:0;font-size:18px;font-weight:800;" id="greeting-title">Good day, User 👋</h1>
+            <p class="text-sec" style="margin:4px 0 0;font-size:12px;">Here's what's happening with your business today.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+            <div class="branch-chip">
+              <i class="fa-solid fa-store" style="font-size:11px;"></i>
+              <span id="current-branch-name">My Business</span>
+            </div>
+            <div class="premium-badge" id="premium-badge" title="Subscription status">
+              <i class="fa-solid fa-crown"></i>
+              <span id="premium-label">TRIAL</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI row 1 -->
+        <div class="kpi-row-primary">
+          <a href="transactions.html?view=sales" class="neon-card">
+            <p class="kpi-label">Total Sales (Today)</p>
+            <h3 class="kpi-value" id="val-today-sales">₦0</h3>
+            <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+          </a>
+          <a href="transactions.html?view=profit" class="neon-card">
+            <p class="kpi-label">Gross Profit (Today)</p>
+            <h3 class="kpi-value" id="val-today-profit">₦0</h3>
+            <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+          </a>
+          <a href="transactions.html?view=transactions" class="neon-card">
+            <p class="kpi-label">Transactions</p>
+            <h3 class="kpi-value" id="val-transactions">0</h3>
+            <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+          </a>
+        </div>
+
+        <!-- KPI row 2 -->
+        <div class="kpi-row-secondary">
+          <a href="expenses.html" id="card-expenses" class="neon-card">
+            <p class="kpi-label">Expenses (Today)</p>
+            <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:10px;">Operating costs</p>
+          </a>
+          <div class="neon-card">
+            <p class="kpi-label">Net Profit (Today)</p>
+            <h3 class="kpi-value text-success" id="val-net-profit">₦0</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:10px;">After expenses</p>
+          </div>
+        </div>
+
+        <!-- KPI row 3 – Debt + Low Stock (with breathing alerts) -->
+        <div class="kpi-row-tertiary">
+          <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
+            <p class="kpi-label">Outstanding Debt</p>
+            <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:10px;" id="val-debt-customers">0 Customers</p>
+          </a>
+          <div id="card-low-stock" class="neon-card">
+            <p class="kpi-label">Low Stock Alerts</p>
+            <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:10px;">Need attention</p>
+          </div>
+          <div class="neon-card">
+            <p class="kpi-label">Business Health</p>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+              <i class="fa-solid fa-shield-halved text-cyan" style="font-size:16px;"></i>
+              <span class="kpi-value text-cyan" id="val-business-health" style="font-size:15px;">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <!-- Sales chart -->
+          <div class="neon-card neon-card-elevated" style="padding:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <div>
+                <h4 class="text-sec" style="margin:0;font-size:12px;font-weight:600;">Sales Overview</h4>
+                <h3 class="text-main" style="margin:4px 0 0;font-size:16px;font-weight:800;" id="val-weekly-total">₦0</h3>
+              </div>
+              <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
+            </div>
+            <div style="height:180px;width:100%;position:relative;">
+              <canvas id="salesOverviewChart"></canvas>
+              <p id="chart-fallback" class="hidden" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#7C88A5;">Chart unavailable</p>
+            </div>
+          </div>
+
+          <!-- Top products -->
+          <div class="neon-card neon-card-elevated" style="padding:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h4 class="text-sec" style="margin:0;font-size:12px;font-weight:600;">Top Selling Products</h4>
+              <span class="text-purple" style="font-size:10px;font-weight:600;">Real-time</span>
+            </div>
+            <div id="top-products-list" style="font-size:12px;">
+              <div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent activities -->
+        <div class="neon-card neon-card-elevated" style="padding:16px; margin-top: 16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h4 class="text-sec" style="margin:0;font-size:12px;font-weight:600;">Recent Activities</h4>
+            <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
+          </div>
+          <div id="recent-activities-list" style="font-size:12px;">
+            <div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM NAV (MOBILE) -->
+      <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <button onclick="toggleActionSheet()" class="fab-plus"><i class="fa-solid fa-plus"></i></button>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+        <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
+      </nav>
     </div>
-
-    <!-- TOP BAR -->
-    <div class="top-bar">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button onclick="toggleActionSheet()" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;box-shadow:0 0 12px rgba(139,92,255,0.35);">Q</div>
-          <span style="font-weight:800;font-size:11px;letter-spacing:0.06em;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;margin-left:2px;">ELITE</span></span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <a href="ai-ceo.html" class="icon-btn" title="AI CEO"><i class="fa-solid fa-robot" style="font-size:12px;color:#B07CFF;"></i></a>
-        <a href="notifications.html" class="icon-btn" style="position:relative;" title="Notifications">
-          <i class="fa-regular fa-bell" style="font-size:12px;"></i>
-          <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;background:#FF5A7A;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;">0</span>
-        </a>
-        <a href="profile.html" style="position:relative;width:32px;height:32px;border-radius:999px;overflow:hidden;border:1px solid rgba(139,92,255,0.4);background:#12162B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B07CFF;text-decoration:none;box-shadow:0 0 12px rgba(139,92,255,0.25);">
-          <span id="user-avatar-initial">C</span>
-          <img id="user-avatar-logo" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
-          <span id="user-verified-dot" class="hidden" style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;background:#22F5A0;border-radius:999px;border:2px solid #05060B;"></span>
-        </a>
-      </div>
-    </div>
-
-    <div class="main-scroll custom-scrollbar">
-      <!-- Greeting + Premium -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px;">
-        <div style="min-width:0;flex:1;">
-          <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day, User 👋</h1>
-          <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-          <div class="branch-chip">
-            <i class="fa-solid fa-store" style="font-size:10px;"></i>
-            <span id="current-branch-name">My Business</span>
-          </div>
-          <div class="premium-badge" id="premium-badge" title="Subscription status" onclick="alert('Subscription management coming soon')">
-            <i class="fa-solid fa-crown"></i>
-            <span id="premium-label">TRIAL</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- KPI row 1 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
-        <a href="transactions.html?view=sales" class="neon-card">
-          <p class="kpi-label">Total Sales (Today)</p>
-          <h3 class="kpi-value" id="val-today-sales">₦0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
-        </a>
-        <a href="transactions.html?view=profit" class="neon-card">
-          <p class="kpi-label">Gross Profit (Today)</p>
-          <h3 class="kpi-value" id="val-today-profit">₦0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
-        </a>
-        <a href="transactions.html?view=transactions" class="neon-card">
-          <p class="kpi-label">Transactions</p>
-          <h3 class="kpi-value" id="val-transactions">0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
-        </a>
-      </div>
-
-      <!-- KPI row 2 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-        <a href="expenses.html" id="card-expenses" class="neon-card">
-          <p class="kpi-label">Expenses (Today)</p>
-          <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
-        </a>
-        <div class="neon-card">
-          <p class="kpi-label">Net Profit (Today)</p>
-          <h3 class="kpi-value text-success" id="val-net-profit">₦0</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
-        </div>
-      </div>
-
-      <!-- KPI row 3 -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
-        <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
-          <p class="kpi-label">Outstanding Debt</p>
-          <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
-        </a>
-        <div id="card-low-stock" class="neon-card">
-          <p class="kpi-label">Low Stock Alerts</p>
-          <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
-        </div>
-        <div class="neon-card">
-          <p class="kpi-label">Business Health</p>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
-            <i class="fa-solid fa-shield-halved text-cyan" style="font-size:14px;"></i>
-            <span class="kpi-value text-cyan" id="val-business-health" style="font-size:13px;">100%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sales chart -->
-      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div>
-            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
-            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">₦0</h3>
-          </div>
-          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
-        </div>
-        <div style="height:140px;width:100%;position:relative;">
-          <canvas id="salesOverviewChart"></canvas>
-          <p id="chart-fallback" class="hidden" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#7C88A5;">Chart unavailable</p>
-        </div>
-      </div>
-
-      <!-- Top products -->
-      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
-          <span class="text-purple" style="font-size:10px;font-weight:600;">Real-time</span>
-        </div>
-        <div id="top-products-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>
-        </div>
-      </div>
-
-      <!-- Recent activities -->
-      <div class="neon-card neon-card-elevated" style="padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Recent Activities</h4>
-          <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
-        </div>
-        <div id="recent-activities-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <button onclick="toggleActionSheet()" class="fab-plus"><i class="fa-solid fa-plus"></i></button>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
-      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
-    </nav>
   </div>
 
   <!-- ACTION SHEET -->
@@ -442,10 +581,10 @@
     <div id="action-sheet-content">
       <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;">Quick Business Actions</h3>
+        <h3 class="text-main" style="margin:0;font-size:14px;font-weight:800;">Quick Business Actions</h3>
         <button onclick="toggleActionSheet()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;">
         <a href="pos.html" class="action-tile">
           <div style="width:40px;height:40px;border-radius:12px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-cash-register"></i></div>
           <span style="font-size:11px;">New Sale</span>
@@ -474,20 +613,16 @@
     </div>
   </div>
 
-  <!-- DEBT MODAL (with Phone Number) -->
+  <!-- DEBT MODAL -->
   <div id="debt-modal" class="hidden">
     <div class="modal-panel">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;"></i>Record New Debt</h3>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 class="text-main" style="margin:0;font-size:14px;font-weight:800;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;"></i>Record New Debt</h3>
         <button onclick="closeAddDebtModal()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="field">
         <label>Customer Name *</label>
         <input type="text" id="debt-customer" placeholder="e.g. John Doe">
-      </div>
-      <div class="field">
-        <label>Phone Number</label>
-        <input type="tel" id="debt-phone" placeholder="e.g. 08012345678">
       </div>
       <div class="field">
         <label>Item Bought</label>
@@ -523,7 +658,6 @@
     let appReady = false;
     let loggingOut = false;
     let lastChartKey = '';
-    let companySubscription = null;
 
     function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
@@ -548,7 +682,10 @@
     }
 
     function openAddDebtModal() {
-      toggleActionSheet();
+      const sheet = $('action-sheet');
+      if (sheet && sheet.classList.contains('open')) {
+        sheet.classList.remove('open');
+      }
       const m = $('debt-modal');
       if (m) m.classList.remove('hidden');
     }
@@ -583,52 +720,8 @@
       }, 900);
     }
 
-    function updatePremiumBadge(status) {
-      var label = $('premium-label');
-      var badge = $('premium-badge');
-      if (!label || !badge) return;
-
-      badge.classList.remove('expired');
-      if (status === 'active') {
-        label.textContent = 'PREMIUM';
-      } else if (status === 'expired') {
-        label.textContent = 'EXPIRED';
-        badge.classList.add('expired');
-      } else {
-        label.textContent = 'TRIAL';
-      }
-    }
-
-    function checkAndApplySubscriptionLock(company) {
-      if (!company) return;
-
-      var status = (company.subscription_status || 'trial').toLowerCase();
-      var trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
-      var subEnds = company.subscription_ends_at ? new Date(company.subscription_ends_at) : null;
-      var now = new Date();
-
-      var isExpired = false;
-
-      if (status === 'active') {
-        if (subEnds && subEnds < now) isExpired = true;
-      } else if (status === 'trial') {
-        if (trialEnds && trialEnds < now) isExpired = true;
-      } else if (status === 'expired' || status === 'cancelled') {
-        isExpired = true;
-      }
-
-      updatePremiumBadge(isExpired ? 'expired' : status);
-
-      var lock = $('subscription-lock');
-      if (lock) {
-        if (isExpired) lock.classList.remove('hidden');
-        else lock.classList.add('hidden');
-      }
-    }
-
     function applyCompanyProfile(c) {
       if (!c) return;
-      companySubscription = c;
       if (c.company_name) setText('current-branch-name', c.company_name);
       const logoEl = $('user-avatar-logo');
       const initialEl = $('user-avatar-initial');
@@ -641,7 +734,8 @@
       if (dot && c.company_name && c.address && c.phone) {
         dot.classList.remove('hidden');
       }
-      checkAndApplySubscriptionLock(c);
+      var label = $('premium-label');
+      if (label) label.textContent = 'TRIAL';
     }
 
     async function loadUnreadBadge() {
@@ -683,11 +777,9 @@
         setText('user-avatar-initial', capitalizedName.charAt(0).toUpperCase());
 
         userCompanyId = null;
-
-        // Load company with subscription fields
         const { data: member } = await supabaseClient
           .from('company_users')
-          .select('company_id, companies(company_name, logo, address, phone, subscription_status, trial_ends_at, subscription_ends_at)')
+          .select('company_id, companies(company_name, logo, address, phone)')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -697,7 +789,7 @@
         } else {
           const { data: owned } = await supabaseClient
             .from('companies')
-            .select('id, company_name, logo, address, phone, subscription_status, trial_ends_at, subscription_ends_at')
+            .select('id, company_name, logo, address, phone')
             .eq('owner_id', user.id)
             .maybeSingle();
           if (owned && owned.id) {
@@ -950,9 +1042,9 @@
       container.innerHTML = sorted.map(function (entry, i) {
         var name = entry[0], d = entry[1];
         return ''
-          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(46,168,255,0.08);">'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(46,168,255,0.08);">'
           +   '<span style="display:flex;align-items:center;gap:8px;color:#A8B3CF;">'
-          +     '<span style="width:18px;height:18px;border-radius:6px;background:rgba(139,92,255,0.25);color:#B07CFF;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + (i + 1) + '</span>'
+          +     '<span style="width:20px;height:20px;border-radius:6px;background:rgba(139,92,255,0.25);color:#B07CFF;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + (i + 1) + '</span>'
           +     name + ' <span style="color:#7C88A5;">(' + d.qty + ' sold)</span>'
           +   '</span>'
           +   '<span style="color:#F8FAFF;font-weight:700;">' + formatCurrency(d.revenue) + '</span>'
@@ -973,17 +1065,17 @@
         let label = 'New Sale';
         if (Array.isArray(s.items) && s.items[0]) label = s.items[0].name || 'New Sale';
         return ''
-          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(46,168,255,0.05);">'
           +   '<div style="display:flex;align-items:center;gap:10px;">'
-          +     '<div style="width:28px;height:28px;border-radius:10px;background:rgba(139,92,255,0.2);color:#B07CFF;border:1px solid rgba(139,92,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;"><i class="fa-solid fa-cart-shopping"></i></div>'
+          +     '<div style="width:32px;height:32px;border-radius:10px;background:rgba(139,92,255,0.2);color:#B07CFF;border:1px solid rgba(139,92,255,0.3);display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-cart-shopping"></i></div>'
           +     '<div>'
-          +       '<p style="margin:0;font-weight:600;color:#fff;font-size:11px;">' + label + '</p>'
-          +       '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + (s.payment_method || 'Cash') + '</p>'
+          +       '<p style="margin:0;font-weight:600;color:#fff;font-size:12px;">' + label + '</p>'
+          +       '<p style="margin:2px 0 0;font-size:10px;color:#7C88A5;">' + (s.payment_method || 'Cash') + '</p>'
           +     '</div>'
           +   '</div>'
           +   '<div style="text-align:right;">'
-          +     '<p style="margin:0;font-weight:700;color:#22F5A0;font-size:11px;">' + formatCurrency(amount) + '</p>'
-          +     '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + getTimeAgo(s.created_at) + '</p>'
+          +     '<p style="margin:0;font-weight:700;color:#22F5A0;font-size:12px;">' + formatCurrency(amount) + '</p>'
+          +     '<p style="margin:2px 0 0;font-size:10px;color:#7C88A5;">' + getTimeAgo(s.created_at) + '</p>'
           +   '</div>'
           + '</div>';
       }).join('');
@@ -1001,7 +1093,6 @@
 
     async function submitNewDebt() {
       const customer = ($('debt-customer') || {}).value;
-      const phone = ($('debt-phone') || {}).value;
       const item = ($('debt-item') || {}).value;
       const amount = ($('debt-amount') || {}).value;
       const duedate = ($('debt-duedate') || {}).value;
@@ -1014,23 +1105,18 @@
       if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
       try {
-        const payload = {
+        const { error } = await supabaseClient.from('debtors').insert([{
           company_id: userCompanyId,
           customer_name: cust,
           item_bought: (item || '').trim() || 'General Goods',
           amount_owing: parseFloat(amount),
           due_date: duedate || null,
           status: 'unpaid'
-        };
-        // Only add phone if the column exists (safe)
-        if (phone && phone.trim()) payload.phone = phone.trim();
-
-        const { error } = await supabaseClient.from('debtors').insert([payload]);
+        }]);
         if (error) alert(error.message);
         else {
           closeAddDebtModal();
           if ($('debt-customer')) $('debt-customer').value = '';
-          if ($('debt-phone')) $('debt-phone').value = '';
           if ($('debt-item')) $('debt-item').value = '';
           if ($('debt-amount')) $('debt-amount').value = '';
           if ($('debt-duedate')) $('debt-duedate').value = '';
