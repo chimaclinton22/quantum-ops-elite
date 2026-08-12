@@ -21,13 +21,21 @@
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
 
-    /* ========== MOBILE / DESKTOP SWITCH ========== */
-    .mobile-only { display: block; }
-    .desktop-only { display: none; }
+    /* ========== STRONG MOBILE / DESKTOP ISOLATION ========== */
+    .mobile-only {
+      display: block !important;
+    }
+    .desktop-only {
+      display: none !important;
+    }
 
     @media (min-width: 1024px) {
-      .mobile-only { display: none !important; }
-      .desktop-only { display: flex !important; }
+      .mobile-only {
+        display: none !important;
+      }
+      .desktop-only {
+        display: flex !important;
+      }
     }
 
     /* ===== MOBILE STYLES ===== */
@@ -104,7 +112,6 @@
 
     /* ===== DESKTOP STYLES ===== */
     .desktop-shell {
-      display: flex;
       width: 100%;
       min-height: 100vh;
       background: #07070F;
@@ -341,7 +348,7 @@
 <body>
 
   <!-- ==================== MOBILE VIEW ==================== -->
-  <div class="mobile-only">
+  <div class="mobile-only" id="mobile-view">
     <div class="iphone-frame">
       <!-- Subscription Lock -->
       <div id="subscription-lock" class="hidden" style="position:absolute;inset:0;background:rgba(5,6,11,0.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;">
@@ -525,7 +532,7 @@
   </div>
 
   <!-- ==================== DESKTOP VIEW ==================== -->
-  <div class="desktop-only desktop-shell">
+  <div class="desktop-only desktop-shell" id="desktop-view">
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-logo">
@@ -806,10 +813,22 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
+    /* ========== FORCE CORRECT VIEW (JS BACKUP) ========== */
+    function enforceView() {
+      const isDesktop = window.innerWidth >= 1024;
+      const mobile = document.getElementById('mobile-view');
+      const desktop = document.getElementById('desktop-view');
+      if (mobile) {
+        mobile.style.display = isDesktop ? 'none' : 'block';
+      }
+      if (desktop) {
+        desktop.style.display = isDesktop ? 'flex' : 'none';
+      }
+    }
+
     /* ========== REAL-TIME CLOCK ========== */
     function updateClock() {
       const now = new Date();
-      // Lagos time (UTC+1)
       const lagos = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
       
       let hours = lagos.getHours();
@@ -930,6 +949,9 @@
     }
 
     async function initializeApp() {
+      // Force correct view immediately
+      enforceView();
+
       if (loggingOut) return;
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -1323,6 +1345,9 @@
       }
       if (btn) { btn.disabled = false; btn.textContent = 'Save Debt Record'; }
     }
+
+    // Enforce view on resize
+    window.addEventListener('resize', enforceView);
 
     supabaseClient.auth.onAuthStateChange(function(event) {
       if (loggingOut) return;
