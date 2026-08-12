@@ -6,580 +6,700 @@
   <meta name="theme-color" content="#05060B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Quantum OPS Elite - Mobile Business OS</title>
+  <title>Quantum OPS Elite - Business OS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
       background: #05060B;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #F8FAFF;
+      min-height: 100vh;
     }
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
 
-    /* ===== BASE (PHONE FIRST) ===== */
-    .iphone-frame {
-      width: 100%;
-      max-width: 100%;
-      height: 100dvh;
-      background: #05060B;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      margin: 0 auto;
-    }
+    /* ========== MOBILE ONLY ========== */
+    .mobile-only { display: block; }
+    .desktop-only { display: none; }
 
-    /* Tablet */
-    @media (min-width: 768px) {
-      body {
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        min-height: 100vh;
-        padding: 16px;
-      }
-      .iphone-frame {
-        max-width: 720px;
-        width: 100%;
-        height: auto;
-        min-height: calc(100vh - 32px);
-        border-radius: 24px;
-        border: 1px solid rgba(46,168,255,0.18);
-        box-shadow: 0 0 40px rgba(139,92,255,0.12), 0 20px 40px rgba(0,0,0,0.45);
-      }
-      .main-scroll {
-        padding: 20px 24px 110px !important;
-      }
-      .kpi-row-3 {
-        grid-template-columns: 1fr 1fr 1fr !important;
-      }
-    }
-
-    /* Laptop / Desktop */
     @media (min-width: 1024px) {
-      body {
-        padding: 24px;
-      }
-      .iphone-frame {
-        max-width: 1100px;
-        border-radius: 20px;
-      }
-      .main-scroll {
-        padding: 24px 28px 110px !important;
-      }
-      .kpi-row-1 {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 14px !important;
-      }
-      .kpi-row-2 {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 14px !important;
-      }
-      .kpi-row-3 {
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 14px !important;
-      }
-      .neon-card {
-        padding: 16px !important;
-      }
-      .kpi-value {
-        font-size: 15px !important;
-      }
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
     }
 
-    /* Large Desktop */
-    @media (min-width: 1280px) {
-      .iphone-frame {
-        max-width: 1280px;
-      }
-      .main-scroll {
-        padding: 28px 32px 110px !important;
-      }
+    /* ===== MOBILE STYLES (exact current) ===== */
+    .iphone-frame {
+      width: 100%; max-width: 100%; height: 100dvh;
+      background: #05060B; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
     }
-
-    /* Very large screens */
-    @media (min-width: 1600px) {
-      .iphone-frame {
-        max-width: 1400px;
-      }
-    }
-
     .neon-card {
       background: #101326;
       border: 1px solid transparent;
       border-radius: 16px;
       padding: 12px;
-      position: relative;
-      background-clip: padding-box;
-      box-shadow:
-        0 0 0 1px rgba(46,168,255,0.25),
-        0 0 12px rgba(46,168,255,0.12),
-        0 0 20px rgba(139,92,255,0.08);
-      transition: box-shadow 0.25s ease, border-color 0.25s ease;
-    }
-    .neon-card:hover {
-      box-shadow:
-        0 0 0 1px rgba(139,92,255,0.45),
-        0 0 16px rgba(46,168,255,0.2),
-        0 0 28px rgba(139,92,255,0.15);
+      box-shadow: 0 0 0 1px rgba(46,168,255,0.25), 0 0 12px rgba(46,168,255,0.12);
     }
     .neon-card-elevated {
       background: #131832;
-      box-shadow:
-        0 0 0 1px rgba(139,92,255,0.3),
-        0 0 14px rgba(139,92,255,0.15),
-        0 0 24px rgba(46,168,255,0.1);
+      box-shadow: 0 0 0 1px rgba(139,92,255,0.3), 0 0 14px rgba(139,92,255,0.15);
     }
-
     @keyframes breathe-red {
-      0%, 100% {
-        box-shadow:
-          0 0 0 1px rgba(255,90,122,0.55),
-          0 0 14px rgba(255,90,122,0.35),
-          0 0 28px rgba(255,90,122,0.18);
-      }
-      50% {
-        box-shadow:
-          0 0 0 1px rgba(255,90,122,0.9),
-          0 0 22px rgba(255,90,122,0.55),
-          0 0 40px rgba(255,90,122,0.3);
-      }
+      0%, 100% { box-shadow: 0 0 0 1px rgba(255,90,122,0.55), 0 0 14px rgba(255,90,122,0.35); }
+      50% { box-shadow: 0 0 0 1px rgba(255,90,122,0.9), 0 0 22px rgba(255,90,122,0.55); }
     }
     @keyframes breathe-amber {
-      0%, 100% {
-        box-shadow:
-          0 0 0 1px rgba(255,213,74,0.5),
-          0 0 12px rgba(255,213,74,0.3),
-          0 0 24px rgba(255,213,74,0.15);
-      }
-      50% {
-        box-shadow:
-          0 0 0 1px rgba(255,213,74,0.85),
-          0 0 20px rgba(255,213,74,0.5),
-          0 0 36px rgba(255,213,74,0.28);
-      }
+      0%, 100% { box-shadow: 0 0 0 1px rgba(255,213,74,0.5), 0 0 12px rgba(255,213,74,0.3); }
+      50% { box-shadow: 0 0 0 1px rgba(255,213,74,0.85), 0 0 20px rgba(255,213,74,0.5); }
     }
-    .alert-breathing-red {
-      animation: breathe-red 1.8s ease-in-out infinite;
-      border-color: rgba(255,90,122,0.5) !important;
-    }
-    .alert-breathing-amber {
-      animation: breathe-amber 1.8s ease-in-out infinite;
-      border-color: rgba(255,213,74,0.45) !important;
-    }
+    .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; border-color: rgba(255,90,122,0.5) !important; }
+    .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; border-color: rgba(255,213,74,0.45) !important; }
 
     .premium-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      display: inline-flex; align-items: center; gap: 4px;
       background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(139,92,255,0.22));
-      border: 1px solid rgba(255,215,0,0.5);
-      color: #FFD54A;
-      font-size: 9px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 999px;
-      letter-spacing: 0.04em;
-      box-shadow: 0 0 12px rgba(255,215,0,0.22);
-      flex-shrink: 0;
-      cursor: pointer;
+      border: 1px solid rgba(255,215,0,0.5); color: #FFD54A;
+      font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; cursor: pointer;
     }
-    .premium-badge i { font-size: 9px; }
-    .premium-badge.expired {
-      background: linear-gradient(135deg, rgba(255,90,122,0.2), rgba(255,90,122,0.1));
-      border-color: rgba(255,90,122,0.55);
-      color: #FF5A7A;
-      box-shadow: 0 0 12px rgba(255,90,122,0.25);
-    }
+    .premium-badge.expired { background: linear-gradient(135deg, rgba(255,90,122,0.2), rgba(255,90,122,0.1)); border-color: rgba(255,90,122,0.55); color: #FF5A7A; }
 
-    #subscription-lock {
-      position: absolute;
-      inset: 0;
-      background: rgba(5,6,11,0.97);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
-    }
-    #subscription-lock.hidden { display: none !important; }
-    .lock-card {
-      background: #101326;
-      border: 1px solid rgba(139,92,255,0.4);
-      border-radius: 24px;
-      padding: 28px 22px;
-      max-width: 320px;
-      width: 100%;
-      box-shadow: 0 0 40px rgba(139,92,255,0.2);
-    }
-
-    .top-bar {
-      padding: 12px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(8,10,20,0.92);
-      border-bottom: 1px solid rgba(46,168,255,0.15);
-      flex-shrink: 0;
-      backdrop-filter: blur(12px);
-    }
-    .main-scroll {
-      flex: 1; overflow-y: auto;
-      padding: 16px; padding-bottom: 96px;
-    }
-
+    .top-bar { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: rgba(8,10,20,0.92); border-bottom: 1px solid rgba(46,168,255,0.15); flex-shrink: 0; }
+    .main-scroll { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 96px; }
     .text-main { color: #FFFFFF; }
-    .text-value { color: #F8FAFF; }
     .text-sec { color: #A8B3CF; }
     .text-muted { color: #7C88A5; }
     .text-success { color: #22F5A0; }
-    .text-live { color: #00FFB2; }
-    .text-warn { color: #FFD54A; }
     .text-loss { color: #FF5A7A; }
+    .text-warn { color: #FFD54A; }
     .text-cyan { color: #00E5FF; }
-    .text-blue { color: #5CC8FF; }
     .text-purple { color: #B07CFF; }
-
-    .kpi-label { font-size: 10px; color: #A8B3CF; font-weight: 500; margin: 0 0 4px 0; }
-    .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; letter-spacing: -0.02em; }
+    .kpi-label { font-size: 10px; color: #A8B3CF; margin: 0 0 4px 0; }
+    .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; }
     .kpi-live { font-size: 9px; color: #00FFB2; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
-
-    .icon-btn {
-      width: 32px; height: 32px; border-radius: 12px;
-      background: #12162B; border: 1px solid rgba(46,168,255,0.25);
-      color: #A8B3CF; display: flex; align-items: center; justify-content: center;
-      text-decoration: none; cursor: pointer;
-      box-shadow: 0 0 10px rgba(46,168,255,0.12);
-    }
-    .icon-btn:hover { color: #fff; border-color: #5CC8FF; }
-
-    .branch-chip {
-      display: flex; align-items: center; gap: 6px;
-      background: #12162B; border: 1px solid rgba(139,92,255,0.35);
-      padding: 6px 10px; border-radius: 12px; font-size: 11px; color: #B07CFF; font-weight: 600;
-      box-shadow: 0 0 12px rgba(139,92,255,0.2);
-    }
-
-    .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
-      background: rgba(8,10,20,0.94);
-      border-top: 1px solid rgba(46,168,255,0.25);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; z-index: 40; backdrop-filter: blur(16px);
-    }
-    .nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      color: #8A93B2; text-decoration: none; font-size: 9px;
-    }
-    .nav-item.active { color: #B07CFF; text-shadow: 0 0 10px rgba(139,92,255,0.6); }
-    .nav-item i { font-size: 14px; }
-
-    .fab-plus {
-      position: relative; top: -18px;
-      width: 52px; height: 52px; border-radius: 999px; border: 3px solid #05060B;
-      background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
-      color: #fff; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 20px rgba(139,92,255,0.55), 0 8px 20px rgba(0,0,0,0.4);
-      cursor: pointer;
-    }
-
+    .icon-btn { width: 32px; height: 32px; border-radius: 12px; background: #12162B; border: 1px solid rgba(46,168,255,0.25); color: #A8B3CF; display: flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; }
+    .branch-chip { display: flex; align-items: center; gap: 6px; background: #12162B; border: 1px solid rgba(139,92,255,0.35); padding: 6px 10px; border-radius: 12px; font-size: 11px; color: #B07CFF; font-weight: 600; }
+    .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(8,10,20,0.94); border-top: 1px solid rgba(46,168,255,0.25); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 40; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8A93B2; text-decoration: none; font-size: 9px; }
+    .nav-item.active { color: #B07CFF; }
+    .fab-plus { position: relative; top: -18px; width: 52px; height: 52px; border-radius: 999px; border: 3px solid #05060B; background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(139,92,255,0.55); }
     .hidden { display: none !important; }
 
-    #action-sheet {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50;
-      display: flex; align-items: flex-end; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-    }
+    #action-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
     #action-sheet.open { opacity: 1; pointer-events: auto; }
-    #action-sheet-content {
-      width: 100%; max-width: 430px;
-      background: #101326;
-      border-top: 1px solid rgba(139,92,255,0.35);
-      border-radius: 28px 28px 0 0;
-      padding: 20px; transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
-      box-shadow: 0 -8px 40px rgba(46,168,255,0.15);
-    }
+    #action-sheet-content { width: 100%; max-width: 430px; background: #101326; border-top: 1px solid rgba(139,92,255,0.35); border-radius: 28px 28px 0 0; padding: 20px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
     #action-sheet.open #action-sheet-content { transform: translateY(0); }
-
-    .action-tile {
-      background: #131832; border: 1px solid rgba(46,168,255,0.2);
-      border-radius: 16px; padding: 14px; text-align: center; text-decoration: none;
-      color: #F8FAFF; display: flex; flex-direction: column; align-items: center; gap: 8px;
-      box-shadow: 0 0 12px rgba(46,168,255,0.08);
-    }
-    .action-tile:hover { border-color: #8B5CFF; box-shadow: 0 0 16px rgba(139,92,255,0.25); }
-
-    #debt-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60;
-      display: flex; align-items: center; justify-content: center; padding: 16px;
-    }
-    .modal-panel {
-      width: 100%; max-width: 360px; background: #101326;
-      border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 20px;
-      box-shadow: 0 0 30px rgba(139,92,255,0.2);
-    }
+    .action-tile { background: #131832; border: 1px solid rgba(46,168,255,0.2); border-radius: 16px; padding: 14px; text-align: center; text-decoration: none; color: #F8FAFF; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    #debt-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal-panel { width: 100%; max-width: 360px; background: #101326; border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 20px; }
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 10px; color: #A8B3CF; margin-bottom: 4px; }
-    .field input {
-      width: 100%; background: #131832; border: 1px solid rgba(46,168,255,0.25);
-      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
-    }
-    .field input:focus { border-color: #8B5CFF; box-shadow: 0 0 12px rgba(139,92,255,0.25); }
-    .btn-primary {
-      width: 100%; padding: 12px; border: none; border-radius: 12px;
-      background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff;
-      font-weight: 700; font-size: 12px; cursor: pointer;
-      box-shadow: 0 0 18px rgba(139,92,255,0.4);
-    }
-    .btn-primary:disabled { opacity: 0.6; }
-
+    .field input { width: 100%; background: #131832; border: 1px solid rgba(46,168,255,0.25); border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none; }
+    .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; }
     a.neon-card { text-decoration: none; color: inherit; display: block; }
 
-    /* Helper classes for responsive grids */
-    .kpi-row-1 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .kpi-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .kpi-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    /* ========== DESKTOP STYLES ========== */
+    .desktop-shell {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      background: #07070F;
+    }
+    .sidebar {
+      width: 240px;
+      background: #0B0B16;
+      border-right: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      padding: 16px 12px;
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px 20px;
+    }
+    .sidebar-logo .logo-box {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px; color: #fff;
+    }
+    .sidebar-nav { flex: 1; overflow-y: auto; }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 10px;
+      color: #94A3B8; font-size: 13px; text-decoration: none;
+      margin-bottom: 2px; transition: all 0.15s;
+    }
+    .nav-link:hover { background: rgba(108,92,231,0.1); color: #E2E8F0; }
+    .nav-link.active {
+      background: rgba(108,92,231,0.2);
+      color: #C4B5FD;
+      border: 1px solid rgba(108,92,231,0.3);
+    }
+    .nav-link i { width: 18px; text-align: center; font-size: 14px; }
+    .sidebar-footer {
+      padding: 12px;
+      background: rgba(16,16,34,0.8);
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 14px;
+      margin-top: 12px;
+    }
+
+    .desktop-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .desktop-header {
+      height: 60px;
+      border-bottom: 1px solid rgba(139,92,246,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: rgba(11,11,22,0.95);
+      flex-shrink: 0;
+    }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      width: 320px;
+      color: #64748B;
+      font-size: 13px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    .desktop-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+    }
+    .desktop-left { min-width: 0; }
+    .desktop-right { display: flex; flex-direction: column; gap: 16px; }
+
+    .desk-card {
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px;
+      padding: 16px;
+    }
+    .desk-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .desk-kpi {
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .desk-kpi .label { font-size: 11px; color: #94A3B8; margin-bottom: 6px; }
+    .desk-kpi .value { font-size: 18px; font-weight: 800; color: #F8FAFC; }
+    .desk-kpi .sub { font-size: 11px; margin-top: 4px; }
+
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .ai-panel {
+      background: linear-gradient(180deg, rgba(108,92,231,0.12), #121224);
+      border: 1px solid rgba(108,92,231,0.3);
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+    }
+    .ai-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      margin: 0 auto 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      border: 2px solid rgba(167,139,250,0.4);
+    }
+    .insight-item {
+      background: rgba(16,16,34,0.8);
+      border: 1px solid rgba(139,92,246,0.12);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      text-align: left;
+      font-size: 12px;
+    }
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .qa-btn {
+      background: #16162D;
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 11px;
+      color: #E2E8F0;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .qa-btn:hover { border-color: #8B5CFF; background: rgba(108,92,231,0.15); }
+    .qa-btn i { font-size: 16px; }
+
+    .tables-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .table-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(139,92,246,0.08);
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <!-- SUBSCRIPTION LOCK SCREEN -->
-    <div id="subscription-lock" class="hidden">
-      <div class="lock-card">
-        <div style="width:64px;height:64px;border-radius:20px;background:rgba(255,90,122,0.15);border:1px solid rgba(255,90,122,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-          <i class="fa-solid fa-lock" style="font-size:26px;color:#FF5A7A;"></i>
-        </div>
-        <h2 style="margin:0 0 8px;font-size:18px;font-weight:800;color:#fff;">Trial Ended</h2>
-        <p style="margin:0 0 6px;font-size:12px;color:#A8B3CF;line-height:1.5;">
-          Your 14-day free trial has expired.
-        </p>
-        <p style="margin:0 0 20px;font-size:12px;color:#7C88A5;line-height:1.5;">
-          Subscribe to continue using Quantum OPS Elite and keep growing your business.
-        </p>
-        <a href="https://paystack.shop/pay/quantumopselite" target="_blank" rel="noopener" class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px;">
-          <i class="fa-solid fa-crown" style="margin-right:6px;"></i> Upgrade Now
-        </a>
-        <button onclick="handleLogout()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,90,122,0.35);background:transparent;color:#FF5A7A;font-size:12px;font-weight:600;cursor:pointer;">
-          Log Out
-        </button>
-      </div>
-    </div>
 
-    <!-- TOP BAR -->
-    <div class="top-bar">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button onclick="toggleActionSheet()" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+  <!-- ==================== MOBILE VIEW ==================== -->
+  <div class="mobile-only">
+    <div class="iphone-frame">
+      <!-- Subscription Lock -->
+      <div id="subscription-lock" class="hidden" style="position:absolute;inset:0;background:rgba(5,6,11,0.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;">
+        <div style="background:#101326;border:1px solid rgba(139,92,255,0.4);border-radius:24px;padding:28px 22px;max-width:320px;width:100%;">
+          <div style="width:64px;height:64px;border-radius:20px;background:rgba(255,90,122,0.15);border:1px solid rgba(255,90,122,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <i class="fa-solid fa-lock" style="font-size:26px;color:#FF5A7A;"></i>
+          </div>
+          <h2 style="margin:0 0 8px;font-size:18px;font-weight:800;color:#fff;">Trial Ended</h2>
+          <p style="margin:0 0 6px;font-size:12px;color:#A8B3CF;">Your 14-day free trial has expired.</p>
+          <p style="margin:0 0 20px;font-size:12px;color:#7C88A5;">Subscribe to continue using Quantum OPS Elite.</p>
+          <a href="https://paystack.shop/pay/quantumopselite" target="_blank" class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px;">
+            <i class="fa-solid fa-crown" style="margin-right:6px;"></i> Upgrade Now
+          </a>
+          <button onclick="handleLogout()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,90,122,0.35);background:transparent;color:#FF5A7A;font-size:12px;font-weight:600;cursor:pointer;">Log Out</button>
+        </div>
+      </div>
+
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button onclick="toggleActionSheet()" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;">Q</div>
+            <span style="font-weight:800;font-size:11px;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;">ELITE</span></span>
+          </div>
+        </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;box-shadow:0 0 12px rgba(139,92,255,0.35);">Q</div>
-          <span style="font-weight:800;font-size:11px;letter-spacing:0.06em;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;margin-left:2px;">ELITE</span></span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <a href="ai-ceo.html" class="icon-btn" title="AI CEO"><i class="fa-solid fa-robot" style="font-size:12px;color:#B07CFF;"></i></a>
-        <a href="notifications.html" class="icon-btn" style="position:relative;" title="Notifications">
-          <i class="fa-regular fa-bell" style="font-size:12px;"></i>
-          <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;background:#FF5A7A;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;">0</span>
-        </a>
-        <a href="profile.html" style="position:relative;width:32px;height:32px;border-radius:999px;overflow:hidden;border:1px solid rgba(139,92,255,0.4);background:#12162B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B07CFF;text-decoration:none;box-shadow:0 0 12px rgba(139,92,255,0.25);">
-          <span id="user-avatar-initial">C</span>
-          <img id="user-avatar-logo" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
-          <span id="user-verified-dot" class="hidden" style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;background:#22F5A0;border-radius:999px;border:2px solid #05060B;"></span>
-        </a>
-      </div>
-    </div>
-
-    <div class="main-scroll custom-scrollbar">
-      <!-- Greeting + Premium -->
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px;">
-        <div style="min-width:0;flex:1;">
-          <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day, User 👋</h1>
-          <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-          <div class="branch-chip">
-            <i class="fa-solid fa-store" style="font-size:10px;"></i>
-            <span id="current-branch-name">My Business</span>
-          </div>
-          <div class="premium-badge" id="premium-badge" title="Upgrade / Manage Subscription" onclick="window.open('https://paystack.shop/pay/quantumopselite', '_blank')">
-            <i class="fa-solid fa-crown"></i>
-            <span id="premium-label">TRIAL</span>
-          </div>
+          <a href="ai-ceo.html" class="icon-btn"><i class="fa-solid fa-robot" style="color:#B07CFF;font-size:12px;"></i></a>
+          <a href="notifications.html" class="icon-btn" style="position:relative;">
+            <i class="fa-regular fa-bell" style="font-size:12px;"></i>
+            <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;background:#FF5A7A;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;">0</span>
+          </a>
+          <a href="profile.html" style="width:32px;height:32px;border-radius:999px;overflow:hidden;border:1px solid rgba(139,92,255,0.4);background:#12162B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B07CFF;text-decoration:none;">
+            <span id="user-avatar-initial">C</span>
+            <img id="user-avatar-logo" src="" style="width:100%;height:100%;object-fit:cover;display:none;">
+          </a>
         </div>
       </div>
 
-      <!-- KPI row 1 -->
-      <div class="kpi-row-1">
-        <a href="transactions.html?view=sales" class="neon-card">
-          <p class="kpi-label">Total Sales (Today)</p>
-          <h3 class="kpi-value" id="val-today-sales">₦0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
-        </a>
-        <a href="transactions.html?view=profit" class="neon-card">
-          <p class="kpi-label">Gross Profit (Today)</p>
-          <h3 class="kpi-value" id="val-today-profit">₦0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
-        </a>
-        <a href="transactions.html?view=transactions" class="neon-card">
-          <p class="kpi-label">Transactions</p>
-          <h3 class="kpi-value" id="val-transactions">0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
-        </a>
-      </div>
-
-      <!-- KPI row 2 -->
-      <div class="kpi-row-2">
-        <a href="expenses.html" id="card-expenses" class="neon-card">
-          <p class="kpi-label">Expenses (Today)</p>
-          <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
-        </a>
-        <div class="neon-card">
-          <p class="kpi-label">Net Profit (Today)</p>
-          <h3 class="kpi-value text-success" id="val-net-profit">₦0</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
-        </div>
-      </div>
-
-      <!-- KPI row 3 -->
-      <div class="kpi-row-3">
-        <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
-          <p class="kpi-label">Outstanding Debt</p>
-          <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
-        </a>
-        <div id="card-low-stock" class="neon-card">
-          <p class="kpi-label">Low Stock Alerts</p>
-          <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
-        </div>
-        <div class="neon-card">
-          <p class="kpi-label">Business Health</p>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
-            <i class="fa-solid fa-shield-halved text-cyan" style="font-size:14px;"></i>
-            <span class="kpi-value text-cyan" id="val-business-health" style="font-size:13px;">100%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sales chart -->
-      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="main-scroll custom-scrollbar">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px;">
           <div>
-            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
-            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">₦0</h3>
+            <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day, User 👋</h1>
+            <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
           </div>
-          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            <div class="branch-chip"><i class="fa-solid fa-store" style="font-size:10px;"></i><span id="current-branch-name">My Business</span></div>
+            <div class="premium-badge" id="premium-badge" onclick="window.open('https://paystack.shop/pay/quantumopselite','_blank')">
+              <i class="fa-solid fa-crown"></i><span id="premium-label">TRIAL</span>
+            </div>
+          </div>
         </div>
-        <div style="height:140px;width:100%;position:relative;">
-          <canvas id="salesOverviewChart"></canvas>
-          <p id="chart-fallback" class="hidden" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#7C88A5;">Chart unavailable</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+          <a href="transactions.html?view=sales" class="neon-card">
+            <p class="kpi-label">Total Sales (Today)</p>
+            <h3 class="kpi-value" id="val-today-sales">₦0</h3>
+            <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+          </a>
+          <a href="transactions.html?view=profit" class="neon-card">
+            <p class="kpi-label">Gross Profit (Today)</p>
+            <h3 class="kpi-value" id="val-today-profit">₦0</h3>
+            <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+          </a>
+          <a href="transactions.html?view=transactions" class="neon-card">
+            <p class="kpi-label">Transactions</p>
+            <h3 class="kpi-value" id="val-transactions">0</h3>
+            <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+          </a>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <a href="expenses.html" id="card-expenses" class="neon-card">
+            <p class="kpi-label">Expenses (Today)</p>
+            <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
+          </a>
+          <div class="neon-card">
+            <p class="kpi-label">Net Profit (Today)</p>
+            <h3 class="kpi-value text-success" id="val-net-profit">₦0</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+          <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
+            <p class="kpi-label">Outstanding Debt</p>
+            <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
+          </a>
+          <div id="card-low-stock" class="neon-card">
+            <p class="kpi-label">Low Stock Alerts</p>
+            <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
+            <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
+          </div>
+          <div class="neon-card">
+            <p class="kpi-label">Business Health</p>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+              <i class="fa-solid fa-shield-halved text-cyan" style="font-size:14px;"></i>
+              <span class="kpi-value text-cyan" id="val-business-health" style="font-size:13px;">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div>
+              <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
+              <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">₦0</h3>
+            </div>
+            <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
+          </div>
+          <div style="height:140px;width:100%;position:relative;">
+            <canvas id="salesOverviewChart"></canvas>
+          </div>
+        </div>
+
+        <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
+            <span class="text-purple" style="font-size:10px;font-weight:600;">Real-time</span>
+          </div>
+          <div id="top-products-list" style="font-size:11px;">
+            <div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>
+          </div>
+        </div>
+
+        <div class="neon-card neon-card-elevated" style="padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Recent Activities</h4>
+            <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
+          </div>
+          <div id="recent-activities-list" style="font-size:11px;">
+            <div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>
+          </div>
         </div>
       </div>
 
-      <!-- Top products -->
-      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
-          <span class="text-purple" style="font-size:10px;font-weight:600;">Real-time</span>
-        </div>
-        <div id="top-products-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>
-        </div>
-      </div>
+      <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <button onclick="toggleActionSheet()" class="fab-plus"><i class="fa-solid fa-plus"></i></button>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+        <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
+      </nav>
+    </div>
 
-      <!-- Recent activities -->
-      <div class="neon-card neon-card-elevated" style="padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Recent Activities</h4>
-          <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
+    <!-- Action Sheet + Debt Modal (shared) -->
+    <div id="action-sheet">
+      <div id="action-sheet-content">
+        <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;">Quick Business Actions</h3>
+          <button onclick="toggleActionSheet()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="recent-activities-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <a href="pos.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-cash-register"></i></div><span style="font-size:11px;">New Sale</span></a>
+          <button onclick="openAddDebtModal()" class="action-tile" style="cursor:pointer;font-family:inherit;"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-invoice-dollar"></i></div><span style="font-size:11px;">Add Debt</span></button>
+          <a href="inventory.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(34,245,160,0.12);color:#22F5A0;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-boxes-stacked"></i></div><span style="font-size:11px;">Inventory</span></a>
+          <a href="expenses.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-money-bill-wave"></i></div><span style="font-size:11px;">Expenses</span></a>
+          <a href="ai-ceo.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(46,168,255,0.15);color:#5CC8FF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-robot"></i></div><span style="font-size:11px;">AI CEO</span></a>
+          <button onclick="handleLogout()" id="logout-btn" class="action-tile" style="cursor:pointer;font-family:inherit;"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-right-from-bracket"></i></div><span style="font-size:11px;color:#FF5A7A;">Log Out</span></button>
         </div>
       </div>
     </div>
 
-    <!-- BOTTOM NAV -->
-    <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <button onclick="toggleActionSheet()" class="fab-plus"><i class="fa-solid fa-plus"></i></button>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
-      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
-    </nav>
-  </div>
-
-  <!-- ACTION SHEET -->
-  <div id="action-sheet">
-    <div id="action-sheet-content">
-      <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;">Quick Business Actions</h3>
-        <button onclick="toggleActionSheet()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <a href="pos.html" class="action-tile">
-          <div style="width:40px;height:40px;border-radius:12px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-cash-register"></i></div>
-          <span style="font-size:11px;">New Sale</span>
-        </a>
-        <button onclick="openAddDebtModal()" class="action-tile" style="cursor:pointer;font-family:inherit;">
-          <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-          <span style="font-size:11px;">Add Debt</span>
-        </button>
-        <a href="inventory.html" class="action-tile">
-          <div style="width:40px;height:40px;border-radius:12px;background:rgba(34,245,160,0.12);color:#22F5A0;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-boxes-stacked"></i></div>
-          <span style="font-size:11px;">Inventory</span>
-        </a>
-        <a href="expenses.html" class="action-tile">
-          <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-money-bill-wave"></i></div>
-          <span style="font-size:11px;">Expenses</span>
-        </a>
-        <a href="ai-ceo.html" class="action-tile">
-          <div style="width:40px;height:40px;border-radius:12px;background:rgba(46,168,255,0.15);color:#5CC8FF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-robot"></i></div>
-          <span style="font-size:11px;">AI CEO</span>
-        </a>
-        <button onclick="handleLogout()" id="logout-btn" class="action-tile" style="cursor:pointer;font-family:inherit;">
-          <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-right-from-bracket"></i></div>
-          <span style="font-size:11px;color:#FF5A7A;">Log Out</span>
-        </button>
+    <div id="debt-modal" class="hidden">
+      <div class="modal-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;"></i>Record New Debt</h3>
+          <button onclick="closeAddDebtModal()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="field"><label>Customer Name *</label><input type="text" id="debt-customer" placeholder="e.g. John Doe"></div>
+        <div class="field"><label>Phone Number</label><input type="tel" id="debt-phone" placeholder="e.g. 08012345678"></div>
+        <div class="field"><label>Item Bought</label><input type="text" id="debt-item" placeholder="e.g. Sneakers"></div>
+        <div class="field"><label>Amount Owing (₦) *</label><input type="number" id="debt-amount" placeholder="e.g. 25000"></div>
+        <div class="field"><label>Due Date</label><input type="date" id="debt-duedate"></div>
+        <button onclick="submitNewDebt()" id="save-debt-btn" class="btn-primary">Save Debt Record</button>
       </div>
     </div>
   </div>
 
-  <!-- DEBT MODAL (with Phone Number) -->
-  <div id="debt-modal" class="hidden">
-    <div class="modal-panel">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;"></i>Record New Debt</h3>
-        <button onclick="closeAddDebtModal()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+  <!-- ==================== DESKTOP VIEW ==================== -->
+  <div class="desktop-only desktop-shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-box">Q</div>
+        <div>
+          <div style="font-weight:800;font-size:13px;letter-spacing:0.04em;">QUANTUM OPS</div>
+          <div style="font-size:10px;color:#A78BFA;letter-spacing:0.08em;">AI BUSINESS OS</div>
+        </div>
       </div>
-      <div class="field">
-        <label>Customer Name *</label>
-        <input type="text" id="debt-customer" placeholder="e.g. John Doe">
+
+      <nav class="sidebar-nav custom-scrollbar">
+        <a href="dashboard.html" class="nav-link active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="ai-ceo.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI CEO Command Center <span style="margin-left:auto;font-size:9px;background:#6C5CE7;color:#fff;padding:1px 6px;border-radius:4px;">New</span></a>
+        <a href="pos.html" class="nav-link"><i class="fa-solid fa-cash-register"></i> POS / Sales</a>
+        <a href="inventory.html" class="nav-link"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+        <a href="debtors.html" class="nav-link"><i class="fa-solid fa-file-invoice-dollar"></i> Debtors</a>
+        <a href="expenses.html" class="nav-link"><i class="fa-solid fa-money-bill-wave"></i> Expenses</a>
+        <a href="transactions.html" class="nav-link"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+        <a href="profile.html" class="nav-link"><i class="fa-solid fa-user"></i> Profile</a>
+        <a href="#" class="nav-link" onclick="window.open('https://paystack.shop/pay/quantumopselite','_blank')"><i class="fa-solid fa-crown"></i> Upgrade Plan</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div style="font-size:11px;color:#94A3B8;margin-bottom:4px;">Quantum Cloud</div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:8px;">Secure • Always Synced</div>
+        <button onclick="window.open('https://paystack.shop/pay/quantumopselite','_blank')" style="width:100%;padding:8px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;">Upgrade Plan</button>
       </div>
-      <div class="field">
-        <label>Phone Number</label>
-        <input type="tel" id="debt-phone" placeholder="e.g. 08012345678">
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="desktop-main">
+      <!-- Header -->
+      <header class="desktop-header">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search anything... (Products, Customers, Invoices...)</span>
+        </div>
+        <div class="header-actions">
+          <a href="ai-ceo.html" style="background:rgba(108,92,231,0.2);border:1px solid rgba(108,92,231,0.4);color:#C4B5FD;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;">
+            <i class="fa-solid fa-robot" style="margin-right:6px;"></i>AI CEO
+          </a>
+          <a href="notifications.html" style="width:36px;height:36px;border-radius:10px;background:#121224;border:1px solid rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;text-decoration:none;position:relative;">
+            <i class="fa-regular fa-bell"></i>
+          </a>
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;background:#121224;border-radius:999px;border:1px solid rgba(139,92,246,0.2);">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6C5CE7,#4F46E5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;" id="desk-avatar">C</div>
+            <div>
+              <div style="font-size:12px;font-weight:600;" id="desk-username">User</div>
+              <div style="font-size:10px;color:#64748B;">Owner</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="desktop-content custom-scrollbar">
+        <div class="desktop-left">
+          <!-- Greeting -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <div>
+              <h1 style="font-size:20px;font-weight:800;margin:0;" id="desk-greeting">Good day, User 👋</h1>
+              <p style="font-size:13px;color:#94A3B8;margin:4px 0 0;">Here's what's happening with <span id="desk-branch-name">your business</span> today.</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div style="background:#121224;border:1px solid rgba(139,92,246,0.2);padding:6px 12px;border-radius:8px;font-size:12px;color:#A78BFA;">
+                <i class="fa-solid fa-store" style="margin-right:6px;"></i><span id="desk-branch-chip">Main Branch</span>
+              </div>
+              <div class="premium-badge" id="desk-premium-badge" onclick="window.open('https://paystack.shop/pay/quantumopselite','_blank')">
+                <i class="fa-solid fa-crown"></i> <span id="desk-premium-label">TRIAL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Row -->
+          <div class="desk-kpi-grid">
+            <div class="desk-kpi">
+              <div class="label">TOTAL SALES (TODAY)</div>
+              <div class="value" id="desk-today-sales">₦0</div>
+              <div class="sub" style="color:#22F5A0;"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
+            </div>
+            <div class="desk-kpi">
+              <div class="label">TOTAL PROFIT (TODAY)</div>
+              <div class="value" id="desk-today-profit">₦0</div>
+              <div class="sub" style="color:#22F5A0;"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
+            </div>
+            <div class="desk-kpi">
+              <div class="label">TRANSACTIONS</div>
+              <div class="value" id="desk-transactions">0</div>
+              <div class="sub" style="color:#94A3B8;">Today</div>
+            </div>
+            <div class="desk-kpi">
+              <div class="label">OUTSTANDING DEBT</div>
+              <div class="value text-loss" id="desk-outstanding-debt">₦0</div>
+              <div class="sub" style="color:#94A3B8;" id="desk-debt-customers">0 Customers</div>
+            </div>
+            <div class="desk-kpi">
+              <div class="label">LOW STOCK ALERTS</div>
+              <div class="value text-warn" id="desk-low-stock">0 Items</div>
+              <div class="sub" style="color:#94A3B8;">Need attention</div>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="charts-row">
+            <div class="desk-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div>
+                  <div style="font-size:12px;color:#94A3B8;">SALES OVERVIEW</div>
+                  <div style="font-size:20px;font-weight:800;" id="desk-weekly-total">₦0</div>
+                </div>
+                <span style="font-size:11px;background:rgba(108,92,231,0.2);color:#C4B5FD;padding:4px 10px;border-radius:999px;">This Week</span>
+              </div>
+              <div style="height:180px;">
+                <canvas id="deskSalesChart"></canvas>
+              </div>
+            </div>
+            <div class="desk-card">
+              <div style="font-size:12px;color:#94A3B8;margin-bottom:12px;">BUSINESS HEALTH</div>
+              <div style="font-size:32px;font-weight:800;color:#00E5FF;margin-bottom:8px;" id="desk-business-health">100%</div>
+              <div style="font-size:12px;color:#94A3B8;">Overall performance score</div>
+              <div style="margin-top:16px;font-size:12px;color:#94A3B8;">
+                Net Profit Today: <span id="desk-net-profit" style="color:#22F5A0;font-weight:700;">₦0</span>
+              </div>
+              <div style="margin-top:6px;font-size:12px;color:#94A3B8;">
+                Expenses Today: <span id="desk-today-expenses" style="color:#FF5A7A;font-weight:700;">₦0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tables -->
+          <div class="tables-row">
+            <div class="desk-card">
+              <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                <span style="font-size:12px;font-weight:600;color:#94A3B8;">TOP SELLING PRODUCTS</span>
+                <span style="font-size:11px;color:#A78BFA;">This Week</span>
+              </div>
+              <div id="desk-top-products">
+                <div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">No data yet</div>
+              </div>
+            </div>
+            <div class="desk-card">
+              <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                <span style="font-size:12px;font-weight:600;color:#94A3B8;">LOW STOCK ALERTS</span>
+                <a href="inventory.html" style="font-size:11px;color:#A78BFA;text-decoration:none;">View All</a>
+              </div>
+              <div id="desk-low-stock-list">
+                <div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">All stock healthy</div>
+              </div>
+            </div>
+            <div class="desk-card">
+              <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                <span style="font-size:12px;font-weight:600;color:#94A3B8;">TOP DEBTORS</span>
+                <a href="debtors.html" style="font-size:11px;color:#A78BFA;text-decoration:none;">View All</a>
+              </div>
+              <div id="desk-top-debtors">
+                <div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">No outstanding debts</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activities -->
+          <div class="desk-card">
+            <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+              <span style="font-size:12px;font-weight:600;color:#94A3B8;">RECENT ACTIVITIES</span>
+              <span style="font-size:11px;color:#A78BFA;">Live</span>
+            </div>
+            <div id="desk-recent-activities">
+              <div style="text-align:center;padding:16px 0;color:#64748B;font-size:12px;">No recent activity</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT AI PANEL -->
+        <div class="desktop-right">
+          <div class="ai-panel">
+            <div class="ai-avatar"><i class="fa-solid fa-robot"></i></div>
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 4px;">Hello <span id="ai-user-name">User</span>! 👋</h3>
+            <p style="font-size:12px;color:#94A3B8;margin:0 0 14px;">Here are my top insights for you.</p>
+
+            <div class="insight-item">
+              <div style="color:#22F5A0;font-weight:600;margin-bottom:2px;"><i class="fa-solid fa-arrow-trend-up"></i> Sales Performance</div>
+              <div style="color:#CBD5E1;font-size:11px;" id="ai-insight-sales">Tracking your live sales data...</div>
+            </div>
+            <div class="insight-item">
+              <div style="color:#FFD54A;font-weight:600;margin-bottom:2px;"><i class="fa-solid fa-box"></i> Inventory Alert</div>
+              <div style="color:#CBD5E1;font-size:11px;" id="ai-insight-stock">Checking stock levels...</div>
+            </div>
+            <div class="insight-item">
+              <div style="color:#FF5A7A;font-weight:600;margin-bottom:2px;"><i class="fa-solid fa-file-invoice-dollar"></i> Debt Watch</div>
+              <div style="color:#CBD5E1;font-size:11px;" id="ai-insight-debt">Monitoring outstanding balances...</div>
+            </div>
+
+            <a href="ai-ceo.html" style="display:block;margin-top:14px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);color:#fff;padding:11px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;">
+              Chat with AI CEO
+            </a>
+          </div>
+
+          <div class="desk-card">
+            <div style="font-size:12px;font-weight:600;color:#94A3B8;margin-bottom:12px;">QUICK ACTIONS</div>
+            <div class="quick-actions-grid">
+              <a href="pos.html" class="qa-btn"><i class="fa-solid fa-cash-register" style="color:#A78BFA;"></i>New Sale</a>
+              <a href="inventory.html" class="qa-btn"><i class="fa-solid fa-box" style="color:#22F5A0;"></i>Add Product</a>
+              <button onclick="openAddDebtModal()" class="qa-btn" style="font-family:inherit;"><i class="fa-solid fa-file-invoice-dollar" style="color:#FF5A7A;"></i>Add Debt</button>
+              <a href="expenses.html" class="qa-btn"><i class="fa-solid fa-money-bill-wave" style="color:#FF5A7A;"></i>Add Expense</a>
+              <a href="debtors.html" class="qa-btn"><i class="fa-solid fa-users" style="color:#5CC8FF;"></i>Debtors</a>
+              <a href="ai-ceo.html" class="qa-btn"><i class="fa-solid fa-robot" style="color:#B07CFF;"></i>AI CEO</a>
+            </div>
+          </div>
+
+          <div class="desk-card">
+            <div style="font-size:12px;font-weight:600;color:#94A3B8;margin-bottom:10px;">TODAY'S SUMMARY</div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+              <span style="color:#94A3B8;">Sales</span>
+              <span style="font-weight:700;" id="desk-sum-sales">₦0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+              <span style="color:#94A3B8;">Profit</span>
+              <span style="font-weight:700;color:#22F5A0;" id="desk-sum-profit">₦0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+              <span style="color:#94A3B8;">Expenses</span>
+              <span style="font-weight:700;color:#FF5A7A;" id="desk-sum-expenses">₦0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:#94A3B8;">Net Profit</span>
+              <span style="font-weight:700;color:#00E5FF;" id="desk-sum-net">₦0</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label>Item Bought</label>
-        <input type="text" id="debt-item" placeholder="e.g. Sneakers">
-      </div>
-      <div class="field">
-        <label>Amount Owing (₦) *</label>
-        <input type="number" id="debt-amount" placeholder="e.g. 25000">
-      </div>
-      <div class="field">
-        <label>Due Date</label>
-        <input type="date" id="debt-duedate">
-      </div>
-      <button onclick="submitNewDebt()" id="save-debt-btn" class="btn-primary">Save Debt Record</button>
     </div>
   </div>
 
@@ -593,6 +713,7 @@
     const LOW_STOCK_UNITS = 3;
 
     let salesChartInstance = null;
+    let deskChartInstance = null;
     let userCompanyId = null;
     let isFetchingMetrics = false;
     let liveRefreshTimer = null;
@@ -602,7 +723,6 @@
     let appReady = false;
     let loggingOut = false;
     let lastChartKey = '';
-    let companySubscription = null;
 
     function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
@@ -622,10 +742,8 @@
 
     function toggleActionSheet() {
       const sheet = $('action-sheet');
-      if (!sheet) return;
-      sheet.classList.toggle('open');
+      if (sheet) sheet.classList.toggle('open');
     }
-
     function openAddDebtModal() {
       toggleActionSheet();
       const m = $('debt-modal');
@@ -639,53 +757,44 @@
     async function handleLogout() {
       if (loggingOut) return;
       loggingOut = true;
-      const btn = $('logout-btn');
-      if (btn) btn.style.pointerEvents = 'none';
       try {
         if (liveRefreshTimer) clearTimeout(liveRefreshTimer);
-        if (liveChannel) {
-          try { await supabaseClient.removeChannel(liveChannel); } catch (e) {}
-          liveChannel = null;
-        }
+        if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch(e){} liveChannel = null; }
         await supabaseClient.auth.signOut({ scope: 'local' });
-      } catch (e) { console.error('logout', e); }
-      try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+      } catch(e) {}
+      try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
       window.location.replace('index.html');
     }
 
     function scheduleLiveRefresh() {
       if (!appReady || loggingOut) return;
       if (liveRefreshTimer) clearTimeout(liveRefreshTimer);
-      liveRefreshTimer = setTimeout(function () {
+      liveRefreshTimer = setTimeout(function() {
         fetchAllLiveMetrics();
         loadUnreadBadge();
       }, 900);
     }
 
     function updatePremiumBadge(status) {
-      var label = $('premium-label');
-      var badge = $('premium-badge');
-      if (!label || !badge) return;
-
-      badge.classList.remove('expired');
-      if (status === 'active') {
-        label.textContent = 'PREMIUM';
-      } else if (status === 'expired') {
-        label.textContent = 'EXPIRED';
-        badge.classList.add('expired');
-      } else {
-        label.textContent = 'TRIAL';
-      }
+      ['premium-label', 'desk-premium-label'].forEach(function(id) {
+        const el = $(id);
+        if (el) el.textContent = status === 'active' ? 'PREMIUM' : (status === 'expired' ? 'EXPIRED' : 'TRIAL');
+      });
+      ['premium-badge', 'desk-premium-badge'].forEach(function(id) {
+        const badge = $(id);
+        if (badge) {
+          if (status === 'expired') badge.classList.add('expired');
+          else badge.classList.remove('expired');
+        }
+      });
     }
 
     function checkAndApplySubscriptionLock(company) {
       if (!company) return;
-
       var status = (company.subscription_status || 'trial').toLowerCase();
       var trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
       var subEnds = company.subscription_ends_at ? new Date(company.subscription_ends_at) : null;
       var now = new Date();
-
       var isExpired = false;
 
       if (status === 'active') {
@@ -697,7 +806,6 @@
       }
 
       updatePremiumBadge(isExpired ? 'expired' : status);
-
       var lock = $('subscription-lock');
       if (lock) {
         if (isExpired) lock.classList.remove('hidden');
@@ -707,18 +815,17 @@
 
     function applyCompanyProfile(c) {
       if (!c) return;
-      companySubscription = c;
-      if (c.company_name) setText('current-branch-name', c.company_name);
+      if (c.company_name) {
+        setText('current-branch-name', c.company_name);
+        setText('desk-branch-name', c.company_name);
+        setText('desk-branch-chip', c.company_name);
+      }
       const logoEl = $('user-avatar-logo');
       const initialEl = $('user-avatar-initial');
-      const dot = $('user-verified-dot');
       if (c.logo && logoEl) {
         logoEl.src = c.logo;
         logoEl.style.display = 'block';
         if (initialEl) initialEl.style.display = 'none';
-      }
-      if (dot && c.company_name && c.address && c.phone) {
-        dot.classList.remove('hidden');
       }
       checkAndApplySubscriptionLock(c);
     }
@@ -726,43 +833,38 @@
     async function loadUnreadBadge() {
       if (!userCompanyId) return;
       try {
-        const { count, error } = await supabaseClient
-          .from('notifications')
-          .select('id', { count: 'exact', head: true })
-          .eq('company_id', userCompanyId)
-          .eq('is_read', false);
+        const { count } = await supabaseClient.from('notifications').select('id', { count: 'exact', head: true }).eq('company_id', userCompanyId).eq('is_read', false);
         const badge = $('notif-badge');
         if (!badge) return;
-        if (error || !count) {
-          badge.classList.add('hidden');
-          badge.textContent = '0';
-          return;
-        }
+        if (!count) { badge.classList.add('hidden'); return; }
         badge.textContent = count > 99 ? '99+' : String(count);
         badge.classList.remove('hidden');
-      } catch (e) { console.error('badge', e); }
+      } catch(e) {}
     }
 
     async function initializeApp() {
       if (loggingOut) return;
       try {
-        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
-        if (sessionError || !session || !session.user) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
           window.location.replace('index.html');
           return;
         }
-
         const user = session.user;
         const rawName = (user.user_metadata && user.user_metadata.full_name) || (user.email || 'User').split('@')[0];
         const firstName = String(rawName).split(' ')[0] || 'User';
         const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
         const hour = new Date().getHours();
         const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
         setText('greeting-title', greeting + ', ' + capitalizedName + ' 👋');
-        setText('user-avatar-initial', capitalizedName.charAt(0).toUpperCase());
+        setText('desk-greeting', greeting + ', ' + capitalizedName + ' 👋');
+        setText('user-avatar-initial', capitalizedName.charAt(0));
+        setText('desk-avatar', capitalizedName.charAt(0));
+        setText('desk-username', capitalizedName);
+        setText('ai-user-name', capitalizedName);
 
         userCompanyId = null;
-
         const { data: member } = await supabaseClient
           .from('company_users')
           .select('company_id, companies(company_name, logo, address, phone, subscription_status, trial_ends_at, subscription_ends_at)')
@@ -789,16 +891,13 @@
         appReady = true;
 
         if (userCompanyId) {
-          if (liveChannel) {
-            try { await supabaseClient.removeChannel(liveChannel); } catch (e) {}
-            liveChannel = null;
-          }
+          if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch(e){} }
           liveChannel = supabaseClient.channel('live-' + userCompanyId)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, function () { scheduleLiveRefresh(); })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, function () { scheduleLiveRefresh(); })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, function () { scheduleLiveRefresh(); })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, function () { scheduleLiveRefresh(); })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, function () { loadUnreadBadge(); })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, scheduleLiveRefresh)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, scheduleLiveRefresh)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'debtors' }, scheduleLiveRefresh)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, scheduleLiveRefresh)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, loadUnreadBadge)
             .subscribe();
         }
       } catch (err) {
@@ -823,24 +922,10 @@
 
       try {
         const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
-          supabaseClient.from('sales')
-            .select('id, total_amount, total, profit, total_profit, created_at, payment_method, items')
-            .eq('company_id', userCompanyId)
-            .order('created_at', { ascending: false })
-            .limit(120),
-          supabaseClient.from('products')
-            .select('id, stock, items_per_pack')
-            .eq('company_id', userCompanyId)
-            .limit(150),
-          supabaseClient.from('debtors')
-            .select('id, amount_owing, customer_name, status')
-            .eq('company_id', userCompanyId)
-            .limit(100),
-          supabaseClient.from('expenses')
-            .select('id, amount, created_at')
-            .eq('company_id', userCompanyId)
-            .order('created_at', { ascending: false })
-            .limit(60)
+          supabaseClient.from('sales').select('id, total_amount, total, profit, total_profit, created_at, payment_method, items').eq('company_id', userCompanyId).order('created_at', { ascending: false }).limit(120),
+          supabaseClient.from('products').select('id, name, stock, items_per_pack').eq('company_id', userCompanyId).limit(150),
+          supabaseClient.from('debtors').select('id, customer_name, amount_owing, status').eq('company_id', userCompanyId).limit(100),
+          supabaseClient.from('expenses').select('id, amount, created_at').eq('company_id', userCompanyId).order('created_at', { ascending: false }).limit(60)
         ]);
 
         processSalesMetrics(salesRes.data || []);
@@ -850,6 +935,7 @@
         renderSalesChart(salesRes.data || []);
         renderTopProducts(salesRes.data || []);
         renderRecentActivities(salesRes.data || []);
+        updateAIInsights(salesRes.data || [], productsRes.data || [], debtorsRes.data || []);
       } catch (err) {
         console.error('metrics', err);
       } finally {
@@ -860,7 +946,7 @@
     function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0;
-      (sales || []).forEach(function (s) {
+      (sales || []).forEach(function(s) {
         const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
         const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
         weeklyTotal += amount;
@@ -872,27 +958,40 @@
       });
       todayGrossProfit = todayProfit;
       todaySalesAmount = todaySales;
+
+      // Mobile
       setText('val-today-sales', formatCurrency(todaySales));
       setText('val-today-profit', formatCurrency(todayProfit));
       setText('val-transactions', String(todayCount));
       setText('val-weekly-total', formatCurrency(weeklyTotal));
+
+      // Desktop
+      setText('desk-today-sales', formatCurrency(todaySales));
+      setText('desk-today-profit', formatCurrency(todayProfit));
+      setText('desk-transactions', String(todayCount));
+      setText('desk-weekly-total', formatCurrency(weeklyTotal));
+      setText('desk-sum-sales', formatCurrency(todaySales));
+      setText('desk-sum-profit', formatCurrency(todayProfit));
     }
 
     function processExpensesMetrics(expenses) {
       const todayStr = getLocalDateString(new Date());
       let todayExp = 0;
-      (expenses || []).forEach(function (e) {
-        if (getLocalDateString(new Date(e.created_at)) === todayStr) {
-          todayExp += parseMoney(e.amount);
-        }
+      (expenses || []).forEach(function(e) {
+        if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
       });
       setText('val-today-expenses', formatCurrency(todayExp));
+      setText('desk-today-expenses', formatCurrency(todayExp));
+      setText('desk-sum-expenses', formatCurrency(todayExp));
+
       const net = todayGrossProfit - todayExp;
       const netEl = $('val-net-profit');
       if (netEl) {
         netEl.textContent = formatCurrency(net);
         netEl.className = 'kpi-value ' + (net >= 0 ? 'text-success' : 'text-loss');
       }
+      setText('desk-net-profit', formatCurrency(net));
+      setText('desk-sum-net', formatCurrency(net));
 
       var expCard = $('card-expenses');
       if (expCard) {
@@ -904,42 +1003,94 @@
 
     function processInventoryMetrics(products) {
       let low = 0;
-      (products || []).forEach(function (p) {
+      const lowItems = [];
+      (products || []).forEach(function(p) {
         const pieces = parseFloat(p.stock || 0);
         const pack = parseFloat(p.items_per_pack || 24) || 24;
-        if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
+        if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) {
+          low++;
+          lowItems.push(p);
+        }
       });
       setText('val-low-stock', low + ' Items');
+      setText('desk-low-stock', low + ' Items');
       setText('val-business-health', Math.max(100 - low * 5, 40) + '%');
+      setText('desk-business-health', Math.max(100 - low * 5, 40) + '%');
 
       var lowCard = $('card-low-stock');
       if (lowCard) {
         if (low > 0) lowCard.classList.add('alert-breathing-amber');
         else lowCard.classList.remove('alert-breathing-amber');
       }
+
+      // Desktop low stock list
+      const list = $('desk-low-stock-list');
+      if (list) {
+        if (!lowItems.length) {
+          list.innerHTML = '<div style="text-align:center;padding:16px 0;color:#64748B;font-size:12px;">All stock healthy</div>';
+        } else {
+          list.innerHTML = lowItems.slice(0, 5).map(function(p) {
+            return '<div class="table-item"><span>' + (p.name || 'Product') + '</span><span style="color:#FFD54A;font-weight:600;">Low</span></div>';
+          }).join('');
+        }
+      }
     }
 
     function processDebtorsMetrics(debtors) {
       let total = 0;
-      (debtors || []).forEach(function (d) { total += parseMoney(d.amount_owing); });
+      (debtors || []).forEach(function(d) { total += parseMoney(d.amount_owing); });
       setText('val-outstanding-debt', formatCurrency(total));
+      setText('desk-outstanding-debt', formatCurrency(total));
       setText('val-debt-customers', (debtors || []).length + ' Customers');
+      setText('desk-debt-customers', (debtors || []).length + ' Customers');
 
       var debtCard = $('card-outstanding-debt');
       if (debtCard) {
         if (total > 0) debtCard.classList.add('alert-breathing-red');
         else debtCard.classList.remove('alert-breathing-red');
       }
+
+      // Desktop top debtors
+      const list = $('desk-top-debtors');
+      if (list) {
+        if (!debtors || !debtors.length) {
+          list.innerHTML = '<div style="text-align:center;padding:16px 0;color:#64748B;font-size:12px;">No outstanding debts</div>';
+        } else {
+          const sorted = debtors.slice().sort(function(a,b){ return parseMoney(b.amount_owing) - parseMoney(a.amount_owing); }).slice(0,5);
+          list.innerHTML = sorted.map(function(d) {
+            return '<div class="table-item"><span>' + (d.customer_name || 'Customer') + '</span><span style="color:#FF5A7A;font-weight:600;">' + formatCurrency(d.amount_owing) + '</span></div>';
+          }).join('');
+        }
+      }
+    }
+
+    function updateAIInsights(sales, products, debtors) {
+      const todayStr = getLocalDateString(new Date());
+      let todaySales = 0;
+      (sales || []).forEach(function(s) {
+        if (getLocalDateString(new Date(s.created_at)) === todayStr) {
+          todaySales += parseMoney(s.total_amount != null ? s.total_amount : s.total);
+        }
+      });
+      setText('ai-insight-sales', todaySales > 0 ? 'You made ' + formatCurrency(todaySales) + ' in sales today. Keep it up!' : 'No sales recorded yet today. Time to push!');
+
+      let low = 0;
+      (products || []).forEach(function(p) {
+        const pieces = parseFloat(p.stock || 0);
+        const pack = parseFloat(p.items_per_pack || 24) || 24;
+        if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
+      });
+      setText('ai-insight-stock', low > 0 ? low + ' item(s) are running low. Restock soon.' : 'All stock levels look healthy.');
+
+      let debtTotal = 0;
+      (debtors || []).forEach(function(d) { debtTotal += parseMoney(d.amount_owing); });
+      setText('ai-insight-debt', debtTotal > 0 ? formatCurrency(debtTotal) + ' is still outstanding from customers.' : 'No outstanding debts. Great job!');
     }
 
     function renderSalesChart(sales) {
-      const canvas = $('salesOverviewChart');
-      const fallback = $('chart-fallback');
-      if (!canvas) return;
-
       const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
       const totals = [0,0,0,0,0,0,0];
-      (sales || []).forEach(function (s) {
+      (sales || []).forEach(function(s) {
         let idx = new Date(s.created_at).getDay() - 1;
         if (idx === -1) idx = 6;
         totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
@@ -948,123 +1099,98 @@
       if (chartKey === lastChartKey && salesChartInstance) return;
       lastChartKey = chartKey;
 
-      try {
-        if (fallback) fallback.classList.add('hidden');
-        canvas.classList.remove('hidden');
-        const ctx = canvas.getContext('2d');
-        if (salesChartInstance) {
-          try { salesChartInstance.destroy(); } catch (e) {}
-          salesChartInstance = null;
-        }
+      // Mobile chart
+      const canvas = $('salesOverviewChart');
+      if (canvas) {
+        try {
+          if (salesChartInstance) { try { salesChartInstance.destroy(); } catch(e){} }
+          const ctx = canvas.getContext('2d');
+          const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
+          gradient.addColorStop(0, '#8B5CFF');
+          gradient.addColorStop(1, '#2EA8FF');
+          salesChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: 'rgba(139,92,255,0.12)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#7C88A5', font: { size: 9 } } }, y: { grid: { color: 'rgba(46,168,255,0.06)' }, ticks: { color: '#7C88A5', font: { size: 9 }, callback: function(v){ return '₦'+(v/1000).toFixed(0)+'k'; } } } } }
+          });
+        } catch(e) {}
+      }
 
-        const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
-        gradient.addColorStop(0, '#8B5CFF');
-        gradient.addColorStop(0.5, '#C86BFF');
-        gradient.addColorStop(1, '#2EA8FF');
-
-        salesChartInstance = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: days,
-            datasets: [{
-              data: totals,
-              borderColor: gradient,
-              backgroundColor: 'rgba(139,92,255,0.12)',
-              borderWidth: 2.5,
-              fill: true,
-              tension: 0.4,
-              pointBackgroundColor: '#5CC8FF',
-              pointBorderColor: '#8B5CFF',
-              pointRadius: 3,
-              pointHoverRadius: 5
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: {
-                grid: { display: false },
-                ticks: { color: '#7C88A5', font: { size: 9 } }
-              },
-              y: {
-                grid: { color: 'rgba(46,168,255,0.06)' },
-                ticks: {
-                  color: '#7C88A5',
-                  font: { size: 9 },
-                  callback: function (v) { return '₦' + (v / 1000).toFixed(0) + 'k'; }
-                }
-              }
-            }
-          }
-        });
-      } catch (e) {
-        console.error('chart', e);
-        if (fallback) fallback.classList.remove('hidden');
-        if (canvas) canvas.classList.add('hidden');
+      // Desktop chart
+      const deskCanvas = $('deskSalesChart');
+      if (deskCanvas) {
+        try {
+          if (deskChartInstance) { try { deskChartInstance.destroy(); } catch(e){} }
+          const ctx2 = deskCanvas.getContext('2d');
+          const gradient2 = ctx2.createLinearGradient(0, 0, deskCanvas.width || 400, 0);
+          gradient2.addColorStop(0, '#8B5CFF');
+          gradient2.addColorStop(1, '#2EA8FF');
+          deskChartInstance = new Chart(ctx2, {
+            type: 'line',
+            data: { labels: days, datasets: [{ data: totals, borderColor: gradient2, backgroundColor: 'rgba(139,92,255,0.1)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#7C88A5', font: { size: 10 } } }, y: { grid: { color: 'rgba(46,168,255,0.06)' }, ticks: { color: '#7C88A5', font: { size: 10 }, callback: function(v){ return '₦'+(v/1000).toFixed(0)+'k'; } } } } }
+          });
+        } catch(e) {}
       }
     }
 
     function renderTopProducts(sales) {
-      const container = $('top-products-list');
-      if (!container) return;
       const counts = {};
-      (sales || []).forEach(function (s) {
+      (sales || []).forEach(function(s) {
         if (!Array.isArray(s.items)) return;
-        s.items.forEach(function (i) {
+        s.items.forEach(function(i) {
           const n = i.name || 'Product';
           if (!counts[n]) counts[n] = { qty: 0, revenue: 0 };
           counts[n].qty += parseInt(i.qty || 1, 10);
           counts[n].revenue += parseFloat(i.price || 0) * parseInt(i.qty || 1, 10);
         });
       });
-      const sorted = Object.entries(counts).sort(function (a, b) { return b[1].revenue - a[1].revenue; }).slice(0, 5);
-      if (!sorted.length) {
-        container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>';
-        return;
+      const sorted = Object.entries(counts).sort(function(a,b){ return b[1].revenue - a[1].revenue; }).slice(0,5);
+
+      // Mobile
+      const container = $('top-products-list');
+      if (container) {
+        if (!sorted.length) {
+          container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>';
+        } else {
+          container.innerHTML = sorted.map(function(entry, i) {
+            return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(46,168,255,0.08);"><span style="color:#A8B3CF;"><span style="display:inline-block;width:18px;height:18px;border-radius:6px;background:rgba(139,92,255,0.25);color:#B07CFF;font-size:9px;font-weight:800;text-align:center;line-height:18px;margin-right:8px;">'+(i+1)+'</span>'+entry[0]+' <span style="color:#7C88A5;">('+entry[1].qty+' sold)</span></span><span style="font-weight:700;">'+formatCurrency(entry[1].revenue)+'</span></div>';
+          }).join('');
+        }
       }
-      container.innerHTML = sorted.map(function (entry, i) {
-        var name = entry[0], d = entry[1];
-        return ''
-          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(46,168,255,0.08);">'
-          +   '<span style="display:flex;align-items:center;gap:8px;color:#A8B3CF;">'
-          +     '<span style="width:18px;height:18px;border-radius:6px;background:rgba(139,92,255,0.25);color:#B07CFF;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + (i + 1) + '</span>'
-          +     name + ' <span style="color:#7C88A5;">(' + d.qty + ' sold)</span>'
-          +   '</span>'
-          +   '<span style="color:#F8FAFF;font-weight:700;">' + formatCurrency(d.revenue) + '</span>'
-          + '</div>';
-      }).join('');
+
+      // Desktop
+      const deskContainer = $('desk-top-products');
+      if (deskContainer) {
+        if (!sorted.length) {
+          deskContainer.innerHTML = '<div style="text-align:center;padding:16px 0;color:#64748B;font-size:12px;">No data yet</div>';
+        } else {
+          deskContainer.innerHTML = sorted.map(function(entry, i) {
+            return '<div class="table-item"><span>'+(i+1)+'. '+entry[0]+'</span><span style="font-weight:600;">'+formatCurrency(entry[1].revenue)+'</span></div>';
+          }).join('');
+        }
+      }
     }
 
     function renderRecentActivities(sales) {
       const container = $('recent-activities-list');
-      if (!container) return;
+      const deskContainer = $('desk-recent-activities');
       if (!sales || !sales.length) {
-        container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>';
+        if (container) container.innerHTML = '<div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>';
+        if (deskContainer) deskContainer.innerHTML = '<div style="text-align:center;padding:16px 0;color:#64748B;font-size:12px;">No recent activity</div>';
         return;
       }
-      const sorted = sales.slice().sort(function (a, b) { return new Date(b.created_at) - new Date(a.created_at); }).slice(0, 5);
-      container.innerHTML = sorted.map(function (s) {
+      const sorted = sales.slice().sort(function(a,b){ return new Date(b.created_at) - new Date(a.created_at); }).slice(0,5);
+
+      const html = sorted.map(function(s) {
         const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
         let label = 'New Sale';
         if (Array.isArray(s.items) && s.items[0]) label = s.items[0].name || 'New Sale';
-        return ''
-          + '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">'
-          +   '<div style="display:flex;align-items:center;gap:10px;">'
-          +     '<div style="width:28px;height:28px;border-radius:10px;background:rgba(139,92,255,0.2);color:#B07CFF;border:1px solid rgba(139,92,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;"><i class="fa-solid fa-cart-shopping"></i></div>'
-          +     '<div>'
-          +       '<p style="margin:0;font-weight:600;color:#fff;font-size:11px;">' + label + '</p>'
-          +       '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + (s.payment_method || 'Cash') + '</p>'
-          +     '</div>'
-          +   '</div>'
-          +   '<div style="text-align:right;">'
-          +     '<p style="margin:0;font-weight:700;color:#22F5A0;font-size:11px;">' + formatCurrency(amount) + '</p>'
-          +     '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + getTimeAgo(s.created_at) + '</p>'
-          +   '</div>'
-          + '</div>';
+        return '<div style="display:flex;justify-content:space-between;padding:6px 0;"><div style="display:flex;gap:10px;align-items:center;"><div style="width:28px;height:28px;border-radius:10px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;font-size:11px;"><i class="fa-solid fa-cart-shopping"></i></div><div><p style="margin:0;font-weight:600;font-size:11px;">'+label+'</p><p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">'+(s.payment_method||'Cash')+'</p></div></div><div style="text-align:right;"><p style="margin:0;font-weight:700;color:#22F5A0;font-size:11px;">'+formatCurrency(amount)+'</p><p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">'+getTimeAgo(s.created_at)+'</p></div></div>';
       }).join('');
+
+      if (container) container.innerHTML = html;
+      if (deskContainer) deskContainer.innerHTML = html;
     }
 
     function getTimeAgo(dateString) {
@@ -1078,12 +1204,12 @@
     }
 
     async function submitNewDebt() {
-      const customer = ($('debt-customer') || {}).value;
-      const phone = ($('debt-phone') || {}).value;
-      const item = ($('debt-item') || {}).value;
-      const amount = ($('debt-amount') || {}).value;
-      const duedate = ($('debt-duedate') || {}).value;
-      const cust = (customer || '').trim();
+      const customer = ($('debt-customer')||{}).value;
+      const phone = ($('debt-phone')||{}).value;
+      const item = ($('debt-item')||{}).value;
+      const amount = ($('debt-amount')||{}).value;
+      const duedate = ($('debt-duedate')||{}).value;
+      const cust = (customer||'').trim();
       if (!cust) return alert('Enter customer name');
       if (!amount || parseFloat(amount) <= 0) return alert('Enter valid amount');
       if (!userCompanyId) return alert('Company not loaded. Refresh page.');
@@ -1095,7 +1221,7 @@
         const payload = {
           company_id: userCompanyId,
           customer_name: cust,
-          item_bought: (item || '').trim() || 'General Goods',
+          item_bought: (item||'').trim() || 'General Goods',
           amount_owing: parseFloat(amount),
           due_date: duedate || null,
           status: 'unpaid'
@@ -1106,22 +1232,16 @@
         if (error) alert(error.message);
         else {
           closeAddDebtModal();
-          if ($('debt-customer')) $('debt-customer').value = '';
-          if ($('debt-phone')) $('debt-phone').value = '';
-          if ($('debt-item')) $('debt-item').value = '';
-          if ($('debt-amount')) $('debt-amount').value = '';
-          if ($('debt-duedate')) $('debt-duedate').value = '';
+          ['debt-customer','debt-phone','debt-item','debt-amount','debt-duedate'].forEach(function(id){ if($(id)) $(id).value = ''; });
           fetchAllLiveMetrics();
         }
-      } catch (e) {
+      } catch(e) {
         alert('Could not save debt. Try again.');
       }
       if (btn) { btn.disabled = false; btn.textContent = 'Save Debt Record'; }
     }
 
-    function toggleMenu() { toggleActionSheet(); }
-
-    supabaseClient.auth.onAuthStateChange(function (event) {
+    supabaseClient.auth.onAuthStateChange(function(event) {
       if (loggingOut) return;
       if (event === 'SIGNED_OUT') window.location.replace('index.html');
     });
