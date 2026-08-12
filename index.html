@@ -2,88 +2,286 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quantum OPS - Login & Authentication</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Quantum OPS Elite - Login</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              bg: '#0B0B14',
-              card: '#121225',
-              purple: '#6C5CE7',
-              border: 'rgba(139, 92, 246, 0.2)'
-            }
-          }
-        }
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #05060B;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #F8FAFF;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: #101326;
+      border: 1px solid rgba(139,92,255,0.25);
+      border-radius: 24px;
+      padding: 32px 28px;
+      box-shadow: 0 0 40px rgba(108,92,231,0.12);
+    }
+
+    .logo-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+    .logo-box {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 24px;
+      color: #fff;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 20px rgba(108,92,231,0.35);
+    }
+    .logo-area h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .logo-area p {
+      font-size: 11px;
+      color: #A78BFA;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      margin-top: 2px;
+    }
+
+    .form-title {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .form-title h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .form-title p {
+      font-size: 13px;
+      color: #94A3B8;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: #A8B3CF;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap i.left-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748B;
+      font-size: 13px;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: #0B0B16;
+      border: 1px solid rgba(139,92,255,0.2);
+      border-radius: 12px;
+      padding: 13px 44px 13px 40px;
+      font-size: 14px;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-wrap input:focus {
+      border-color: #8B5CFF;
+    }
+    .input-wrap input::placeholder {
+      color: #475569;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #64748B;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+    }
+    .toggle-password:hover {
+      color: #A78BFA;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .alert {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      align-items: center;
+      gap: 8px;
+    }
+    .alert.show {
+      display: flex;
+    }
+    .alert.error {
+      background: rgba(255,90,122,0.12);
+      border: 1px solid rgba(255,90,122,0.3);
+      color: #FF5A7A;
+    }
+    .alert.success {
+      background: rgba(34,245,160,0.1);
+      border: 1px solid rgba(34,245,160,0.3);
+      color: #22F5A0;
+    }
+
+    .toggle-mode {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: #94A3B8;
+      border-top: 1px solid rgba(139,92,255,0.12);
+      padding-top: 20px;
+    }
+    .toggle-mode a {
+      color: #A78BFA;
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 4px;
+    }
+    .toggle-mode a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (min-width: 640px) {
+      .auth-card {
+        padding: 40px 36px;
       }
     }
-  </script>
-  <style>
-    body { background-color: #0B0B14; font-family: system-ui, -apple-system, sans-serif; }
-    .led-glow { box-shadow: 0 0 20px rgba(108, 92, 231, 0.25); }
   </style>
 </head>
-<body class="text-gray-200 flex items-center justify-center min-h-screen p-4">
+<body>
 
-  <div class="w-full max-w-md bg-brand-card border border-brand-border rounded-2xl p-8 shadow-2xl led-glow relative overflow-hidden">
-    
-    <div class="flex flex-col items-center mb-6">
-      <div class="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center font-bold text-2xl text-white shadow-lg shadow-purple-500/40 mb-3">Q</div>
-      <h1 class="text-xl font-bold tracking-wider text-white">QUANTUM OPS</h1>
-      <p class="text-xs text-purple-400 font-semibold tracking-widest mt-0.5">AI BUSINESS OS</p>
+  <div class="auth-card">
+    <div class="logo-area">
+      <div class="logo-box">Q</div>
+      <h1>QUANTUM OPS</h1>
+      <p>AI BUSINESS OS</p>
     </div>
 
-    <div class="text-center mb-6">
-      <h2 id="form-title" class="text-lg font-semibold text-white">Sign in to your account</h2>
-      <p id="form-subtitle" class="text-xs text-gray-400 mt-1">Enter your credentials to access your dashboard</p>
+    <div class="form-title">
+      <h2 id="form-title">Sign in to your account</h2>
+      <p id="form-subtitle">Enter your email and password to continue</p>
     </div>
 
-    <div id="alert" class="hidden mb-5 p-3 rounded-xl text-xs border transition-all flex items-center gap-2">
-      <i id="alert-icon" class="fa-solid fa-circle-info text-sm"></i>
+    <div id="alert" class="alert">
+      <i id="alert-icon" class="fa-solid fa-circle-info"></i>
       <span id="alert-text"></span>
     </div>
 
-    <form id="auth-form" class="space-y-4">
-      <div id="name-field" class="hidden">
-        <label class="block text-xs font-medium text-gray-400 mb-1.5">Shop / Business Name</label>
-        <div class="relative">
-          <i class="fa-regular fa-user absolute left-3.5 top-3 text-gray-500 text-xs"></i>
-          <input type="text" id="full_name" placeholder="e.g. Rise Beyond" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+    <form id="auth-form">
+      <!-- Full Name (Signup only) -->
+      <div id="name-field" class="field hidden">
+        <label>Full Name / Shop Name</label>
+        <div class="input-wrap">
+          <i class="fa-regular fa-user left-icon"></i>
+          <input type="text" id="full_name" placeholder="e.g. Rise Beyond">
         </div>
       </div>
 
-      <div>
-        <label class="block text-xs font-medium text-gray-400 mb-1.5">Email Address</label>
-        <div class="relative">
-          <i class="fa-regular fa-envelope absolute left-3.5 top-3 text-gray-500 text-xs"></i>
-          <input type="email" id="email" required placeholder="owner@company.com" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+      <!-- Email -->
+      <div class="field">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <i class="fa-regular fa-envelope left-icon"></i>
+          <input type="email" id="email" required placeholder="owner@company.com">
         </div>
       </div>
 
-      <div id="password-field">
-        <div class="flex justify-between items-center mb-1.5">
-          <label class="block text-xs font-medium text-gray-400">Password</label>
-          <a href="#" id="forgot-link" onclick="showForgotPassword(); return false;" class="text-[11px] text-purple-400 hover:underline">Forgot Password?</a>
-        </div>
-        <div class="relative">
-          <i class="fa-solid fa-lock absolute left-3.5 top-3 text-gray-500 text-xs"></i>
-          <input type="password" id="password" placeholder="••••••••" class="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition">
+      <!-- Password -->
+      <div id="password-field" class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock left-icon"></i>
+          <input type="password" id="password" placeholder="••••••••">
+          <button type="button" class="toggle-password" onclick="togglePassword('password', this)">
+            <i class="fa-regular fa-eye"></i>
+          </button>
         </div>
       </div>
 
-      <button type="submit" id="submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 mt-2">
-        <span>Sign In</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      <!-- Confirm Password (Signup only) -->
+      <div id="confirm-field" class="field hidden">
+        <label>Confirm Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock left-icon"></i>
+          <input type="password" id="confirm_password" placeholder="••••••••">
+          <button type="button" class="toggle-password" onclick="togglePassword('confirm_password', this)">
+            <i class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn-primary">
+        <span>Sign In</span>
+        <i class="fa-solid fa-arrow-right" style="font-size:12px;"></i>
       </button>
     </form>
 
-    <div class="mt-6 text-center text-xs text-gray-400 border-t border-gray-800/80 pt-4">
-      <p id="toggle-signup">Don't have an account? <a href="#" onclick="showSignUp(); return false;" class="text-purple-400 font-medium hover:underline ml-1">Create Account</a></p>
-      <p id="toggle-login" class="hidden">Already have an account? <a href="#" onclick="showLogin(); return false;" class="text-purple-400 font-medium hover:underline ml-1">Sign In</a></p>
+    <div class="toggle-mode">
+      <p id="toggle-signup">
+        Don't have an account?
+        <a href="#" onclick="showSignUp(); return false;">Create Account</a>
+      </p>
+      <p id="toggle-login" class="hidden">
+        Already have an account?
+        <a href="#" onclick="showLogin(); return false;">Sign In</a>
+      </p>
     </div>
   </div>
 
@@ -91,100 +289,82 @@
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
 
     let currentMode = "login";
     let isBusy = false;
 
-    const alertBox = document.getElementById("alert");
-    const alertText = document.getElementById("alert-text");
-    const alertIcon = document.getElementById("alert-icon");
-    const formTitle = document.getElementById("form-title");
-    const formSubtitle = document.getElementById("form-subtitle");
-    const nameField = document.getElementById("name-field");
-    const passwordField = document.getElementById("password-field");
-    const submitBtn = document.getElementById("submit-btn");
-    const forgotLink = document.getElementById("forgot-link");
-
+    // Check if already logged in
     async function checkExistingSession() {
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session?.user) {
           window.location.replace("dashboard.html");
         }
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) {}
     }
     checkExistingSession();
 
-    function showAlert(msg, isError = true) {
-      alertText.textContent = msg;
-      alertBox.classList.remove("hidden", "bg-rose-950/60", "border-rose-500/40", "text-rose-300", "bg-emerald-950/60", "border-emerald-500/40", "text-emerald-300");
-      if (isError) {
-        alertBox.classList.add("bg-rose-950/60", "border-rose-500/40", "text-rose-300");
-        alertIcon.className = "fa-solid fa-circle-exclamation text-sm";
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const icon = btn.querySelector("i");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
       } else {
-        alertBox.classList.add("bg-emerald-950/60", "border-emerald-500/40", "text-emerald-300");
-        alertIcon.className = "fa-solid fa-circle-check text-sm";
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
       }
+    }
+
+    function showAlert(msg, isError = true) {
+      const alertBox = document.getElementById("alert");
+      const alertText = document.getElementById("alert-text");
+      const alertIcon = document.getElementById("alert-icon");
+
+      alertText.textContent = msg;
+      alertBox.className = "alert show " + (isError ? "error" : "success");
+      alertIcon.className = isError ? "fa-solid fa-circle-exclamation" : "fa-solid fa-circle-check";
     }
 
     function setBusy(busy) {
       isBusy = busy;
-      submitBtn.disabled = busy;
-      submitBtn.classList.toggle("opacity-70", busy);
+      const btn = document.getElementById("submit-btn");
+      btn.disabled = busy;
+      btn.style.opacity = busy ? "0.7" : "1";
     }
 
     function showSignUp() {
       currentMode = "signup";
-      formTitle.textContent = "Create an Elite Account";
-      formSubtitle.textContent = "Get started with Quantum OPS Business OS";
-      nameField.classList.remove("hidden");
-      passwordField.classList.remove("hidden");
-      forgotLink.classList.add("hidden");
-      submitBtn.querySelector("span").textContent = "Create Account";
+      document.getElementById("form-title").textContent = "Create an Elite Account";
+      document.getElementById("form-subtitle").textContent = "Start your 14-day free trial";
+      document.getElementById("name-field").classList.remove("hidden");
+      document.getElementById("confirm-field").classList.remove("hidden");
+      document.getElementById("submit-btn").querySelector("span").textContent = "Create Account";
       document.getElementById("toggle-signup").classList.add("hidden");
       document.getElementById("toggle-login").classList.remove("hidden");
-      alertBox.classList.add("hidden");
+      document.getElementById("alert").classList.remove("show");
     }
 
     function showLogin() {
       currentMode = "login";
-      formTitle.textContent = "Sign in to your account";
-      formSubtitle.textContent = "Enter your credentials to access your dashboard";
-      nameField.classList.add("hidden");
-      passwordField.classList.remove("hidden");
-      forgotLink.classList.remove("hidden");
-      submitBtn.querySelector("span").textContent = "Sign In";
+      document.getElementById("form-title").textContent = "Sign in to your account";
+      document.getElementById("form-subtitle").textContent = "Enter your email and password to continue";
+      document.getElementById("name-field").classList.add("hidden");
+      document.getElementById("confirm-field").classList.add("hidden");
+      document.getElementById("submit-btn").querySelector("span").textContent = "Sign In";
       document.getElementById("toggle-signup").classList.remove("hidden");
       document.getElementById("toggle-login").classList.add("hidden");
-      alertBox.classList.add("hidden");
-    }
-
-    function showForgotPassword() {
-      currentMode = "forgot";
-      formTitle.textContent = "Reset Your Password";
-      formSubtitle.textContent = "We will send a reset link to your email address";
-      nameField.classList.add("hidden");
-      passwordField.classList.add("hidden");
-      submitBtn.querySelector("span").textContent = "Send Reset Link";
-      document.getElementById("toggle-signup").classList.add("hidden");
-      document.getElementById("toggle-login").classList.remove("hidden");
-      alertBox.classList.add("hidden");
+      document.getElementById("alert").classList.remove("show");
     }
 
     async function createCompanyForUser(user, shopName) {
-      const name = (shopName && shopName.trim())
-        ? shopName.trim()
-        : (user.email?.split('@')[0] || 'My Business');
+      const name = (shopName && shopName.trim()) ? shopName.trim() : (user.email?.split('@')[0] || 'My Business');
 
-      // Avoid duplicate company if one already exists
+      // Check if company already exists
       const { data: existing } = await supabaseClient
         .from('companies')
         .select('id')
@@ -198,6 +378,7 @@
           .eq('user_id', user.id)
           .eq('company_id', existing.id)
           .maybeSingle();
+
         if (!link) {
           await supabaseClient.from('company_users').insert([{
             company_id: existing.id,
@@ -208,12 +389,17 @@
         return existing;
       }
 
+      // Create new company with 14-day trial
+      const trialEnds = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+
       const { data: company, error: companyError } = await supabaseClient
         .from('companies')
         .insert([{
           owner_id: user.id,
           company_name: name,
-          currency: 'NGN'
+          currency: 'NGN',
+          subscription_status: 'trial',
+          trial_ends_at: trialEnds
         }])
         .select()
         .single();
@@ -229,24 +415,27 @@
         }]);
 
       if (linkError) throw new Error('Could not link account: ' + linkError.message);
+
       return company;
     }
 
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       if (isBusy) return;
-      alertBox.classList.add("hidden");
 
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const fullName = document.getElementById("full_name").value.trim();
+      const confirmPassword = document.getElementById("confirm_password").value;
 
       setBusy(true);
+      document.getElementById("alert").classList.remove("show");
 
       try {
         if (currentMode === "signup") {
-          if (!fullName) throw new Error('Please enter your Shop / Business Name.');
-          if (!password || password.length < 6) throw new Error('Password must be at least 6 characters.');
+          if (!fullName) throw new Error("Please enter your Full Name or Shop Name");
+          if (!password || password.length < 6) throw new Error("Password must be at least 6 characters");
+          if (password !== confirmPassword) throw new Error("Passwords do not match");
 
           const { data, error } = await supabaseClient.auth.signUp({
             email,
@@ -255,31 +444,31 @@
           });
 
           if (error) throw error;
-          if (!data.user) throw new Error('Account created but user missing. Try again.');
+          if (!data.user) throw new Error("Account created but something went wrong. Please try again.");
 
-          // If email confirm is OFF, session exists → go dashboard
-          if (data.session) {
-            try { await createCompanyForUser(data.user, fullName); } catch (ce) { console.error(ce); }
-            showAlert("Account created! Redirecting...", false);
-            setTimeout(() => { window.location.replace("dashboard.html"); }, 600);
-            return;
+          // Create company with 14-day trial
+          try {
+            await createCompanyForUser(data.user, fullName);
+          } catch (ce) {
+            console.error(ce);
           }
 
-          // Email confirm ON → company may need RLS fix; still try
-          try { await createCompanyForUser(data.user, fullName); } catch (ce) { console.error(ce); }
-          showAlert("Account created! Check email if required, then sign in.", false);
+          // Always go to Login after signup
+          showAlert("Account created successfully! Please sign in.", false);
           setTimeout(() => {
             showLogin();
             document.getElementById("email").value = email;
-          }, 1200);
+            document.getElementById("password").value = "";
+          }, 1500);
 
         } else if (currentMode === "login") {
-          if (!password) throw new Error('Enter your password.');
+          if (!password) throw new Error("Please enter your password");
 
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
-          if (!data.user) throw new Error('Login failed. Try again.');
+          if (!data.user) throw new Error("Login failed. Please try again.");
 
+          // Make sure company exists
           const { data: link } = await supabaseClient
             .from('company_users')
             .select('id')
@@ -292,17 +481,12 @@
           }
 
           showAlert("Login successful! Redirecting...", false);
-          setTimeout(() => { window.location.replace("dashboard.html"); }, 500);
-
-        } else if (currentMode === "forgot") {
-          const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/index.html'
-          });
-          if (error) throw error;
-          showAlert("Password reset link sent! Check your inbox.", false);
+          setTimeout(() => {
+            window.location.replace("dashboard.html");
+          }, 600);
         }
       } catch (err) {
-        showAlert(err.message || 'Something went wrong.', true);
+        showAlert(err.message || "Something went wrong. Please try again.", true);
       } finally {
         setBusy(false);
       }
