@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#05060B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Upgrade - Quantum OPS Elite</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #05060B;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #F8FAFF;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+    }
+
+    .header {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .back-btn {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: #12162B;
+      border: 1px solid rgba(139,92,255,0.3);
+      color: #A8B3CF;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; font-size: 14px;
+    }
+    .logo-box {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #fff; font-size: 13px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 32px;
+      max-width: 480px;
+    }
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff, #C4B5FD);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 14px;
+      color: #94A3B8;
+      line-height: 1.5;
+    }
+
+    .plans {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .plan-card {
+      background: #101326;
+      border: 1px solid rgba(139,92,255,0.2);
+      border-radius: 18px;
+      padding: 20px;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .plan-card:hover {
+      border-color: rgba(139,92,255,0.5);
+      transform: translateY(-2px);
+    }
+    .plan-card.popular {
+      border: 1px solid #8B5CFF;
+      background: linear-gradient(180deg, rgba(139,92,255,0.12), #101326);
+      box-shadow: 0 0 24px rgba(139,92,255,0.15);
+    }
+    .popular-badge {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #6C5CE7, #8B5CFF);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 14px;
+      border-radius: 999px;
+    }
+
+    .plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .plan-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .plan-price {
+      text-align: right;
+    }
+    .plan-price .amount {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .plan-price .period {
+      font-size: 12px;
+      color: #94A3B8;
+    }
+    .plan-desc {
+      font-size: 13px;
+      color: #94A3B8;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .plan-btn {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .plan-card.popular .plan-btn {
+      background: linear-gradient(135deg, #6C5CE7, #8B5CFF);
+      box-shadow: 0 4px 16px rgba(139,92,255,0.35);
+    }
+
+    .features {
+      margin-top: 36px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .features h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #E2E8F0;
+    }
+    .feature-list {
+      display: grid;
+      gap: 10px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #A8B3CF;
+    }
+    .feature-item i {
+      color: #22F5A0;
+      font-size: 14px;
+    }
+
+    .footer-note {
+      margin-top: 32px;
+      font-size: 12px;
+      color: #64748B;
+      text-align: center;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    @media (min-width: 768px) {
+      .plans {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        max-width: 900px;
+      }
+      .plan-card {
+        display: flex;
+        flex-direction: column;
+      }
+      .plan-btn {
+        margin-top: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <a href="dashboard.html" class="back-btn">
+      <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <div class="logo">
+      <div class="logo-box">Q</div>
+      <span>QUANTUM OPS</span>
+    </div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <div class="hero">
+    <h1>Upgrade Your Business</h1>
+    <p>Choose the plan that fits your shop and unlock the full power of Quantum OPS Elite.</p>
+  </div>
+
+  <div class="plans">
+    <!-- 1 Month -->
+    <div class="plan-card">
+      <div class="plan-header">
+        <div class="plan-name">1 Month</div>
+        <div class="plan-price">
+          <div class="amount">₦5,000</div>
+          <div class="period">per month</div>
+        </div>
+      </div>
+      <div class="plan-desc">Perfect for testing or short-term needs.</div>
+      <a href="https://paystack.shop/pay/quantumopselite" target="_blank" class="plan-btn">
+        Choose 1 Month
+      </a>
+    </div>
+
+    <!-- 3 Months -->
+    <div class="plan-card popular">
+      <div class="popular-badge">Most Popular</div>
+      <div class="plan-header">
+        <div class="plan-name">3 Months</div>
+        <div class="plan-price">
+          <div class="amount">₦12,000</div>
+          <div class="period">₦4,000/month</div>
+        </div>
+      </div>
+      <div class="plan-desc">Best value for growing businesses. Save ₦3,000.</div>
+      <a href="https://paystack.shop/pay/quantumopselite" target="_blank" class="plan-btn">
+        Choose 3 Months
+      </a>
+    </div>
+
+    <!-- 1 Year -->
+    <div class="plan-card">
+      <div class="plan-header">
+        <div class="plan-name">1 Year</div>
+        <div class="plan-price">
+          <div class="amount">₦40,000</div>
+          <div class="period">₦3,333/month</div>
+        </div>
+      </div>
+      <div class="plan-desc">Maximum savings for serious business owners.</div>
+      <a href="https://paystack.shop/pay/quantumopselite" target="_blank" class="plan-btn">
+        Choose 1 Year
+      </a>
+    </div>
+  </div>
+
+  <div class="features">
+    <h3>Everything included:</h3>
+    <div class="feature-list">
+      <div class="feature-item"><i class="fa-solid fa-check"></i> Unlimited sales & inventory</div>
+      <div class="feature-item"><i class="fa-solid fa-check"></i> AI CEO insights & recommendations</div>
+      <div class="feature-item"><i class="fa-solid fa-check"></i> Debt tracking + smart reminders</div>
+      <div class="feature-item"><i class="fa-solid fa-check"></i> Expenses & real profit calculation</div>
+      <div class="feature-item"><i class="fa-solid fa-check"></i> Live dashboard & reports</div>
+      <div class="feature-item"><i class="fa-solid fa-check"></i> Priority support</div>
+    </div>
+  </div>
+
+  <p class="footer-note">
+    Secure payment powered by Paystack. You can cancel anytime.  
+    After payment, your account will be upgraded automatically.
+  </p>
+
+</body>
+</html>
