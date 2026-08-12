@@ -11,22 +11,25 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+
+    /* ========== MOBILE / DESKTOP SWITCH ========== */
+    .mobile-only { display: block; }
+    .desktop-only { display: none; }
+
+    @media (min-width: 1024px) {
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
+    }
+
+    /* ===== MOBILE STYLES (exact same as before) ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #0B0B16; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
-    }
-    @media (min-width: 768px) {
-      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
-      .iphone-frame {
-        max-width: 410px; max-height: 860px; border-radius: 48px;
-        border: 1px solid rgba(139,92,246,0.2);
-        box-shadow: 0 25px 50px -12px rgba(15,13,35,0.7);
-      }
     }
     .top-bar {
       padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
@@ -88,6 +91,89 @@
     }
     .pay-btn.active { background: rgba(108,92,231,0.2); border-color: #6C5CE7; color: #fff; }
     .hidden { display: none !important; }
+
+    /* ===== DESKTOP STYLES ===== */
+    .desktop-shell {
+      width: 100%;
+      min-height: 100vh;
+      background: #07070F;
+      display: flex;
+      flex-direction: column;
+    }
+    .desk-topbar {
+      height: 64px;
+      background: #0B0B16;
+      border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+    .desk-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
+    .desk-left {
+      border-right: 1px solid rgba(139,92,246,0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .desk-right {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #0B0B16;
+    }
+    .desk-section {
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .desk-product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .desk-product-card {
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .desk-product-card:hover {
+      border-color: #8B5CFF;
+      transform: translateY(-2px);
+    }
+    .desk-product-card.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .desk-product-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #191932;
+    }
+    .desk-cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.12);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+
+    /* Shared modals */
     #receipt-modal, #scanner-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 60;
       display: flex; align-items: center; justify-content: center; padding: 12px;
@@ -96,108 +182,215 @@
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <div class="top-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
-        <div>
-          <div style="font-weight:700;font-size:12px;color:#fff;">POS Sales</div>
-          <div style="font-size:9px;color:#94a3b8;">Create new sale</div>
+
+  <!-- ==================== MOBILE VIEW ==================== -->
+  <div class="mobile-only">
+    <div class="iphone-frame">
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
+          <div>
+            <div style="font-weight:700;font-size:12px;color:#fff;">POS Sales</div>
+            <div style="font-size:9px;color:#94a3b8;">Create new sale</div>
+          </div>
         </div>
+        <button onclick="clearCart()" style="padding:8px;border-radius:12px;background:#121224;border:1px solid rgba(139,92,246,0.2);color:#cbd5e1;cursor:pointer;">
+          <i class="fa-solid fa-trash"></i>
+        </button>
       </div>
-      <button onclick="clearCart()" style="padding:8px;border-radius:12px;background:#121224;border:1px solid rgba(139,92,246,0.2);color:#cbd5e1;cursor:pointer;">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+
+      <div class="main-scroll custom-scrollbar">
+        <div style="position:relative;margin-bottom:12px;">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:12px;color:#64748b;font-size:12px;"></i>
+          <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name or SKU" class="input">
+        </div>
+
+        <div class="tools">
+          <div class="tool" onclick="startBarcodeScanner()">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(108,92,231,0.2);color:#a78bfa;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-camera"></i></div>
+            <div><div style="font-size:10px;font-weight:700;">Scan</div><div style="font-size:8px;color:#94a3b8;">Camera</div></div>
+          </div>
+          <div class="tool" onclick="startBarcodeScanner()">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(79,70,229,0.2);color:#818cf8;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-barcode"></i></div>
+            <div><div style="font-size:10px;font-weight:700;">Barcode</div><div style="font-size:8px;color:#94a3b8;">Scanner</div></div>
+          </div>
+          <div class="tool" onclick="promptCustomer()">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(16,185,129,0.2);color:#34d399;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-user"></i></div>
+            <div><div style="font-size:10px;font-weight:700;" id="selected-customer-label">Customer</div><div style="font-size:8px;color:#94a3b8;">Select</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">
+            <span>Available Products (Tap to Add)</span>
+            <span style="font-size:10px;color:#a78bfa;">Live Inventory</span>
+          </div>
+          <div id="product-catalog-list" class="custom-scrollbar" style="max-height:220px;overflow-y:auto;">
+            <div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">Loading inventory...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
+            <h3 style="margin:0;font-size:12px;font-weight:700;color:#fff;" id="cart-title-count">Cart (0 items)</h3>
+            <button onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:10px;cursor:pointer;">Clear Cart</button>
+          </div>
+          <div id="cart-items-container">
+            <div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>
+          </div>
+        </div>
+
+        <div class="card" style="font-size:12px;">
+          <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Subtotal</span><span style="color:#fff;font-weight:600;" id="val-subtotal">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;margin-bottom:6px;">
+            <span>Discount (₦)</span>
+            <input type="number" id="input-discount" value="0" oninput="calculateTotals()" style="width:96px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:6px 8px;text-align:right;color:#fff;font-size:12px;">
+          </div>
+          <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Tax</span><span style="color:#fff;font-weight:600;" id="val-tax">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(139,92,246,0.1);padding-top:8px;margin-top:4px;">
+            <span style="font-weight:700;color:#fff;font-size:14px;">TOTAL</span>
+            <span style="font-weight:800;color:#a78bfa;font-size:16px;" id="val-grand-total">₦0</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:12px;font-weight:600;color:#cbd5e1;">Payment Method</span>
+            <span style="font-size:10px;color:#a78bfa;">Secure</span>
+          </div>
+          <div class="pay-grid" style="margin-bottom:10px;">
+            <button type="button" onclick="setPaymentMethod('Cash')" id="pm-Cash" class="pay-btn active"><i class="fa-solid fa-money-bill-wave"></i>Cash</button>
+            <button type="button" onclick="setPaymentMethod('Transfer')" id="pm-Transfer" class="pay-btn"><i class="fa-solid fa-building-columns"></i>Transfer</button>
+            <button type="button" onclick="setPaymentMethod('POS')" id="pm-POS" class="pay-btn"><i class="fa-solid fa-credit-card"></i>POS</button>
+            <button type="button" onclick="setPaymentMethod('Online')" id="pm-Online" class="pay-btn"><i class="fa-solid fa-globe"></i>Online</button>
+          </div>
+          <label style="font-size:10px;color:#94a3b8;">Paid Amount (₦)</label>
+          <input type="number" id="input-paid-amount" oninput="calculateBalance()" placeholder="Enter amount paid"
+            style="width:100%;margin-top:4px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:10px 12px;font-size:12px;color:#fff;">
+          <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;">
+            <span style="color:#94a3b8;">Balance / Change:</span>
+            <span style="font-weight:700;color:#34d399;" id="val-balance">₦0</span>
+          </div>
+        </div>
+
+        <button id="complete-sale-btn" onclick="completeSale()" class="btn-primary">
+          <i class="fa-solid fa-circle-check"></i> <span id="complete-sale-label">Complete Sale & Generate Receipt</span>
+        </button>
+      </div>
+
+      <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="pos.html" class="nav-item active"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+        <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
+      </nav>
     </div>
-
-    <div class="main-scroll custom-scrollbar">
-      <div style="position:relative;margin-bottom:12px;">
-        <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:12px;color:#64748b;font-size:12px;"></i>
-        <input type="text" id="product-search" oninput="filterProducts()" placeholder="Search product by name or SKU" class="input">
-      </div>
-
-      <div class="tools">
-        <div class="tool" onclick="startBarcodeScanner()">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(108,92,231,0.2);color:#a78bfa;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-camera"></i></div>
-          <div><div style="font-size:10px;font-weight:700;">Scan</div><div style="font-size:8px;color:#94a3b8;">Camera</div></div>
-        </div>
-        <div class="tool" onclick="startBarcodeScanner()">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(79,70,229,0.2);color:#818cf8;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-barcode"></i></div>
-          <div><div style="font-size:10px;font-weight:700;">Barcode</div><div style="font-size:8px;color:#94a3b8;">Scanner</div></div>
-        </div>
-        <div class="tool" onclick="promptCustomer()">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(16,185,129,0.2);color:#34d399;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-user"></i></div>
-          <div><div style="font-size:10px;font-weight:700;" id="selected-customer-label">Customer</div><div style="font-size:8px;color:#94a3b8;">Select</div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">
-          <span>Available Products (Tap to Add)</span>
-          <span style="font-size:10px;color:#a78bfa;">Live Inventory</span>
-        </div>
-        <div id="product-catalog-list" class="custom-scrollbar" style="max-height:220px;overflow-y:auto;">
-          <div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">Loading inventory...</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
-          <h3 style="margin:0;font-size:12px;font-weight:700;color:#fff;" id="cart-title-count">Cart (0 items)</h3>
-          <button onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:10px;cursor:pointer;">Clear Cart</button>
-        </div>
-        <div id="cart-items-container">
-          <div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>
-        </div>
-      </div>
-
-      <div class="card" style="font-size:12px;">
-        <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Subtotal</span><span style="color:#fff;font-weight:600;" id="val-subtotal">₦0</span></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;margin-bottom:6px;">
-          <span>Discount (₦)</span>
-          <input type="number" id="input-discount" value="0" oninput="calculateTotals()" style="width:96px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:6px 8px;text-align:right;color:#fff;font-size:12px;">
-        </div>
-        <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Tax</span><span style="color:#fff;font-weight:600;" id="val-tax">₦0</span></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(139,92,246,0.1);padding-top:8px;margin-top:4px;">
-          <span style="font-weight:700;color:#fff;font-size:14px;">TOTAL</span>
-          <span style="font-weight:800;color:#a78bfa;font-size:16px;" id="val-grand-total">₦0</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-          <span style="font-size:12px;font-weight:600;color:#cbd5e1;">Payment Method</span>
-          <span style="font-size:10px;color:#a78bfa;">Secure</span>
-        </div>
-        <div class="pay-grid" style="margin-bottom:10px;">
-          <button type="button" onclick="setPaymentMethod('Cash')" id="pm-Cash" class="pay-btn active"><i class="fa-solid fa-money-bill-wave"></i>Cash</button>
-          <button type="button" onclick="setPaymentMethod('Transfer')" id="pm-Transfer" class="pay-btn"><i class="fa-solid fa-building-columns"></i>Transfer</button>
-          <button type="button" onclick="setPaymentMethod('POS')" id="pm-POS" class="pay-btn"><i class="fa-solid fa-credit-card"></i>POS</button>
-          <button type="button" onclick="setPaymentMethod('Online')" id="pm-Online" class="pay-btn"><i class="fa-solid fa-globe"></i>Online</button>
-        </div>
-        <label style="font-size:10px;color:#94a3b8;">Paid Amount (₦)</label>
-        <input type="number" id="input-paid-amount" oninput="calculateBalance()" placeholder="Enter amount paid"
-          style="width:100%;margin-top:4px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:10px 12px;font-size:12px;color:#fff;">
-        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;">
-          <span style="color:#94a3b8;">Balance / Change:</span>
-          <span style="font-weight:700;color:#34d399;" id="val-balance">₦0</span>
-        </div>
-      </div>
-
-      <button id="complete-sale-btn" onclick="completeSale()" class="btn-primary">
-        <i class="fa-solid fa-circle-check"></i> <span id="complete-sale-label">Complete Sale & Generate Receipt</span>
-      </button>
-    </div>
-
-    <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <a href="pos.html" class="nav-item active"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
-      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
-    </nav>
   </div>
 
-  <!-- SCANNER -->
+  <!-- ==================== DESKTOP VIEW ==================== -->
+  <div class="desktop-only desktop-shell">
+    <!-- Top Bar -->
+    <div class="desk-topbar">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <a href="dashboard.html" style="color:#94a3b8;text-decoration:none;font-size:18px;"><i class="fa-solid fa-arrow-left"></i></a>
+        <div>
+          <div style="font-weight:700;font-size:16px;color:#fff;">POS Sales</div>
+          <div style="font-size:12px;color:#94a3b8;">Create new sale • Live Inventory</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="startBarcodeScanner()" style="padding:8px 16px;border-radius:10px;background:#121224;border:1px solid rgba(139,92,246,0.25);color:#a78bfa;font-size:13px;cursor:pointer;">
+          <i class="fa-solid fa-barcode"></i> Scan Barcode
+        </button>
+        <button onclick="promptCustomer()" style="padding:8px 16px;border-radius:10px;background:#121224;border:1px solid rgba(139,92,246,0.25);color:#34d399;font-size:13px;cursor:pointer;">
+          <i class="fa-solid fa-user"></i> <span id="desk-customer-label">Customer</span>
+        </button>
+        <button onclick="clearCart()" style="padding:8px 14px;border-radius:10px;background:#121224;border:1px solid rgba(251,113,133,0.3);color:#fb7185;font-size:13px;cursor:pointer;">
+          <i class="fa-solid fa-trash"></i> Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="desk-content">
+      <!-- LEFT: Products -->
+      <div class="desk-left">
+        <div style="padding:16px 20px;border-bottom:1px solid rgba(139,92,246,0.1);">
+          <div style="position:relative;">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:14px;top:13px;color:#64748b;"></i>
+            <input type="text" id="desk-product-search" oninput="filterProducts()" placeholder="Search product by name or SKU..."
+              style="width:100%;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:12px 16px 12px 42px;font-size:14px;color:#fff;outline:none;">
+          </div>
+        </div>
+        <div class="desk-section custom-scrollbar" style="flex:1;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+            <span style="font-size:14px;font-weight:600;color:#cbd5e1;">Available Products</span>
+            <span style="font-size:12px;color:#a78bfa;">Live Inventory</span>
+          </div>
+          <div id="desk-product-catalog" class="desk-product-grid">
+            <div style="grid-column:1/-1;text-align:center;color:#64748b;padding:40px 0;">Loading inventory...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Cart + Payment -->
+      <div class="desk-right">
+        <div class="desk-section custom-scrollbar" style="flex:1;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+            <h3 style="font-size:15px;font-weight:700;color:#fff;" id="desk-cart-title">Cart (0 items)</h3>
+            <button onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:13px;cursor:pointer;">Clear Cart</button>
+          </div>
+          <div id="desk-cart-items">
+            <div style="text-align:center;padding:40px 0;color:#64748b;font-size:14px;">Your cart is empty.<br>Select products to add.</div>
+          </div>
+        </div>
+
+        <div style="padding:20px;border-top:1px solid rgba(139,92,246,0.12);background:#0B0B16;">
+          <div style="font-size:13px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;">
+              <span>Subtotal</span><span style="color:#fff;font-weight:600;" id="desk-val-subtotal">₦0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;margin-bottom:6px;">
+              <span>Discount (₦)</span>
+              <input type="number" id="desk-input-discount" value="0" oninput="syncDiscount(this.value)" style="width:100px;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:6px 10px;text-align:right;color:#fff;font-size:13px;">
+            </div>
+            <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;">
+              <span>Tax</span><span style="color:#fff;font-weight:600;">₦0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(139,92,246,0.15);padding-top:10px;margin-top:6px;">
+              <span style="font-weight:700;color:#fff;font-size:16px;">TOTAL</span>
+              <span style="font-weight:800;color:#a78bfa;font-size:22px;" id="desk-val-grand-total">₦0</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <div style="font-size:13px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">Payment Method</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+              <button type="button" onclick="setPaymentMethod('Cash')" id="desk-pm-Cash" class="pay-btn active"><i class="fa-solid fa-money-bill-wave"></i>Cash</button>
+              <button type="button" onclick="setPaymentMethod('Transfer')" id="desk-pm-Transfer" class="pay-btn"><i class="fa-solid fa-building-columns"></i>Transfer</button>
+              <button type="button" onclick="setPaymentMethod('POS')" id="desk-pm-POS" class="pay-btn"><i class="fa-solid fa-credit-card"></i>POS</button>
+              <button type="button" onclick="setPaymentMethod('Online')" id="desk-pm-Online" class="pay-btn"><i class="fa-solid fa-globe"></i>Online</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px;">
+            <label style="font-size:12px;color:#94a3b8;">Paid Amount (₦)</label>
+            <input type="number" id="desk-input-paid-amount" oninput="syncPaid(this.value)" placeholder="Enter amount paid"
+              style="width:100%;margin-top:6px;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:12px;font-size:14px;color:#fff;">
+            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;">
+              <span style="color:#94a3b8;">Balance / Change:</span>
+              <span style="font-weight:700;color:#34d399;" id="desk-val-balance">₦0</span>
+            </div>
+          </div>
+
+          <button id="desk-complete-sale-btn" onclick="completeSale()" class="btn-primary" style="font-size:14px;padding:16px;">
+            <i class="fa-solid fa-circle-check"></i> <span id="desk-complete-sale-label">Complete Sale & Generate Receipt</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCANNER MODAL -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -214,12 +407,12 @@
       </p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
       <button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
-        Close &amp; search by name instead
+        Close & search by name instead
       </button>
     </div>
   </div>
 
-  <!-- RECEIPT -->
+  <!-- RECEIPT MODAL -->
   <div id="receipt-modal" class="hidden">
     <div style="width:100%;max-width:384px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:92vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
@@ -359,17 +552,11 @@
         await fetchInventory();
       } catch (err) {
         console.error('POS init error:', err);
-        document.getElementById('product-catalog-list').innerHTML =
-          '<div style="text-align:center;color:#fb7185;font-size:11px;padding:12px;">Could not load. Refresh page.</div>';
       }
     }
 
     async function fetchInventory() {
-      if (!userCompanyId) {
-        document.getElementById('product-catalog-list').innerHTML =
-          '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No company found. Please re-login.</div>';
-        return;
-      }
+      if (!userCompanyId) return;
       try {
         const { data, error } = await supabaseClient
           .from('products')
@@ -382,8 +569,6 @@
         renderInventoryCatalog(inventoryCatalog);
       } catch (e) {
         console.error(e);
-        document.getElementById('product-catalog-list').innerHTML =
-          '<div style="text-align:center;color:#fb7185;font-size:11px;padding:12px;">Error loading inventory.</div>';
       }
     }
 
@@ -395,79 +580,107 @@
     }
 
     function renderInventoryCatalog(items) {
-      const container = document.getElementById('product-catalog-list');
+      // Mobile list
+      const mobileContainer = document.getElementById('product-catalog-list');
+      // Desktop grid
+      const deskContainer = document.getElementById('desk-product-catalog');
+
       if (!items.length) {
-        container.innerHTML = '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No products. Add items in Inventory first.</div>';
+        if (mobileContainer) mobileContainer.innerHTML = '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No products. Add items in Inventory first.</div>';
+        if (deskContainer) deskContainer.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#64748b;padding:40px 0;">No products found.</div>';
         return;
       }
-      container.innerHTML = items.map(function (item) {
-        const totalPieces = parseFloat(item.stock || 0);
-        const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
-        const displayUnits = formatUnits(totalPieces / piecesPerUnit);
-        const status = getStockStatus(totalPieces, piecesPerUnit);
-        const price = parseFloat(item.selling_price || 0);
-        const imgUrl = item.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100';
-        const disabled = totalPieces <= 0 ? 'disabled' : '';
-        return ''
-          + '<div onclick="addToCart(\'' + item.id + '\')" class="product-row ' + disabled + '">'
-          +   '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
-          +   '<div style="flex:1;min-width:0;">'
-          +     '<div style="font-weight:700;color:#fff;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (item.name || 'Product') + '</div>'
-          +     '<div style="font-size:9px;color:#94a3b8;">SKU: ' + (item.sku || 'N/A') + '</div>'
-          +     '<div style="margin-top:4px;"><span class="badge ' + status.cls + '">' + status.text + '</span>'
-          +     '<span style="font-size:9px;color:#cbd5e1;margin-left:6px;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces + ' pcs</b></span></div>'
-          +   '</div>'
-          +   '<div style="text-align:right;flex-shrink:0;">'
-          +     '<div style="font-size:12px;font-weight:700;color:#c4b5fd;">' + formatCurrency(price) + '</div>'
-          +     '<div style="font-size:8px;color:#34d399;margin-top:2px;"><i class="fa-solid fa-plus"></i> Add</div>'
-          +   '</div></div>';
-      }).join('');
+
+      // Mobile rendering
+      if (mobileContainer) {
+        mobileContainer.innerHTML = items.map(function (item) {
+          const totalPieces = parseFloat(item.stock || 0);
+          const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
+          const displayUnits = formatUnits(totalPieces / piecesPerUnit);
+          const status = getStockStatus(totalPieces, piecesPerUnit);
+          const price = parseFloat(item.selling_price || 0);
+          const imgUrl = item.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100';
+          const disabled = totalPieces <= 0 ? 'disabled' : '';
+          return ''
+            + '<div onclick="addToCart(\'' + item.id + '\')" class="product-row ' + disabled + '">'
+            + '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-weight:700;color:#fff;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (item.name || 'Product') + '</div>'
+            + '<div style="font-size:9px;color:#94a3b8;">SKU: ' + (item.sku || 'N/A') + '</div>'
+            + '<div style="margin-top:4px;"><span class="badge ' + status.cls + '">' + status.text + '</span>'
+            + '<span style="font-size:9px;color:#cbd5e1;margin-left:6px;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces + ' pcs</b></span></div>'
+            + '</div>'
+            + '<div style="text-align:right;flex-shrink:0;">'
+            + '<div style="font-size:12px;font-weight:700;color:#c4b5fd;">' + formatCurrency(price) + '</div>'
+            + '<div style="font-size:8px;color:#34d399;margin-top:2px;"><i class="fa-solid fa-plus"></i> Add</div>'
+            + '</div></div>';
+        }).join('');
+      }
+
+      // Desktop rendering
+      if (deskContainer) {
+        deskContainer.innerHTML = items.map(function (item) {
+          const totalPieces = parseFloat(item.stock || 0);
+          const piecesPerUnit = parseFloat(item.items_per_pack || 24) || 24;
+          const displayUnits = formatUnits(totalPieces / piecesPerUnit);
+          const status = getStockStatus(totalPieces, piecesPerUnit);
+          const price = parseFloat(item.selling_price || 0);
+          const imgUrl = item.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100';
+          const disabled = totalPieces <= 0 ? 'disabled' : '';
+          return ''
+            + '<div onclick="addToCart(\'' + item.id + '\')" class="desk-product-card ' + disabled + '">'
+            + '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
+            + '<div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (item.name || 'Product') + '</div>'
+            + '<div style="font-size:11px;color:#94a3b8;margin-bottom:6px;">SKU: ' + (item.sku || 'N/A') + '</div>'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+            + '<span class="badge ' + status.cls + '">' + status.text + '</span>'
+            + '<span style="font-size:14px;font-weight:700;color:#c4b5fd;">' + formatCurrency(price) + '</span>'
+            + '</div>'
+            + '<div style="font-size:11px;color:#94a3b8;margin-top:6px;">' + displayUnits + ' units (' + totalPieces + ' pcs)</div>'
+            + '</div>';
+        }).join('');
+      }
     }
 
     function filterProducts() {
-      const keyword = (document.getElementById('product-search').value || '').toLowerCase();
+      const mobileSearch = document.getElementById('product-search');
+      const deskSearch = document.getElementById('desk-product-search');
+      const keyword = ((mobileSearch && mobileSearch.value) || (deskSearch && deskSearch.value) || '').toLowerCase();
+
+      // Keep both search boxes in sync
+      if (mobileSearch && deskSearch && document.activeElement !== deskSearch) mobileSearch.value = deskSearch ? deskSearch.value : mobileSearch.value;
+      if (deskSearch && mobileSearch && document.activeElement !== mobileSearch) deskSearch.value = mobileSearch ? mobileSearch.value : deskSearch.value;
+
       renderInventoryCatalog(inventoryCatalog.filter(function (i) {
         return (i.name || '').toLowerCase().indexOf(keyword) >= 0 || (i.sku || '').toLowerCase().indexOf(keyword) >= 0;
       }));
     }
 
-    // ========== PWA BARCODE (same as inventory) ==========
+    // ========== BARCODE SCANNER ==========
     async function startBarcodeScanner() {
       if (scannerStarting) return;
       if (typeof Html5Qrcode === 'undefined') {
         alert('Scanner library not loaded. Check internet, then close & reopen the app.');
         return;
       }
-
       scannerStarting = true;
       document.getElementById('scanner-modal').classList.remove('hidden');
       document.getElementById('scanner-status').textContent = 'Starting camera…';
       document.getElementById('scanner-status').style.color = '#a78bfa';
-
       try {
         if (html5QrCode) {
           try { await html5QrCode.stop(); } catch (e) {}
           try { html5QrCode.clear(); } catch (e) {}
           html5QrCode = null;
         }
-
         var formats = [
-          Html5QrcodeSupportedFormats.EAN_13,
-          Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.UPC_A,
-          Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.CODE_128,
-          Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.ITF,
-          Html5QrcodeSupportedFormats.CODABAR,
+          Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.ITF, Html5QrcodeSupportedFormats.CODABAR,
           Html5QrcodeSupportedFormats.QR_CODE
         ];
-
-        html5QrCode = new Html5Qrcode('scanner-reader', {
-          formatsToSupport: formats,
-          verbose: false
-        });
-
+        html5QrCode = new Html5Qrcode('scanner-reader', { formatsToSupport: formats, verbose: false });
         await html5QrCode.start(
           { facingMode: 'environment' },
           {
@@ -483,16 +696,10 @@
           onScanSuccess,
           function () {}
         );
-
         document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line…';
       } catch (err) {
-        console.error(err);
         var msg = 'Camera error. Allow permission or search by name.';
-        if (err && err.name === 'NotAllowedError') {
-          msg = 'Camera blocked. Allow camera in phone Settings for this app.';
-        } else if (err && (err.name === 'NotFoundError' || err.name === 'NotReadableError')) {
-          msg = 'No camera or camera in use. Close other apps and retry.';
-        }
+        if (err && err.name === 'NotAllowedError') msg = 'Camera blocked. Allow camera in phone Settings for this app.';
         document.getElementById('scanner-status').textContent = msg;
         document.getElementById('scanner-status').style.color = '#fb7185';
       } finally {
@@ -516,16 +723,13 @@
       var now = Date.now();
       if (now - lastScanTime < 700) return;
       lastScanTime = now;
-
       var code = String(decodedText || '').trim();
       if (!code) return;
-
       var product = inventoryCatalog.find(function (p) {
         var sku = String(p.sku || '').trim().toLowerCase();
         var c = code.toLowerCase();
         return sku && (sku === c || sku.indexOf(c) >= 0 || c.indexOf(sku) >= 0);
       });
-
       if (product) {
         document.getElementById('scanner-status').textContent = 'Found: ' + product.name;
         document.getElementById('scanner-status').style.color = '#34d399';
@@ -573,61 +777,134 @@
     function clearCart() { cart = []; renderCart(); }
 
     function renderCart() {
-      const container = document.getElementById('cart-items-container');
       const totalQty = cart.reduce(function (a, i) { return a + i.qty; }, 0);
-      document.getElementById('cart-title-count').textContent = 'Cart (' + totalQty + ' items)';
-      if (!cart.length) {
-        container.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>';
-        calculateTotals();
-        return;
+
+      // Update titles
+      const mobileTitle = document.getElementById('cart-title-count');
+      const deskTitle = document.getElementById('desk-cart-title');
+      if (mobileTitle) mobileTitle.textContent = 'Cart (' + totalQty + ' items)';
+      if (deskTitle) deskTitle.textContent = 'Cart (' + totalQty + ' items)';
+
+      // Mobile cart
+      const mobileContainer = document.getElementById('cart-items-container');
+      if (mobileContainer) {
+        if (!cart.length) {
+          mobileContainer.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>';
+        } else {
+          mobileContainer.innerHTML = cart.map(function (item) {
+            return ''
+              + '<div style="display:flex;align-items:center;justify-content:space-between;background:#191932;border:1px solid rgba(139,92,246,0.1);padding:10px;border-radius:12px;margin-bottom:8px;">'
+              + '<div style="flex:1;padding-right:8px;">'
+              + '<div style="font-weight:700;color:#fff;font-size:11px;">' + item.name + '</div>'
+              + '<div style="font-size:10px;color:#a78bfa;font-weight:600;">' + formatCurrency(item.price) + ' each</div>'
+              + '</div>'
+              + '<div style="display:flex;align-items:center;gap:8px;">'
+              + '<div style="display:flex;align-items:center;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">'
+              + '<button onclick="updateCartQty(\'' + item.id + '\', -1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-minus" style="font-size:9px;"></i></button>'
+              + '<span style="padding:0 8px;font-size:12px;font-weight:700;color:#fff;">' + item.qty + '</span>'
+              + '<button onclick="updateCartQty(\'' + item.id + '\', 1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-plus" style="font-size:9px;"></i></button>'
+              + '</div>'
+              + '<span style="font-size:12px;font-weight:700;color:#fff;width:64px;text-align:right;">' + formatCurrency(item.price * item.qty) + '</span>'
+              + '</div></div>';
+          }).join('');
+        }
       }
-      container.innerHTML = cart.map(function (item) {
-        return ''
-          + '<div style="display:flex;align-items:center;justify-content:space-between;background:#191932;border:1px solid rgba(139,92,246,0.1);padding:10px;border-radius:12px;margin-bottom:8px;">'
-          +   '<div style="flex:1;padding-right:8px;">'
-          +     '<div style="font-weight:700;color:#fff;font-size:11px;">' + item.name + '</div>'
-          +     '<div style="font-size:10px;color:#a78bfa;font-weight:600;">' + formatCurrency(item.price) + ' each</div>'
-          +   '</div>'
-          +   '<div style="display:flex;align-items:center;gap:8px;">'
-          +     '<div style="display:flex;align-items:center;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">'
-          +       '<button onclick="updateCartQty(\'' + item.id + '\', -1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-minus" style="font-size:9px;"></i></button>'
-          +       '<span style="padding:0 8px;font-size:12px;font-weight:700;color:#fff;">' + item.qty + '</span>'
-          +       '<button onclick="updateCartQty(\'' + item.id + '\', 1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-plus" style="font-size:9px;"></i></button>'
-          +     '</div>'
-          +     '<span style="font-size:12px;font-weight:700;color:#fff;width:64px;text-align:right;">' + formatCurrency(item.price * item.qty) + '</span>'
-          +   '</div></div>';
-      }).join('');
+
+      // Desktop cart
+      const deskContainer = document.getElementById('desk-cart-items');
+      if (deskContainer) {
+        if (!cart.length) {
+          deskContainer.innerHTML = '<div style="text-align:center;padding:40px 0;color:#64748b;font-size:14px;">Your cart is empty.<br>Select products to add.</div>';
+        } else {
+          deskContainer.innerHTML = cart.map(function (item) {
+            return ''
+              + '<div class="desk-cart-item">'
+              + '<div style="flex:1;">'
+              + '<div style="font-weight:700;color:#fff;font-size:13px;">' + item.name + '</div>'
+              + '<div style="font-size:12px;color:#a78bfa;">' + formatCurrency(item.price) + ' each</div>'
+              + '</div>'
+              + '<div style="display:flex;align-items:center;gap:12px;">'
+              + '<div style="display:flex;align-items:center;background:#0B0B16;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">'
+              + '<button onclick="updateCartQty(\'' + item.id + '\', -1)" style="padding:8px 12px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-minus"></i></button>'
+              + '<span style="padding:0 12px;font-size:14px;font-weight:700;color:#fff;">' + item.qty + '</span>'
+              + '<button onclick="updateCartQty(\'' + item.id + '\', 1)" style="padding:8px 12px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-plus"></i></button>'
+              + '</div>'
+              + '<span style="font-size:14px;font-weight:700;color:#fff;min-width:80px;text-align:right;">' + formatCurrency(item.price * item.qty) + '</span>'
+              + '</div></div>';
+          }).join('');
+        }
+      }
+
       calculateTotals();
     }
 
     function calculateTotals() {
       const subtotal = cart.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
-      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const discountEl = document.getElementById('input-discount') || document.getElementById('desk-input-discount');
+      const discount = parseFloat((discountEl && discountEl.value) || 0);
       const grandTotal = Math.max(subtotal - discount, 0);
-      document.getElementById('val-subtotal').textContent = formatCurrency(subtotal);
-      document.getElementById('val-tax').textContent = formatCurrency(0);
-      document.getElementById('val-grand-total').textContent = formatCurrency(grandTotal);
-      const paidInput = document.getElementById('input-paid-amount');
-      if (!paidInput.value || parseFloat(paidInput.value) === 0) paidInput.value = grandTotal.toFixed(2);
+
+      // Mobile
+      const mSub = document.getElementById('val-subtotal');
+      const mTotal = document.getElementById('val-grand-total');
+      if (mSub) mSub.textContent = formatCurrency(subtotal);
+      if (mTotal) mTotal.textContent = formatCurrency(grandTotal);
+
+      // Desktop
+      const dSub = document.getElementById('desk-val-subtotal');
+      const dTotal = document.getElementById('desk-val-grand-total');
+      if (dSub) dSub.textContent = formatCurrency(subtotal);
+      if (dTotal) dTotal.textContent = formatCurrency(grandTotal);
+
+      // Sync paid amount if empty
+      const paidMobile = document.getElementById('input-paid-amount');
+      const paidDesk = document.getElementById('desk-input-paid-amount');
+      if (paidMobile && (!paidMobile.value || parseFloat(paidMobile.value) === 0)) paidMobile.value = grandTotal.toFixed(2);
+      if (paidDesk && (!paidDesk.value || parseFloat(paidDesk.value) === 0)) paidDesk.value = grandTotal.toFixed(2);
+
       calculateBalance();
     }
 
     function calculateBalance() {
       const subtotal = cart.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
-      const discount = parseFloat(document.getElementById('input-discount').value || 0);
+      const discountEl = document.getElementById('input-discount') || document.getElementById('desk-input-discount');
+      const discount = parseFloat((discountEl && discountEl.value) || 0);
       const grandTotal = Math.max(subtotal - discount, 0);
-      const paid = parseFloat(document.getElementById('input-paid-amount').value || 0);
+
+      const paidMobile = document.getElementById('input-paid-amount');
+      const paidDesk = document.getElementById('desk-input-paid-amount');
+      const paid = parseFloat((paidMobile && paidMobile.value) || (paidDesk && paidDesk.value) || 0);
       const balance = paid - grandTotal;
-      const el = document.getElementById('val-balance');
-      el.textContent = formatCurrency(balance);
-      el.style.color = balance >= 0 ? '#34d399' : '#fb7185';
+
+      const mBal = document.getElementById('val-balance');
+      const dBal = document.getElementById('desk-val-balance');
+      if (mBal) { mBal.textContent = formatCurrency(balance); mBal.style.color = balance >= 0 ? '#34d399' : '#fb7185'; }
+      if (dBal) { dBal.textContent = formatCurrency(balance); dBal.style.color = balance >= 0 ? '#34d399' : '#fb7185'; }
+    }
+
+    function syncDiscount(val) {
+      const m = document.getElementById('input-discount');
+      const d = document.getElementById('desk-input-discount');
+      if (m) m.value = val;
+      if (d) d.value = val;
+      calculateTotals();
+    }
+
+    function syncPaid(val) {
+      const m = document.getElementById('input-paid-amount');
+      const d = document.getElementById('desk-input-paid-amount');
+      if (m) m.value = val;
+      if (d) d.value = val;
+      calculateBalance();
     }
 
     function setPaymentMethod(method) {
       selectedPaymentMethod = method;
       ['Cash', 'Transfer', 'POS', 'Online'].forEach(function (m) {
-        const btn = document.getElementById('pm-' + m);
-        if (btn) btn.classList.toggle('active', m === method);
+        const btn1 = document.getElementById('pm-' + m);
+        const btn2 = document.getElementById('desk-pm-' + m);
+        if (btn1) btn1.classList.toggle('active', m === method);
+        if (btn2) btn2.classList.toggle('active', m === method);
       });
     }
 
@@ -635,7 +912,11 @@
       const name = prompt('Enter Customer Name:', selectedCustomer);
       if (name) {
         selectedCustomer = name;
-        document.getElementById('selected-customer-label').textContent = name.length > 10 ? name.slice(0, 10) + '…' : name;
+        const label1 = document.getElementById('selected-customer-label');
+        const label2 = document.getElementById('desk-customer-label');
+        const short = name.length > 12 ? name.slice(0, 12) + '…' : name;
+        if (label1) label1.textContent = short;
+        if (label2) label2.textContent = short;
       }
     }
 
@@ -645,16 +926,18 @@
       if (!userCompanyId) return alert('Company not loaded. Please refresh.');
 
       isSavingSale = true;
-      const btn = document.getElementById('complete-sale-btn');
-      const label = document.getElementById('complete-sale-label');
-      if (btn) btn.disabled = true;
-      if (label) label.textContent = 'Saving sale…';
+      const btns = [document.getElementById('complete-sale-btn'), document.getElementById('desk-complete-sale-btn')];
+      const labels = [document.getElementById('complete-sale-label'), document.getElementById('desk-complete-sale-label')];
+      btns.forEach(b => { if (b) b.disabled = true; });
+      labels.forEach(l => { if (l) l.textContent = 'Saving sale…'; });
 
       try {
         const subtotal = cart.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
-        const discount = parseFloat(document.getElementById('input-discount').value || 0);
+        const discountEl = document.getElementById('input-discount') || document.getElementById('desk-input-discount');
+        const discount = parseFloat((discountEl && discountEl.value) || 0);
         const grandTotal = Math.max(subtotal - discount, 0);
-        const paid = parseFloat(document.getElementById('input-paid-amount').value || grandTotal);
+        const paidEl = document.getElementById('input-paid-amount') || document.getElementById('desk-input-paid-amount');
+        const paid = parseFloat((paidEl && paidEl.value) || grandTotal);
         const balance = paid - grandTotal;
         const totalProfit = cart.reduce(function (a, i) { return a + (i.price - (i.cost_price || 0)) * i.qty; }, 0);
         const totalCost = cart.reduce(function (a, i) { return a + (i.cost_price || 0) * i.qty; }, 0);
@@ -716,8 +999,8 @@
         alert('Error saving sale: ' + (err.message || 'Try again'));
       } finally {
         isSavingSale = false;
-        if (btn) btn.disabled = false;
-        if (label) label.textContent = 'Complete Sale & Generate Receipt';
+        btns.forEach(b => { if (b) b.disabled = false; });
+        labels.forEach(l => { if (l) l.textContent = 'Complete Sale & Generate Receipt'; });
       }
     }
 
@@ -758,7 +1041,7 @@
       if (c.phone) lines.push('Tel: ' + c.phone);
       if (c.email) lines.push(c.email);
       lines.push('-------------------', 'Receipt: ' + t.trxId, 'Date: ' + t.date, 'Customer: ' + t.customer, 'Cashier: ' + t.cashier, '-------------------');
-      t.items.forEach(function (i) { lines.push(i.name + ' ×' + i.qty + '  ' + formatCurrency(i.price * i.qty)); });
+      t.items.forEach(function (i) { lines.push(i.name + ' ×' + i.qty + ' ' + formatCurrency(i.price * i.qty)); });
       lines.push('-------------------', 'Subtotal: ' + formatCurrency(t.subtotal));
       if (t.discount > 0) lines.push('Discount: -' + formatCurrency(t.discount));
       lines.push('*TOTAL: ' + formatCurrency(t.grandTotal) + '*', 'Paid (' + t.paymentMethod + '): ' + formatCurrency(t.paid), 'Change: ' + formatCurrency(t.balance), '-------------------', c.thank_you_message || 'Thank you for your patronage!');
