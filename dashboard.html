@@ -21,7 +21,7 @@
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
 
-    /* ========== MOBILE ONLY ========== */
+    /* ========== MOBILE / DESKTOP SWITCH ========== */
     .mobile-only { display: block; }
     .desktop-only { display: none; }
 
@@ -30,7 +30,7 @@
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE STYLES (exact current) ===== */
+    /* ===== MOBILE STYLES ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #05060B; position: relative; overflow: hidden;
@@ -38,7 +38,6 @@
     }
     .neon-card {
       background: #101326;
-      border: 1px solid transparent;
       border-radius: 16px;
       padding: 12px;
       box-shadow: 0 0 0 1px rgba(46,168,255,0.25), 0 0 12px rgba(46,168,255,0.12);
@@ -55,8 +54,8 @@
       0%, 100% { box-shadow: 0 0 0 1px rgba(255,213,74,0.5), 0 0 12px rgba(255,213,74,0.3); }
       50% { box-shadow: 0 0 0 1px rgba(255,213,74,0.85), 0 0 20px rgba(255,213,74,0.5); }
     }
-    .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; border-color: rgba(255,90,122,0.5) !important; }
-    .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; border-color: rgba(255,213,74,0.45) !important; }
+    .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; }
+    .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; }
 
     .premium-badge {
       display: inline-flex; align-items: center; gap: 4px;
@@ -64,7 +63,10 @@
       border: 1px solid rgba(255,215,0,0.5); color: #FFD54A;
       font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; cursor: pointer;
     }
-    .premium-badge.expired { background: linear-gradient(135deg, rgba(255,90,122,0.2), rgba(255,90,122,0.1)); border-color: rgba(255,90,122,0.55); color: #FF5A7A; }
+    .premium-badge.expired {
+      background: linear-gradient(135deg, rgba(255,90,122,0.2), rgba(255,90,122,0.1));
+      border-color: rgba(255,90,122,0.55); color: #FF5A7A;
+    }
 
     .top-bar { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: rgba(8,10,20,0.92); border-bottom: 1px solid rgba(46,168,255,0.15); flex-shrink: 0; }
     .main-scroll { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 96px; }
@@ -100,7 +102,7 @@
     .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; }
     a.neon-card { text-decoration: none; color: inherit; display: block; }
 
-    /* ========== DESKTOP STYLES ========== */
+    /* ===== DESKTOP STYLES ===== */
     .desktop-shell {
       display: flex;
       width: 100%;
@@ -158,7 +160,7 @@
       min-width: 0;
     }
     .desktop-header {
-      height: 60px;
+      height: 64px;
       border-bottom: 1px solid rgba(139,92,246,0.12);
       display: flex;
       align-items: center;
@@ -166,6 +168,7 @@
       padding: 0 24px;
       background: rgba(11,11,22,0.95);
       flex-shrink: 0;
+      gap: 16px;
     }
     .search-box {
       display: flex; align-items: center; gap: 8px;
@@ -173,11 +176,64 @@
       border: 1px solid rgba(139,92,246,0.2);
       border-radius: 10px;
       padding: 8px 14px;
-      width: 320px;
+      width: 280px;
       color: #64748B;
       font-size: 13px;
+      flex-shrink: 0;
     }
     .header-actions { display: flex; align-items: center; gap: 12px; }
+
+    /* NEON DIGITAL CLOCK */
+    .neon-clock {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: linear-gradient(145deg, #0a0f1f, #0d1528);
+      border: 1px solid rgba(0, 200, 255, 0.35);
+      border-radius: 12px;
+      padding: 6px 14px;
+      box-shadow: 0 0 12px rgba(0, 180, 255, 0.15), inset 0 0 20px rgba(0, 100, 200, 0.08);
+      flex-shrink: 0;
+    }
+    .clock-time {
+      font-family: 'Courier New', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: #00d4ff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+      line-height: 1;
+    }
+    .clock-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .clock-date {
+      font-size: 10px;
+      color: #94A3B8;
+      white-space: nowrap;
+    }
+    .clock-live {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: #22F5A0;
+      font-weight: 600;
+    }
+    .clock-live .dot {
+      width: 7px;
+      height: 7px;
+      background: #22F5A0;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #22F5A0;
+      animation: pulse-live 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
 
     .desktop-content {
       flex: 1;
@@ -433,7 +489,7 @@
       </nav>
     </div>
 
-    <!-- Action Sheet + Debt Modal (shared) -->
+    <!-- Action Sheet + Debt Modal -->
     <div id="action-sheet">
       <div id="action-sheet-content">
         <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
@@ -501,12 +557,22 @@
 
     <!-- MAIN AREA -->
     <div class="desktop-main">
-      <!-- Header -->
+      <!-- Header with Clock -->
       <header class="desktop-header">
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
           <span>Search anything... (Products, Customers, Invoices...)</span>
         </div>
+
+        <!-- REAL-TIME NEON CLOCK -->
+        <div class="neon-clock">
+          <div class="clock-time" id="clock-time">00:00:00</div>
+          <div class="clock-meta">
+            <div class="clock-date" id="clock-date">Loading...</div>
+            <div class="clock-live"><span class="dot"></span> LIVE • Lagos</div>
+          </div>
+        </div>
+
         <div class="header-actions">
           <a href="ai-ceo.html" style="background:rgba(108,92,231,0.2);border:1px solid rgba(108,92,231,0.4);color:#C4B5FD;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;">
             <i class="fa-solid fa-robot" style="margin-right:6px;"></i>AI CEO
@@ -740,6 +806,27 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
+    /* ========== REAL-TIME CLOCK ========== */
+    function updateClock() {
+      const now = new Date();
+      // Lagos time (UTC+1)
+      const lagos = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
+      
+      let hours = lagos.getHours();
+      const mins = String(lagos.getMinutes()).padStart(2, '0');
+      const secs = String(lagos.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      const timeStr = String(hours).padStart(2, '0') + ':' + mins + ':' + secs + ' ' + ampm;
+
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const dateStr = days[lagos.getDay()] + ', ' + months[lagos.getMonth()] + ' ' + lagos.getDate() + ', ' + lagos.getFullYear();
+
+      setText('clock-time', timeStr);
+      setText('clock-date', dateStr);
+    }
+
     function toggleActionSheet() {
       const sheet = $('action-sheet');
       if (sheet) sheet.classList.toggle('open');
@@ -890,6 +977,10 @@
         await loadUnreadBadge();
         appReady = true;
 
+        // Start real-time clock
+        updateClock();
+        setInterval(updateClock, 1000);
+
         if (userCompanyId) {
           if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch(e){} }
           liveChannel = supabaseClient.channel('live-' + userCompanyId)
@@ -959,13 +1050,11 @@
       todayGrossProfit = todayProfit;
       todaySalesAmount = todaySales;
 
-      // Mobile
       setText('val-today-sales', formatCurrency(todaySales));
       setText('val-today-profit', formatCurrency(todayProfit));
       setText('val-transactions', String(todayCount));
       setText('val-weekly-total', formatCurrency(weeklyTotal));
 
-      // Desktop
       setText('desk-today-sales', formatCurrency(todaySales));
       setText('desk-today-profit', formatCurrency(todayProfit));
       setText('desk-transactions', String(todayCount));
@@ -1023,7 +1112,6 @@
         else lowCard.classList.remove('alert-breathing-amber');
       }
 
-      // Desktop low stock list
       const list = $('desk-low-stock-list');
       if (list) {
         if (!lowItems.length) {
@@ -1050,7 +1138,6 @@
         else debtCard.classList.remove('alert-breathing-red');
       }
 
-      // Desktop top debtors
       const list = $('desk-top-debtors');
       if (list) {
         if (!debtors || !debtors.length) {
@@ -1099,7 +1186,6 @@
       if (chartKey === lastChartKey && salesChartInstance) return;
       lastChartKey = chartKey;
 
-      // Mobile chart
       const canvas = $('salesOverviewChart');
       if (canvas) {
         try {
@@ -1116,7 +1202,6 @@
         } catch(e) {}
       }
 
-      // Desktop chart
       const deskCanvas = $('deskSalesChart');
       if (deskCanvas) {
         try {
@@ -1147,7 +1232,6 @@
       });
       const sorted = Object.entries(counts).sort(function(a,b){ return b[1].revenue - a[1].revenue; }).slice(0,5);
 
-      // Mobile
       const container = $('top-products-list');
       if (container) {
         if (!sorted.length) {
@@ -1159,7 +1243,6 @@
         }
       }
 
-      // Desktop
       const deskContainer = $('desk-top-products');
       if (deskContainer) {
         if (!sorted.length) {
