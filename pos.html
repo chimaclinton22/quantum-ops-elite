@@ -16,16 +16,16 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
-    /* ========== MOBILE / DESKTOP SWITCH ========== */
-    .mobile-only { display: block; }
-    .desktop-only { display: none; }
+    /* ========== CRITICAL FIX: MOBILE / DESKTOP SWITCH ========== */
+    .mobile-only { display: block !important; }
+    .desktop-only { display: none !important; }
 
     @media (min-width: 1024px) {
       .mobile-only { display: none !important; }
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE STYLES (exact same as before) ===== */
+    /* ===== MOBILE STYLES ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #0B0B16; position: relative; overflow: hidden;
@@ -97,7 +97,6 @@
       width: 100%;
       min-height: 100vh;
       background: #07070F;
-      display: flex;
       flex-direction: column;
     }
     .desk-topbar {
@@ -289,7 +288,6 @@
 
   <!-- ==================== DESKTOP VIEW ==================== -->
   <div class="desktop-only desktop-shell">
-    <!-- Top Bar -->
     <div class="desk-topbar">
       <div style="display:flex;align-items:center;gap:16px;">
         <a href="dashboard.html" style="color:#94a3b8;text-decoration:none;font-size:18px;"><i class="fa-solid fa-arrow-left"></i></a>
@@ -312,7 +310,6 @@
     </div>
 
     <div class="desk-content">
-      <!-- LEFT: Products -->
       <div class="desk-left">
         <div style="padding:16px 20px;border-bottom:1px solid rgba(139,92,246,0.1);">
           <div style="position:relative;">
@@ -332,7 +329,6 @@
         </div>
       </div>
 
-      <!-- RIGHT: Cart + Payment -->
       <div class="desk-right">
         <div class="desk-section custom-scrollbar" style="flex:1;">
           <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
@@ -580,9 +576,7 @@
     }
 
     function renderInventoryCatalog(items) {
-      // Mobile list
       const mobileContainer = document.getElementById('product-catalog-list');
-      // Desktop grid
       const deskContainer = document.getElementById('desk-product-catalog');
 
       if (!items.length) {
@@ -591,7 +585,6 @@
         return;
       }
 
-      // Mobile rendering
       if (mobileContainer) {
         mobileContainer.innerHTML = items.map(function (item) {
           const totalPieces = parseFloat(item.stock || 0);
@@ -617,7 +610,6 @@
         }).join('');
       }
 
-      // Desktop rendering
       if (deskContainer) {
         deskContainer.innerHTML = items.map(function (item) {
           const totalPieces = parseFloat(item.stock || 0);
@@ -647,7 +639,6 @@
       const deskSearch = document.getElementById('desk-product-search');
       const keyword = ((mobileSearch && mobileSearch.value) || (deskSearch && deskSearch.value) || '').toLowerCase();
 
-      // Keep both search boxes in sync
       if (mobileSearch && deskSearch && document.activeElement !== deskSearch) mobileSearch.value = deskSearch ? deskSearch.value : mobileSearch.value;
       if (deskSearch && mobileSearch && document.activeElement !== mobileSearch) deskSearch.value = mobileSearch ? mobileSearch.value : deskSearch.value;
 
@@ -656,7 +647,6 @@
       }));
     }
 
-    // ========== BARCODE SCANNER ==========
     async function startBarcodeScanner() {
       if (scannerStarting) return;
       if (typeof Html5Qrcode === 'undefined') {
@@ -779,13 +769,11 @@
     function renderCart() {
       const totalQty = cart.reduce(function (a, i) { return a + i.qty; }, 0);
 
-      // Update titles
       const mobileTitle = document.getElementById('cart-title-count');
       const deskTitle = document.getElementById('desk-cart-title');
       if (mobileTitle) mobileTitle.textContent = 'Cart (' + totalQty + ' items)';
       if (deskTitle) deskTitle.textContent = 'Cart (' + totalQty + ' items)';
 
-      // Mobile cart
       const mobileContainer = document.getElementById('cart-items-container');
       if (mobileContainer) {
         if (!cart.length) {
@@ -810,7 +798,6 @@
         }
       }
 
-      // Desktop cart
       const deskContainer = document.getElementById('desk-cart-items');
       if (deskContainer) {
         if (!cart.length) {
@@ -844,19 +831,16 @@
       const discount = parseFloat((discountEl && discountEl.value) || 0);
       const grandTotal = Math.max(subtotal - discount, 0);
 
-      // Mobile
       const mSub = document.getElementById('val-subtotal');
       const mTotal = document.getElementById('val-grand-total');
       if (mSub) mSub.textContent = formatCurrency(subtotal);
       if (mTotal) mTotal.textContent = formatCurrency(grandTotal);
 
-      // Desktop
       const dSub = document.getElementById('desk-val-subtotal');
       const dTotal = document.getElementById('desk-val-grand-total');
       if (dSub) dSub.textContent = formatCurrency(subtotal);
       if (dTotal) dTotal.textContent = formatCurrency(grandTotal);
 
-      // Sync paid amount if empty
       const paidMobile = document.getElementById('input-paid-amount');
       const paidDesk = document.getElementById('desk-input-paid-amount');
       if (paidMobile && (!paidMobile.value || parseFloat(paidMobile.value) === 0)) paidMobile.value = grandTotal.toFixed(2);
