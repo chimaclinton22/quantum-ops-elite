@@ -9,22 +9,25 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+
+    /* ========== MOBILE / DESKTOP SWITCH ========== */
+    .mobile-only { display: block; }
+    .desktop-only { display: none; }
+
+    @media (min-width: 1024px) {
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
+    }
+
+    /* ===== MOBILE STYLES (exact same) ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #0B0B16; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
-    }
-    @media (min-width: 768px) {
-      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
-      .iphone-frame {
-        max-width: 410px; max-height: 860px; border-radius: 48px;
-        border: 1px solid rgba(139,92,246,0.2);
-        box-shadow: 0 25px 50px -12px rgba(15,13,35,0.7);
-      }
     }
     .top-bar {
       padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
@@ -69,13 +72,74 @@
       color: #94a3b8; text-decoration: none; font-size: 9px;
     }
     .nav-item i { font-size: 14px; }
+
+    /* ===== DESKTOP STYLES ===== */
+    .desktop-shell {
+      width: 100%;
+      min-height: 100vh;
+      background: #07070F;
+      display: flex;
+      flex-direction: column;
+    }
+    .desk-topbar {
+      height: 64px;
+      background: #0B0B16;
+      border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+    .desk-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .desk-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .desk-summary-card {
+      background: linear-gradient(135deg, rgba(136,19,55,0.25), #121224);
+      border: 1px solid rgba(244,63,94,0.2);
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .desk-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #121224;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(139,92,246,0.15);
+    }
+    .desk-table th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 12px;
+      color: #94a3b8;
+      background: #0B0B16;
+      border-bottom: 1px solid rgba(139,92,246,0.12);
+    }
+    .desk-table td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(139,92,246,0.08);
+    }
+    .desk-table tr:last-child td { border-bottom: none; }
+    .desk-table tr:hover td { background: rgba(139,92,246,0.05); }
+
+    /* Shared modal */
     .modal-bg {
       position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50;
       display: flex; align-items: center; justify-content: center; padding: 16px;
     }
     .modal-bg.hidden { display: none; }
     .modal {
-      width: 100%; max-width: 384px; background: #121224;
+      width: 100%; max-width: 400px; background: #121224;
       border: 1px solid rgba(139,92,246,0.3); border-radius: 24px; padding: 20px;
     }
     .field { margin-bottom: 12px; }
@@ -90,48 +154,105 @@
       font-weight: 700; font-size: 12px; cursor: pointer;
     }
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <div class="top-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
-        <span style="font-weight:700;font-size:12px;color:#fff;letter-spacing:0.05em;">CUSTOMER DEBTS</span>
-      </div>
-      <button class="btn-add" onclick="openAddDebtModal()"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Debt</button>
-    </div>
 
-    <div class="main custom-scrollbar">
-      <div class="summary">
-        <div>
-          <div style="font-size:10px;color:#94a3b8;">Total Outstanding</div>
-          <div style="font-size:18px;font-weight:800;color:#fb7185;" id="val-total-debt">₦0</div>
+  <!-- ==================== MOBILE VIEW ==================== -->
+  <div class="mobile-only">
+    <div class="iphone-frame">
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
+          <span style="font-weight:700;font-size:12px;color:#fff;letter-spacing:0.05em;">CUSTOMER DEBTS</span>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:10px;color:#94a3b8;">Total Debtors</div>
-          <div style="font-size:18px;font-weight:800;color:#fff;" id="val-total-count">0</div>
+        <button class="btn-add" onclick="openAddDebtModal()"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Debt</button>
+      </div>
+
+      <div class="main custom-scrollbar">
+        <div class="summary">
+          <div>
+            <div style="font-size:10px;color:#94a3b8;">Total Outstanding</div>
+            <div style="font-size:18px;font-weight:800;color:#fb7185;" id="val-total-debt">₦0</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:#94a3b8;">Total Debtors</div>
+            <div style="font-size:18px;font-weight:800;color:#fff;" id="val-total-count">0</div>
+          </div>
+        </div>
+
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-debtor" oninput="filterDebtors()" placeholder="Search customer, phone or item...">
+        </div>
+
+        <div id="debtors-list-container">
+          <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">Loading customer debts...</div>
         </div>
       </div>
 
-      <div class="search-wrap">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="search-debtor" oninput="filterDebtors()" placeholder="Search customer, phone or item...">
-      </div>
-
-      <div id="debtors-list-container">
-        <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">Loading customer debts...</div>
-      </div>
+      <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+        <a href="ai-ceo.html" class="nav-item"><i class="fa-solid fa-robot" style="color:#a78bfa;"></i>AI CEO</a>
+      </nav>
     </div>
-
-    <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
-      <a href="ai-ceo.html" class="nav-item"><i class="fa-solid fa-robot" style="color:#a78bfa;"></i>AI CEO</a>
-    </nav>
   </div>
 
+  <!-- ==================== DESKTOP VIEW ==================== -->
+  <div class="desktop-only desktop-shell">
+    <div class="desk-topbar">
+      <div>
+        <div style="font-weight:700;font-size:18px;color:#fff;">Customer Debts</div>
+        <div style="font-size:12px;color:#94a3b8;">Manage outstanding balances</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="position:relative;width:280px;">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:11px;color:#64748b;font-size:13px;"></i>
+          <input type="text" id="desk-search-debtor" oninput="filterDebtors()" placeholder="Search customer, phone or item..."
+            style="width:100%;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:10px 12px 10px 36px;font-size:13px;color:#fff;outline:none;">
+        </div>
+        <button onclick="openAddDebtModal()" style="padding:10px 18px;border-radius:10px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+          <i class="fa-solid fa-plus"></i> Add Debt
+        </button>
+      </div>
+    </div>
+
+    <div class="desk-content custom-scrollbar">
+      <div class="desk-summary">
+        <div class="desk-summary-card">
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">Total Outstanding</div>
+          <div style="font-size:28px;font-weight:800;color:#fb7185;" id="desk-val-total-debt">₦0</div>
+        </div>
+        <div class="desk-summary-card" style="background:linear-gradient(135deg,rgba(88,28,135,0.25),#121224);border-color:rgba(139,92,246,0.2);">
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">Total Debtors</div>
+          <div style="font-size:28px;font-weight:800;color:#fff;" id="desk-val-total-count">0</div>
+        </div>
+      </div>
+
+      <div id="desk-debtors-table-wrap">
+        <table class="desk-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Item Bought</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="desk-debtors-body">
+            <tr><td colspan="6" style="text-align:center;padding:40px;color:#64748b;">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD DEBT MODAL (shared) -->
   <div id="debt-modal" class="modal-bg hidden">
     <div class="modal">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -179,21 +300,18 @@
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
-
     function parseMoney(v) {
       if (v == null || v === '') return 0;
       if (typeof v === 'number') return isNaN(v) ? 0 : v;
       const n = parseFloat(String(v).replace(/[₦$,\s]/g, ''));
       return isNaN(n) ? 0 : n;
     }
-
     function formatDate(isoString) {
       if (!isoString) return 'N/A';
       const d = new Date(isoString);
       return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
         ' at ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-
     function cleanPhone(phone) {
       if (!phone) return '';
       return String(phone).replace(/[^\d+]/g, '').trim();
@@ -202,7 +320,6 @@
     function openAddDebtModal() {
       document.getElementById('debt-modal').classList.remove('hidden');
     }
-
     function closeAddDebtModal() {
       document.getElementById('debt-modal').classList.add('hidden');
     }
@@ -231,8 +348,6 @@
         await fetchDebtors();
       } catch (err) {
         console.error('Init error:', err);
-        document.getElementById('debtors-list-container').innerHTML =
-          '<div style="text-align:center;padding:40px 0;color:#fb7185;font-size:12px;">Could not load. Refresh page.</div>';
       }
     }
 
@@ -256,80 +371,136 @@
         filterDebtors();
       } catch (err) {
         console.error('Fetch error:', err);
-        document.getElementById('debtors-list-container').innerHTML =
-          '<div style="text-align:center;padding:40px 0;color:#fb7185;font-size:12px;">Error loading debts.</div>';
       } finally {
         isFetching = false;
       }
     }
 
     function renderDebtors(debtors) {
-      const container = document.getElementById('debtors-list-container');
       let totalAmount = 0;
+      debtors.forEach(d => totalAmount += parseMoney(d.amount_owing));
 
-      if (!debtors.length) {
-        container.innerHTML =
-          '<div style="text-align:center;padding:48px 16px;background:#121224;border:1px solid rgba(139,92,246,0.1);border-radius:16px;">'
-          + '<i class="fa-solid fa-circle-check" style="color:#34d399;font-size:24px;"></i>'
-          + '<p style="color:#cbd5e1;font-size:12px;font-weight:500;margin:8px 0 4px;">No outstanding debts found</p>'
-          + '<p style="color:#64748b;font-size:10px;margin:0;">All customer balances are fully settled.</p></div>';
-        document.getElementById('val-total-debt').textContent = formatCurrency(0);
-        document.getElementById('val-total-count').textContent = '0';
-        return;
-      }
-
-      container.innerHTML = debtors.map(function (debt) {
-        const amount = parseMoney(debt.amount_owing);
-        totalAmount += amount;
-        const itemBought = debt.item_bought || 'General Goods';
-        const phone = debt.phone || '';
-        const phoneDisplay = phone ? phone : 'No phone';
-        const phoneClean = cleanPhone(phone);
-
-        // WhatsApp link (Nigeria format)
-        let whatsappBtn = '';
-        if (phoneClean) {
-          let waNumber = phoneClean;
-          if (waNumber.startsWith('0')) waNumber = '234' + waNumber.slice(1);
-          if (!waNumber.startsWith('234') && !waNumber.startsWith('+')) waNumber = '234' + waNumber;
-          const message = encodeURIComponent(
-            'Good day ' + (debt.customer_name || '') + ',\n\nThis is a friendly reminder from our shop.\nYou still have an outstanding balance of ' + formatCurrency(amount) + ' for ' + itemBought + '.\n\nKindly settle at your earliest convenience. Thank you.'
-          );
-          whatsappBtn = '<a class="btn-remind" href="https://wa.me/' + waNumber + '?text=' + message + '" target="_blank"><i class="fa-brands fa-whatsapp"></i> Remind</a>';
-        }
-
-        return ''
-          + '<div class="card">'
-          +   '<div style="display:flex;justify-content:space-between;align-items:center;">'
-          +     '<div style="display:flex;align-items:center;gap:10px;">'
-          +       '<div style="width:32px;height:32px;border-radius:12px;background:rgba(225,29,72,0.2);color:#fb7185;display:flex;align-items:center;justify-content:center;border:1px solid rgba(244,63,94,0.3);font-size:12px;"><i class="fa-solid fa-user"></i></div>'
-          +       '<div>'
-          +         '<div style="font-weight:700;color:#fff;font-size:12px;">' + (debt.customer_name || 'Unknown') + '</div>'
-          +         '<div style="font-size:10px;color:#94a3b8;margin-top:2px;"><i class="fa-solid fa-phone" style="color:#a78bfa;margin-right:4px;"></i>' + phoneDisplay + '</div>'
-          +         '<div style="font-size:10px;color:#94a3b8;margin-top:2px;"><i class="fa-solid fa-bag-shopping" style="color:#a78bfa;margin-right:4px;"></i>' + itemBought + '</div>'
-          +       '</div>'
-          +     '</div>'
-          +     '<div style="text-align:right;">'
-          +       '<div style="font-weight:700;color:#fb7185;font-size:12px;">' + formatCurrency(amount) + '</div>'
-          +       '<div style="font-size:9px;color:#64748b;">Unpaid</div>'
-          +     '</div>'
-          +   '</div>'
-          +   '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(139,92,246,0.1);display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#94a3b8;gap:8px;flex-wrap:wrap;">'
-          +     '<span><i class="fa-regular fa-clock" style="margin-right:4px;"></i>' + formatDate(debt.created_at) + '</span>'
-          +     '<div style="display:flex;gap:6px;align-items:center;">'
-          +       whatsappBtn
-          +       '<button class="btn-paid" onclick="markAsPaid(\'' + debt.id + '\')"><i class="fa-solid fa-check" style="margin-right:4px;"></i>Mark as Paid</button>'
-          +     '</div>'
-          +   '</div>'
-          + '</div>';
-      }).join('');
-
+      // Update summary (both views)
       document.getElementById('val-total-debt').textContent = formatCurrency(totalAmount);
       document.getElementById('val-total-count').textContent = String(debtors.length);
+      const deskDebt = document.getElementById('desk-val-total-debt');
+      const deskCount = document.getElementById('desk-val-total-count');
+      if (deskDebt) deskDebt.textContent = formatCurrency(totalAmount);
+      if (deskCount) deskCount.textContent = String(debtors.length);
+
+      // Mobile list
+      const container = document.getElementById('debtors-list-container');
+      if (container) {
+        if (!debtors.length) {
+          container.innerHTML = '<div style="text-align:center;padding:48px 16px;background:#121224;border:1px solid rgba(139,92,246,0.1);border-radius:16px;"><i class="fa-solid fa-circle-check" style="color:#34d399;font-size:24px;"></i><p style="color:#cbd5e1;font-size:12px;font-weight:500;margin:8px 0 4px;">No outstanding debts found</p><p style="color:#64748b;font-size:10px;margin:0;">All customer balances are fully settled.</p></div>';
+        } else {
+          container.innerHTML = debtors.map(function (debt) {
+            return buildMobileCard(debt);
+          }).join('');
+        }
+      }
+
+      // Desktop table
+      const tbody = document.getElementById('desk-debtors-body');
+      if (tbody) {
+        if (!debtors.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#64748b;">No outstanding debts found</td></tr>';
+        } else {
+          tbody.innerHTML = debtors.map(function (debt) {
+            return buildDesktopRow(debt);
+          }).join('');
+        }
+      }
+    }
+
+    function buildMobileCard(debt) {
+      const amount = parseMoney(debt.amount_owing);
+      const itemBought = debt.item_bought || 'General Goods';
+      const phone = debt.phone || '';
+      const phoneDisplay = phone ? phone : 'No phone';
+      const phoneClean = cleanPhone(phone);
+
+      let whatsappBtn = '';
+      if (phoneClean) {
+        let waNumber = phoneClean;
+        if (waNumber.startsWith('0')) waNumber = '234' + waNumber.slice(1);
+        if (!waNumber.startsWith('234') && !waNumber.startsWith('+')) waNumber = '234' + waNumber;
+        const message = encodeURIComponent(
+          'Good day ' + (debt.customer_name || '') + ',\n\nThis is a friendly reminder from our shop.\nYou still have an outstanding balance of ' + formatCurrency(amount) + ' for ' + itemBought + '.\n\nKindly settle at your earliest convenience. Thank you.'
+        );
+        whatsappBtn = '<a class="btn-remind" href="https://wa.me/' + waNumber + '?text=' + message + '" target="_blank"><i class="fa-brands fa-whatsapp"></i> Remind</a>';
+      }
+
+      return ''
+        + '<div class="card">'
+        +   '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        +     '<div style="display:flex;align-items:center;gap:10px;">'
+        +       '<div style="width:32px;height:32px;border-radius:12px;background:rgba(225,29,72,0.2);color:#fb7185;display:flex;align-items:center;justify-content:center;border:1px solid rgba(244,63,94,0.3);font-size:12px;"><i class="fa-solid fa-user"></i></div>'
+        +       '<div>'
+        +         '<div style="font-weight:700;color:#fff;font-size:12px;">' + (debt.customer_name || 'Unknown') + '</div>'
+        +         '<div style="font-size:10px;color:#94a3b8;margin-top:2px;"><i class="fa-solid fa-phone" style="color:#a78bfa;margin-right:4px;"></i>' + phoneDisplay + '</div>'
+        +         '<div style="font-size:10px;color:#94a3b8;margin-top:2px;"><i class="fa-solid fa-bag-shopping" style="color:#a78bfa;margin-right:4px;"></i>' + itemBought + '</div>'
+        +       '</div>'
+        +     '</div>'
+        +     '<div style="text-align:right;">'
+        +       '<div style="font-weight:700;color:#fb7185;font-size:12px;">' + formatCurrency(amount) + '</div>'
+        +       '<div style="font-size:9px;color:#64748b;">Unpaid</div>'
+        +     '</div>'
+        +   '</div>'
+        +   '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(139,92,246,0.1);display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#94a3b8;gap:8px;flex-wrap:wrap;">'
+        +     '<span><i class="fa-regular fa-clock" style="margin-right:4px;"></i>' + formatDate(debt.created_at) + '</span>'
+        +     '<div style="display:flex;gap:6px;align-items:center;">'
+        +       whatsappBtn
+        +       '<button class="btn-paid" onclick="markAsPaid(\'' + debt.id + '\')"><i class="fa-solid fa-check" style="margin-right:4px;"></i>Mark as Paid</button>'
+        +     '</div>'
+        +   '</div>'
+        + '</div>';
+    }
+
+    function buildDesktopRow(debt) {
+      const amount = parseMoney(debt.amount_owing);
+      const itemBought = debt.item_bought || 'General Goods';
+      const phone = debt.phone || '—';
+      const phoneClean = cleanPhone(debt.phone);
+
+      let whatsappBtn = '';
+      if (phoneClean) {
+        let waNumber = phoneClean;
+        if (waNumber.startsWith('0')) waNumber = '234' + waNumber.slice(1);
+        if (!waNumber.startsWith('234') && !waNumber.startsWith('+')) waNumber = '234' + waNumber;
+        const message = encodeURIComponent(
+          'Good day ' + (debt.customer_name || '') + ',\n\nThis is a friendly reminder from our shop.\nYou still have an outstanding balance of ' + formatCurrency(amount) + ' for ' + itemBought + '.\n\nKindly settle at your earliest convenience. Thank you.'
+        );
+        whatsappBtn = '<a class="btn-remind" href="https://wa.me/' + waNumber + '?text=' + message + '" target="_blank"><i class="fa-brands fa-whatsapp"></i> Remind</a>';
+      }
+
+      return ''
+        + '<tr>'
+        +   '<td style="font-weight:600;color:#fff;">' + (debt.customer_name || 'Unknown') + '</td>'
+        +   '<td style="color:#94a3b8;">' + phone + '</td>'
+        +   '<td style="color:#cbd5e1;">' + itemBought + '</td>'
+        +   '<td style="font-weight:700;color:#fb7185;">' + formatCurrency(amount) + '</td>'
+        +   '<td style="color:#94a3b8;font-size:12px;">' + formatDate(debt.created_at) + '</td>'
+        +   '<td style="text-align:right;">'
+        +     '<div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;">'
+        +       whatsappBtn
+        +       '<button class="btn-paid" onclick="markAsPaid(\'' + debt.id + '\')"><i class="fa-solid fa-check"></i> Paid</button>'
+        +     '</div>'
+        +   '</td>'
+        + '</tr>';
     }
 
     function filterDebtors() {
-      const keyword = (document.getElementById('search-debtor').value || '').toLowerCase();
+      const mobileSearch = document.getElementById('search-debtor');
+      const deskSearch = document.getElementById('desk-search-debtor');
+      const keyword = ((mobileSearch && mobileSearch.value) || (deskSearch && deskSearch.value) || '').toLowerCase();
+
+      // Sync search
+      if (mobileSearch && deskSearch) {
+        if (document.activeElement === deskSearch) mobileSearch.value = deskSearch.value;
+        else if (document.activeElement === mobileSearch) deskSearch.value = mobileSearch.value;
+      }
+
       const filtered = allDebtors.filter(function (d) {
         return (d.customer_name || '').toLowerCase().includes(keyword) ||
           (d.phone || '').toLowerCase().includes(keyword) ||
