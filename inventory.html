@@ -1,1668 +1,949 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-
-<meta name="theme-color" content="#6C5CE7">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<title>Quantum OPS Elite - Inventory</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
-<style>
-
-* { box-sizing: border-box; }
-
-body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
-
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
-
-.iphone-frame {
-
-width: 100%; max-width: 100%; height: 100dvh;
-
-background: #0B0B16; position: relative; overflow: hidden;
-
-display: flex; flex-direction: column;
-
-}
-
-@media (min-width: 768px) {
-
-body { display: flex; align-items: center; justify-content: center; height: 100vh; }
-
-.iphone-frame {
-
-max-width: 410px; max-height: 860px; border-radius: 48px;
-
-border: 1px solid rgba(139,92,246,0.2);
-
-box-shadow: 0 25px 50px -12px rgba(15,13,35,0.7);
-
-}
-
-}
-
-.top-bar {
-
-padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between;
-
-background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
-
-}
-
-.icon-btn {
-
-width: 32px; height: 32px; border-radius: 999px; border: 1px solid rgba(139,92,246,0.2);
-
-background: #121224; color: #cbd5e1; display: flex; align-items: center; justify-content: center;
-
-cursor: pointer;
-
-}
-
-.icon-btn.primary { background: #6C5CE7; border: none; color: #fff; }
-
-.search-box { padding: 8px 16px; background: #0E0E1C; border-bottom: 1px solid rgba(139,92,246,0.1); }
-
-.search-box input {
-
-width: 100%; background: #16162d; border: 1px solid rgba(139,92,246,0.2);
-
-border-radius: 12px; padding: 8px 12px; font-size: 12px; color: #fff; outline: none;
-
-}
-
-.filters {
-
-padding: 10px 16px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0;
-
-background: rgba(11,11,22,0.95);
-
-}
-
-.filter-tab {
-
-padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
-
-background: #121224; color: #94a3b8; border: 1px solid rgba(139,92,246,0.15);
-
-cursor: pointer; white-space: nowrap; flex-shrink: 0;
-
-}
-
-.filter-tab.active { background: #6C5CE7; color: #fff; border-color: transparent; }
-
-.list { flex: 1; overflow-y: auto; padding: 8px 16px 96px; }
-
-.card {
-
-position: relative; background: #121224; border: 1px solid rgba(139,92,246,0.15);
-
-border-radius: 16px; padding: 14px; margin-bottom: 12px;
-
-}
-
-.menu-btn {
-
-width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-
-border-radius: 8px; color: #94a3b8; background: transparent; border: none; cursor: pointer;
-
-}
-
-.action-menu {
-
-position: absolute; right: 8px; top: 40px; background: #1a1a2e;
-
-border: 1px solid rgba(139,92,246,0.4); border-radius: 12px; min-width: 140px;
-
-z-index: 100; box-shadow: 0 12px 30px rgba(0,0,0,0.6); overflow: hidden; display: none;
-
-}
-
-.action-menu.show { display: block; }
-
-.action-menu button {
-
-width: 100%; text-align: left; padding: 11px 14px; font-size: 12px; color: #e2e8f0;
-
-display: flex; align-items: center; gap: 10px; background: transparent; border: none; cursor: pointer;
-
-}
-
-.badge {
-
-display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 600; border: 1px solid;
-
-}
-
-.badge-ok { background: rgba(6,78,59,0.5); color: #34d399; border-color: rgba(16,185,129,0.3); }
-
-.badge-low { background: rgba(120,53,15,0.5); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
-
-.badge-out { background: rgba(136,19,55,0.5); color: #fb7185; border-color: rgba(244,63,94,0.3); }
-
-.bottom-nav {
-
-position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
-
-background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
-
-display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 40;
-
-}
-
-.nav-item {
-
-display: flex; flex-direction: column; align-items: center; gap: 2px;
-
-color: #94a3b8; text-decoration: none; font-size: 9px;
-
-}
-
-.nav-item.active { color: #a78bfa; }
-
-.nav-item i { font-size: 14px; }
-
-.modal-bg {
-
-position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50;
-
-display: flex; align-items: center; justify-content: center; padding: 16px;
-
-}
-
-.modal-bg.hidden { display: none; }
-
-.modal {
-
-width: 100%; max-width: 384px; max-height: 90vh; overflow-y: auto;
-
-background: #121224; border: 1px solid rgba(139,92,246,0.3); border-radius: 24px; padding: 20px;
-
-}
-
-.field { margin-bottom: 12px; }
-
-.field label { display: block; font-size: 10px; color: #94a3b8; font-weight: 500; margin-bottom: 4px; }
-
-.field input {
-
-width: 100%; background: #191932; border: 1px solid rgba(139,92,246,0.2);
-
-border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
-
-}
-
-.field input:focus { border-color: #6C5CE7; }
-
-.field input[readonly] { background: #15152a; color: #94a3b8; }
-
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-.btn-save {
-
-width: 100%; padding: 12px; border: none; border-radius: 12px;
-
-background: linear-gradient(to right, #6C5CE7, #4F46E5); color: #fff;
-
-font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 4px;
-
-}
-
-.btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.preview-box {
-
-background: rgba(88,28,135,0.2); border: 1px solid rgba(139,92,246,0.2);
-
-border-radius: 12px; padding: 8px 12px; font-size: 11px; color: #e9d5ff; margin-bottom: 12px;
-
-}
-
-.hint-box {
-
-background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
-
-border-radius: 12px; padding: 10px 12px; font-size: 11px; color: #6ee7b7; margin-bottom: 12px;
-
-display: none;
-
-}
-
-.hint-box.show { display: block; }
-
-#scanner-modal {
-
-position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 80;
-
-display: flex; align-items: center; justify-content: center; padding: 12px;
-
-}
-
-#scanner-modal.hidden { display: none; }
-
-#scanner-reader {
-
-width: 100%;
-
-height: 280px;
-
-background: #000;
-
-border-radius: 12px;
-
-overflow: hidden;
-
-}
-
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6C5CE7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Quantum OPS Elite - Inventory</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+
+    /* ========== MOBILE / DESKTOP SWITCH ========== */
+    .mobile-only { display: block; }
+    .desktop-only { display: none; }
+
+    @media (min-width: 1024px) {
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
+    }
+
+    /* ===== MOBILE STYLES (exact same) ===== */
+    .iphone-frame {
+      width: 100%; max-width: 100%; height: 100dvh;
+      background: #0B0B16; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .top-bar {
+      padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
+    }
+    .icon-btn {
+      width: 32px; height: 32px; border-radius: 999px; border: 1px solid rgba(139,92,246,0.2);
+      background: #121224; color: #cbd5e1; display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .icon-btn.primary { background: #6C5CE7; border: none; color: #fff; }
+    .search-box { padding: 8px 16px; background: #0E0E1C; border-bottom: 1px solid rgba(139,92,246,0.1); }
+    .search-box input {
+      width: 100%; background: #16162d; border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px; padding: 8px 12px; font-size: 12px; color: #fff; outline: none;
+    }
+    .filters {
+      padding: 10px 16px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0;
+      background: rgba(11,11,22,0.95);
+    }
+    .filter-tab {
+      padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
+      background: #121224; color: #94a3b8; border: 1px solid rgba(139,92,246,0.15);
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    .filter-tab.active { background: #6C5CE7; color: #fff; border-color: transparent; }
+    .list { flex: 1; overflow-y: auto; padding: 8px 16px 96px; }
+    .card {
+      position: relative; background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px; padding: 14px; margin-bottom: 12px;
+    }
+    .menu-btn {
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; color: #94a3b8; background: transparent; border: none; cursor: pointer;
+    }
+    .action-menu {
+      position: absolute; right: 8px; top: 40px; background: #1a1a2e;
+      border: 1px solid rgba(139,92,246,0.4); border-radius: 12px; min-width: 140px;
+      z-index: 100; box-shadow: 0 12px 30px rgba(0,0,0,0.6); overflow: hidden; display: none;
+    }
+    .action-menu.show { display: block; }
+    .action-menu button {
+      width: 100%; text-align: left; padding: 11px 14px; font-size: 12px; color: #e2e8f0;
+      display: flex; align-items: center; gap: 10px; background: transparent; border: none; cursor: pointer;
+    }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 600; border: 1px solid;
+    }
+    .badge-ok { background: rgba(6,78,59,0.5); color: #34d399; border-color: rgba(16,185,129,0.3); }
+    .badge-low { background: rgba(120,53,15,0.5); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+    .badge-out { background: rgba(136,19,55,0.5); color: #fb7185; border-color: rgba(244,63,94,0.3); }
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+      background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 40;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #94a3b8; text-decoration: none; font-size: 9px;
+    }
+    .nav-item.active { color: #a78bfa; }
+    .nav-item i { font-size: 14px; }
+
+    /* ===== DESKTOP STYLES ===== */
+    .desktop-shell {
+      width: 100%;
+      min-height: 100vh;
+      background: #07070F;
+      display: flex;
+      flex-direction: column;
+    }
+    .desk-topbar {
+      height: 64px;
+      background: #0B0B16;
+      border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+    .desk-filters {
+      display: flex;
+      gap: 8px;
+      padding: 16px 24px;
+      background: #0B0B16;
+      border-bottom: 1px solid rgba(139,92,246,0.1);
+    }
+    .desk-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .desk-product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .desk-card {
+      position: relative;
+      background: #121224;
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px;
+      padding: 16px;
+      transition: all 0.15s;
+    }
+    .desk-card:hover {
+      border-color: rgba(139,92,246,0.4);
+    }
+
+    /* Shared modal styles */
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-bg.hidden { display: none; }
+    .modal {
+      width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+      background: #121224; border: 1px solid rgba(139,92,246,0.3); border-radius: 24px; padding: 20px;
+    }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 10px; color: #94a3b8; font-weight: 500; margin-bottom: 4px; }
+    .field input {
+      width: 100%; background: #191932; border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
+    }
+    .field input:focus { border-color: #6C5CE7; }
+    .field input[readonly] { background: #15152a; color: #94a3b8; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-save {
+      width: 100%; padding: 12px; border: none; border-radius: 12px;
+      background: linear-gradient(to right, #6C5CE7, #4F46E5); color: #fff;
+      font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 4px;
+    }
+    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .preview-box {
+      background: rgba(88,28,135,0.2); border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px; padding: 8px 12px; font-size: 11px; color: #e9d5ff; margin-bottom: 12px;
+    }
+    .hint-box {
+      background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 12px; padding: 10px 12px; font-size: 11px; color: #6ee7b7; margin-bottom: 12px;
+      display: none;
+    }
+    .hint-box.show { display: block; }
+    #scanner-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 80;
+      display: flex; align-items: center; justify-content: center; padding: 12px;
+    }
+    #scanner-modal.hidden { display: none; }
+    #scanner-reader {
+      width: 100%; height: 280px; background: #000; border-radius: 12px; overflow: hidden;
+    }
+    .hidden { display: none !important; }
+  </style>
 </head>
-
 <body>
 
-<div class="iphone-frame">
-
-<div class="top-bar">
-
-<div>
-
-<div style="font-weight:800;color:#fff;font-size:16px;">All Products</div>
-
-<div style="font-size:10px;color:#94a3b8;" id="product-count-label">0 products</div>
-
-</div>
-
-<div style="display:flex;gap:8px;">
-
-<button class="icon-btn" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;"></i></button>
-
-<button class="icon-btn primary" onclick="openAddProductModal()"><i class="fa-solid fa-plus" style="font-size:12px;"></i></button>
-
-</div>
-
-</div>
-
-
-
-<div id="search-container" class="search-box" style="display:none;">
-
-<input type="text" id="search-input" oninput="filterProducts()" placeholder="Search product name or SKU...">
-
-</div>
-
-
-
-<div class="filters custom-scrollbar">
-
-<button class="filter-tab active" onclick="setFilter('all', this)">All</button>
-
-<button class="filter-tab" onclick="setFilter('instock', this)">In Stock</button>
-
-<button class="filter-tab" onclick="setFilter('lowstock', this)">Low Stock</button>
-
-<button class="filter-tab" onclick="setFilter('outofstock', this)">Out of Stock</button>
-
-</div>
-
-
-
-<div class="list custom-scrollbar" id="products-list-container">
-
-<div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">Loading products...</div>
-
-</div>
-
-
-
-<nav class="bottom-nav">
-
-<a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-
-<a href="inventory.html" class="nav-item active"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-
-<a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
-
-<a href="ai-ceo.html" class="nav-item"><i class="fa-solid fa-robot"></i>AI CEO</a>
-
-</nav>
-
-</div>
-
-
-
-<!-- ADD / EDIT PRODUCT -->
-
-<div id="product-modal" class="modal-bg hidden">
-
-<div class="modal custom-scrollbar">
-
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-
-<h3 style="margin:0;font-size:14px;font-weight:700;color:#fff;" id="modal-title">
-
-<i class="fa-solid fa-box" style="color:#a78bfa;margin-right:8px;"></i>Add New Product
-
-</h3>
-
-<button onclick="closeProductModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-
-</div>
-
-
-
-<div id="smart-hint" class="hint-box"></div>
-
-
-
-<div class="field">
-
-<label>Product Photo</label>
-
-<div style="display:flex;align-items:center;gap:12px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:8px;">
-
-<div id="photo-preview-box" style="width:48px;height:48px;border-radius:8px;background:rgba(88,28,135,0.3);border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center;color:#a78bfa;overflow:hidden;flex-shrink:0;">
-
-<i class="fa-solid fa-image"></i>
-
-</div>
-
-<input type="file" id="product-image-file" accept="image/*" onchange="previewImage(event)" style="font-size:10px;color:#94a3b8;flex:1;">
-
-</div>
-
-</div>
-
-
-
-<div class="field">
-
-<label>Product Name *</label>
-
-<input type="text" id="prod-name" placeholder="Scan barcode to auto-fill, or type">
-
-</div>
-
-
-
-<div class="field">
-
-<label>Barcode / SKU</label>
-
-<div style="display:flex;gap:8px;">
-
-<input type="text" id="prod-sku" placeholder="Scan or type" style="flex:1;">
-
-<button type="button" onclick="startBarcodeScanner()" style="width:48px;background:#6C5CE7;border:none;border-radius:12px;color:#fff;cursor:pointer;flex-shrink:0;">
-
-<i class="fa-solid fa-barcode"></i>
-
-</button>
-
-</div>
-
-<p style="font-size:9px;color:#64748b;margin:4px 0 0;">Scan once → name fills → you only add cost, price & quantity</p>
-
-</div>
-
-
-
-<div class="grid-2">
-
-<div class="field">
-
-<label>Pieces Per Unit *</label>
-
-<input type="number" id="prod-pack" value="24" min="1" oninput="calculateUnitCost(); updatePreviewUnits()">
-
-</div>
-
-<div class="field">
-
-<label>Bulk Cost Price (₦)</label>
-
-<input type="number" id="prod-bulk-cost" placeholder="0" oninput="calculateUnitCost()">
-
-</div>
-
-</div>
-
-
-
-<div class="grid-2">
-
-<div class="field">
-
-<label>Single Unit Cost (₦)</label>
-
-<input type="number" id="prod-unit-cost" placeholder="Auto" readonly>
-
-</div>
-
-<div class="field">
-
-<label>Selling Price (₦) *</label>
-
-<input type="number" id="prod-selling" placeholder="e.g. 700" oninput="calculateProfit()">
-
-</div>
-
-</div>
-
-
-
-<div class="grid-2">
-
-<div class="field">
-
-<label>Number of Units *</label>
-
-<input type="number" id="prod-units" value="5" min="0" step="any" oninput="updatePreviewUnits()">
-
-</div>
-
-<div class="field">
-
-<label>Expected Profit / Piece</label>
-
-<input type="text" id="prod-expected-profit" value="₦0" readonly style="color:#34d399;font-weight:700;">
-
-</div>
-
-</div>
-
-
-
-<div class="preview-box">
-
-<span style="color:#94a3b8;">Will store:</span>
-
-<span id="preview-units-pcs" style="font-weight:600;color:#fff;margin-left:6px;">5 units = 120 pcs</span>
-
-</div>
-
-
-
-<button id="save-product-btn" onclick="submitProduct()" class="btn-save">Save Product to Inventory</button>
-
-</div>
-
-</div>
-
-
-
-<!-- SCANNER MODAL -->
-
-<div id="scanner-modal" class="hidden">
-
-<div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
-
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-
-<div style="font-weight:700;font-size:13px;color:#fff;">
-
-<i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode
-
-</div>
-
-<button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
-
-<i class="fa-solid fa-xmark"></i>
-
-</button>
-
-</div>
-
-<div id="scanner-reader"></div>
-
-<p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light · 10–15 cm away</p>
-
-<p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
-
-<button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
-
-Close &amp; type instead
-
-</button>
-
-</div>
-
-</div>
-
-
-
-<script>
-
-const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
-
-const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
-
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-
-auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-
-});
-
-const LOW_STOCK_UNITS = 3;
-
-
-
-let userCompanyId = null;
-
-let allProducts = [];
-
-let currentFilter = 'all';
-
-let uploadedImageBase64 = '';
-
-let editingProductId = null;
-
-let isSaving = false;
-
-let isFetching = false;
-
-let html5QrCode = null;
-
-let lastScanTime = 0;
-
-let scannerStarting = false;
-
-
-
-function formatCurrency(amount) {
-
-return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
-
-}
-
-function formatUnits(value) {
-
-const num = Number(value);
-
-if (isNaN(num)) return 0;
-
-return Number.isInteger(num) ? num : parseFloat(num.toFixed(2));
-
-}
-
-
-
-function showHint(msg, isOk) {
-
-var el = document.getElementById('smart-hint');
-
-el.textContent = msg;
-
-el.classList.add('show');
-
-el.style.background = isOk ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
-
-el.style.borderColor = isOk ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)';
-
-el.style.color = isOk ? '#6ee7b7' : '#fbbf24';
-
-}
-
-function hideHint() {
-
-document.getElementById('smart-hint').classList.remove('show');
-
-}
-
-
-
-function toggleSearch() {
-
-const el = document.getElementById('search-container');
-
-if (el.style.display === 'none' || !el.style.display) {
-
-el.style.display = 'block';
-
-document.getElementById('search-input').focus();
-
-} else {
-
-el.style.display = 'none';
-
-}
-
-}
-
-
-
-function openAddProductModal() {
-
-editingProductId = null;
-
-document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-box" style="color:#a78bfa;margin-right:8px;"></i>Add New Product';
-
-document.getElementById('save-product-btn').textContent = 'Save Product to Inventory';
-
-clearForm();
-
-hideHint();
-
-document.getElementById('product-modal').classList.remove('hidden');
-
-updatePreviewUnits();
-
-}
-
-
-
-function openEditProductModal(product) {
-
-editingProductId = product.id;
-
-document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Edit Product';
-
-document.getElementById('save-product-btn').textContent = 'Update Product';
-
-hideHint();
-
-fillFormFromProduct(product);
-
-document.getElementById('product-modal').classList.remove('hidden');
-
-}
-
-
-
-function fillFormFromProduct(product) {
-
-document.getElementById('prod-name').value = product.name || '';
-
-document.getElementById('prod-sku').value = product.sku || '';
-
-document.getElementById('prod-pack').value = product.items_per_pack || 24;
-
-document.getElementById('prod-bulk-cost').value = product.bulk_cost || '';
-
-document.getElementById('prod-unit-cost').value = product.unit_cost || '';
-
-document.getElementById('prod-selling').value = product.selling_price || '';
-
-var pieces = parseFloat(product.stock || 0);
-
-var pack = parseFloat(product.items_per_pack || 24) || 24;
-
-document.getElementById('prod-units').value = formatUnits(pieces / pack);
-
-uploadedImageBase64 = product.image_url || '';
-
-if (uploadedImageBase64) {
-
-document.getElementById('photo-preview-box').innerHTML = '<img src="' + uploadedImageBase64 + '" style="width:100%;height:100%;object-fit:cover;">';
-
-} else {
-
-document.getElementById('photo-preview-box').innerHTML = '<i class="fa-solid fa-image"></i>';
-
-}
-
-calculateUnitCost();
-
-calculateProfit();
-
-updatePreviewUnits();
-
-}
-
-
-
-function closeProductModal() {
-
-document.getElementById('product-modal').classList.add('hidden');
-
-editingProductId = null;
-
-hideHint();
-
-}
-
-
-
-function clearForm() {
-
-document.getElementById('prod-name').value = '';
-
-document.getElementById('prod-sku').value = '';
-
-document.getElementById('prod-pack').value = '24';
-
-document.getElementById('prod-bulk-cost').value = '';
-
-document.getElementById('prod-unit-cost').value = '';
-
-document.getElementById('prod-selling').value = '';
-
-document.getElementById('prod-units').value = '5';
-
-document.getElementById('prod-expected-profit').value = '₦0';
-
-uploadedImageBase64 = '';
-
-document.getElementById('photo-preview-box').innerHTML = '<i class="fa-solid fa-image"></i>';
-
-document.getElementById('product-image-file').value = '';
-
-}
-
-
-
-function previewImage(event) {
-
-const file = event.target.files && event.target.files[0];
-
-if (!file) return;
-
-if (file.size > 1.5 * 1024 * 1024) {
-
-alert('Image must be under 1.5MB');
-
-return;
-
-}
-
-const reader = new FileReader();
-
-reader.onload = function (e) {
-
-uploadedImageBase64 = e.target.result;
-
-document.getElementById('photo-preview-box').innerHTML = '<img src="' + uploadedImageBase64 + '" style="width:100%;height:100%;object-fit:cover;">';
-
-};
-
-reader.readAsDataURL(file);
-
-}
-
-
-
-function setPhotoFromUrl(url) {
-
-if (!url) return;
-
-uploadedImageBase64 = url;
-
-document.getElementById('photo-preview-box').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML=\'<i class=\\\'fa-solid fa-image\\\'></i>\'">';
-
-}
-
-
-
-// ========== FIXED BARCODE SCANNER (iPhone PWA) ==========
-
-async function startBarcodeScanner() {
-
-if (scannerStarting) return;
-
-if (typeof Html5Qrcode === 'undefined') {
-
-alert('Scanner not loaded. Check internet, close & reopen the app.');
-
-return;
-
-}
-
-
-
-scannerStarting = true;
-
-document.getElementById('scanner-modal').classList.remove('hidden');
-
-document.getElementById('scanner-status').textContent = 'Starting camera…';
-
-document.getElementById('scanner-status').style.color = '#a78bfa';
-
-
-
-try {
-
-if (html5QrCode) {
-
-try { await html5QrCode.stop(); } catch (e) {}
-
-try { html5QrCode.clear(); } catch (e) {}
-
-html5QrCode = null;
-
-}
-
-
-
-var reader = document.getElementById('scanner-reader');
-
-if (reader) reader.innerHTML = '';
-
-
-
-var formats = [
-
-Html5QrcodeSupportedFormats.EAN_13,
-
-Html5QrcodeSupportedFormats.EAN_8,
-
-Html5QrcodeSupportedFormats.UPC_A,
-
-Html5QrcodeSupportedFormats.UPC_E,
-
-Html5QrcodeSupportedFormats.CODE_128,
-
-Html5QrcodeSupportedFormats.CODE_39,
-
-Html5QrcodeSupportedFormats.ITF,
-
-Html5QrcodeSupportedFormats.CODABAR,
-
-Html5QrcodeSupportedFormats.QR_CODE
-
-];
-
-
-
-html5QrCode = new Html5Qrcode('scanner-reader', {
-
-formatsToSupport: formats,
-
-verbose: false,
-
-experimentalFeatures: {
-
-useBarCodeDetectorIfSupported: true
-
-}
-
-});
-
-
-
-var config = {
-
-fps: 15,
-
-qrbox: function (viewfinderWidth, viewfinderHeight) {
-
-var width = Math.floor(viewfinderWidth * 0.92);
-
-var height = Math.floor(Math.min(70, viewfinderHeight * 0.18));
-
-return { width: width, height: height };
-
-},
-
-aspectRatio: 1.777778,
-
-disableFlip: false
-
-};
-
-
-
-try {
-
-await html5QrCode.start(
-
-{ facingMode: { exact: "environment" } },
-
-config,
-
-onInventoryScanSuccess,
-
-function () {}
-
-);
-
-} catch (exactErr) {
-
-await html5QrCode.start(
-
-{ facingMode: "environment" },
-
-config,
-
-onInventoryScanSuccess,
-
-function () {}
-
-);
-
-}
-
-
-
-document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line · steady · good light';
-
-document.getElementById('scanner-status').style.color = '#a78bfa';
-
-} catch (err) {
-
-console.error(err);
-
-var msg = 'Camera failed. Allow permission or type the barcode.';
-
-if (err && err.name === 'NotAllowedError') {
-
-msg = 'Camera blocked. Go to Settings → allow Camera for this app.';
-
-} else if (err && (err.name === 'NotFoundError' || err.name === 'NotReadableError')) {
-
-msg = 'No camera found or camera in use.';
-
-}
-
-document.getElementById('scanner-status').textContent = msg;
-
-document.getElementById('scanner-status').style.color = '#fb7185';
-
-} finally {
-
-scannerStarting = false;
-
-}
-
-}
-
-
-
-async function stopBarcodeScanner() {
-
-try {
-
-if (html5QrCode) {
-
-await html5QrCode.stop();
-
-html5QrCode.clear();
-
-}
-
-} catch (e) {}
-
-html5QrCode = null;
-
-var reader = document.getElementById('scanner-reader');
-
-if (reader) reader.innerHTML = '';
-
-document.getElementById('scanner-modal').classList.add('hidden');
-
-document.getElementById('scanner-status').textContent = '';
-
-}
-
-
-
-async function onInventoryScanSuccess(decodedText) {
-
-var now = Date.now();
-
-if (now - lastScanTime < 1200) return;
-
-lastScanTime = now;
-
-
-
-var code = String(decodedText || '').trim();
-
-if (!code) return;
-
-
-
-document.getElementById('prod-sku').value = code;
-
-document.getElementById('scanner-status').textContent = 'Captured: ' + code;
-
-document.getElementById('scanner-status').style.color = '#34d399';
-
-
-
-try { if (navigator.vibrate) navigator.vibrate(50); } catch (e) {}
-
-
-
-setTimeout(async function () {
-
-await stopBarcodeScanner();
-
-await handleScannedBarcode(code);
-
-}, 350);
-
-}
-
-
-
-async function handleScannedBarcode(code) {
-
-var existing = allProducts.find(function (p) {
-
-return String(p.sku || '').trim().toLowerCase() === code.toLowerCase();
-
-});
-
-
-
-if (existing) {
-
-editingProductId = existing.id;
-
-document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Update Stock';
-
-document.getElementById('save-product-btn').textContent = 'Update Product';
-
-fillFormFromProduct(existing);
-
-document.getElementById('prod-units').focus();
-
-showHint('Already in your shop: ' + (existing.name || code) + '. Adjust units / prices then save.', true);
-
-return;
-
-}
-
-
-
-showHint('Looking up product name…', true);
-
-try {
-
-var info = await lookupBarcodeFree(code);
-
-if (info && info.name) {
-
-document.getElementById('prod-name').value = info.name;
-
-if (info.image) setPhotoFromUrl(info.image);
-
-showHint('Name filled. Now enter cost, selling price & quantity only.', true);
-
-document.getElementById('prod-bulk-cost').focus();
-
-} else {
-
-showHint('Barcode saved. Type the product name, then cost & price.', false);
-
-document.getElementById('prod-name').focus();
-
-}
-
-} catch (e) {
-
-showHint('Barcode saved. Type the product name, then cost & price.', false);
-
-document.getElementById('prod-name').focus();
-
-}
-
-}
-
-
-
-async function lookupBarcodeFree(barcode) {
-
-var url = 'https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(barcode) + '.json';
-
-var res = await fetch(url, { method: 'GET' });
-
-if (!res.ok) return null;
-
-var data = await res.json();
-
-if (!data || data.status !== 1 || !data.product) return null;
-
-var p = data.product;
-
-var name = p.product_name || p.product_name_en || p.generic_name || '';
-
-var image = p.image_front_small_url || p.image_url || p.image_front_url || '';
-
-if (!name) return null;
-
-return { name: name.trim(), image: image };
-
-}
-
-
-
-function calculateUnitCost() {
-
-var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-
-var bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
-
-document.getElementById('prod-unit-cost').value = (bulkCost / pack).toFixed(2);
-
-calculateProfit();
-
-}
-
-
-
-function calculateProfit() {
-
-var unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
-
-var sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
-
-var profit = sellingPrice - unitCost;
-
-var field = document.getElementById('prod-expected-profit');
-
-field.value = formatCurrency(profit);
-
-field.style.color = profit >= 0 ? '#34d399' : '#fb7185';
-
-}
-
-
-
-function updatePreviewUnits() {
-
-var units = parseFloat(document.getElementById('prod-units').value) || 0;
-
-var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-
-var totalPieces = Math.round(units * pack);
-
-document.getElementById('preview-units-pcs').textContent = formatUnits(units) + ' units = ' + totalPieces.toLocaleString() + ' pcs';
-
-}
-
-
-
-async function initializeInventory() {
-
-try {
-
-var sessionRes = await supabaseClient.auth.getSession();
-
-var session = sessionRes.data && sessionRes.data.session;
-
-if (!session || !session.user) {
-
-window.location.replace('index.html');
-
-return;
-
-}
-
-userCompanyId = null;
-
-var memberRes = await supabaseClient
-
-.from('company_users')
-
-.select('company_id')
-
-.eq('user_id', session.user.id)
-
-.maybeSingle();
-
-var member = memberRes.data;
-
-
-
-if (member && member.company_id) {
-
-userCompanyId = member.company_id;
-
-} else {
-
-var ownedRes = await supabaseClient
-
-.from('companies').select('id').eq('owner_id', session.user.id).maybeSingle();
-
-if (ownedRes.data && ownedRes.data.id) userCompanyId = ownedRes.data.id;
-
-}
-
-await fetchProducts();
-
-} catch (err) {
-
-console.error('Init error:', err);
-
-document.getElementById('products-list-container').innerHTML =
-
-'<div style="text-align:center;padding:48px 0;color:#fb7185;font-size:12px;">Could not load. Refresh page.</div>';
-
-}
-
-}
-
-
-
-async function fetchProducts() {
-
-if (!userCompanyId) {
-
-allProducts = [];
-
-renderProducts([]);
-
-return;
-
-}
-
-if (isFetching) return;
-
-isFetching = true;
-
-try {
-
-var res = await supabaseClient
-
-.from('products')
-
-.select('id, name, sku, stock, items_per_pack, unit_cost, bulk_cost, selling_price, image_url, created_at')
-
-.eq('company_id', userCompanyId)
-
-.order('created_at', { ascending: false })
-
-.limit(300);
-
-if (res.error) throw res.error;
-
-allProducts = res.data || [];
-
-filterProducts();
-
-} catch (err) {
-
-console.error('Fetch error:', err);
-
-document.getElementById('products-list-container').innerHTML =
-
-'<div style="text-align:center;padding:48px 0;color:#fb7185;font-size:12px;">Error loading products.</div>';
-
-} finally {
-
-isFetching = false;
-
-}
-
-}
-
-
-
-function setFilter(filter, btn) {
-
-currentFilter = filter;
-
-document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.remove('active'); });
-
-if (btn) btn.classList.add('active');
-
-filterProducts();
-
-}
-
-
-
-function filterProducts() {
-
-var keyword = (document.getElementById('search-input') && document.getElementById('search-input').value || '').toLowerCase();
-
-var filtered = allProducts.filter(function (p) {
-
-var nameMatch = (p.name || '').toLowerCase().indexOf(keyword) >= 0 ||
-
-(p.sku && p.sku.toLowerCase().indexOf(keyword) >= 0);
-
-if (!nameMatch) return false;
-
-var totalPieces = parseFloat(p.stock || 0);
-
-var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
-
-var remainingUnits = totalPieces / piecesPerUnit;
-
-if (currentFilter === 'instock') return remainingUnits > LOW_STOCK_UNITS;
-
-if (currentFilter === 'lowstock') return remainingUnits > 0 && remainingUnits <= LOW_STOCK_UNITS;
-
-if (currentFilter === 'outofstock') return totalPieces === 0;
-
-return true;
-
-});
-
-renderProducts(filtered);
-
-}
-
-
-
-function getStockStatus(totalPieces, piecesPerUnit) {
-
-var remainingUnits = totalPieces / (piecesPerUnit || 1);
-
-if (totalPieces === 0) return { cls: 'badge-out', text: 'Out of Stock' };
-
-if (remainingUnits <= LOW_STOCK_UNITS) return { cls: 'badge-low', text: 'Low Stock' };
-
-return { cls: 'badge-ok', text: 'In Stock' };
-
-}
-
-
-
-function renderProducts(products) {
-
-var container = document.getElementById('products-list-container');
-
-document.getElementById('product-count-label').textContent = products.length + ' products';
-
-if (!products.length) {
-
-container.innerHTML =
-
-'<div style="text-align:center;padding:48px 16px;background:#121224;border:1px solid rgba(139,92,246,0.1);border-radius:16px;">'
-
-+ '<i class="fa-solid fa-boxes-stacked" style="color:#a78bfa;font-size:24px;"></i>'
-
-+ '<p style="color:#cbd5e1;font-size:12px;font-weight:500;margin:8px 0 4px;">No products found</p>'
-
-+ '<p style="color:#64748b;font-size:10px;margin:0;">Tap + then Scan barcode — fastest way to add.</p></div>';
-
-return;
-
-}
-
-container.innerHTML = products.map(function (p) {
-
-var totalPieces = parseFloat(p.stock || 0);
-
-var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
-
-var remainingUnits = totalPieces / piecesPerUnit;
-
-var displayUnits = formatUnits(remainingUnits);
-
-var status = getStockStatus(totalPieces, piecesPerUnit);
-
-var cost = parseFloat(p.unit_cost || 0);
-
-var price = parseFloat(p.selling_price || 0);
-
-var profit = price - cost;
-
-var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
-
-var safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-
-return ''
-
-+ '<div class="card">'
-
-+ '<div style="display:flex;align-items:flex-start;gap:12px;">'
-
-+ '<img src="' + imgUrl + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover;background:rgba(88,28,135,0.3);border:1px solid rgba(139,92,246,0.2);flex-shrink:0;" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150\'">'
-
-+ '<div style="flex:1;min-width:0;">'
-
-+ '<div style="display:flex;justify-content:space-between;gap:8px;">'
-
-+ '<div style="min-width:0;">'
-
-+ '<div style="font-weight:700;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (p.name || 'Unnamed') + '</div>'
-
-+ '<div style="font-size:10px;color:#94a3b8;margin-top:2px;">SKU: ' + (p.sku || 'N/A') + '</div>'
-
-+ '</div>'
-
-+ '<button class="menu-btn" onclick="toggleActionMenu(event, \'' + p.id + '\')"><i class="fa-solid fa-ellipsis-vertical"></i></button>'
-
-+ '</div>'
-
-+ '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
-
-+ '<span class="badge ' + status.cls + '">' + status.text + '</span>'
-
-+ '<span style="font-size:10px;color:#cbd5e1;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces.toLocaleString() + ' pcs</b></span>'
-
-+ '</div>'
-
-+ '<div style="display:flex;justify-content:space-between;margin-top:8px;">'
-
-+ '<div style="font-size:10px;color:#94a3b8;">Cost: ' + formatCurrency(cost) + '</div>'
-
-+ '<div style="text-align:right;">'
-
-+ '<div style="font-weight:800;color:#fff;font-size:12px;">' + formatCurrency(price) + '</div>'
-
-+ '<div style="font-size:10px;font-weight:600;color:' + (profit >= 0 ? '#34d399' : '#fb7185') + ';">Profit: ' + formatCurrency(profit) + '</div>'
-
-+ '</div>'
-
-+ '</div>'
-
-+ '</div>'
-
-+ '</div>'
-
-+ '<div id="menu-' + p.id + '" class="action-menu">'
-
-+ '<button onclick="editProduct(\'' + p.id + '\')"><i class="fa-solid fa-pen" style="color:#a78bfa;"></i> Edit Product</button>'
-
-+ '<button onclick="deleteProduct(\'' + p.id + '\', \'' + safeName + '\')" style="color:#fb7185;"><i class="fa-solid fa-trash"></i> Delete Product</button>'
-
-+ '</div>'
-
-+ '</div>';
-
-}).join('');
-
-}
-
-
-
-document.addEventListener('click', function (e) {
-
-if (!e.target.closest('.menu-btn') && !e.target.closest('.action-menu')) {
-
-document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
-
-}
-
-});
-
-
-
-function toggleActionMenu(event, productId) {
-
-event.stopPropagation();
-
-document.querySelectorAll('.action-menu').forEach(function (m) {
-
-if (m.id !== 'menu-' + productId) m.classList.remove('show');
-
-});
-
-var menu = document.getElementById('menu-' + productId);
-
-if (menu) menu.classList.toggle('show');
-
-}
-
-
-
-function editProduct(productId) {
-
-document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
-
-var product = allProducts.find(function (p) { return p.id === productId; });
-
-if (product) openEditProductModal(product);
-
-}
-
-
-
-async function deleteProduct(productId, productName) {
-
-document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
-
-if (!confirm('Delete "' + productName + '"?\n\nThis cannot be undone.')) return;
-
-try {
-
-var result = await supabaseClient.from('products').delete().eq('id', productId).eq('company_id', userCompanyId);
-
-if (result.error) throw result.error;
-
-allProducts = allProducts.filter(function (p) { return p.id !== productId; });
-
-filterProducts();
-
-} catch (err) {
-
-alert('Failed to delete: ' + (err.message || 'Try again'));
-
-}
-
-}
-
-
-
-async function submitProduct() {
-
-if (isSaving) return;
-
-var name = document.getElementById('prod-name').value.trim();
-
-var sku = document.getElementById('prod-sku').value.trim();
-
-var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
-
-var unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
-
-var bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
-
-var sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
-
-var units = parseFloat(document.getElementById('prod-units').value) || 0;
-
-var totalPieces = Math.round(units * pack);
-
-
-
-if (!name) return alert('Please enter the Product Name.');
-
-if (!sellingPrice || sellingPrice <= 0) return alert('Please enter a valid Selling Price.');
-
-if (pack < 1) return alert('Pieces per unit must be at least 1.');
-
-if (!userCompanyId) return alert('Company not loaded. Please refresh the page.');
-
-
-
-isSaving = true;
-
-var btn = document.getElementById('save-product-btn');
-
-var originalText = btn.textContent;
-
-btn.disabled = true;
-
-btn.textContent = editingProductId ? 'Updating...' : 'Saving...';
-
-
-
-var payload = {
-
-company_id: userCompanyId,
-
-name: name,
-
-sku: sku || ('SKU-' + Math.floor(100000 + Math.random() * 900000)),
-
-items_per_pack: pack,
-
-bulk_cost: bulkCost,
-
-unit_cost: unitCost,
-
-selling_price: sellingPrice,
-
-stock: totalPieces,
-
-image_url: uploadedImageBase64 || null
-
-};
-
-
-
-try {
-
-var error = null;
-
-if (editingProductId) {
-
-var upd = await supabaseClient.from('products').update(payload).eq('id', editingProductId).eq('company_id', userCompanyId);
-
-error = upd.error;
-
-} else {
-
-var ins = await supabaseClient.from('products').insert([payload]);
-
-error = ins.error;
-
-}
-
-if (error) throw error;
-
-closeProductModal();
-
-clearForm();
-
-await fetchProducts();
-
-} catch (err) {
-
-alert('Error saving product: ' + (err.message || 'Try again'));
-
-} finally {
-
-isSaving = false;
-
-btn.disabled = false;
-
-btn.textContent = originalText;
-
-}
-
-}
-
-
-
-window.addEventListener('DOMContentLoaded', initializeInventory);
-
-</script>
-
+  <!-- ==================== MOBILE VIEW ==================== -->
+  <div class="mobile-only">
+    <div class="iphone-frame">
+      <div class="top-bar">
+        <div>
+          <div style="font-weight:800;color:#fff;font-size:16px;">All Products</div>
+          <div style="font-size:10px;color:#94a3b8;" id="product-count-label">0 products</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="icon-btn" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;"></i></button>
+          <button class="icon-btn primary" onclick="openAddProductModal()"><i class="fa-solid fa-plus" style="font-size:12px;"></i></button>
+        </div>
+      </div>
+
+      <div id="search-container" class="search-box" style="display:none;">
+        <input type="text" id="search-input" oninput="filterProducts()" placeholder="Search product name or SKU...">
+      </div>
+
+      <div class="filters custom-scrollbar">
+        <button class="filter-tab active" onclick="setFilter('all', this)">All</button>
+        <button class="filter-tab" onclick="setFilter('instock', this)">In Stock</button>
+        <button class="filter-tab" onclick="setFilter('lowstock', this)">Low Stock</button>
+        <button class="filter-tab" onclick="setFilter('outofstock', this)">Out of Stock</button>
+      </div>
+
+      <div class="list custom-scrollbar" id="products-list-container">
+        <div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">Loading products...</div>
+      </div>
+
+      <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item active"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+        <a href="ai-ceo.html" class="nav-item"><i class="fa-solid fa-robot"></i>AI CEO</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ==================== DESKTOP VIEW ==================== -->
+  <div class="desktop-only desktop-shell">
+    <div class="desk-topbar">
+      <div>
+        <div style="font-weight:700;font-size:18px;color:#fff;">Inventory</div>
+        <div style="font-size:12px;color:#94a3b8;" id="desk-product-count">0 products</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="position:relative;width:280px;">
+          <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:12px;top:11px;color:#64748b;font-size:13px;"></i>
+          <input type="text" id="desk-search-input" oninput="filterProducts()" placeholder="Search product name or SKU..."
+            style="width:100%;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:10px 12px 10px 36px;font-size:13px;color:#fff;outline:none;">
+        </div>
+        <button onclick="openAddProductModal()" style="padding:10px 18px;border-radius:10px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+          <i class="fa-solid fa-plus"></i> Add Product
+        </button>
+      </div>
+    </div>
+
+    <div class="desk-filters">
+      <button class="filter-tab active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-tab" onclick="setFilter('instock', this)">In Stock</button>
+      <button class="filter-tab" onclick="setFilter('lowstock', this)">Low Stock</button>
+      <button class="filter-tab" onclick="setFilter('outofstock', this)">Out of Stock</button>
+    </div>
+
+    <div class="desk-content custom-scrollbar">
+      <div id="desk-products-grid" class="desk-product-grid">
+        <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#64748b;">Loading products...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT PRODUCT MODAL (shared) -->
+  <div id="product-modal" class="modal-bg hidden">
+    <div class="modal custom-scrollbar">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 style="margin:0;font-size:14px;font-weight:700;color:#fff;" id="modal-title">
+          <i class="fa-solid fa-box" style="color:#a78bfa;margin-right:8px;"></i>Add New Product
+        </h3>
+        <button onclick="closeProductModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="smart-hint" class="hint-box"></div>
+
+      <div class="field">
+        <label>Product Photo</label>
+        <div style="display:flex;align-items:center;gap:12px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:8px;">
+          <div id="photo-preview-box" style="width:48px;height:48px;border-radius:8px;background:rgba(88,28,135,0.3);border:1px solid rgba(139,92,246,0.3);display:flex;align-items:center;justify-content:center;color:#a78bfa;overflow:hidden;flex-shrink:0;">
+            <i class="fa-solid fa-image"></i>
+          </div>
+          <input type="file" id="product-image-file" accept="image/*" onchange="previewImage(event)" style="font-size:10px;color:#94a3b8;flex:1;">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Product Name *</label>
+        <input type="text" id="prod-name" placeholder="Scan barcode to auto-fill, or type">
+      </div>
+
+      <div class="field">
+        <label>Barcode / SKU</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="prod-sku" placeholder="Scan or type" style="flex:1;">
+          <button type="button" onclick="startBarcodeScanner()" style="width:48px;background:#6C5CE7;border:none;border-radius:12px;color:#fff;cursor:pointer;flex-shrink:0;">
+            <i class="fa-solid fa-barcode"></i>
+          </button>
+        </div>
+        <p style="font-size:9px;color:#64748b;margin:4px 0 0;">Scan once → name fills → you only add cost, price & quantity</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Pieces Per Unit *</label>
+          <input type="number" id="prod-pack" value="24" min="1" oninput="calculateUnitCost(); updatePreviewUnits()">
+        </div>
+        <div class="field">
+          <label>Bulk Cost Price (₦)</label>
+          <input type="number" id="prod-bulk-cost" placeholder="0" oninput="calculateUnitCost()">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Single Unit Cost (₦)</label>
+          <input type="number" id="prod-unit-cost" placeholder="Auto" readonly>
+        </div>
+        <div class="field">
+          <label>Selling Price (₦) *</label>
+          <input type="number" id="prod-selling" placeholder="e.g. 700" oninput="calculateProfit()">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Number of Units *</label>
+          <input type="number" id="prod-units" value="5" min="0" step="any" oninput="updatePreviewUnits()">
+        </div>
+        <div class="field">
+          <label>Expected Profit / Piece</label>
+          <input type="text" id="prod-expected-profit" value="₦0" readonly style="color:#34d399;font-weight:700;">
+        </div>
+      </div>
+
+      <div class="preview-box">
+        <span style="color:#94a3b8;">Will store:</span>
+        <span id="preview-units-pcs" style="font-weight:600;color:#fff;margin-left:6px;">5 units = 120 pcs</span>
+      </div>
+
+      <button id="save-product-btn" onclick="submitProduct()" class="btn-save">Save Product to Inventory</button>
+    </div>
+  </div>
+
+  <!-- SCANNER MODAL -->
+  <div id="scanner-modal" class="hidden">
+    <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:13px;color:#fff;">
+          <i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode
+        </div>
+        <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="scanner-reader"></div>
+      <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light · 10–15 cm away</p>
+      <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
+      <button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
+        Close & type instead
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    const LOW_STOCK_UNITS = 3;
+
+    let userCompanyId = null;
+    let allProducts = [];
+    let currentFilter = 'all';
+    let uploadedImageBase64 = '';
+    let editingProductId = null;
+    let isSaving = false;
+    let isFetching = false;
+    let html5QrCode = null;
+    let lastScanTime = 0;
+    let scannerStarting = false;
+
+    function formatCurrency(amount) {
+      return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+    function formatUnits(value) {
+      const num = Number(value);
+      if (isNaN(num)) return 0;
+      return Number.isInteger(num) ? num : parseFloat(num.toFixed(2));
+    }
+
+    function showHint(msg, isOk) {
+      var el = document.getElementById('smart-hint');
+      el.textContent = msg;
+      el.classList.add('show');
+      el.style.background = isOk ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)';
+      el.style.borderColor = isOk ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)';
+      el.style.color = isOk ? '#6ee7b7' : '#fbbf24';
+    }
+    function hideHint() {
+      document.getElementById('smart-hint').classList.remove('show');
+    }
+
+    function toggleSearch() {
+      const el = document.getElementById('search-container');
+      if (el.style.display === 'none' || !el.style.display) {
+        el.style.display = 'block';
+        document.getElementById('search-input').focus();
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+    function openAddProductModal() {
+      editingProductId = null;
+      document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-box" style="color:#a78bfa;margin-right:8px;"></i>Add New Product';
+      document.getElementById('save-product-btn').textContent = 'Save Product to Inventory';
+      clearForm();
+      hideHint();
+      document.getElementById('product-modal').classList.remove('hidden');
+      updatePreviewUnits();
+    }
+
+    function openEditProductModal(product) {
+      editingProductId = product.id;
+      document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Edit Product';
+      document.getElementById('save-product-btn').textContent = 'Update Product';
+      hideHint();
+      fillFormFromProduct(product);
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    function fillFormFromProduct(product) {
+      document.getElementById('prod-name').value = product.name || '';
+      document.getElementById('prod-sku').value = product.sku || '';
+      document.getElementById('prod-pack').value = product.items_per_pack || 24;
+      document.getElementById('prod-bulk-cost').value = product.bulk_cost || '';
+      document.getElementById('prod-unit-cost').value = product.unit_cost || '';
+      document.getElementById('prod-selling').value = product.selling_price || '';
+      var pieces = parseFloat(product.stock || 0);
+      var pack = parseFloat(product.items_per_pack || 24) || 24;
+      document.getElementById('prod-units').value = formatUnits(pieces / pack);
+      uploadedImageBase64 = product.image_url || '';
+      if (uploadedImageBase64) {
+        document.getElementById('photo-preview-box').innerHTML = '<img src="' + uploadedImageBase64 + '" style="width:100%;height:100%;object-fit:cover;">';
+      } else {
+        document.getElementById('photo-preview-box').innerHTML = '<i class="fa-solid fa-image"></i>';
+      }
+      calculateUnitCost();
+      calculateProfit();
+      updatePreviewUnits();
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+      editingProductId = null;
+      hideHint();
+    }
+
+    function clearForm() {
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-sku').value = '';
+      document.getElementById('prod-pack').value = '24';
+      document.getElementById('prod-bulk-cost').value = '';
+      document.getElementById('prod-unit-cost').value = '';
+      document.getElementById('prod-selling').value = '';
+      document.getElementById('prod-units').value = '5';
+      document.getElementById('prod-expected-profit').value = '₦0';
+      uploadedImageBase64 = '';
+      document.getElementById('photo-preview-box').innerHTML = '<i class="fa-solid fa-image"></i>';
+      document.getElementById('product-image-file').value = '';
+    }
+
+    function previewImage(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (file.size > 1.5 * 1024 * 1024) {
+        alert('Image must be under 1.5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        uploadedImageBase64 = e.target.result;
+        document.getElementById('photo-preview-box').innerHTML = '<img src="' + uploadedImageBase64 + '" style="width:100%;height:100%;object-fit:cover;">';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setPhotoFromUrl(url) {
+      if (!url) return;
+      uploadedImageBase64 = url;
+      document.getElementById('photo-preview-box').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML=\'<i class=\\\'fa-solid fa-image\\\'></i>\'">';
+    }
+
+    // ========== BARCODE SCANNER ==========
+    async function startBarcodeScanner() {
+      if (scannerStarting) return;
+      if (typeof Html5Qrcode === 'undefined') {
+        alert('Scanner not loaded. Check internet, close & reopen the app.');
+        return;
+      }
+      scannerStarting = true;
+      document.getElementById('scanner-modal').classList.remove('hidden');
+      document.getElementById('scanner-status').textContent = 'Starting camera…';
+      document.getElementById('scanner-status').style.color = '#a78bfa';
+
+      try {
+        if (html5QrCode) {
+          try { await html5QrCode.stop(); } catch (e) {}
+          try { html5QrCode.clear(); } catch (e) {}
+          html5QrCode = null;
+        }
+        var reader = document.getElementById('scanner-reader');
+        if (reader) reader.innerHTML = '';
+
+        var formats = [
+          Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.ITF, Html5QrcodeSupportedFormats.CODABAR,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ];
+
+        html5QrCode = new Html5Qrcode('scanner-reader', {
+          formatsToSupport: formats,
+          verbose: false,
+          experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+        });
+
+        var config = {
+          fps: 15,
+          qrbox: function (viewfinderWidth, viewfinderHeight) {
+            var width = Math.floor(viewfinderWidth * 0.92);
+            var height = Math.floor(Math.min(70, viewfinderHeight * 0.18));
+            return { width: width, height: height };
+          },
+          aspectRatio: 1.777778,
+          disableFlip: false
+        };
+
+        try {
+          await html5QrCode.start({ facingMode: { exact: "environment" } }, config, onInventoryScanSuccess, function () {});
+        } catch (exactErr) {
+          await html5QrCode.start({ facingMode: "environment" }, config, onInventoryScanSuccess, function () {});
+        }
+
+        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line · steady · good light';
+        document.getElementById('scanner-status').style.color = '#a78bfa';
+      } catch (err) {
+        var msg = 'Camera failed. Allow permission or type the barcode.';
+        if (err && err.name === 'NotAllowedError') msg = 'Camera blocked. Go to Settings → allow Camera for this app.';
+        document.getElementById('scanner-status').textContent = msg;
+        document.getElementById('scanner-status').style.color = '#fb7185';
+      } finally {
+        scannerStarting = false;
+      }
+    }
+
+    async function stopBarcodeScanner() {
+      try {
+        if (html5QrCode) {
+          await html5QrCode.stop();
+          html5QrCode.clear();
+        }
+      } catch (e) {}
+      html5QrCode = null;
+      var reader = document.getElementById('scanner-reader');
+      if (reader) reader.innerHTML = '';
+      document.getElementById('scanner-modal').classList.add('hidden');
+      document.getElementById('scanner-status').textContent = '';
+    }
+
+    async function onInventoryScanSuccess(decodedText) {
+      var now = Date.now();
+      if (now - lastScanTime < 1200) return;
+      lastScanTime = now;
+      var code = String(decodedText || '').trim();
+      if (!code) return;
+
+      document.getElementById('prod-sku').value = code;
+      document.getElementById('scanner-status').textContent = 'Captured: ' + code;
+      document.getElementById('scanner-status').style.color = '#34d399';
+      try { if (navigator.vibrate) navigator.vibrate(50); } catch (e) {}
+
+      setTimeout(async function () {
+        await stopBarcodeScanner();
+        await handleScannedBarcode(code);
+      }, 350);
+    }
+
+    async function handleScannedBarcode(code) {
+      var existing = allProducts.find(function (p) {
+        return String(p.sku || '').trim().toLowerCase() === code.toLowerCase();
+      });
+
+      if (existing) {
+        editingProductId = existing.id;
+        document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#a78bfa;margin-right:8px;"></i>Update Stock';
+        document.getElementById('save-product-btn').textContent = 'Update Product';
+        fillFormFromProduct(existing);
+        document.getElementById('prod-units').focus();
+        showHint('Already in your shop: ' + (existing.name || code) + '. Adjust units / prices then save.', true);
+        return;
+      }
+
+      showHint('Looking up product name…', true);
+      try {
+        var info = await lookupBarcodeFree(code);
+        if (info && info.name) {
+          document.getElementById('prod-name').value = info.name;
+          if (info.image) setPhotoFromUrl(info.image);
+          showHint('Name filled. Now enter cost, selling price & quantity only.', true);
+          document.getElementById('prod-bulk-cost').focus();
+        } else {
+          showHint('Barcode saved. Type the product name, then cost & price.', false);
+          document.getElementById('prod-name').focus();
+        }
+      } catch (e) {
+        showHint('Barcode saved. Type the product name, then cost & price.', false);
+        document.getElementById('prod-name').focus();
+      }
+    }
+
+    async function lookupBarcodeFree(barcode) {
+      var url = 'https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(barcode) + '.json';
+      var res = await fetch(url, { method: 'GET' });
+      if (!res.ok) return null;
+      var data = await res.json();
+      if (!data || data.status !== 1 || !data.product) return null;
+      var p = data.product;
+      var name = p.product_name || p.product_name_en || p.generic_name || '';
+      var image = p.image_front_small_url || p.image_url || p.image_front_url || '';
+      if (!name) return null;
+      return { name: name.trim(), image: image };
+    }
+
+    function calculateUnitCost() {
+      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
+      var bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
+      document.getElementById('prod-unit-cost').value = (bulkCost / pack).toFixed(2);
+      calculateProfit();
+    }
+
+    function calculateProfit() {
+      var unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
+      var profit = sellingPrice - unitCost;
+      var field = document.getElementById('prod-expected-profit');
+      field.value = formatCurrency(profit);
+      field.style.color = profit >= 0 ? '#34d399' : '#fb7185';
+    }
+
+    function updatePreviewUnits() {
+      var units = parseFloat(document.getElementById('prod-units').value) || 0;
+      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
+      var totalPieces = Math.round(units * pack);
+      document.getElementById('preview-units-pcs').textContent = formatUnits(units) + ' units = ' + totalPieces.toLocaleString() + ' pcs';
+    }
+
+    async function initializeInventory() {
+      try {
+        var sessionRes = await supabaseClient.auth.getSession();
+        var session = sessionRes.data && sessionRes.data.session;
+        if (!session || !session.user) {
+          window.location.replace('index.html');
+          return;
+        }
+        userCompanyId = null;
+        var memberRes = await supabaseClient.from('company_users').select('company_id').eq('user_id', session.user.id).maybeSingle();
+        var member = memberRes.data;
+
+        if (member && member.company_id) {
+          userCompanyId = member.company_id;
+        } else {
+          var ownedRes = await supabaseClient.from('companies').select('id').eq('owner_id', session.user.id).maybeSingle();
+          if (ownedRes.data && ownedRes.data.id) userCompanyId = ownedRes.data.id;
+        }
+        await fetchProducts();
+      } catch (err) {
+        console.error('Init error:', err);
+      }
+    }
+
+    async function fetchProducts() {
+      if (!userCompanyId) {
+        allProducts = [];
+        renderProducts([]);
+        return;
+      }
+      if (isFetching) return;
+      isFetching = true;
+      try {
+        var res = await supabaseClient
+          .from('products')
+          .select('id, name, sku, stock, items_per_pack, unit_cost, bulk_cost, selling_price, image_url, created_at')
+          .eq('company_id', userCompanyId)
+          .order('created_at', { ascending: false })
+          .limit(300);
+        if (res.error) throw res.error;
+        allProducts = res.data || [];
+        filterProducts();
+      } catch (err) {
+        console.error('Fetch error:', err);
+      } finally {
+        isFetching = false;
+      }
+    }
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.remove('active'); });
+      // Activate matching buttons on both views
+      document.querySelectorAll('.filter-tab').forEach(function(b) {
+        if (b.textContent.trim().toLowerCase().includes(filter === 'all' ? 'all' : filter === 'instock' ? 'in stock' : filter === 'lowstock' ? 'low stock' : 'out of stock')) {
+          b.classList.add('active');
+        }
+      });
+      if (btn) btn.classList.add('active');
+      filterProducts();
+    }
+
+    function filterProducts() {
+      var mobileSearch = document.getElementById('search-input');
+      var deskSearch = document.getElementById('desk-search-input');
+      var keyword = ((mobileSearch && mobileSearch.value) || (deskSearch && deskSearch.value) || '').toLowerCase();
+
+      // Sync search boxes
+      if (mobileSearch && deskSearch) {
+        if (document.activeElement === deskSearch) mobileSearch.value = deskSearch.value;
+        else if (document.activeElement === mobileSearch) deskSearch.value = mobileSearch.value;
+      }
+
+      var filtered = allProducts.filter(function (p) {
+        var nameMatch = (p.name || '').toLowerCase().indexOf(keyword) >= 0 || (p.sku && p.sku.toLowerCase().indexOf(keyword) >= 0);
+        if (!nameMatch) return false;
+        var totalPieces = parseFloat(p.stock || 0);
+        var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
+        var remainingUnits = totalPieces / piecesPerUnit;
+        if (currentFilter === 'instock') return remainingUnits > LOW_STOCK_UNITS;
+        if (currentFilter === 'lowstock') return remainingUnits > 0 && remainingUnits <= LOW_STOCK_UNITS;
+        if (currentFilter === 'outofstock') return totalPieces === 0;
+        return true;
+      });
+      renderProducts(filtered);
+    }
+
+    function getStockStatus(totalPieces, piecesPerUnit) {
+      var remainingUnits = totalPieces / (piecesPerUnit || 1);
+      if (totalPieces === 0) return { cls: 'badge-out', text: 'Out of Stock' };
+      if (remainingUnits <= LOW_STOCK_UNITS) return { cls: 'badge-low', text: 'Low Stock' };
+      return { cls: 'badge-ok', text: 'In Stock' };
+    }
+
+    function renderProducts(products) {
+      // Update counts
+      document.getElementById('product-count-label').textContent = products.length + ' products';
+      const deskCount = document.getElementById('desk-product-count');
+      if (deskCount) deskCount.textContent = products.length + ' products';
+
+      // Mobile list
+      var container = document.getElementById('products-list-container');
+      if (container) {
+        if (!products.length) {
+          container.innerHTML = '<div style="text-align:center;padding:48px 16px;background:#121224;border:1px solid rgba(139,92,246,0.1);border-radius:16px;"><i class="fa-solid fa-boxes-stacked" style="color:#a78bfa;font-size:24px;"></i><p style="color:#cbd5e1;font-size:12px;font-weight:500;margin:8px 0 4px;">No products found</p><p style="color:#64748b;font-size:10px;margin:0;">Tap + then Scan barcode — fastest way to add.</p></div>';
+        } else {
+          container.innerHTML = products.map(function (p) {
+            return buildMobileCard(p);
+          }).join('');
+        }
+      }
+
+      // Desktop grid
+      var deskGrid = document.getElementById('desk-products-grid');
+      if (deskGrid) {
+        if (!products.length) {
+          deskGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#64748b;">No products found</div>';
+        } else {
+          deskGrid.innerHTML = products.map(function (p) {
+            return buildDesktopCard(p);
+          }).join('');
+        }
+      }
+    }
+
+    function buildMobileCard(p) {
+      var totalPieces = parseFloat(p.stock || 0);
+      var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
+      var remainingUnits = totalPieces / piecesPerUnit;
+      var displayUnits = formatUnits(remainingUnits);
+      var status = getStockStatus(totalPieces, piecesPerUnit);
+      var cost = parseFloat(p.unit_cost || 0);
+      var price = parseFloat(p.selling_price || 0);
+      var profit = price - cost;
+      var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
+      var safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      return ''
+        + '<div class="card">'
+        + '<div style="display:flex;align-items:flex-start;gap:12px;">'
+        + '<img src="' + imgUrl + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover;background:rgba(88,28,135,0.3);border:1px solid rgba(139,92,246,0.2);flex-shrink:0;" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150\'">'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="display:flex;justify-content:space-between;gap:8px;">'
+        + '<div style="min-width:0;">'
+        + '<div style="font-weight:700;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (p.name || 'Unnamed') + '</div>'
+        + '<div style="font-size:10px;color:#94a3b8;margin-top:2px;">SKU: ' + (p.sku || 'N/A') + '</div>'
+        + '</div>'
+        + '<button class="menu-btn" onclick="toggleActionMenu(event, \'' + p.id + '\')"><i class="fa-solid fa-ellipsis-vertical"></i></button>'
+        + '</div>'
+        + '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+        + '<span class="badge ' + status.cls + '">' + status.text + '</span>'
+        + '<span style="font-size:10px;color:#cbd5e1;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces.toLocaleString() + ' pcs</b></span>'
+        + '</div>'
+        + '<div style="display:flex;justify-content:space-between;margin-top:8px;">'
+        + '<div style="font-size:10px;color:#94a3b8;">Cost: ' + formatCurrency(cost) + '</div>'
+        + '<div style="text-align:right;">'
+        + '<div style="font-weight:800;color:#fff;font-size:12px;">' + formatCurrency(price) + '</div>'
+        + '<div style="font-size:10px;font-weight:600;color:' + (profit >= 0 ? '#34d399' : '#fb7185') + ';">Profit: ' + formatCurrency(profit) + '</div>'
+        + '</div></div></div></div>'
+        + '<div id="menu-' + p.id + '" class="action-menu">'
+        + '<button onclick="editProduct(\'' + p.id + '\')"><i class="fa-solid fa-pen" style="color:#a78bfa;"></i> Edit Product</button>'
+        + '<button onclick="deleteProduct(\'' + p.id + '\', \'' + safeName + '\')" style="color:#fb7185;"><i class="fa-solid fa-trash"></i> Delete Product</button>'
+        + '</div></div>';
+    }
+
+    function buildDesktopCard(p) {
+      var totalPieces = parseFloat(p.stock || 0);
+      var piecesPerUnit = parseFloat(p.items_per_pack || 24) || 24;
+      var remainingUnits = totalPieces / piecesPerUnit;
+      var displayUnits = formatUnits(remainingUnits);
+      var status = getStockStatus(totalPieces, piecesPerUnit);
+      var cost = parseFloat(p.unit_cost || 0);
+      var price = parseFloat(p.selling_price || 0);
+      var profit = price - cost;
+      var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
+      var safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      return ''
+        + '<div class="desk-card">'
+        + '<div style="display:flex;gap:14px;">'
+        + '<img src="' + imgUrl + '" style="width:72px;height:72px;border-radius:12px;object-fit:cover;background:#191932;flex-shrink:0;" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150\'">'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+        + '<div style="font-weight:700;color:#fff;font-size:14px;margin-bottom:4px;">' + (p.name || 'Unnamed') + '</div>'
+        + '<div style="display:flex;gap:6px;">'
+        + '<button onclick="editProduct(\'' + p.id + '\')" style="width:32px;height:32px;border-radius:8px;background:#191932;border:1px solid rgba(139,92,246,0.2);color:#a78bfa;cursor:pointer;"><i class="fa-solid fa-pen" style="font-size:12px;"></i></button>'
+        + '<button onclick="deleteProduct(\'' + p.id + '\', \'' + safeName + '\')" style="width:32px;height:32px;border-radius:8px;background:#191932;border:1px solid rgba(251,113,133,0.3);color:#fb7185;cursor:pointer;"><i class="fa-solid fa-trash" style="font-size:12px;"></i></button>'
+        + '</div></div>'
+        + '<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">SKU: ' + (p.sku || 'N/A') + '</div>'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+        + '<span class="badge ' + status.cls + '">' + status.text + '</span>'
+        + '<span style="font-size:12px;color:#cbd5e1;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces.toLocaleString() + ' pcs</b></span>'
+        + '</div>'
+        + '<div style="display:flex;justify-content:space-between;font-size:13px;">'
+        + '<span style="color:#94a3b8;">Cost: ' + formatCurrency(cost) + '</span>'
+        + '<span style="font-weight:700;color:#fff;">' + formatCurrency(price) + '</span>'
+        + '<span style="font-weight:600;color:' + (profit >= 0 ? '#34d399' : '#fb7185') + ';">+' + formatCurrency(profit) + '</span>'
+        + '</div></div></div></div>';
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.menu-btn') && !e.target.closest('.action-menu')) {
+        document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
+      }
+    });
+
+    function toggleActionMenu(event, productId) {
+      event.stopPropagation();
+      document.querySelectorAll('.action-menu').forEach(function (m) {
+        if (m.id !== 'menu-' + productId) m.classList.remove('show');
+      });
+      var menu = document.getElementById('menu-' + productId);
+      if (menu) menu.classList.toggle('show');
+    }
+
+    function editProduct(productId) {
+      document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
+      var product = allProducts.find(function (p) { return p.id === productId; });
+      if (product) openEditProductModal(product);
+    }
+
+    async function deleteProduct(productId, productName) {
+      document.querySelectorAll('.action-menu').forEach(function (m) { m.classList.remove('show'); });
+      if (!confirm('Delete "' + productName + '"?\n\nThis cannot be undone.')) return;
+      try {
+        var result = await supabaseClient.from('products').delete().eq('id', productId).eq('company_id', userCompanyId);
+        if (result.error) throw result.error;
+        allProducts = allProducts.filter(function (p) { return p.id !== productId; });
+        filterProducts();
+      } catch (err) {
+        alert('Failed to delete: ' + (err.message || 'Try again'));
+      }
+    }
+
+    async function submitProduct() {
+      if (isSaving) return;
+      var name = document.getElementById('prod-name').value.trim();
+      var sku = document.getElementById('prod-sku').value.trim();
+      var pack = parseFloat(document.getElementById('prod-pack').value) || 1;
+      var unitCost = parseFloat(document.getElementById('prod-unit-cost').value) || 0;
+      var bulkCost = parseFloat(document.getElementById('prod-bulk-cost').value) || 0;
+      var sellingPrice = parseFloat(document.getElementById('prod-selling').value) || 0;
+      var units = parseFloat(document.getElementById('prod-units').value) || 0;
+      var totalPieces = Math.round(units * pack);
+
+      if (!name) return alert('Please enter the Product Name.');
+      if (!sellingPrice || sellingPrice <= 0) return alert('Please enter a valid Selling Price.');
+      if (pack < 1) return alert('Pieces per unit must be at least 1.');
+      if (!userCompanyId) return alert('Company not loaded. Please refresh the page.');
+
+      isSaving = true;
+      var btn = document.getElementById('save-product-btn');
+      var originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = editingProductId ? 'Updating...' : 'Saving...';
+
+      var payload = {
+        company_id: userCompanyId,
+        name: name,
+        sku: sku || ('SKU-' + Math.floor(100000 + Math.random() * 900000)),
+        items_per_pack: pack,
+        bulk_cost: bulkCost,
+        unit_cost: unitCost,
+        selling_price: sellingPrice,
+        stock: totalPieces,
+        image_url: uploadedImageBase64 || null
+      };
+
+      try {
+        var error = null;
+        if (editingProductId) {
+          var upd = await supabaseClient.from('products').update(payload).eq('id', editingProductId).eq('company_id', userCompanyId);
+          error = upd.error;
+        } else {
+          var ins = await supabaseClient.from('products').insert([payload]);
+          error = ins.error;
+        }
+        if (error) throw error;
+        closeProductModal();
+        clearForm();
+        await fetchProducts();
+      } catch (err) {
+        alert('Error saving product: ' + (err.message || 'Try again'));
+      } finally {
+        isSaving = false;
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initializeInventory);
+  </script>
 </body>
-
-</html> 
-
+</html>
