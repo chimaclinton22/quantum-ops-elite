@@ -9,56 +9,64 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+
+    /* STRICT ISOLATION */
+    .mobile-only { display: block !important; }
+    .desktop-only { display: none !important; }
+    @media (min-width: 1024px) {
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
+    }
+
+    /* ===== MOBILE ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #0B0B16; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
-    }
-    @media (min-width: 768px) {
-      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
-      .iphone-frame {
-        max-width: 410px; max-height: 860px; border-radius: 48px;
-        border: 1px solid rgba(139,92,246,0.2);
-        box-shadow: 0 25px 50px -12px rgba(15,13,35,0.7);
-      }
     }
     .top-bar {
       padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
       background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
     }
     .btn-add {
-      padding: 6px 12px; border-radius: 12px; background: rgba(108,92,231,0.2);
-      border: 1px solid rgba(139,92,246,0.4); color: #c4b5fd; font-size: 10px; font-weight: 600; cursor: pointer;
+      padding: 7px 14px; border-radius: 12px; background: linear-gradient(135deg,#6C5CE7,#4F46E5);
+      border: none; color: #fff; font-size: 11px; font-weight: 600; cursor: pointer;
     }
     .summary {
-      padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
       border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
     }
     .sum-card {
-      background: #121224; border: 1px solid rgba(139,92,246,0.15); border-radius: 16px; padding: 12px;
+      background: linear-gradient(135deg, rgba(244,63,94,0.12), #121224);
+      border: 1px solid rgba(244,63,94,0.2); border-radius: 16px; padding: 14px;
+    }
+    .sum-card.month {
+      background: linear-gradient(135deg, rgba(108,92,231,0.15), #121224);
+      border-color: rgba(139,92,246,0.25);
     }
     .filters {
-      padding: 8px 16px; display: flex; gap: 6px; overflow-x: auto; flex-shrink: 0;
+      padding: 10px 16px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0;
     }
     .filter-btn {
-      padding: 5px 10px; border-radius: 8px; font-size: 10px; font-weight: 600;
+      padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 600;
       background: #121224; color: #94a3b8; border: 1px solid rgba(139,92,246,0.15);
       cursor: pointer; white-space: nowrap; flex-shrink: 0;
     }
     .filter-btn.active { background: #6C5CE7; color: #fff; border-color: transparent; }
-    .list { flex: 1; overflow-y: auto; padding: 8px 16px 88px; }
+    .list { flex: 1; overflow-y: auto; padding: 10px 16px 88px; }
     .card {
       background: #121224; border: 1px solid rgba(139,92,246,0.15);
-      border-radius: 16px; padding: 12px; margin-bottom: 8px;
-      display: flex; justify-content: space-between; gap: 8px;
+      border-radius: 16px; padding: 14px; margin-bottom: 10px;
+      display: flex; justify-content: space-between; gap: 10px;
     }
     .badge {
-      font-size: 9px; padding: 2px 6px; border-radius: 6px;
-      background: rgba(244,63,94,0.15); color: #fda4af; border: 1px solid rgba(244,63,94,0.2);
+      font-size: 9px; padding: 3px 8px; border-radius: 8px;
+      background: rgba(244,63,94,0.15); color: #fda4af; border: 1px solid rgba(244,63,94,0.25);
+      font-weight: 600;
     }
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
@@ -70,83 +78,200 @@
       color: #94a3b8; text-decoration: none; font-size: 9px;
     }
     .nav-item i { font-size: 14px; }
+
+    /* ===== DESKTOP ===== */
+    .desktop-shell {
+      width: 100%; min-height: 100vh; background: #07070F;
+      display: flex; flex-direction: column;
+    }
+    .desk-topbar {
+      height: 68px; background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 28px; flex-shrink: 0;
+    }
+    .desk-content { flex: 1; overflow-y: auto; padding: 28px; }
+    .desk-summary {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
+    }
+    .desk-sum-card {
+      background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 18px; padding: 20px; position: relative; overflow: hidden;
+    }
+    .desk-sum-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .desk-sum-card.today::before { background: linear-gradient(90deg, #fb7185, #f43f5e); }
+    .desk-sum-card.week::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+    .desk-sum-card.month::before { background: linear-gradient(90deg, #a78bfa, #6C5CE7); }
+    .desk-sum-card.total::before { background: linear-gradient(90deg, #34d399, #10b981); }
+    .desk-toolbar {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 16px;
+    }
+    .desk-filters { display: flex; gap: 8px; }
+    .desk-table-wrap {
+      background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 18px; overflow: hidden;
+    }
+    .desk-table { width: 100%; border-collapse: collapse; }
+    .desk-table th {
+      text-align: left; padding: 14px 18px; font-size: 12px; color: #94a3b8;
+      background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.12); font-weight: 600;
+    }
+    .desk-table td {
+      padding: 14px 18px; font-size: 13px; border-bottom: 1px solid rgba(139,92,246,0.08);
+    }
+    .desk-table tr:last-child td { border-bottom: none; }
+    .desk-table tr:hover td { background: rgba(139,92,246,0.04); }
+
+    /* Shared Modal */
     .modal-bg {
       position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50;
       display: flex; align-items: center; justify-content: center; padding: 16px;
     }
     .modal-bg.hidden { display: none; }
     .modal {
-      width: 100%; max-width: 384px; max-height: 90vh; overflow-y: auto;
-      background: #121224; border: 1px solid rgba(139,92,246,0.3); border-radius: 24px; padding: 20px;
+      width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+      background: #121224; border: 1px solid rgba(139,92,246,0.3); border-radius: 24px; padding: 24px;
     }
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 5px; font-weight: 500; }
     .field input, .field select {
       width: 100%; background: #191932; border: 1px solid rgba(139,92,246,0.2);
-      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
+      border-radius: 12px; padding: 12px 14px; font-size: 13px; color: #fff; outline: none;
     }
+    .field input:focus, .field select:focus { border-color: #6C5CE7; }
     .btn-save {
-      width: 100%; padding: 12px; border: none; border-radius: 12px;
+      width: 100%; padding: 14px; border: none; border-radius: 12px;
       background: linear-gradient(to right, #6C5CE7, #4F46E5); color: #fff;
-      font-weight: 700; font-size: 12px; cursor: pointer;
+      font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 6px;
     }
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-delete {
+      background: none; border: none; font-size: 11px; color: #64748b; cursor: pointer;
+    }
+    .btn-delete:hover { color: #fb7185; }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <div class="top-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
-        <div>
-          <div style="font-weight:700;font-size:12px;color:#fff;letter-spacing:0.04em;">EXPENSES</div>
-          <div style="font-size:9px;color:#94a3b8;">Track every business cost</div>
+
+  <!-- ==================== MOBILE ==================== -->
+  <div class="mobile-only">
+    <div class="iphone-frame">
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#fff;letter-spacing:0.03em;">EXPENSES</div>
+            <div style="font-size:10px;color:#94a3b8;">Track every business cost</div>
+          </div>
+        </div>
+        <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Add</button>
+      </div>
+
+      <div class="summary">
+        <div class="sum-card">
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:4px;">Today</div>
+          <div style="font-size:16px;font-weight:800;color:#fb7185;" id="sum-today">₦0</div>
+        </div>
+        <div class="sum-card month">
+          <div style="font-size:10px;color:#94a3b8;margin-bottom:4px;">This Month</div>
+          <div style="font-size:16px;font-weight:800;color:#fff;" id="sum-month">₦0</div>
         </div>
       </div>
-      <button class="btn-add" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Add</button>
-    </div>
 
-    <div class="summary">
-      <div class="sum-card">
-        <div style="font-size:9px;color:#94a3b8;">Today</div>
-        <div style="font-size:14px;font-weight:700;color:#fb7185;" id="sum-today">₦0</div>
+      <div class="filters custom-scrollbar">
+        <button class="filter-btn active" id="f-all" onclick="setFilter('all')">All</button>
+        <button class="filter-btn" id="f-today" onclick="setFilter('today')">Today</button>
+        <button class="filter-btn" id="f-week" onclick="setFilter('week')">This Week</button>
+        <button class="filter-btn" id="f-month" onclick="setFilter('month')">This Month</button>
       </div>
-      <div class="sum-card">
-        <div style="font-size:9px;color:#94a3b8;">This Month</div>
-        <div style="font-size:14px;font-weight:700;color:#fff;" id="sum-month">₦0</div>
+
+      <div class="list custom-scrollbar" id="expense-list">
+        <div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">Loading expenses…</div>
       </div>
-    </div>
 
-    <div class="filters custom-scrollbar">
-      <button class="filter-btn active" id="f-all" onclick="setFilter('all')">All</button>
-      <button class="filter-btn" id="f-today" onclick="setFilter('today')">Today</button>
-      <button class="filter-btn" id="f-week" onclick="setFilter('week')">This Week</button>
-      <button class="filter-btn" id="f-month" onclick="setFilter('month')">This Month</button>
+      <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
+        <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
+      </nav>
     </div>
-
-    <div class="list custom-scrollbar" id="expense-list">
-      <div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">Loading expenses…</div>
-    </div>
-
-    <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
-      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
-    </nav>
   </div>
 
+  <!-- ==================== DESKTOP ==================== -->
+  <div class="desktop-only desktop-shell">
+    <div class="desk-topbar">
+      <div>
+        <div style="font-weight:700;font-size:18px;color:#fff;">Expenses</div>
+        <div style="font-size:12px;color:#94a3b8;">Track and control every business cost</div>
+      </div>
+      <button class="btn-add" onclick="openAddModal()" style="padding:10px 20px;font-size:13px;">
+        <i class="fa-solid fa-plus"></i> Record Expense
+      </button>
+    </div>
+
+    <div class="desk-content custom-scrollbar">
+      <div class="desk-summary">
+        <div class="desk-sum-card today">
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">Today</div>
+          <div style="font-size:24px;font-weight:800;color:#fb7185;" id="desk-sum-today">₦0</div>
+        </div>
+        <div class="desk-sum-card week">
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">This Week</div>
+          <div style="font-size:24px;font-weight:800;color:#fbbf24;" id="desk-sum-week">₦0</div>
+        </div>
+        <div class="desk-sum-card month">
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">This Month</div>
+          <div style="font-size:24px;font-weight:800;color:#a78bfa;" id="desk-sum-month">₦0</div>
+        </div>
+        <div class="desk-sum-card total">
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">All Time</div>
+          <div style="font-size:24px;font-weight:800;color:#34d399;" id="desk-sum-total">₦0</div>
+        </div>
+      </div>
+
+      <div class="desk-toolbar">
+        <div class="desk-filters">
+          <button class="filter-btn active" id="df-all" onclick="setFilter('all')">All</button>
+          <button class="filter-btn" id="df-today" onclick="setFilter('today')">Today</button>
+          <button class="filter-btn" id="df-week" onclick="setFilter('week')">This Week</button>
+          <button class="filter-btn" id="df-month" onclick="setFilter('month')">This Month</button>
+        </div>
+        <div style="font-size:13px;color:#94a3b8;" id="desk-count">0 expenses</div>
+      </div>
+
+      <div class="desk-table-wrap">
+        <table class="desk-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Date</th>
+              <th>Recorded By</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="desk-expense-body">
+            <tr><td colspan="6" style="text-align:center;padding:48px;color:#64748b;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD MODAL (shared) -->
   <div id="add-modal" class="modal-bg hidden">
     <div class="modal custom-scrollbar">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h3 style="margin:0;font-size:14px;font-weight:700;color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h3 style="margin:0;font-size:15px;font-weight:700;color:#fff;">
           <i class="fa-solid fa-receipt" style="color:#fb7185;margin-right:8px;"></i>Record Expense
         </h3>
-        <button onclick="closeAddModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeAddModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="field">
         <label>What did you spend on? *</label>
-        <input type="text" id="ex-title" placeholder="e.g. Fuel to market">
+        <input type="text" id="ex-title" placeholder="e.g. Fuel to market, Staff lunch">
       </div>
       <div class="field">
         <label>Category *</label>
@@ -207,6 +332,11 @@
         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
       });
     }
+    function formatFullDate(iso) {
+      return new Date(iso).toLocaleString('en-GB', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    }
 
     function openAddModal() {
       document.getElementById('add-modal').classList.remove('hidden');
@@ -217,9 +347,14 @@
 
     function setFilter(f) {
       currentFilter = f;
-      document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
-      var active = document.getElementById('f-' + f);
-      if (active) active.classList.add('active');
+      // Mobile filters
+      document.querySelectorAll('.mobile-only .filter-btn').forEach(function (b) { b.classList.remove('active'); });
+      var mActive = document.getElementById('f-' + f);
+      if (mActive) mActive.classList.add('active');
+      // Desktop filters
+      document.querySelectorAll('.desktop-only .filter-btn').forEach(function (b) { b.classList.remove('active'); });
+      var dActive = document.getElementById('df-' + f);
+      if (dActive) dActive.classList.add('active');
       renderList();
     }
 
@@ -242,43 +377,90 @@
     function updateSummary() {
       var today = getLocalDateString(new Date());
       var monthPrefix = today.slice(0, 7);
-      var t = 0, m = 0;
+      var now = new Date();
+      var day = now.getDay() || 7;
+      var monday = new Date(now);
+      monday.setDate(now.getDate() - day + 1);
+      var weekStart = getLocalDateString(monday);
+
+      var t = 0, w = 0, m = 0, total = 0;
       allExpenses.forEach(function (ex) {
         var amt = parseMoney(ex.amount);
         var d = getLocalDateString(ex.created_at);
+        total += amt;
         if (d === today) t += amt;
+        if (d >= weekStart) w += amt;
         if (d.indexOf(monthPrefix) === 0) m += amt;
       });
-      document.getElementById('sum-today').textContent = formatCurrency(t);
-      document.getElementById('sum-month').textContent = formatCurrency(m);
+
+      // Mobile
+      var elToday = document.getElementById('sum-today');
+      var elMonth = document.getElementById('sum-month');
+      if (elToday) elToday.textContent = formatCurrency(t);
+      if (elMonth) elMonth.textContent = formatCurrency(m);
+
+      // Desktop
+      var dToday = document.getElementById('desk-sum-today');
+      var dWeek = document.getElementById('desk-sum-week');
+      var dMonth = document.getElementById('desk-sum-month');
+      var dTotal = document.getElementById('desk-sum-total');
+      if (dToday) dToday.textContent = formatCurrency(t);
+      if (dWeek) dWeek.textContent = formatCurrency(w);
+      if (dMonth) dMonth.textContent = formatCurrency(m);
+      if (dTotal) dTotal.textContent = formatCurrency(total);
     }
 
     function renderList() {
-      var container = document.getElementById('expense-list');
       var list = allExpenses.filter(inFilter);
-      if (!list.length) {
-        container.innerHTML =
-          '<div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">No expenses for this period.<br><span style="font-size:10px;">Tap + Add to record one.</span></div>';
-        return;
+
+      // Mobile list
+      var container = document.getElementById('expense-list');
+      if (container) {
+        if (!list.length) {
+          container.innerHTML = '<div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">No expenses for this period.<br><span style="font-size:10px;">Tap + Add to record one.</span></div>';
+        } else {
+          container.innerHTML = list.map(function (ex) {
+            return ''
+              + '<div class="card">'
+              +   '<div style="min-width:0;flex:1;">'
+              +     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'
+              +       '<span class="badge">' + (ex.category || 'Other') + '</span>'
+              +       '<span style="font-size:10px;color:#64748b;">' + formatTime(ex.created_at) + '</span>'
+              +     '</div>'
+              +     '<div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (ex.title || 'Expense') + '</div>'
+              +     (ex.notes ? '<div style="font-size:11px;color:#94a3b8;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ex.notes + '</div>' : '')
+              +     '<div style="font-size:10px;color:#64748b;margin-top:3px;">' + (ex.recorded_by || 'Owner') + '</div>'
+              +   '</div>'
+              +   '<div style="text-align:right;flex-shrink:0;">'
+              +     '<div style="font-weight:700;color:#fb7185;font-size:15px;">' + formatCurrency(ex.amount) + '</div>'
+              +     '<button class="btn-delete" onclick="deleteExpense(\'' + ex.id + '\')">Delete</button>'
+              +   '</div>'
+              + '</div>';
+          }).join('');
+        }
       }
-      container.innerHTML = list.map(function (ex) {
-        return ''
-          + '<div class="card">'
-          +   '<div style="min-width:0;flex:1;">'
-          +     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">'
-          +       '<span class="badge">' + (ex.category || 'Other') + '</span>'
-          +       '<span style="font-size:9px;color:#64748b;">' + formatTime(ex.created_at) + '</span>'
-          +     '</div>'
-          +     '<div style="font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (ex.title || 'Expense') + '</div>'
-          +     (ex.notes ? '<div style="font-size:10px;color:#94a3b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + ex.notes + '</div>' : '')
-          +     '<div style="font-size:9px;color:#64748b;margin-top:2px;">' + (ex.recorded_by || 'Owner') + '</div>'
-          +   '</div>'
-          +   '<div style="text-align:right;flex-shrink:0;">'
-          +     '<div style="font-weight:700;color:#fb7185;font-size:14px;">' + formatCurrency(ex.amount) + '</div>'
-          +     '<button onclick="deleteExpense(\'' + ex.id + '\')" style="background:none;border:none;font-size:9px;color:#64748b;margin-top:4px;cursor:pointer;">Delete</button>'
-          +   '</div>'
-          + '</div>';
-      }).join('');
+
+      // Desktop table
+      var tbody = document.getElementById('desk-expense-body');
+      var countEl = document.getElementById('desk-count');
+      if (countEl) countEl.textContent = list.length + ' expense' + (list.length === 1 ? '' : 's');
+      if (tbody) {
+        if (!list.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:48px;color:#64748b;">No expenses for this period</td></tr>';
+        } else {
+          tbody.innerHTML = list.map(function (ex) {
+            return ''
+              + '<tr>'
+              +   '<td style="font-weight:600;color:#fff;">' + (ex.title || 'Expense') + (ex.notes ? '<div style="font-size:11px;color:#94a3b8;font-weight:400;margin-top:2px;">' + ex.notes + '</div>' : '') + '</td>'
+              +   '<td><span class="badge">' + (ex.category || 'Other') + '</span></td>'
+              +   '<td style="font-weight:700;color:#fb7185;">' + formatCurrency(ex.amount) + '</td>'
+              +   '<td style="color:#94a3b8;font-size:12px;">' + formatFullDate(ex.created_at) + '</td>'
+              +   '<td style="color:#94a3b8;">' + (ex.recorded_by || 'Owner') + '</td>'
+              +   '<td style="text-align:right;"><button class="btn-delete" onclick="deleteExpense(\'' + ex.id + '\')">Delete</button></td>'
+              + '</tr>';
+          }).join('');
+        }
+      }
     }
 
     async function loadExpenses() {
@@ -297,8 +479,11 @@
         updateSummary();
         renderList();
       } catch (err) {
-        document.getElementById('expense-list').innerHTML =
-          '<div style="text-align:center;padding:64px 0;color:#fb7185;font-size:12px;">' + (err.message || 'Error loading') + '</div>';
+        var msg = err.message || 'Error loading';
+        var el = document.getElementById('expense-list');
+        if (el) el.innerHTML = '<div style="text-align:center;padding:64px 0;color:#fb7185;font-size:12px;">' + msg + '</div>';
+        var tbody = document.getElementById('desk-expense-body');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:48px;color:#fb7185;">' + msg + '</td></tr>';
       } finally {
         isLoading = false;
       }
@@ -388,19 +573,33 @@
         }
 
         if (!userCompanyId) {
-          document.getElementById('expense-list').innerHTML =
-            '<div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">No business found. Please re-login.</div>';
+          var el = document.getElementById('expense-list');
+          if (el) el.innerHTML = '<div style="text-align:center;padding:64px 0;color:#64748b;font-size:12px;">No business found. Please re-login.</div>';
           return;
         }
         await loadExpenses();
       } catch (err) {
         console.error(err);
-        document.getElementById('expense-list').innerHTML =
-          '<div style="text-align:center;padding:64px 0;color:#fb7185;font-size:12px;">Could not load. Refresh page.</div>';
+        var el = document.getElementById('expense-list');
+        if (el) el.innerHTML = '<div style="text-align:center;padding:64px 0;color:#fb7185;font-size:12px;">Could not load. Refresh page.</div>';
       }
     }
 
-    window.addEventListener('DOMContentLoaded', init);
+    function enforceView() {
+      var isDesktop = window.innerWidth >= 1024;
+      document.querySelectorAll('.mobile-only').forEach(function (el) {
+        el.style.display = isDesktop ? 'none' : 'block';
+      });
+      document.querySelectorAll('.desktop-only').forEach(function (el) {
+        el.style.display = isDesktop ? 'flex' : 'none';
+      });
+    }
+
+    window.addEventListener('resize', enforceView);
+    window.addEventListener('DOMContentLoaded', function () {
+      enforceView();
+      init();
+    });
   </script>
 </body>
 </html>
