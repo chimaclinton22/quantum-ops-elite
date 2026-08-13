@@ -9,22 +9,24 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+
+    .mobile-only { display: block; }
+    .desktop-only { display: none; }
+
+    @media (min-width: 1024px) {
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
+    }
+
+    /* ===== MOBILE ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #0B0B16; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
-    }
-    @media (min-width: 768px) {
-      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
-      .iphone-frame {
-        max-width: 410px; max-height: 860px; border-radius: 48px;
-        border: 1px solid rgba(139,92,246,0.2);
-        box-shadow: 0 25px 50px -12px rgba(15,13,35,0.7);
-      }
     }
     .top-bar {
       padding: 14px 16px; text-align: center;
@@ -44,15 +46,12 @@
       display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px;
       cursor: pointer;
     }
-    .section-label {
-      font-size: 12px; color: #94a3b8; font-weight: 600; margin: 8px 4px 10px;
-    }
+    .section-label { font-size: 12px; color: #94a3b8; font-weight: 600; margin: 8px 4px 10px; }
     .row {
       display: flex; align-items: center; gap: 12px;
       background: #121224; border: 1px solid rgba(139,92,246,0.12);
       border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
     }
-    .row:active { opacity: 0.85; }
     .row-icon {
       width: 36px; height: 36px; border-radius: 50%;
       background: rgba(139,92,246,0.15); color: #a78bfa;
@@ -79,6 +78,7 @@
     }
     .nav-item.active { color: #a78bfa; }
     .nav-item i { font-size: 14px; }
+
     .screen { display: none; flex-direction: column; height: 100%; }
     .screen.active { display: flex; }
     .edit-top {
@@ -111,158 +111,306 @@
       border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; font-size: 11px;
       font-weight: 600; cursor: pointer;
     }
+
+    /* ===== DESKTOP ===== */
+    .desktop-shell {
+      width: 100%; min-height: 100vh; background: #07070F;
+      display: flex; flex-direction: column;
+    }
+    .desk-topbar {
+      height: 64px; background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0;
+    }
+    .desk-content {
+      flex: 1; display: grid; grid-template-columns: 320px 1fr; overflow: hidden;
+    }
+    .desk-sidebar {
+      border-right: 1px solid rgba(139,92,246,0.12); padding: 24px; overflow-y: auto;
+    }
+    .desk-main {
+      padding: 24px; overflow-y: auto;
+    }
+    .desk-card {
+      background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px; padding: 20px; margin-bottom: 16px;
+    }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
 
-    <!-- ========== HOME SCREEN ========== -->
-    <div id="screen-home" class="screen active">
-      <div class="top-bar">
-        <div style="font-weight:700;font-size:16px;color:#fff;">Profile</div>
+  <!-- ==================== MOBILE VIEW ==================== -->
+  <div class="mobile-only">
+    <div class="iphone-frame">
+      <!-- HOME SCREEN -->
+      <div id="screen-home" class="screen active">
+        <div class="top-bar">
+          <div style="font-weight:700;font-size:16px;color:#fff;">Profile</div>
+        </div>
+
+        <div class="main custom-scrollbar">
+          <div class="avatar-wrap">
+            <div class="avatar-box" onclick="openBusinessInfo()">
+              <span id="avatar-letter" style="font-size:28px;font-weight:700;color:#c4b5fd;">B</span>
+              <img id="avatar-logo" src="" alt="" style="display:none;">
+              <div class="edit-dot"><i class="fa-solid fa-pen"></i></div>
+            </div>
+            <div id="display-name" style="font-weight:700;font-size:16px;color:#fff;">Your Business</div>
+            <div id="display-sub" style="font-size:12px;color:#94a3b8;margin-top:2px;">Complete profile to verify</div>
+            <div id="verified-badge" class="badge-verified" style="display:none;">
+              <i class="fa-solid fa-circle-check"></i> Verified Account
+            </div>
+          </div>
+
+          <div class="section-label">General settings</div>
+
+          <div class="row" onclick="openBusinessInfo()">
+            <div class="row-icon"><i class="fa-solid fa-store"></i></div>
+            <div class="row-text">
+              <h4>Business Information</h4>
+              <p>Shop name, address, phone, bank details</p>
+            </div>
+            <i class="fa-solid fa-chevron-right row-arrow"></i>
+          </div>
+
+          <div class="row" onclick="alert('Settings coming soon.')">
+            <div class="row-icon"><i class="fa-solid fa-gear"></i></div>
+            <div class="row-text">
+              <h4>Settings</h4>
+              <p>Account preferences</p>
+            </div>
+            <i class="fa-solid fa-chevron-right row-arrow"></i>
+          </div>
+
+          <div class="row" onclick="window.location.href='notifications.html'">
+            <div class="row-icon"><i class="fa-regular fa-bell"></i></div>
+            <div class="row-text">
+              <h4>Notifications</h4>
+              <p>Alerts & reminders</p>
+            </div>
+            <i class="fa-solid fa-chevron-right row-arrow"></i>
+          </div>
+
+          <div class="row" onclick="alert('Help: Contact support via WhatsApp or email.')">
+            <div class="row-icon"><i class="fa-solid fa-headset"></i></div>
+            <div class="row-text">
+              <h4>Help & Support</h4>
+              <p>Get help with your account</p>
+            </div>
+            <i class="fa-solid fa-chevron-right row-arrow"></i>
+          </div>
+
+          <div class="row" onclick="handleLogout()" style="margin-top:12px;">
+            <div class="row-icon danger"><i class="fa-solid fa-right-from-bracket"></i></div>
+            <div class="row-text">
+              <h4 style="color:#fb7185;">Log Out</h4>
+              <p>Sign out of your account</p>
+            </div>
+            <i class="fa-solid fa-chevron-right row-arrow"></i>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+          <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+          <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
+          <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user"></i>Profile</a>
+        </nav>
       </div>
 
-      <div class="main custom-scrollbar">
-        <div class="avatar-wrap">
-          <div class="avatar-box" onclick="openBusinessInfo()">
-            <span id="avatar-letter" style="font-size:28px;font-weight:700;color:#c4b5fd;">B</span>
-            <img id="avatar-logo" src="" alt="" style="display:none;">
-            <div class="edit-dot"><i class="fa-solid fa-pen"></i></div>
+      <!-- BUSINESS INFO EDIT SCREEN -->
+      <div id="screen-edit" class="screen">
+        <div class="edit-top">
+          <button onclick="closeBusinessInfo()" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:16px;">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <div style="font-weight:700;font-size:15px;color:#fff;">Business Information</div>
+        </div>
+
+        <div class="edit-body custom-scrollbar">
+          <div class="field">
+            <label>Shop Logo</label>
+            <div class="logo-row">
+              <div class="logo-preview" id="logo-preview-box">
+                <i class="fa-solid fa-image" id="logo-placeholder"></i>
+                <img id="logo-preview" src="" style="display:none;">
+              </div>
+              <label class="upload-btn">
+                Upload Logo
+                <input type="file" id="logo-input" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+              </label>
+            </div>
           </div>
-          <div id="display-name" style="font-weight:700;font-size:16px;color:#fff;">Your Business</div>
-          <div id="display-sub" style="font-size:12px;color:#94a3b8;margin-top:2px;">Complete profile to verify</div>
-          <div id="verified-badge" class="badge-verified" style="display:none;">
+
+          <div class="field">
+            <label>Business Name *</label>
+            <input type="text" id="company_name" placeholder="e.g. Rise Beyond Store">
+          </div>
+          <div class="field">
+            <label>Address *</label>
+            <input type="text" id="address" placeholder="Shop address / location">
+          </div>
+          <div class="field">
+            <label>Phone *</label>
+            <input type="text" id="phone" placeholder="e.g. 08012345678">
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="business@email.com">
+          </div>
+          <div class="field">
+            <label>Website</label>
+            <input type="text" id="website" placeholder="https://...">
+          </div>
+          <div class="field">
+            <label>Tax / RC Number</label>
+            <input type="text" id="tax_id" placeholder="Optional">
+          </div>
+          <div class="field">
+            <label>Receipt Thank-you Message</label>
+            <input type="text" id="thank_you_message" placeholder="Thank you for your patronage!">
+          </div>
+
+          <div class="section-label" style="margin-top:16px;">Bank Details (for debt reminders)</div>
+
+          <div class="field">
+            <label>Bank Name</label>
+            <input type="text" id="bank_name" placeholder="e.g. GTBank, Access Bank">
+          </div>
+          <div class="field">
+            <label>Account Name</label>
+            <input type="text" id="account_name" placeholder="Account name">
+          </div>
+          <div class="field">
+            <label>Account Number</label>
+            <input type="text" id="account_number" placeholder="e.g. 0123456789">
+          </div>
+
+          <p id="save-status" style="font-size:11px;text-align:center;margin:8px 0;display:none;"></p>
+          <button onclick="saveProfile()" id="save-btn" class="btn-save">Save Profile</button>
+          <p style="font-size:10px;color:#64748b;text-align:center;margin-top:12px;">
+            Fill Business Name, Address and Phone, then Save to get <span style="color:#34d399;">Verified</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== DESKTOP VIEW ==================== -->
+  <div class="desktop-only desktop-shell">
+    <div class="desk-topbar">
+      <div>
+        <div style="font-weight:700;font-size:18px;color:#fff;">Profile</div>
+        <div style="font-size:12px;color:#94a3b8;">Manage your business information</div>
+      </div>
+      <button onclick="handleLogout()" style="padding:8px 16px;border-radius:10px;background:rgba(251,113,133,0.15);border:1px solid rgba(251,113,133,0.3);color:#fb7185;font-size:13px;cursor:pointer;">
+        <i class="fa-solid fa-right-from-bracket"></i> Log Out
+      </button>
+    </div>
+
+    <div class="desk-content">
+      <!-- Sidebar -->
+      <div class="desk-sidebar custom-scrollbar">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div class="avatar-box" style="width:100px;height:100px;margin:0 auto 12px;cursor:pointer;" onclick="openBusinessInfo()">
+            <span id="desk-avatar-letter" style="font-size:32px;font-weight:700;color:#c4b5fd;">B</span>
+            <img id="desk-avatar-logo" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div id="desk-display-name" style="font-weight:700;font-size:18px;color:#fff;">Your Business</div>
+          <div id="desk-display-sub" style="font-size:13px;color:#94a3b8;margin-top:4px;">Complete profile to verify</div>
+          <div id="desk-verified-badge" class="badge-verified" style="display:none;margin-top:8px;">
             <i class="fa-solid fa-circle-check"></i> Verified Account
           </div>
         </div>
 
-        <div class="section-label">General settings</div>
-
-        <div class="row" onclick="openBusinessInfo()">
+        <div class="row" onclick="openBusinessInfo()" style="margin-bottom:8px;">
           <div class="row-icon"><i class="fa-solid fa-store"></i></div>
           <div class="row-text">
             <h4>Business Information</h4>
-            <p>Shop name, address, phone, logo</p>
+            <p>Shop details & bank info</p>
           </div>
-          <i class="fa-solid fa-chevron-right row-arrow"></i>
         </div>
-
-        <div class="row" onclick="alert('Settings coming soon. Business info is under Business Information.')">
-          <div class="row-icon"><i class="fa-solid fa-gear"></i></div>
-          <div class="row-text">
-            <h4>Settings</h4>
-            <p>Account preferences</p>
-          </div>
-          <i class="fa-solid fa-chevron-right row-arrow"></i>
-        </div>
-
-        <div class="row" onclick="window.location.href='notifications.html'">
+        <div class="row" onclick="window.location.href='notifications.html'" style="margin-bottom:8px;">
           <div class="row-icon"><i class="fa-regular fa-bell"></i></div>
           <div class="row-text">
             <h4>Notifications</h4>
             <p>Alerts & reminders</p>
           </div>
-          <i class="fa-solid fa-chevron-right row-arrow"></i>
-        </div>
-
-        <div class="row" onclick="alert('Help: Contact support via WhatsApp or email for Quantum OPS Elite assistance.')">
-          <div class="row-icon"><i class="fa-solid fa-headset"></i></div>
-          <div class="row-text">
-            <h4>Help & Support</h4>
-            <p>Get help with your account</p>
-          </div>
-          <i class="fa-solid fa-chevron-right row-arrow"></i>
-        </div>
-
-        <div class="row" onclick="alert('Privacy · Security · Terms of use\n\nQuantum OPS Elite protects your business data with company-level isolation.')">
-          <div class="row-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <div class="row-text">
-            <h4>Legal</h4>
-            <p>Privacy, Security & Terms</p>
-          </div>
-          <i class="fa-solid fa-chevron-right row-arrow"></i>
-        </div>
-
-        <div class="row" onclick="handleLogout()" style="margin-top:12px;">
-          <div class="row-icon danger"><i class="fa-solid fa-right-from-bracket"></i></div>
-          <div class="row-text">
-            <h4 style="color:#fb7185;">Log Out</h4>
-            <p>Sign out of your account</p>
-          </div>
-          <i class="fa-solid fa-chevron-right row-arrow"></i>
         </div>
       </div>
 
-      <nav class="bottom-nav">
-        <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
-        <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user"></i>Profile</a>
-      </nav>
-    </div>
+      <!-- Main form -->
+      <div class="desk-main custom-scrollbar">
+        <div class="desk-card">
+          <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px;">Business Information</h3>
 
-    <!-- ========== BUSINESS INFO EDIT SCREEN ========== -->
-    <div id="screen-edit" class="screen">
-      <div class="edit-top">
-        <button onclick="closeBusinessInfo()" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:16px;">
-          <i class="fa-solid fa-arrow-left"></i>
-        </button>
-        <div style="font-weight:700;font-size:15px;color:#fff;">Business Information</div>
-      </div>
-
-      <div class="edit-body custom-scrollbar">
-        <div class="field">
-          <label>Shop Logo</label>
-          <div class="logo-row">
-            <div class="logo-preview" id="logo-preview-box">
-              <i class="fa-solid fa-image" id="logo-placeholder"></i>
-              <img id="logo-preview" src="" style="display:none;">
+          <div class="field">
+            <label>Shop Logo</label>
+            <div class="logo-row">
+              <div class="logo-preview" id="desk-logo-preview-box">
+                <i class="fa-solid fa-image" id="desk-logo-placeholder"></i>
+                <img id="desk-logo-preview" src="" style="display:none;">
+              </div>
+              <label class="upload-btn">
+                Upload Logo
+                <input type="file" id="desk-logo-input" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+              </label>
             </div>
-            <label class="upload-btn">
-              Upload Logo
-              <input type="file" id="logo-input" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
-            </label>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="field">
+              <label>Business Name *</label>
+              <input type="text" id="desk-company_name" placeholder="e.g. Rise Beyond Store">
+            </div>
+            <div class="field">
+              <label>Phone *</label>
+              <input type="text" id="desk-phone" placeholder="e.g. 08012345678">
+            </div>
+            <div class="field" style="grid-column:1/-1;">
+              <label>Address *</label>
+              <input type="text" id="desk-address" placeholder="Shop address / location">
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="desk-email" placeholder="business@email.com">
+            </div>
+            <div class="field">
+              <label>Website</label>
+              <input type="text" id="desk-website" placeholder="https://...">
+            </div>
+            <div class="field">
+              <label>Tax / RC Number</label>
+              <input type="text" id="desk-tax_id" placeholder="Optional">
+            </div>
+            <div class="field">
+              <label>Receipt Thank-you Message</label>
+              <input type="text" id="desk-thank_you_message" placeholder="Thank you for your patronage!">
+            </div>
           </div>
         </div>
 
-        <div class="field">
-          <label>Business Name *</label>
-          <input type="text" id="company_name" placeholder="e.g. Rise Beyond Store">
-        </div>
-        <div class="field">
-          <label>Address *</label>
-          <input type="text" id="address" placeholder="Shop address / location">
-        </div>
-        <div class="field">
-          <label>Phone *</label>
-          <input type="text" id="phone" placeholder="e.g. 08012345678">
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <input type="email" id="email" placeholder="business@email.com">
-        </div>
-        <div class="field">
-          <label>Website</label>
-          <input type="text" id="website" placeholder="https://...">
-        </div>
-        <div class="field">
-          <label>Tax / RC Number</label>
-          <input type="text" id="tax_id" placeholder="Optional">
-        </div>
-        <div class="field">
-          <label>Receipt Thank-you Message</label>
-          <input type="text" id="thank_you_message" placeholder="Thank you for your patronage!">
+        <div class="desk-card">
+          <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">Bank Details (for debt reminders)</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+            <div class="field">
+              <label>Bank Name</label>
+              <input type="text" id="desk-bank_name" placeholder="e.g. GTBank">
+            </div>
+            <div class="field">
+              <label>Account Name</label>
+              <input type="text" id="desk-account_name" placeholder="Account name">
+            </div>
+            <div class="field">
+              <label>Account Number</label>
+              <input type="text" id="desk-account_number" placeholder="0123456789">
+            </div>
+          </div>
         </div>
 
-        <p id="save-status" style="font-size:11px;text-align:center;margin:8px 0;display:none;"></p>
-
-        <button onclick="saveProfile()" id="save-btn" class="btn-save">Save Profile</button>
-        <p style="font-size:10px;color:#64748b;text-align:center;margin-top:12px;">
-          Fill Business Name, Address and Phone, then Save to get <span style="color:#34d399;">Verified</span>.
-        </p>
+        <p id="desk-save-status" style="font-size:13px;text-align:center;margin:12px 0;display:none;"></p>
+        <button onclick="saveProfile()" id="desk-save-btn" class="btn-save" style="max-width:300px;">Save Profile</button>
       </div>
     </div>
-
   </div>
 
   <script>
@@ -282,62 +430,105 @@
     }
 
     function openBusinessInfo() {
-      document.getElementById('screen-home').classList.remove('active');
-      document.getElementById('screen-edit').classList.add('active');
+      const home = document.getElementById('screen-home');
+      const edit = document.getElementById('screen-edit');
+      if (home && edit) {
+        home.classList.remove('active');
+        edit.classList.add('active');
+      }
     }
 
     function closeBusinessInfo() {
-      document.getElementById('screen-edit').classList.remove('active');
-      document.getElementById('screen-home').classList.add('active');
+      const home = document.getElementById('screen-home');
+      const edit = document.getElementById('screen-edit');
+      if (home && edit) {
+        edit.classList.remove('active');
+        home.classList.add('active');
+      }
     }
 
     function applyHeader(c) {
       const name = (c && c.company_name) ? c.company_name : 'Your Business';
-      document.getElementById('display-name').textContent = name;
-
       const verified = isVerified(c);
-      const badge = document.getElementById('verified-badge');
-      const sub = document.getElementById('display-sub');
-      if (verified) {
-        badge.style.display = 'inline-block';
-        sub.textContent = (c.email || c.phone || 'Verified business');
-        sub.style.color = '#94a3b8';
-      } else {
-        badge.style.display = 'none';
-        sub.textContent = 'Complete profile to get verified';
-        sub.style.color = '#94a3b8';
-      }
 
+      // Mobile
+      const displayName = document.getElementById('display-name');
+      const displaySub = document.getElementById('display-sub');
+      const badge = document.getElementById('verified-badge');
       const letter = document.getElementById('avatar-letter');
       const logoImg = document.getElementById('avatar-logo');
-      const preview = document.getElementById('logo-preview');
-      const placeholder = document.getElementById('logo-placeholder');
 
+      if (displayName) displayName.textContent = name;
+      if (badge && displaySub) {
+        if (verified) {
+          badge.style.display = 'inline-block';
+          displaySub.textContent = (c.email || c.phone || 'Verified business');
+        } else {
+          badge.style.display = 'none';
+          displaySub.textContent = 'Complete profile to get verified';
+        }
+      }
+
+      // Desktop
+      const deskName = document.getElementById('desk-display-name');
+      const deskSub = document.getElementById('desk-display-sub');
+      const deskBadge = document.getElementById('desk-verified-badge');
+      const deskLetter = document.getElementById('desk-avatar-letter');
+      const deskLogo = document.getElementById('desk-avatar-logo');
+
+      if (deskName) deskName.textContent = name;
+      if (deskBadge && deskSub) {
+        if (verified) {
+          deskBadge.style.display = 'inline-block';
+          deskSub.textContent = (c.email || c.phone || 'Verified business');
+        } else {
+          deskBadge.style.display = 'none';
+          deskSub.textContent = 'Complete profile to get verified';
+        }
+      }
+
+      // Logo handling
       if (c && c.logo) {
         logoDataUrl = c.logo;
-        logoImg.src = c.logo;
-        logoImg.style.display = 'block';
-        letter.style.display = 'none';
-        preview.src = c.logo;
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
+        if (logoImg) { logoImg.src = c.logo; logoImg.style.display = 'block'; }
+        if (letter) letter.style.display = 'none';
+        if (deskLogo) { deskLogo.src = c.logo; deskLogo.style.display = 'block'; }
+        if (deskLetter) deskLetter.style.display = 'none';
+
+        const preview = document.getElementById('logo-preview');
+        const placeholder = document.getElementById('logo-placeholder');
+        if (preview) { preview.src = c.logo; preview.style.display = 'block'; }
+        if (placeholder) placeholder.style.display = 'none';
+
+        const dPreview = document.getElementById('desk-logo-preview');
+        const dPlaceholder = document.getElementById('desk-logo-placeholder');
+        if (dPreview) { dPreview.src = c.logo; dPreview.style.display = 'block'; }
+        if (dPlaceholder) dPlaceholder.style.display = 'none';
       } else {
-        logoImg.style.display = 'none';
-        letter.style.display = 'block';
-        letter.textContent = (name.charAt(0) || 'B').toUpperCase();
-        preview.style.display = 'none';
-        placeholder.style.display = 'block';
+        if (logoImg) logoImg.style.display = 'none';
+        if (letter) { letter.style.display = 'block'; letter.textContent = (name.charAt(0) || 'B').toUpperCase(); }
+        if (deskLogo) deskLogo.style.display = 'none';
+        if (deskLetter) { deskLetter.style.display = 'block'; deskLetter.textContent = (name.charAt(0) || 'B').toUpperCase(); }
       }
     }
 
     function fillForm(c) {
-      document.getElementById('company_name').value = (c && c.company_name) || '';
-      document.getElementById('address').value = (c && c.address) || '';
-      document.getElementById('phone').value = (c && c.phone) || '';
-      document.getElementById('email').value = (c && c.email) || '';
-      document.getElementById('website').value = (c && c.website) || '';
-      document.getElementById('tax_id').value = (c && c.tax_id) || '';
-      document.getElementById('thank_you_message').value = (c && c.thank_you_message) || 'Thank you for your patronage!';
+      const fields = ['company_name', 'address', 'phone', 'email', 'website', 'tax_id', 'thank_you_message', 'bank_name', 'account_name', 'account_number'];
+      fields.forEach(id => {
+        const mobile = document.getElementById(id);
+        const desk = document.getElementById('desk-' + id);
+        const val = (c && c[id]) || (id === 'thank_you_message' ? 'Thank you for your patronage!' : '');
+        if (mobile) mobile.value = val;
+        if (desk) desk.value = val;
+      });
+    }
+
+    function getFormValue(id) {
+      const mobile = document.getElementById(id);
+      const desk = document.getElementById('desk-' + id);
+      if (mobile && mobile.offsetParent !== null) return mobile.value.trim();
+      if (desk) return desk.value.trim();
+      return (mobile ? mobile.value.trim() : '') || (desk ? desk.value.trim() : '');
     }
 
     function handleLogoUpload(e) {
@@ -350,24 +541,31 @@
       const reader = new FileReader();
       reader.onload = function () {
         logoDataUrl = reader.result;
-        const preview = document.getElementById('logo-preview');
-        const placeholder = document.getElementById('logo-placeholder');
-        preview.src = logoDataUrl;
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
+        ['logo-preview', 'desk-logo-preview'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) { el.src = logoDataUrl; el.style.display = 'block'; }
+        });
+        ['logo-placeholder', 'desk-logo-placeholder'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
       };
       reader.readAsDataURL(file);
     }
 
     async function saveProfile() {
       if (isSaving) return;
-      const company_name = document.getElementById('company_name').value.trim();
-      const address = document.getElementById('address').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const website = document.getElementById('website').value.trim();
-      const tax_id = document.getElementById('tax_id').value.trim();
-      const thank_you_message = document.getElementById('thank_you_message').value.trim();
+
+      const company_name = getFormValue('company_name');
+      const address = getFormValue('address');
+      const phone = getFormValue('phone');
+      const email = getFormValue('email');
+      const website = getFormValue('website');
+      const tax_id = getFormValue('tax_id');
+      const thank_you_message = getFormValue('thank_you_message');
+      const bank_name = getFormValue('bank_name');
+      const account_name = getFormValue('account_name');
+      const account_number = getFormValue('account_number');
 
       if (!company_name) return alert('Business name is required');
       if (!address) return alert('Address is required for verification');
@@ -375,20 +573,20 @@
       if (!userCompanyId) return alert('Company not loaded. Refresh page.');
 
       isSaving = true;
-      const btn = document.getElementById('save-btn');
-      const status = document.getElementById('save-status');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-      status.style.display = 'none';
+      const btns = [document.getElementById('save-btn'), document.getElementById('desk-save-btn')];
+      btns.forEach(b => { if (b) { b.disabled = true; b.textContent = 'Saving...'; } });
 
       const payload = {
-        company_name: company_name,
-        address: address,
-        phone: phone,
+        company_name,
+        address,
+        phone,
         email: email || null,
         website: website || null,
         tax_id: tax_id || null,
-        thank_you_message: thank_you_message || 'Thank you for your patronage!'
+        thank_you_message: thank_you_message || 'Thank you for your patronage!',
+        bank_name: bank_name || null,
+        account_name: account_name || null,
+        account_number: account_number || null
       };
       if (logoDataUrl) payload.logo = logoDataUrl;
 
@@ -405,26 +603,34 @@
         const saved = data || payload;
         applyHeader(saved);
         fillForm(saved);
-        status.textContent = isVerified(saved) ? 'Saved — your account is Verified ✓' : 'Saved successfully';
-        status.style.color = '#34d399';
-        status.style.display = 'block';
+
+        const statusEls = [document.getElementById('save-status'), document.getElementById('desk-save-status')];
+        statusEls.forEach(el => {
+          if (el) {
+            el.textContent = isVerified(saved) ? 'Saved — your account is Verified ✓' : 'Saved successfully';
+            el.style.color = '#34d399';
+            el.style.display = 'block';
+          }
+        });
       } catch (err) {
-        status.textContent = err.message || 'Could not save';
-        status.style.color = '#fb7185';
-        status.style.display = 'block';
+        const statusEls = [document.getElementById('save-status'), document.getElementById('desk-save-status')];
+        statusEls.forEach(el => {
+          if (el) {
+            el.textContent = err.message || 'Could not save';
+            el.style.color = '#fb7185';
+            el.style.display = 'block';
+          }
+        });
       } finally {
         isSaving = false;
-        btn.disabled = false;
-        btn.textContent = 'Save Profile';
+        btns.forEach(b => { if (b) { b.disabled = false; b.textContent = 'Save Profile'; } });
       }
     }
 
     async function handleLogout() {
       if (loggingOut) return;
       loggingOut = true;
-      try {
-        await supabaseClient.auth.signOut({ scope: 'local' });
-      } catch (e) {}
+      try { await supabaseClient.auth.signOut({ scope: 'local' }); } catch (e) {}
       try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
       window.location.replace('index.html');
     }
@@ -440,7 +646,7 @@
         const user = session.user;
         const { data: member } = await supabaseClient
           .from('company_users')
-          .select('company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo)')
+          .select('company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo, bank_name, account_name, account_number)')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -451,7 +657,7 @@
         } else {
           const { data: owned } = await supabaseClient
             .from('companies')
-            .select('id, company_name, address, phone, email, website, tax_id, thank_you_message, logo')
+            .select('id, company_name, address, phone, email, website, tax_id, thank_you_message, logo, bank_name, account_name, account_number')
             .eq('owner_id', user.id)
             .maybeSingle();
           if (owned && owned.id) {
@@ -469,7 +675,6 @@
         fillForm(company || {});
       } catch (err) {
         console.error(err);
-        document.getElementById('display-sub').textContent = 'Could not load profile.';
       }
     }
 
