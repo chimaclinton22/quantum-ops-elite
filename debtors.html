@@ -14,14 +14,16 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
-    .mobile-only { display: block; }
-    .desktop-only { display: none; }
+    /* STRICT ISOLATION */
+    .mobile-only { display: block !important; }
+    .desktop-only { display: none !important; }
 
     @media (min-width: 1024px) {
       .mobile-only { display: none !important; }
       .desktop-only { display: flex !important; }
     }
 
+    /* ===== MOBILE ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #0B0B16; position: relative; overflow: hidden;
@@ -52,10 +54,15 @@
       color: #fff; font-size: 11px; font-weight: 600; cursor: pointer;
     }
     .btn-paid {
-      padding: 4px 12px; background: rgba(5,150,105,0.2); border: 1px solid rgba(16,185,129,0.3);
+      padding: 4px 10px; background: rgba(5,150,105,0.2); border: 1px solid rgba(16,185,129,0.3);
       border-radius: 8px; color: #6ee7b7; font-size: 10px; font-weight: 500; cursor: pointer;
     }
-    .btn-remind {
+    .btn-wa {
+      padding: 4px 10px; background: rgba(37,211,102,0.15); border: 1px solid rgba(37,211,102,0.35);
+      border-radius: 8px; color: #25D366; font-size: 10px; font-weight: 500; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .btn-sms {
       padding: 4px 10px; background: rgba(108,92,231,0.2); border: 1px solid rgba(108,92,231,0.35);
       border-radius: 8px; color: #A78BFA; font-size: 10px; font-weight: 500; cursor: pointer;
       text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
@@ -76,6 +83,7 @@
     }
     .nav-item i { font-size: 14px; }
 
+    /* ===== DESKTOP ===== */
     .desktop-shell {
       width: 100%; min-height: 100vh; background: #07070F;
       display: flex; flex-direction: column;
@@ -102,6 +110,7 @@
     .desk-table tr:last-child td { border-bottom: none; }
     .desk-table tr:hover td { background: rgba(139,92,246,0.05); }
 
+    /* Modal */
     .modal-bg {
       position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50;
       display: flex; align-items: center; justify-content: center; padding: 16px;
@@ -128,7 +137,7 @@
 </head>
 <body>
 
-  <!-- ==================== MOBILE VIEW ==================== -->
+  <!-- ==================== MOBILE ==================== -->
   <div class="mobile-only">
     <div class="iphone-frame">
       <div class="top-bar">
@@ -170,7 +179,7 @@
     </div>
   </div>
 
-  <!-- ==================== DESKTOP VIEW ==================== -->
+  <!-- ==================== DESKTOP ==================== -->
   <div class="desktop-only desktop-shell">
     <div class="desk-topbar">
       <div>
@@ -201,23 +210,21 @@
         </div>
       </div>
 
-      <div id="desk-debtors-table-wrap">
-        <table class="desk-table">
-          <thead>
-            <tr>
-              <th>Customer</th>
-              <th>Phone</th>
-              <th>Item Bought</th>
-              <th>Amount</th>
-              <th>Date</th>
-              <th style="text-align:right;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="desk-debtors-body">
-            <tr><td colspan="6" style="text-align:center;padding:40px;color:#64748b;">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <table class="desk-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Item Bought</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="desk-debtors-body">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:#64748b;">Loading...</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -263,6 +270,9 @@
 
     let userCompanyId = null;
     let businessName = 'Our Shop';
+    let bankName = '';
+    let accountName = '';
+    let accountNumber = '';
     let allDebtors = [];
     let isSaving = false;
     let isFetching = false;
@@ -292,7 +302,6 @@
       return String(phone).replace(/[^\d+]/g, '').trim();
     }
 
-    // Time-based greeting
     function getGreeting() {
       const hour = new Date().getHours();
       if (hour < 12) return 'Good morning';
@@ -300,7 +309,6 @@
       return 'Good evening';
     }
 
-    // Build professional reminder message
     function buildReminderMessage(debt) {
       const name = debt.customer_name || 'Customer';
       const amount = formatCurrency(parseMoney(debt.amount_owing));
@@ -308,16 +316,23 @@
       const date = formatShortDate(debt.created_at);
       const biz = businessName || 'Our Shop';
 
-      return `${getGreeting()}, ${name}.
+      let msg = `${getGreeting()}, ${name}.
 
 This is a friendly payment reminder from ${biz}.
 
 Our records show an outstanding balance of ${amount} for ${item} on ${date}.
 
-Kindly settle the outstanding balance at your earliest convenience.
+Kindly settle the outstanding balance at your earliest convenience.`;
 
-Thank you for your business.
-— Quantum Ops Elite`;
+      if (bankName || accountNumber) {
+        msg += `\n\nPayment Details:`;
+        if (bankName) msg += `\nBank: ${bankName}`;
+        if (accountName) msg += `\nAccount Name: ${accountName}`;
+        if (accountNumber) msg += `\nAccount Number: ${accountNumber}`;
+      }
+
+      msg += `\n\nThank you for your business.\n— Quantum Ops Elite`;
+      return msg;
     }
 
     function openAddDebtModal() {
@@ -336,27 +351,36 @@ Thank you for your business.
         }
         userCompanyId = null;
         businessName = 'Our Shop';
+        bankName = '';
+        accountName = '';
+        accountNumber = '';
 
         const { data: member } = await supabaseClient
           .from('company_users')
-          .select('company_id, companies(company_name)')
+          .select('company_id, companies(company_name, bank_name, account_name, account_number)')
           .eq('user_id', session.user.id)
           .maybeSingle();
 
         if (member && member.company_id) {
           userCompanyId = member.company_id;
-          if (member.companies && member.companies.company_name) {
-            businessName = member.companies.company_name;
+          if (member.companies) {
+            if (member.companies.company_name) businessName = member.companies.company_name;
+            if (member.companies.bank_name) bankName = member.companies.bank_name;
+            if (member.companies.account_name) accountName = member.companies.account_name;
+            if (member.companies.account_number) accountNumber = member.companies.account_number;
           }
         } else {
           const { data: owned } = await supabaseClient
             .from('companies')
-            .select('id, company_name')
+            .select('id, company_name, bank_name, account_name, account_number')
             .eq('owner_id', session.user.id)
             .maybeSingle();
           if (owned && owned.id) {
             userCompanyId = owned.id;
             if (owned.company_name) businessName = owned.company_name;
+            if (owned.bank_name) bankName = owned.bank_name;
+            if (owned.account_name) accountName = owned.account_name;
+            if (owned.account_number) accountNumber = owned.account_number;
           }
         }
         await fetchDebtors();
@@ -407,7 +431,7 @@ Thank you for your business.
         if (!debtors.length) {
           container.innerHTML = '<div style="text-align:center;padding:48px 16px;background:#121224;border:1px solid rgba(139,92,246,0.1);border-radius:16px;"><i class="fa-solid fa-circle-check" style="color:#34d399;font-size:24px;"></i><p style="color:#cbd5e1;font-size:12px;font-weight:500;margin:8px 0 4px;">No outstanding debts found</p><p style="color:#64748b;font-size:10px;margin:0;">All customer balances are fully settled.</p></div>';
         } else {
-          container.innerHTML = debtors.map(debt => buildMobileCard(debt)).join('');
+          container.innerHTML = debtors.map(d => buildMobileCard(d)).join('');
         }
       }
 
@@ -417,7 +441,7 @@ Thank you for your business.
         if (!debtors.length) {
           tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#64748b;">No outstanding debts found</td></tr>';
         } else {
-          tbody.innerHTML = debtors.map(debt => buildDesktopRow(debt)).join('');
+          tbody.innerHTML = debtors.map(d => buildDesktopRow(d)).join('');
         }
       }
     }
@@ -431,11 +455,15 @@ Thank you for your business.
       if (!waNumber.startsWith('234') && !waNumber.startsWith('+')) waNumber = '234' + waNumber;
 
       const message = encodeURIComponent(buildReminderMessage(debt));
-      const callNumber = phoneClean.startsWith('0') ? phoneClean : phoneClean;
+      const smsBody = encodeURIComponent(buildReminderMessage(debt));
+      const callNumber = phoneClean;
 
       return `
-        <a class="btn-remind" href="https://wa.me/${waNumber}?text=${message}" target="_blank">
+        <a class="btn-wa" href="https://wa.me/${waNumber}?text=${message}" target="_blank">
           <i class="fa-brands fa-whatsapp"></i> WhatsApp
+        </a>
+        <a class="btn-sms" href="sms:${callNumber}?body=${smsBody}">
+          <i class="fa-solid fa-comment-sms"></i> SMS
         </a>
         <a class="btn-call" href="tel:${callNumber}">
           <i class="fa-solid fa-phone"></i> Call
@@ -469,7 +497,7 @@ Thank you for your business.
             <span><i class="fa-regular fa-clock" style="margin-right:4px;"></i>${formatDate(debt.created_at)}</span>
             <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
               ${buildActionButtons(debt)}
-              <button class="btn-paid" onclick="markAsPaid('${debt.id}')"><i class="fa-solid fa-check" style="margin-right:4px;"></i>Mark as Paid</button>
+              <button class="btn-paid" onclick="markAsPaid('${debt.id}')"><i class="fa-solid fa-check"></i> Paid</button>
             </div>
           </div>
         </div>
@@ -578,7 +606,21 @@ Thank you for your business.
       }
     }
 
-    window.addEventListener('DOMContentLoaded', initializeDebtors);
+    // Extra safety against leakage
+    function enforceView() {
+      const isDesktop = window.innerWidth >= 1024;
+      document.querySelectorAll('.mobile-only').forEach(el => {
+        el.style.display = isDesktop ? 'none' : 'block';
+      });
+      document.querySelectorAll('.desktop-only').forEach(el => {
+        el.style.display = isDesktop ? 'flex' : 'none';
+      });
+    }
+    window.addEventListener('resize', enforceView);
+    window.addEventListener('DOMContentLoaded', function() {
+      enforceView();
+      initializeDebtors();
+    });
   </script>
 </body>
 </html>
