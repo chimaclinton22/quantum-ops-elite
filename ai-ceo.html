@@ -9,22 +9,24 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+
+    /* STRICT ISOLATION */
+    .mobile-only { display: block !important; }
+    .desktop-only { display: none !important; }
+    @media (min-width: 1024px) {
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
+    }
+
+    /* ===== MOBILE ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh;
       background: #0B0B16; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
-    }
-    @media (min-width: 768px) {
-      body { display: flex; align-items: center; justify-content: center; height: 100vh; }
-      .iphone-frame {
-        max-width: 410px; max-height: 860px; border-radius: 48px;
-        border: 1px solid rgba(139,92,246,0.2);
-        box-shadow: 0 25px 50px -12px rgba(15,13,35,0.7);
-      }
     }
     .top-bar {
       padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
@@ -32,12 +34,12 @@
     }
     .chat-area { flex: 1; overflow-y: auto; padding: 12px; }
     .msg-ai {
-      margin-right: 24px; padding: 10px 14px; border-radius: 16px 16px 16px 6px;
+      margin-right: 20px; padding: 12px 14px; border-radius: 16px 16px 16px 6px;
       background: #121224; border: 1px solid rgba(139,92,246,0.2);
-      font-size: 12px; color: #e2e8f0; line-height: 1.5; margin-bottom: 10px;
+      font-size: 12px; color: #e2e8f0; line-height: 1.55; margin-bottom: 10px;
     }
     .msg-user {
-      margin-left: 32px; padding: 10px 14px; border-radius: 16px 16px 6px 16px;
+      margin-left: 28px; padding: 12px 14px; border-radius: 16px 16px 6px 16px;
       background: linear-gradient(135deg, #6C5CE7, #5B4BC4);
       font-size: 12px; color: #fff; line-height: 1.5; margin-bottom: 10px;
     }
@@ -46,9 +48,13 @@
       border-top: 1px solid rgba(139,92,246,0.1); background: rgba(11,11,22,0.95); flex-shrink: 0;
     }
     .chip {
-      white-space: nowrap; padding: 6px 12px; border-radius: 999px;
+      white-space: nowrap; padding: 7px 13px; border-radius: 999px;
       font-size: 10px; font-weight: 600; background: #121224;
       border: 1px solid rgba(139,92,246,0.25); color: #e2e8f0; cursor: pointer;
+    }
+    .chip.primary {
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      border: none; color: #fff;
     }
     .input-bar {
       display: flex; gap: 8px; padding: 10px 12px;
@@ -56,10 +62,10 @@
     }
     .input-bar input {
       flex: 1; background: #121224; border: 1px solid rgba(139,92,246,0.2);
-      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
+      border-radius: 12px; padding: 11px 12px; font-size: 12px; color: #fff; outline: none;
     }
     .input-bar button {
-      width: 40px; height: 40px; border: none; border-radius: 12px;
+      width: 42px; height: 42px; border: none; border-radius: 12px;
       background: linear-gradient(135deg, #6C5CE7, #4F46E5); color: #fff; cursor: pointer;
     }
     .bottom-nav {
@@ -69,59 +75,160 @@
     .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #94a3b8; text-decoration: none; font-size: 9px; }
     .nav-item.active { color: #a78bfa; }
     .nav-item i { font-size: 14px; }
-    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
-    .stat-box { background: #191932; border-radius: 12px; padding: 8px; border: 1px solid rgba(139,92,246,0.15); }
-    .stat-box p { margin: 0; font-size: 9px; color: #94a3b8; }
-    .stat-box h4 { margin: 2px 0 0; font-size: 14px; font-weight: 700; color: #fff; }
-    .rec-box { margin-top: 8px; padding: 10px; border-radius: 12px; background: rgba(108,92,231,0.15); border: 1px solid rgba(139,92,246,0.3); }
+
+    /* ===== DESKTOP ===== */
+    .desktop-shell {
+      width: 100%; min-height: 100vh; background: #07070F;
+      display: flex; flex-direction: column;
+    }
+    .desk-topbar {
+      height: 64px; background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0;
+    }
+    .desk-body {
+      flex: 1; display: grid; grid-template-columns: 1fr 380px; overflow: hidden;
+    }
+    .desk-chat {
+      display: flex; flex-direction: column; border-right: 1px solid rgba(139,92,246,0.12);
+    }
+    .desk-chat-area { flex: 1; overflow-y: auto; padding: 20px; }
+    .desk-sidebar {
+      padding: 20px; overflow-y: auto; background: #0B0B16;
+    }
+    .side-card {
+      background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px; padding: 16px; margin-bottom: 14px;
+    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+    .stat-box { background: #191932; border-radius: 12px; padding: 10px; border: 1px solid rgba(139,92,246,0.15); }
+    .stat-box p { margin: 0; font-size: 10px; color: #94a3b8; }
+    .stat-box h4 { margin: 3px 0 0; font-size: 15px; font-weight: 700; color: #fff; }
+    .rec-box { margin-top: 10px; padding: 12px; border-radius: 12px; background: rgba(108,92,231,0.15); border: 1px solid rgba(139,92,246,0.3); }
+    .score-circle {
+      width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; margin: 0 auto 8px;
+    }
     a.link { color: #c4b5fd; text-decoration: underline; font-size: 11px; }
+    .action-btn {
+      display: block; width: 100%; padding: 11px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5); color: #fff;
+      font-weight: 700; font-size: 12px; cursor: pointer; margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <div class="top-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:32px;height:32px;border-radius:12px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-          <div>
-            <div style="font-weight:700;font-size:12px;color:#fff;">AI CEO</div>
-            <div style="font-size:9px;color:#c4b5fd;" id="ceo-status">Analyzing…</div>
+
+  <!-- ==================== MOBILE ==================== -->
+  <div class="mobile-only">
+    <div class="iphone-frame">
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:32px;height:32px;border-radius:12px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:12px;color:#fff;">AI CEO</div>
+              <div style="font-size:9px;color:#c4b5fd;" id="ceo-status">Analyzing…</div>
+            </div>
           </div>
         </div>
+        <span style="font-size:9px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:2px 8px;border-radius:999px;font-weight:600;">Live Data</span>
       </div>
-      <span style="font-size:9px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:2px 8px;border-radius:999px;font-weight:600;">Live Data</span>
+
+      <div id="chat-area" class="chat-area custom-scrollbar">
+        <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">
+          <i class="fa-solid fa-robot" style="font-size:24px;color:#a78bfa;display:block;margin-bottom:8px;"></i>
+          Loading your business briefing…
+        </div>
+      </div>
+
+      <div class="chips custom-scrollbar">
+        <button class="chip primary" onclick="runAction('today')">🎯 What should I do today?</button>
+        <button class="chip" onclick="runAction('sales')">📈 Sales</button>
+        <button class="chip" onclick="runAction('profit')">💰 Profit</button>
+        <button class="chip" onclick="runAction('restock')">📦 Restock</button>
+        <button class="chip" onclick="runAction('debtors')">👥 Debtors</button>
+        <button class="chip" onclick="runAction('cashflow')">💵 Cash Flow</button>
+        <button class="chip" onclick="runAction('deadstock')">🧊 Dead Stock</button>
+        <button class="chip" onclick="runAction('weekly')">📊 Weekly Report</button>
+      </div>
+
+      <div class="input-bar">
+        <input id="chat-input" type="text" placeholder="Ask your AI CEO…" onkeydown="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane" style="font-size:12px;"></i></button>
+      </div>
+
+      <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
+        <a href="ai-ceo.html" class="nav-item active"><i class="fa-solid fa-robot"></i>AI CEO</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ==================== DESKTOP ==================== -->
+  <div class="desktop-only desktop-shell">
+    <div class="desk-topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);display:flex;align-items:center;justify-content:center;color:#fff;">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:16px;color:#fff;">AI CEO</div>
+          <div style="font-size:12px;color:#c4b5fd;" id="desk-ceo-status">Analyzing…</div>
+        </div>
+      </div>
+      <span style="font-size:11px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:4px 12px;border-radius:999px;font-weight:600;">Live Data</span>
     </div>
 
-    <div id="chat-area" class="chat-area custom-scrollbar">
-      <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">
-        <i class="fa-solid fa-robot" style="font-size:24px;color:#a78bfa;display:block;margin-bottom:8px;"></i>
-        Loading your business briefing…
+    <div class="desk-body">
+      <!-- Chat -->
+      <div class="desk-chat">
+        <div id="desk-chat-area" class="desk-chat-area custom-scrollbar">
+          <div style="text-align:center;padding:60px 0;color:#64748b;">Loading…</div>
+        </div>
+        <div class="chips" style="border-top:1px solid rgba(139,92,246,0.1);">
+          <button class="chip primary" onclick="runAction('today')">🎯 What should I do today?</button>
+          <button class="chip" onclick="runAction('sales')">📈 Sales</button>
+          <button class="chip" onclick="runAction('profit')">💰 Profit</button>
+          <button class="chip" onclick="runAction('restock')">📦 Restock</button>
+          <button class="chip" onclick="runAction('debtors')">👥 Debtors</button>
+          <button class="chip" onclick="runAction('cashflow')">💵 Cash Flow</button>
+          <button class="chip" onclick="runAction('deadstock')">🧊 Dead Stock</button>
+          <button class="chip" onclick="runAction('weekly')">📊 Weekly Report</button>
+        </div>
+        <div class="input-bar">
+          <input id="desk-chat-input" type="text" placeholder="Ask your AI CEO…" onkeydown="if(event.key==='Enter') sendMessage()">
+          <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+
+      <!-- Sidebar Insights -->
+      <div class="desk-sidebar custom-scrollbar">
+        <button class="action-btn" onclick="runAction('today')">🎯 What should I do today?</button>
+
+        <div class="side-card" id="side-cashflow">
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">Cash Flow Health</div>
+          <div id="side-score-wrap" style="text-align:center;">
+            <div class="score-circle" id="side-score" style="background:rgba(100,100,100,0.2);color:#94a3b8;">—</div>
+            <div id="side-score-label" style="font-size:12px;color:#94a3b8;">Calculating…</div>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;">Quick Insights</div>
+          <div id="side-insights" style="font-size:12px;color:#cbd5e1;line-height:1.6;">Loading…</div>
+        </div>
+
+        <div class="side-card">
+          <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;">Top Actions</div>
+          <div id="side-actions" style="font-size:12px;color:#cbd5e1;line-height:1.6;">—</div>
+        </div>
       </div>
     </div>
-
-    <div class="chips custom-scrollbar">
-      <button class="chip" onclick="runAction('sales')">📈 Sales</button>
-      <button class="chip" onclick="runAction('profit')">💰 Profit</button>
-      <button class="chip" onclick="runAction('restock')">📦 Restock</button>
-      <button class="chip" onclick="runAction('debtors')">👥 Debtors</button>
-      <button class="chip" onclick="runAction('bestsellers')">🔥 Best Sellers</button>
-      <button class="chip" onclick="runAction('risks')">⚠️ Risks</button>
-    </div>
-
-    <div class="input-bar">
-      <input id="chat-input" type="text" placeholder="Ask your AI CEO…" onkeydown="if(event.key==='Enter') sendMessage()">
-      <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane" style="font-size:12px;"></i></button>
-    </div>
-
-    <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
-      <a href="ai-ceo.html" class="nav-item active"><i class="fa-solid fa-robot"></i>AI CEO</a>
-    </nav>
   </div>
 
   <script>
@@ -131,9 +238,10 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
+    const DEAD_STOCK_DAYS = 21;
 
     let userCompanyId = null;
-    let ownerName = 'Owner';
+    let ownerName = 'Boss';
     let biz = { sales: [], products: [], debtors: [], expenses: [] };
     let ready = false;
 
@@ -163,17 +271,27 @@
     }
 
     function addMessage(html, isUser) {
-      const area = document.getElementById('chat-area');
-      const div = document.createElement('div');
-      div.className = isUser ? 'msg-user' : 'msg-ai';
-      div.innerHTML = html;
-      area.appendChild(div);
-      area.scrollTop = area.scrollHeight;
+      const areas = [
+        document.getElementById('chat-area'),
+        document.getElementById('desk-chat-area')
+      ];
+      areas.forEach(area => {
+        if (!area) return;
+        const div = document.createElement('div');
+        div.className = isUser ? 'msg-user' : 'msg-ai';
+        div.innerHTML = html;
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
+      });
     }
     function clearChat() {
-      document.getElementById('chat-area').innerHTML = '';
+      ['chat-area', 'desk-chat-area'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '';
+      });
     }
 
+    // ===== DATA HELPERS =====
     function todaySales() {
       const t = getLocalDateString(new Date());
       return biz.sales.filter(s => getLocalDateString(s.created_at) === t);
@@ -196,19 +314,30 @@
         .filter(e => getLocalDateString(e.created_at) === t)
         .reduce((a, e) => a + parseMoney(e.amount), 0);
     }
+    function weekExpenses() {
+      const from = daysAgo(6);
+      const to = getLocalDateString(new Date());
+      return biz.expenses
+        .filter(e => {
+          const d = getLocalDateString(e.created_at);
+          return d >= from && d <= to;
+        })
+        .reduce((a, e) => a + parseMoney(e.amount), 0);
+    }
     function productStats(list) {
       const map = {};
       list.forEach(s => {
         if (!Array.isArray(s.items)) return;
         s.items.forEach(i => {
           const name = i.name || i.product_name || 'Product';
-          if (!map[name]) map[name] = { qty: 0, revenue: 0, profit: 0 };
+          if (!map[name]) map[name] = { qty: 0, revenue: 0, profit: 0, lastSold: s.created_at };
           const qty = parseInt(i.qty || i.quantity || 1);
           const price = parseMoney(i.price);
           const cost = parseMoney(i.cost_price ?? i.unit_cost);
           map[name].qty += qty;
           map[name].revenue += price * qty;
           map[name].profit += (price - cost) * qty;
+          if (new Date(s.created_at) > new Date(map[name].lastSold)) map[name].lastSold = s.created_at;
         });
       });
       return map;
@@ -227,7 +356,7 @@
       }).map(p => {
         const pieces = parseFloat(p.stock || 0);
         const pack = parseFloat(p.items_per_pack || 24) || 24;
-        return { name: p.name || 'Product', units: (pieces / pack).toFixed(1), pieces: pieces };
+        return { name: p.name || 'Product', units: (pieces / pack).toFixed(1), pieces, id: p.id };
       });
     }
     function debtTotal() {
@@ -239,6 +368,72 @@
         .slice(0, limit || 5);
     }
 
+    // Dead stock: products with stock but no sales in last X days
+    function deadStockProducts() {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - DEAD_STOCK_DAYS);
+      const soldRecently = new Set();
+      biz.sales.forEach(s => {
+        if (new Date(s.created_at) >= cutoff && Array.isArray(s.items)) {
+          s.items.forEach(i => {
+            if (i.name) soldRecently.add(i.name.toLowerCase());
+            if (i.id) soldRecently.add(String(i.id));
+          });
+        }
+      });
+      return biz.products.filter(p => {
+        const pieces = parseFloat(p.stock || 0);
+        if (pieces <= 0) return false;
+        const name = (p.name || '').toLowerCase();
+        return !soldRecently.has(name) && !soldRecently.has(String(p.id));
+      }).map(p => ({
+        name: p.name || 'Product',
+        pieces: parseFloat(p.stock || 0),
+        value: parseFloat(p.stock || 0) * parseMoney(p.unit_cost || p.selling_price || 0)
+      }));
+    }
+
+    // Profit killers: products with low/negative margin in recent sales
+    function profitKillers() {
+      const week = salesInRange(daysAgo(13), getLocalDateString(new Date()));
+      return Object.entries(productStats(week))
+        .map(([name, d]) => ({ name, ...d, margin: d.revenue > 0 ? (d.profit / d.revenue) * 100 : 0 }))
+        .filter(p => p.qty > 0 && p.margin < 15)
+        .sort((a, b) => a.margin - b.margin)
+        .slice(0, 5);
+    }
+
+    // Cash Flow Health Score (0-100)
+    function cashFlowScore() {
+      let score = 70;
+      const today = todaySales();
+      const sales = sumAmount(today);
+      const profit = sumProfit(today);
+      const exp = todayExpenses();
+      const debts = debtTotal();
+      const low = lowStockProducts().length;
+      const dead = deadStockProducts().length;
+
+      if (debts > sales * 2 && sales > 0) score -= 20;
+      else if (debts > 0) score -= 10;
+      if (exp > profit && today.length) score -= 15;
+      if (low > 3) score -= 10;
+      if (dead > 5) score -= 10;
+      if (today.length === 0 && new Date().getHours() >= 14) score -= 10;
+      if (profit > 0 && exp < profit * 0.4) score += 10;
+      if (debts === 0) score += 5;
+
+      return Math.max(10, Math.min(100, score));
+    }
+
+    function scoreLabel(score) {
+      if (score >= 80) return { text: 'Healthy', color: '#34d399' };
+      if (score >= 60) return { text: 'Fair', color: '#fbbf24' };
+      if (score >= 40) return { text: 'At Risk', color: '#fb923c' };
+      return { text: 'Critical', color: '#fb7185' };
+    }
+
+    // ===== RESPONSES =====
     function buildBriefing() {
       const today = todaySales();
       const sales = sumAmount(today);
@@ -251,42 +446,88 @@
       const low = lowStockProducts();
       const debts = debtTotal();
       const debtCount = biz.debtors.length;
+      const score = cashFlowScore();
+      const sLabel = scoreLabel(score);
 
-      const rec = [];
-      if (low.length) rec.push('Restock ' + low.slice(0, 2).map(p => p.name).join(' & ') + ' today.');
-      if (debtCount >= 2) rec.push('Follow up with top debtors (' + formatCurrency(debts) + ' outstanding).');
-      if (!tx) rec.push('No sales yet today — open POS when ready.');
-      if (tops[0] && tops[0].revenue > 0) rec.push(best + ' is leading sales — keep it stocked.');
-      if (exp > 0 && net < profit * 0.5) rec.push('Expenses are eating profit today — review costs.');
-      if (!rec.length) rec.push('Business looks stable. Keep recording every sale.');
+      const actions = [];
+      if (debtCount > 0) {
+        const topD = topDebtors(1)[0];
+        actions.push(`Collect from <b>${topD.customer_name || 'top debtor'}</b> (${formatCurrency(topD.amount_owing)})`);
+      }
+      if (low.length) actions.push(`Restock <b>${low[0].name}</b> (${low[0].units} units left)`);
+      if (exp > profit && tx > 0) actions.push('Review today’s expenses — they are high vs profit');
+      if (!tx && new Date().getHours() >= 10) actions.push('No sales yet — open POS and start selling');
+      if (!actions.length) actions.push('Business is stable. Keep recording every sale.');
 
-      return ''
-        + '<p style="font-weight:700;color:#fff;font-size:13px;margin:0 0 6px;">' + greeting() + ', ' + ownerName + ' 👋</p>'
-        + '<p style="color:#cbd5e1;margin:0 0 8px;">Here\'s your business snapshot:</p>'
-        + '<div class="stat-grid">'
-        +   '<div class="stat-box"><p>Sales today</p><h4>' + formatCurrency(sales) + '</h4></div>'
-        +   '<div class="stat-box"><p>Gross profit</p><h4 style="color:#34d399;">' + formatCurrency(profit) + '</h4></div>'
-        +   '<div class="stat-box"><p>Expenses today</p><h4 style="color:#fb7185;">' + formatCurrency(exp) + '</h4></div>'
-        +   '<div class="stat-box"><p>Net profit</p><h4 style="color:' + (net >= 0 ? '#34d399' : '#fb7185') + ';">' + formatCurrency(net) + '</h4></div>'
-        + '</div>'
-        + '<p style="font-size:11px;color:#cbd5e1;margin:8px 0;">'
-        +   '🧾 <b>' + tx + '</b> transactions · Best: <b style="color:#c4b5fd;">' + best + '</b><br>'
-        +   '📦 <b>' + low.length + '</b> low stock · 👥 <b>' + debtCount + '</b> owe <b style="color:#fb7185;">' + formatCurrency(debts) + '</b>'
-        + '</p>'
-        + '<div class="rec-box">'
-        +   '<p style="margin:0 0 4px;font-size:10px;font-weight:700;color:#c4b5fd;">CEO Recommendation</p>'
-        +   '<p style="margin:0;font-size:11px;color:#e2e8f0;">' + rec.join(' ') + '</p>'
-        + '</div>'
-        + '<p style="font-size:10px;color:#64748b;margin:8px 0 0;">Ask me anything, or tap a button below.</p>';
+      return `
+        <p style="font-weight:700;color:#fff;font-size:13px;margin:0 0 6px;">${greeting()}, ${ownerName} 👋</p>
+        <p style="color:#cbd5e1;margin:0 0 8px;">Here’s your live business snapshot:</p>
+        <div class="stat-grid">
+          <div class="stat-box"><p>Sales today</p><h4>${formatCurrency(sales)}</h4></div>
+          <div class="stat-box"><p>Gross profit</p><h4 style="color:#34d399;">${formatCurrency(profit)}</h4></div>
+          <div class="stat-box"><p>Expenses</p><h4 style="color:#fb7185;">${formatCurrency(exp)}</h4></div>
+          <div class="stat-box"><p>Net profit</p><h4 style="color:${net >= 0 ? '#34d399' : '#fb7185'};">${formatCurrency(net)}</h4></div>
+        </div>
+        <p style="font-size:11px;color:#cbd5e1;margin:8px 0;">
+          🧾 <b>${tx}</b> transactions · Best: <b style="color:#c4b5fd;">${best}</b><br>
+          📦 <b>${low.length}</b> low stock · 👥 <b>${debtCount}</b> owe <b style="color:#fb7185;">${formatCurrency(debts)}</b><br>
+          💵 Cash Flow Score: <b style="color:${sLabel.color};">${score}/100 (${sLabel.text})</b>
+        </p>
+        <div class="rec-box">
+          <p style="margin:0 0 6px;font-size:10px;font-weight:700;color:#c4b5fd;">CEO Priority Actions</p>
+          <p style="margin:0;font-size:11px;color:#e2e8f0;">${actions.map((a, i) => (i + 1) + '. ' + a).join('<br>')}</p>
+        </div>
+        <p style="font-size:10px;color:#64748b;margin:8px 0 0;">Tap “What should I do today?” for deeper advice.</p>
+      `;
+    }
+
+    function answerToday() {
+      const today = todaySales();
+      const sales = sumAmount(today);
+      const profit = sumProfit(today);
+      const exp = todayExpenses();
+      const debts = debtTotal();
+      const low = lowStockProducts();
+      const dead = deadStockProducts();
+      const score = cashFlowScore();
+      const sLabel = scoreLabel(score);
+      const topD = topDebtors(3);
+
+      let html = `<p style="font-weight:700;color:#fff;margin:0 0 8px;">🎯 What You Should Do Today</p>`;
+      html += `<p style="margin:0 0 8px;font-size:11px;color:#cbd5e1;">Cash Flow Score: <b style="color:${sLabel.color};">${score}/100 (${sLabel.text})</b></p>`;
+
+      const steps = [];
+      if (topD.length) {
+        steps.push(`<b>1. Collect debt</b><br>Focus on: ${topD.map(d => (d.customer_name || 'Customer') + ' (' + formatCurrency(d.amount_owing) + ')').join(', ')}. Use WhatsApp/SMS reminder.`);
+      }
+      if (low.length) {
+        steps.push(`<b>${steps.length + 1}. Restock urgently</b><br>${low.slice(0, 3).map(p => p.name + ' (' + p.units + ' units left)').join(', ')}`);
+      }
+      if (dead.length > 0) {
+        steps.push(`<b>${steps.length + 1}. Clear dead stock</b><br>${dead.length} product(s) not selling. Consider discount or promo.`);
+      }
+      if (exp > profit && today.length) {
+        steps.push(`<b>${steps.length + 1}. Control expenses</b><br>Today’s expenses (${formatCurrency(exp)}) are high compared to profit (${formatCurrency(profit)}).`);
+      }
+      if (!today.length && new Date().getHours() >= 10) {
+        steps.push(`<b>${steps.length + 1}. Start selling</b><br>No sales recorded yet. Open POS and push your best sellers.`);
+      }
+      if (!steps.length) {
+        steps.push('Business looks stable today. Keep recording every sale and monitor stock.');
+      }
+
+      html += `<p style="margin:0;font-size:12px;line-height:1.6;">${steps.join('<br><br>')}</p>`;
+      html += `<p style="margin:12px 0 0;font-size:11px;"><a class="link" href="debtors.html">Open Debtors</a> · <a class="link" href="inventory.html">Open Inventory</a> · <a class="link" href="pos.html">Open POS</a></p>`;
+      return html;
     }
 
     function answerSales() {
       const today = todaySales();
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
-      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">📈 Sales Summary</p>'
-        + '<p style="margin:0;">Today: <b>' + formatCurrency(sumAmount(today)) + '</b> · ' + today.length + ' transactions</p>'
-        + '<p style="margin:4px 0 0;">Last 7 days: <b>' + formatCurrency(sumAmount(week)) + '</b> · ' + week.length + ' transactions</p>'
-        + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View full sales history →</a></p>';
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📈 Sales Summary</p>
+        <p style="margin:0;">Today: <b>${formatCurrency(sumAmount(today))}</b> · ${today.length} transactions</p>
+        <p style="margin:4px 0 0;">Last 7 days: <b>${formatCurrency(sumAmount(week))}</b> · ${week.length} transactions</p>
+        <p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View full sales history →</a></p>`;
     }
 
     function answerProfit() {
@@ -295,84 +536,131 @@
       const exp = todayExpenses();
       const net = sumProfit(today) - exp;
       const tops = topProducts(week, 'profit', 3);
-      let lines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.profit) + ' profit').join('<br>');
-      if (!lines) lines = 'No product-level profit data yet. Set cost prices on products.';
-      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">💰 Profit Analysis</p>'
-        + '<p style="margin:0;">Gross today: <b style="color:#34d399;">' + formatCurrency(sumProfit(today)) + '</b></p>'
-        + '<p style="margin:4px 0 0;">Expenses today: <b style="color:#fb7185;">' + formatCurrency(exp) + '</b></p>'
-        + '<p style="margin:4px 0 0;">Net today: <b style="color:' + (net >= 0 ? '#34d399' : '#fb7185') + ';">' + formatCurrency(net) + '</b></p>'
-        + '<p style="margin:4px 0 0;">Last 7 days gross: <b style="color:#34d399;">' + formatCurrency(sumProfit(week)) + '</b></p>'
-        + '<p style="margin:8px 0 0;font-size:11px;color:#cbd5e1;"><b>Top profit products (7 days):</b><br>' + lines + '</p>'
-        + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=profit">View profit history →</a></p>';
+      let lines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.profit)).join('<br>');
+      if (!lines) lines = 'No product-level profit data yet.';
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">💰 Profit Analysis</p>
+        <p style="margin:0;">Gross today: <b style="color:#34d399;">${formatCurrency(sumProfit(today))}</b></p>
+        <p style="margin:4px 0 0;">Expenses today: <b style="color:#fb7185;">${formatCurrency(exp)}</b></p>
+        <p style="margin:4px 0 0;">Net today: <b style="color:${net >= 0 ? '#34d399' : '#fb7185'};">${formatCurrency(net)}</b></p>
+        <p style="margin:4px 0 0;">Last 7 days gross: <b style="color:#34d399;">${formatCurrency(sumProfit(week))}</b></p>
+        <p style="margin:8px 0 0;font-size:11px;"><b>Top profit products:</b><br>${lines}</p>
+        <p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=profit">View profit history →</a></p>`;
     }
 
     function answerRestock() {
       const low = lowStockProducts();
       if (!low.length) {
-        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Advice</p><p style="margin:0;">All tracked products look healthy. No urgent restock needed.</p>';
+        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Advice</p><p style="margin:0;">All tracked products look healthy. No urgent restock needed.</p>`;
       }
-      const lines = low.map(p => '• <b>' + p.name + '</b> — ' + p.units + ' units left (' + p.pieces + ' pcs)').join('<br>');
-      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Advice</p>'
-        + '<p style="margin:0 0 6px;color:#fbbf24;font-size:11px;">' + low.length + ' product(s) at or below ' + LOW_STOCK_UNITS + ' units:</p>'
-        + '<p style="margin:0;font-size:11px;">' + lines + '</p>'
-        + '<p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Restock best sellers first.</p>'
-        + '<p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>';
+      const lines = low.map(p => `• <b>${p.name}</b> — ${p.units} units left (${p.pieces} pcs)`).join('<br>');
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Priority</p>
+        <p style="margin:0 0 6px;color:#fbbf24;font-size:11px;">${low.length} product(s) at or below ${LOW_STOCK_UNITS} units:</p>
+        <p style="margin:0;font-size:11px;">${lines}</p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Restock best sellers first before weekend.</p>
+        <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
     }
 
     function answerDebtors() {
       const total = debtTotal();
       const list = topDebtors(5);
       if (!list.length) {
-        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Debtors</p><p style="margin:0;">No outstanding debts. Great cash discipline.</p>';
+        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Debtors</p><p style="margin:0;">No outstanding debts. Excellent cash discipline.</p>`;
       }
       const lines = list.map((d, i) => (i + 1) + '. <b>' + (d.customer_name || 'Customer') + '</b> — ' + formatCurrency(d.amount_owing)).join('<br>');
-      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Outstanding Debt</p>'
-        + '<p style="margin:0;">Total: <b style="color:#fb7185;">' + formatCurrency(total) + '</b> from ' + biz.debtors.length + ' customer(s)</p>'
-        + '<p style="margin:8px 0 0;font-size:11px;"><b>Highest balances:</b><br>' + lines + '</p>'
-        + '<p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Contact the largest balances first.</p>'
-        + '<p style="margin:8px 0 0;"><a class="link" href="debtors.html">Open Debtors →</a></p>';
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Outstanding Debt</p>
+        <p style="margin:0;">Total: <b style="color:#fb7185;">${formatCurrency(total)}</b> from ${biz.debtors.length} customer(s)</p>
+        <p style="margin:8px 0 0;font-size:11px;"><b>Collect from these first:</b><br>${lines}</p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Use WhatsApp + SMS reminder. Highest balance first.</p>
+        <p style="margin:8px 0 0;"><a class="link" href="debtors.html">Open Debtors →</a></p>`;
     }
 
-    function answerBestsellers() {
-      const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
-      const tops = topProducts(week, 'revenue', 5);
-      if (!tops.length) {
-        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">🔥 Best Sellers</p><p style="margin:0;">No sales data yet this week.</p>';
+    function answerCashflow() {
+      const score = cashFlowScore();
+      const sLabel = scoreLabel(score);
+      const debts = debtTotal();
+      const dead = deadStockProducts();
+      const today = todaySales();
+      const profit = sumProfit(today);
+      const exp = todayExpenses();
+
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">💵 Cash Flow Health</p>
+        <p style="margin:0;">Score: <b style="color:${sLabel.color};font-size:18px;">${score}/100</b> (${sLabel.text})</p>
+        <p style="margin:8px 0 0;font-size:11px;">
+          • Money locked in debt: <b style="color:#fb7185;">${formatCurrency(debts)}</b><br>
+          • Dead stock items: <b>${dead.length}</b><br>
+          • Today profit vs expense: ${formatCurrency(profit)} vs ${formatCurrency(exp)}
+        </p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">
+          ${score >= 70 ? 'Cash flow is under control. Keep collecting and avoid overstocking.' : 'Focus on collecting debt and clearing slow stock to free cash.'}
+        </p>`;
+    }
+
+    function answerDeadstock() {
+      const dead = deadStockProducts();
+      if (!dead.length) {
+        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">🧊 Dead Stock</p><p style="margin:0;">No dead stock detected. Good inventory movement.</p>`;
       }
-      const lines = tops.map((p, i) => (i + 1) + '. <b>' + p.name + '</b> — ' + p.qty + ' sold · ' + formatCurrency(p.revenue)).join('<br>');
-      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">🔥 Best Sellers (7 days)</p>'
-        + '<p style="margin:0;font-size:11px;">' + lines + '</p>'
-        + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View sales →</a></p>';
+      const lines = dead.slice(0, 6).map(p => `• <b>${p.name}</b> — ${p.pieces} pcs`).join('<br>');
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">🧊 Dead Stock Alert</p>
+        <p style="margin:0 0 6px;font-size:11px;color:#fbbf24;">${dead.length} product(s) have stock but no sales in the last ${DEAD_STOCK_DAYS} days:</p>
+        <p style="margin:0;font-size:11px;">${lines}</p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Discount, bundle, or promote these to free your cash.</p>
+        <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
+    }
+
+    function answerWeekly() {
+      const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
+      const sales = sumAmount(week);
+      const profit = sumProfit(week);
+      const exp = weekExpenses();
+      const net = profit - exp;
+      const tops = topProducts(week, 'revenue', 3);
+      const low = lowStockProducts();
+      const debts = debtTotal();
+
+      let topLines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.revenue)).join('<br>');
+      if (!topLines) topLines = 'No sales data this week.';
+
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📊 Weekly CEO Report</p>
+        <p style="margin:0;">Sales (7 days): <b>${formatCurrency(sales)}</b></p>
+        <p style="margin:4px 0 0;">Gross Profit: <b style="color:#34d399;">${formatCurrency(profit)}</b></p>
+        <p style="margin:4px 0 0;">Expenses: <b style="color:#fb7185;">${formatCurrency(exp)}</b></p>
+        <p style="margin:4px 0 0;">Net: <b style="color:${net >= 0 ? '#34d399' : '#fb7185'};">${formatCurrency(net)}</b></p>
+        <p style="margin:4px 0 0;">Transactions: <b>${week.length}</b></p>
+        <p style="margin:8px 0 0;font-size:11px;"><b>Top sellers:</b><br>${topLines}</p>
+        <p style="margin:8px 0 0;font-size:11px;">Low stock items: <b>${low.length}</b> · Outstanding debt: <b style="color:#fb7185;">${formatCurrency(debts)}</b></p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">Focus next week: collect debt + protect best-seller stock.</p>`;
     }
 
     function answerRisks() {
       const low = lowStockProducts();
       const debts = debtTotal();
       const today = todaySales();
-      const yesterday = salesInRange(daysAgo(1), daysAgo(1));
-      const todayAmt = sumAmount(today);
-      const yAmt = sumAmount(yesterday);
       const exp = todayExpenses();
+      const dead = deadStockProducts();
       const risks = [];
-      if (low.length) risks.push('• ' + low.length + ' product(s) running low on stock');
-      if (debts > 0) risks.push('• ' + formatCurrency(debts) + ' tied up in customer debt');
-      if (exp > sumProfit(today) && today.length) risks.push('• Expenses exceed today\'s gross profit');
-      if (yAmt > 0 && todayAmt < yAmt * 0.7) risks.push('• Sales today well below yesterday (' + formatCurrency(todayAmt) + ' vs ' + formatCurrency(yAmt) + ')');
+      if (low.length) risks.push(`• ${low.length} product(s) running low`);
+      if (debts > 0) risks.push(`• ${formatCurrency(debts)} locked in customer debt`);
+      if (dead.length) risks.push(`• ${dead.length} dead stock item(s)`);
+      if (exp > sumProfit(today) && today.length) risks.push('• Expenses higher than today’s profit');
       if (!today.length && new Date().getHours() >= 12) risks.push('• No sales recorded yet today');
-      if (!risks.length) risks.push('• No major risks detected right now. Keep going.');
-      return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">⚠️ Business Risks</p>'
-        + '<p style="margin:0;font-size:11px;">' + risks.join('<br>') + '</p>'
-        + '<p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Fix stock and debt before they hurt cash flow.</p>';
+      if (!risks.length) risks.push('• No major risks detected right now.');
+      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">⚠️ Business Risks</p>
+        <p style="margin:0;font-size:11px;">${risks.join('<br>')}</p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">Fix debt and stock issues first — they hurt cash flow fastest.</p>`;
     }
 
     function runAction(key) {
       if (!ready) return;
       const map = {
+        today: answerToday,
         sales: answerSales,
         profit: answerProfit,
         restock: answerRestock,
         debtors: answerDebtors,
-        bestsellers: answerBestsellers,
+        cashflow: answerCashflow,
+        deadstock: answerDeadstock,
+        weekly: answerWeekly,
         risks: answerRisks
       };
       if (map[key]) addMessage(map[key](), false);
@@ -380,45 +668,84 @@
 
     function handleQuestion(q) {
       const t = q.toLowerCase().trim();
+      if (/what should i do|what do i do|priority|today action/.test(t)) return answerToday();
       if (/profit|margin|net/.test(t)) return answerProfit();
       if (/restock|low stock|inventory|stock/.test(t)) return answerRestock();
-      if (/debt|owe|owes|debtor/.test(t)) return answerDebtors();
-      if (/best.?sell|top.?sell|popular|most.?sold/.test(t)) return answerBestsellers();
+      if (/debt|owe|owes|debtor|collect/.test(t)) return answerDebtors();
+      if (/cash ?flow|liquidity|money locked/.test(t)) return answerCashflow();
+      if (/dead stock|slow.?moving|not selling/.test(t)) return answerDeadstock();
+      if (/week|weekly|7 day|this week/.test(t)) return answerWeekly();
+      if (/best.?sell|top.?sell|popular|most.?sold/.test(t)) {
+        const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
+        const tops = topProducts(week, 'revenue', 5);
+        if (!tops.length) return '<p style="margin:0;">No sales data yet this week.</p>';
+        const lines = tops.map((p, i) => (i + 1) + '. <b>' + p.name + '</b> — ' + p.qty + ' sold · ' + formatCurrency(p.revenue)).join('<br>');
+        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">🔥 Best Sellers (7 days)</p><p style="margin:0;font-size:11px;">${lines}</p>`;
+      }
       if (/risk|problem|warning|issue/.test(t)) return answerRisks();
       if (/expense|cost|spent/.test(t)) {
-        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">💸 Expenses</p>'
-          + '<p style="margin:0;">Today: <b style="color:#fb7185;">' + formatCurrency(todayExpenses()) + '</b></p>'
-          + '<p style="margin:8px 0 0;"><a class="link" href="expenses.html">Open Expenses →</a></p>';
+        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">💸 Expenses</p>
+          <p style="margin:0;">Today: <b style="color:#fb7185;">${formatCurrency(todayExpenses())}</b></p>
+          <p style="margin:4px 0 0;">This week: <b style="color:#fb7185;">${formatCurrency(weekExpenses())}</b></p>
+          <p style="margin:8px 0 0;"><a class="link" href="expenses.html">Open Expenses →</a></p>`;
       }
       if (/today|sales today|how much.*(make|made)|revenue/.test(t)) return answerSales();
-      if (/week|this week|7 day/.test(t)) {
-        const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
-        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">This week</p>'
-          + '<p style="margin:0;">Sales: <b>' + formatCurrency(sumAmount(week)) + '</b></p>'
-          + '<p style="margin:4px 0 0;">Profit: <b style="color:#34d399;">' + formatCurrency(sumProfit(week)) + '</b></p>'
-          + '<p style="margin:4px 0 0;">Transactions: <b>' + week.length + '</b></p>'
-          + '<p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View history →</a></p>';
-      }
-      if (/yesterday/.test(t)) {
-        const y = salesInRange(daysAgo(1), daysAgo(1));
-        return '<p style="font-weight:700;color:#fff;margin:0 0 6px;">Yesterday</p>'
-          + '<p style="margin:0;">Sales: <b>' + formatCurrency(sumAmount(y)) + '</b></p>'
-          + '<p style="margin:4px 0 0;">Profit: <b style="color:#34d399;">' + formatCurrency(sumProfit(y)) + '</b></p>'
-          + '<p style="margin:4px 0 0;">Transactions: <b>' + y.length + '</b></p>';
-      }
       if (/hello|hi |hey|good morning|good afternoon|briefing/.test(t)) return buildBriefing();
-      return '<p style="margin:0;">I can help with sales, profit, expenses, restock, debtors, best sellers, and risks.</p>'
-        + '<p style="margin:6px 0 0;font-size:11px;color:#94a3b8;">Try: “How much profit this week?” · “Who owes me?” · “What should I restock?”</p>';
+      return `<p style="margin:0;">I can help with sales, profit, cash flow, restock, debtors, dead stock, and weekly reports.</p>
+        <p style="margin:6px 0 0;font-size:11px;color:#94a3b8;">Try: “What should I do today?” · “Who owes me?” · “Show dead stock”</p>`;
     }
 
     function sendMessage() {
       if (!ready) return;
-      const input = document.getElementById('chat-input');
-      const q = (input.value || '').trim();
+      const mobileInput = document.getElementById('chat-input');
+      const deskInput = document.getElementById('desk-chat-input');
+      const q = ((mobileInput && mobileInput.value) || (deskInput && deskInput.value) || '').trim();
       if (!q) return;
       addMessage(q, true);
-      input.value = '';
-      setTimeout(function () { addMessage(handleQuestion(q), false); }, 150);
+      if (mobileInput) mobileInput.value = '';
+      if (deskInput) deskInput.value = '';
+      setTimeout(() => addMessage(handleQuestion(q), false), 180);
+    }
+
+    function updateSidebar() {
+      const score = cashFlowScore();
+      const sLabel = scoreLabel(score);
+      const scoreEl = document.getElementById('side-score');
+      const labelEl = document.getElementById('side-score-label');
+      if (scoreEl) {
+        scoreEl.textContent = score;
+        scoreEl.style.background = sLabel.color + '22';
+        scoreEl.style.color = sLabel.color;
+        scoreEl.style.border = '2px solid ' + sLabel.color;
+      }
+      if (labelEl) {
+        labelEl.textContent = sLabel.text;
+        labelEl.style.color = sLabel.color;
+      }
+
+      const insights = document.getElementById('side-insights');
+      if (insights) {
+        const today = todaySales();
+        insights.innerHTML = `
+          Sales today: <b>${formatCurrency(sumAmount(today))}</b><br>
+          Profit: <b style="color:#34d399;">${formatCurrency(sumProfit(today))}</b><br>
+          Expenses: <b style="color:#fb7185;">${formatCurrency(todayExpenses())}</b><br>
+          Debt: <b style="color:#fb7185;">${formatCurrency(debtTotal())}</b><br>
+          Low stock: <b>${lowStockProducts().length}</b> · Dead stock: <b>${deadStockProducts().length}</b>
+        `;
+      }
+
+      const actions = document.getElementById('side-actions');
+      if (actions) {
+        const list = [];
+        const topD = topDebtors(1)[0];
+        if (topD) list.push(`Collect from ${topD.customer_name || 'debtor'}`);
+        const low = lowStockProducts();
+        if (low[0]) list.push(`Restock ${low[0].name}`);
+        if (deadStockProducts().length) list.push('Clear dead stock');
+        if (!list.length) list.push('Keep selling & recording');
+        actions.innerHTML = list.map((a, i) => (i + 1) + '. ' + a).join('<br>');
+      }
     }
 
     async function init() {
@@ -429,7 +756,7 @@
           return;
         }
         const user = session.user;
-        ownerName = (user.user_metadata && user.user_metadata.full_name) || (user.email || 'Owner').split('@')[0] || 'Owner';
+        ownerName = (user.user_metadata && user.user_metadata.full_name) || (user.email || 'Boss').split('@')[0] || 'Boss';
         ownerName = String(ownerName).split(' ')[0];
         ownerName = ownerName.charAt(0).toUpperCase() + ownerName.slice(1).toLowerCase();
 
@@ -451,6 +778,8 @@
           clearChat();
           addMessage('<p style="color:#fb7185;margin:0;">No business found. Please re-login.</p>', false);
           document.getElementById('ceo-status').textContent = 'Offline';
+          const ds = document.getElementById('desk-ceo-status');
+          if (ds) ds.textContent = 'Offline';
           return;
         }
 
@@ -459,20 +788,20 @@
             .select('id, total_amount, total, profit, total_profit, created_at, items, payment_method')
             .eq('company_id', userCompanyId)
             .order('created_at', { ascending: false })
-            .limit(200),
+            .limit(250),
           supabaseClient.from('products')
-            .select('id, name, stock, items_per_pack')
+            .select('id, name, stock, items_per_pack, unit_cost, selling_price')
             .eq('company_id', userCompanyId)
-            .limit(150),
+            .limit(200),
           supabaseClient.from('debtors')
-            .select('id, customer_name, amount_owing, status')
+            .select('id, customer_name, amount_owing, status, created_at')
             .eq('company_id', userCompanyId)
             .limit(100),
           supabaseClient.from('expenses')
             .select('id, amount, created_at')
             .eq('company_id', userCompanyId)
             .order('created_at', { ascending: false })
-            .limit(100)
+            .limit(120)
         ]);
 
         biz.sales = salesRes.data || [];
@@ -481,8 +810,12 @@
         biz.expenses = expensesRes.data || [];
 
         document.getElementById('ceo-status').textContent = 'Ready · Live data';
+        const ds = document.getElementById('desk-ceo-status');
+        if (ds) ds.textContent = 'Ready · Live data';
+
         clearChat();
         addMessage(buildBriefing(), false);
+        updateSidebar();
         ready = true;
       } catch (err) {
         console.error(err);
@@ -492,7 +825,21 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', init);
+    function enforceView() {
+      const isDesktop = window.innerWidth >= 1024;
+      document.querySelectorAll('.mobile-only').forEach(el => {
+        el.style.display = isDesktop ? 'none' : 'block';
+      });
+      document.querySelectorAll('.desktop-only').forEach(el => {
+        el.style.display = isDesktop ? 'flex' : 'none';
+      });
+    }
+
+    window.addEventListener('resize', enforceView);
+    window.addEventListener('DOMContentLoaded', function () {
+      enforceView();
+      init();
+    });
   </script>
 </body>
 </html>
