@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6C5CE7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Notifications - Quantum OPS Elite</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,59 +21,127 @@
     }
   </script>
   <style>
-    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
+
+    /* ========== CRITICAL: NEVER SHOW DESKTOP ON PHONE ========== */
+    #mobile-view { display: block !important; }
+    #desktop-view { display: none !important; }
+
+    @media (min-width: 1024px) {
+      #mobile-view { display: none !important; }
+      #desktop-view { display: flex !important; }
+    }
+
+    /* ===== MOBILE (exactly as you had it) ===== */
     .iphone-frame {
-      width: 100%; max-width: 410px; height: 100vh; max-height: 860px;
-      background: #0B0B16; border: 1px solid rgba(139, 92, 246, 0.2);
-      box-shadow: 0 25px 50px -12px rgba(15, 13, 35, 0.7);
-      position: relative; overflow: hidden; display: flex; flex-direction: column;
+      width: 100%; max-width: 100%; height: 100dvh;
+      background: #0B0B16; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
     }
-    @media (min-width: 768px) {
-      body { align-items: center; justify-content: center; display: flex; height: 100vh; }
-      .iphone-frame { border-radius: 48px; }
+
+    /* ===== DESKTOP ===== */
+    .desktop-shell {
+      width: 100%; min-height: 100vh; background: #07070F;
+      flex-direction: column;
     }
+    .desk-topbar {
+      height: 64px; background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 28px; flex-shrink: 0;
+    }
+    .desk-content {
+      flex: 1; max-width: 720px; margin: 0 auto; width: 100%;
+      padding: 28px 24px; overflow-y: auto;
+    }
+    .desk-notif {
+      background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 16px; padding: 16px 18px; margin-bottom: 10px;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    }
+    .desk-notif:hover { border-color: rgba(139,92,246,0.35); background: #16162a; }
+    .desk-notif.unread { border-color: rgba(139,92,246,0.45); box-shadow: 0 0 0 1px rgba(108,92,231,0.25); }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
-      <div class="flex items-center gap-3">
-        <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
-          <i class="fa-solid fa-arrow-left text-sm"></i>
+
+  <!-- ==================== MOBILE VIEW ==================== -->
+  <div id="mobile-view">
+    <div class="iphone-frame">
+      <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
+        <div class="flex items-center gap-3">
+          <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
+            <i class="fa-solid fa-arrow-left text-sm"></i>
+          </a>
+          <div>
+            <h2 class="font-bold tracking-wider text-xs text-white">NOTIFICATIONS</h2>
+            <p class="text-[9px] text-slate-400">What needs your attention</p>
+          </div>
+        </div>
+        <button onclick="markAllRead()" class="text-[10px] text-purple-300 font-semibold hover:text-white transition">
+          Mark all read
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar pb-20" id="notif-list">
+        <div class="text-center py-16 text-slate-500 text-xs">Loading…</div>
+      </div>
+
+      <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
+        <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px] font-medium">Dashboard</span>
+        </a>
+        <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px] font-medium">Inventory</span>
+        </a>
+        <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px] font-medium">POS</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-user text-sm"></i><span class="text-[9px] font-medium">Profile</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ==================== DESKTOP VIEW ==================== -->
+  <div id="desktop-view" class="desktop-shell">
+    <div class="desk-topbar">
+      <div class="flex items-center gap-4">
+        <a href="dashboard.html" class="text-slate-400 hover:text-white transition text-sm">
+          <i class="fa-solid fa-arrow-left"></i>
         </a>
         <div>
-          <h2 class="font-bold tracking-wider text-xs text-white">NOTIFICATIONS</h2>
-          <p class="text-[9px] text-slate-400">What needs your attention</p>
+          <div style="font-weight:700;font-size:18px;color:#fff;">Notifications</div>
+          <div style="font-size:12px;color:#94a3b8;">What needs your attention</div>
         </div>
       </div>
-      <button onclick="markAllRead()" class="text-[10px] text-purple-300 font-semibold hover:text-white transition">
+      <button onclick="markAllRead()" style="padding:8px 16px;border-radius:10px;background:rgba(108,92,231,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;font-size:13px;font-weight:600;cursor:pointer;">
         Mark all read
       </button>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar pb-20" id="notif-list">
-      <div class="text-center py-16 text-slate-500 text-xs">Loading…</div>
+    <div class="desk-content custom-scrollbar" id="desk-notif-list">
+      <div class="text-center py-20 text-slate-500 text-sm">Loading…</div>
     </div>
-
-    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
-      <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px] font-medium">Dashboard</span>
-      </a>
-      <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px] font-medium">Inventory</span>
-      </a>
-      <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px] font-medium">POS</span>
-      </a>
-      <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-        <i class="fa-solid fa-user text-sm"></i><span class="text-[9px] font-medium">Profile</span>
-      </a>
-    </nav>
   </div>
 
   <script>
+    /* ========== FORCE VIEW (bulletproof) ========== */
+    (function() {
+      function applyView() {
+        var isDesktop = window.innerWidth >= 1024;
+        var mobile = document.getElementById('mobile-view');
+        var desktop = document.getElementById('desktop-view');
+        if (mobile) mobile.style.setProperty('display', isDesktop ? 'none' : 'block', 'important');
+        if (desktop) desktop.style.setProperty('display', isDesktop ? 'flex' : 'none', 'important');
+      }
+      applyView();
+      window.addEventListener('resize', applyView);
+      document.addEventListener('DOMContentLoaded', applyView);
+    })();
+
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -122,12 +192,22 @@
     }
 
     function renderList() {
+      // Mobile list
       const container = document.getElementById('notif-list');
+      // Desktop list
+      const deskContainer = document.getElementById('desk-notif-list');
+
       if (!allNotifs.length) {
-        container.innerHTML = `
+        const empty = `
           <div class="text-center py-16 text-slate-500 text-xs">
             No notifications yet.<br>
             <span class="text-[10px]">Low stock, debts, and AI tips will appear here.</span>
+          </div>`;
+        if (container) container.innerHTML = empty;
+        if (deskContainer) deskContainer.innerHTML = `
+          <div class="text-center py-20 text-slate-500 text-sm">
+            No notifications yet.<br>
+            <span style="font-size:12px;color:#64748b;">Low stock, debts, and AI tips will appear here.</span>
           </div>`;
         return;
       }
@@ -139,6 +219,7 @@
         groups[d].push(n);
       });
 
+      // Mobile HTML
       let html = '';
       Object.keys(groups).forEach(dateStr => {
         html += `<p class="text-[10px] font-bold text-purple-300 mb-2 mt-3 first:mt-0">${formatDateLabel(dateStr)}</p>`;
@@ -160,7 +241,31 @@
             </div>`;
         });
       });
-      container.innerHTML = html;
+      if (container) container.innerHTML = html;
+
+      // Desktop HTML
+      let deskHtml = '';
+      Object.keys(groups).forEach(dateStr => {
+        deskHtml += `<p style="font-size:11px;font-weight:700;color:#a78bfa;margin:20px 0 10px;letter-spacing:0.03em;">${formatDateLabel(dateStr)}</p>`;
+        groups[dateStr].forEach(n => {
+          const unread = !n.is_read;
+          deskHtml += `
+            <div onclick="markRead('${n.id}')" class="desk-notif ${unread ? 'unread' : ''}">
+              <div style="display:flex;align-items:flex-start;gap:14px;">
+                <span style="font-size:20px;line-height:1;margin-top:2px;">${typeIcon(n.type)}</span>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                    <p style="font-size:14px;font-weight:600;color:#fff;margin:0;">${n.title || 'Notification'}</p>
+                    <span style="font-size:11px;color:#64748b;flex-shrink:0;">${formatTime(n.created_at)}</span>
+                  </div>
+                  <p style="font-size:13px;color:#94a3b8;margin:4px 0 0;line-height:1.45;">${n.message || ''}</p>
+                  ${unread ? '<p style="font-size:11px;color:#a78bfa;margin:6px 0 0;">Unread</p>' : ''}
+                </div>
+              </div>
+            </div>`;
+        });
+      });
+      if (deskContainer) deskContainer.innerHTML = deskHtml;
     }
 
     async function loadNotifications() {
@@ -173,8 +278,12 @@
         .limit(100);
 
       if (error) {
-        document.getElementById('notif-list').innerHTML =
-          `<div class="text-center py-16 text-rose-400 text-xs">${error.message}</div>`;
+        const msg = `<div class="text-center py-16 text-rose-400 text-xs">${error.message}</div>`;
+        const deskMsg = `<div class="text-center py-20 text-rose-400 text-sm">${error.message}</div>`;
+        const el = document.getElementById('notif-list');
+        const del = document.getElementById('desk-notif-list');
+        if (el) el.innerHTML = msg;
+        if (del) del.innerHTML = deskMsg;
         return;
       }
       allNotifs = data || [];
@@ -219,8 +328,12 @@
       }
 
       if (!userCompanyId) {
-        document.getElementById('notif-list').innerHTML =
-          '<div class="text-center py-16 text-slate-500 text-xs">No business found.</div>';
+        const msg = '<div class="text-center py-16 text-slate-500 text-xs">No business found.</div>';
+        const deskMsg = '<div class="text-center py-20 text-slate-500 text-sm">No business found.</div>';
+        const el = document.getElementById('notif-list');
+        const del = document.getElementById('desk-notif-list');
+        if (el) el.innerHTML = msg;
+        if (del) del.innerHTML = deskMsg;
         return;
       }
 
