@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6C5CE7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/manifest.json">
   <title>Quantum OPS Elite - Login</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,7 +22,6 @@
       justify-content: center;
       padding: 20px 16px;
     }
-
     .auth-card {
       width: 100%;
       max-width: 420px;
@@ -28,7 +31,6 @@
       padding: 32px 28px;
       box-shadow: 0 0 40px rgba(108,92,231,0.12);
     }
-
     .logo-area {
       display: flex;
       flex-direction: column;
@@ -61,7 +63,6 @@
       letter-spacing: 1.5px;
       margin-top: 2px;
     }
-
     .form-title {
       text-align: center;
       margin-bottom: 24px;
@@ -75,7 +76,6 @@
       font-size: 13px;
       color: #94A3B8;
     }
-
     .field {
       margin-bottom: 16px;
     }
@@ -114,7 +114,6 @@
     .input-wrap input::placeholder {
       color: #475569;
     }
-
     .toggle-password {
       position: absolute;
       right: 14px;
@@ -130,7 +129,6 @@
     .toggle-password:hover {
       color: #A78BFA;
     }
-
     .btn-primary {
       width: 100%;
       padding: 14px;
@@ -152,7 +150,6 @@
       opacity: 0.7;
       cursor: not-allowed;
     }
-
     .alert {
       display: none;
       padding: 12px 14px;
@@ -175,7 +172,6 @@
       border: 1px solid rgba(34,245,160,0.3);
       color: #22F5A0;
     }
-
     .toggle-mode {
       text-align: center;
       margin-top: 24px;
@@ -193,11 +189,9 @@
     .toggle-mode a:hover {
       text-decoration: underline;
     }
-
     .hidden {
       display: none !important;
     }
-
     @media (min-width: 640px) {
       .auth-card {
         padding: 40px 36px;
@@ -206,24 +200,20 @@
   </style>
 </head>
 <body>
-
   <div class="auth-card">
     <div class="logo-area">
       <div class="logo-box">Q</div>
       <h1>QUANTUM OPS</h1>
       <p>AI BUSINESS OS</p>
     </div>
-
     <div class="form-title">
       <h2 id="form-title">Sign in to your account</h2>
       <p id="form-subtitle">Enter your email and password to continue</p>
     </div>
-
     <div id="alert" class="alert">
       <i id="alert-icon" class="fa-solid fa-circle-info"></i>
       <span id="alert-text"></span>
     </div>
-
     <form id="auth-form">
       <!-- Full Name (Signup only) -->
       <div id="name-field" class="field hidden">
@@ -233,7 +223,6 @@
           <input type="text" id="full_name" placeholder="e.g. Rise Beyond">
         </div>
       </div>
-
       <!-- Email -->
       <div class="field">
         <label>Email Address</label>
@@ -242,7 +231,6 @@
           <input type="email" id="email" required placeholder="owner@company.com">
         </div>
       </div>
-
       <!-- Password -->
       <div id="password-field" class="field">
         <label>Password</label>
@@ -254,7 +242,6 @@
           </button>
         </div>
       </div>
-
       <!-- Confirm Password (Signup only) -->
       <div id="confirm-field" class="field hidden">
         <label>Confirm Password</label>
@@ -266,13 +253,11 @@
           </button>
         </div>
       </div>
-
       <button type="submit" id="submit-btn" class="btn-primary">
         <span>Sign In</span>
         <i class="fa-solid fa-arrow-right" style="font-size:12px;"></i>
       </button>
     </form>
-
     <div class="toggle-mode">
       <p id="toggle-signup">
         Don't have an account?
@@ -284,14 +269,12 @@
       </p>
     </div>
   </div>
-
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
-
     let currentMode = "login";
     let isBusy = false;
 
@@ -324,7 +307,6 @@
       const alertBox = document.getElementById("alert");
       const alertText = document.getElementById("alert-text");
       const alertIcon = document.getElementById("alert-icon");
-
       alertText.textContent = msg;
       alertBox.className = "alert show " + (isError ? "error" : "success");
       alertIcon.className = isError ? "fa-solid fa-circle-exclamation" : "fa-solid fa-circle-check";
@@ -491,6 +473,19 @@
         setBusy(false);
       }
     });
+
+    // ========== REGISTER SERVICE WORKER ==========
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((reg) => {
+            console.log('Service Worker registered:', reg.scope);
+          })
+          .catch((err) => {
+            console.log('Service Worker registration failed:', err);
+          });
+      });
+    }
   </script>
 </body>
 </html>
