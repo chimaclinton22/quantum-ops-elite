@@ -215,7 +215,6 @@
       <span id="alert-text"></span>
     </div>
     <form id="auth-form">
-      <!-- Full Name (Signup only) -->
       <div id="name-field" class="field hidden">
         <label>Full Name / Shop Name</label>
         <div class="input-wrap">
@@ -223,7 +222,6 @@
           <input type="text" id="full_name" placeholder="e.g. Rise Beyond">
         </div>
       </div>
-      <!-- Email -->
       <div class="field">
         <label>Email Address</label>
         <div class="input-wrap">
@@ -231,7 +229,6 @@
           <input type="email" id="email" required placeholder="owner@company.com">
         </div>
       </div>
-      <!-- Password -->
       <div id="password-field" class="field">
         <label>Password</label>
         <div class="input-wrap">
@@ -242,7 +239,6 @@
           </button>
         </div>
       </div>
-      <!-- Confirm Password (Signup only) -->
       <div id="confirm-field" class="field hidden">
         <label>Confirm Password</label>
         <div class="input-wrap">
@@ -278,7 +274,6 @@
     let currentMode = "login";
     let isBusy = false;
 
-    // Check if already logged in
     async function checkExistingSession() {
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -345,14 +340,11 @@
 
     async function createCompanyForUser(user, shopName) {
       const name = (shopName && shopName.trim()) ? shopName.trim() : (user.email?.split('@')[0] || 'My Business');
-
-      // Check if company already exists
       const { data: existing } = await supabaseClient
         .from('companies')
         .select('id')
         .eq('owner_id', user.id)
         .maybeSingle();
-
       if (existing?.id) {
         const { data: link } = await supabaseClient
           .from('company_users')
@@ -360,7 +352,6 @@
           .eq('user_id', user.id)
           .eq('company_id', existing.id)
           .maybeSingle();
-
         if (!link) {
           await supabaseClient.from('company_users').insert([{
             company_id: existing.id,
@@ -370,10 +361,7 @@
         }
         return existing;
       }
-
-      // Create new company with 14-day trial
       const trialEnds = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
-
       const { data: company, error: companyError } = await supabaseClient
         .from('companies')
         .insert([{
@@ -385,9 +373,7 @@
         }])
         .select()
         .single();
-
       if (companyError) throw new Error('Could not create business: ' + companyError.message);
-
       const { error: linkError } = await supabaseClient
         .from('company_users')
         .insert([{
@@ -395,73 +381,56 @@
           user_id: user.id,
           role: 'owner'
         }]);
-
       if (linkError) throw new Error('Could not link account: ' + linkError.message);
-
       return company;
     }
 
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       if (isBusy) return;
-
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const fullName = document.getElementById("full_name").value.trim();
       const confirmPassword = document.getElementById("confirm_password").value;
-
       setBusy(true);
       document.getElementById("alert").classList.remove("show");
-
       try {
         if (currentMode === "signup") {
           if (!fullName) throw new Error("Please enter your Full Name or Shop Name");
           if (!password || password.length < 6) throw new Error("Password must be at least 6 characters");
           if (password !== confirmPassword) throw new Error("Passwords do not match");
-
           const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
             options: { data: { full_name: fullName } }
           });
-
           if (error) throw error;
           if (!data.user) throw new Error("Account created but something went wrong. Please try again.");
-
-          // Create company with 14-day trial
           try {
             await createCompanyForUser(data.user, fullName);
           } catch (ce) {
             console.error(ce);
           }
-
-          // Always go to Login after signup
           showAlert("Account created successfully! Please sign in.", false);
           setTimeout(() => {
             showLogin();
             document.getElementById("email").value = email;
             document.getElementById("password").value = "";
           }, 1500);
-
         } else if (currentMode === "login") {
           if (!password) throw new Error("Please enter your password");
-
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
           if (!data.user) throw new Error("Login failed. Please try again.");
-
-          // Make sure company exists
           const { data: link } = await supabaseClient
             .from('company_users')
             .select('id')
             .eq('user_id', data.user.id)
             .maybeSingle();
-
           if (!link) {
             const name = data.user.user_metadata?.full_name || data.user.email.split('@')[0];
             await createCompanyForUser(data.user, name);
           }
-
           showAlert("Login successful! Redirecting...", false);
           setTimeout(() => {
             window.location.replace("dashboard.html");
@@ -474,16 +443,12 @@
       }
     });
 
-    // ========== REGISTER SERVICE WORKER ==========
+    // Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-          .then((reg) => {
-            console.log('Service Worker registered:', reg.scope);
-          })
-          .catch((err) => {
-            console.log('Service Worker registration failed:', err);
-          });
+          .then((reg) => console.log('Service Worker registered:', reg.scope))
+          .catch((err) => console.log('Service Worker registration failed:', err));
       });
     }
   </script>
