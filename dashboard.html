@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#05060B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="/manifest.json">
   <title>Quantum OPS Elite - Business OS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -1368,73 +1367,7 @@
       if (event === 'SIGNED_OUT') window.location.replace('index.html');
     });
 
-    // ========== PUSH NOTIFICATION SETUP ==========
-    async function setupPushNotifications() {
-      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        console.log('Push not supported');
-        return;
-      }
-
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-          console.log('Notification permission denied');
-          return;
-        }
-
-        const reg = await navigator.serviceWorker.ready;
-
-        // Temporary placeholder – real VAPID key comes in next step
-        let subscription = await reg.pushManager.getSubscription();
-        if (!subscription) {
-          subscription = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array('REPLACE_WITH_YOUR_VAPID_PUBLIC_KEY')
-          });
-        }
-
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
-
-        const { data: member } = await supabaseClient
-          .from('company_users')
-          .select('company_id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (!member?.company_id) return;
-
-        await supabaseClient
-          .from('push_subscriptions')
-          .upsert({
-            user_id: user.id,
-            company_id: member.company_id,
-            subscription: subscription,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id' });
-
-        console.log('Push subscription saved');
-      } catch (err) {
-        console.error('Push setup error:', err);
-      }
-    }
-
-    function urlBase64ToUint8Array(base64String) {
-      const padding = '='.repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-      const rawData = window.atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-      for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-      }
-      return outputArray;
-    }
-
-    window.addEventListener('DOMContentLoaded', function() {
-      initializeApp().then(function() {
-        setTimeout(setupPushNotifications, 2500);
-      });
-    });
+    window.addEventListener('DOMContentLoaded', initializeApp);
   </script>
 </body>
 </html>
