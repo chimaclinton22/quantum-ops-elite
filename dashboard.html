@@ -6,7 +6,14 @@
   <meta name="theme-color" content="#05060B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quantum OPS">
+
+  <!-- PWA Manifest + Icons -->
   <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+
   <title>Quantum OPS Elite - Business OS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -24,7 +31,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
 
-    /* ========== STRONG MOBILE / DESKTOP ISOLATION ========== */
     .mobile-only { display: block !important; }
     .desktop-only { display: none !important; }
 
@@ -33,7 +39,6 @@
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE STYLES (PWA SAFE) ===== */
     .iphone-frame {
       width: 100%;
       max-width: 100%;
@@ -145,7 +150,6 @@
     .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; }
     a.neon-card { text-decoration: none; color: inherit; display: block; }
 
-    /* ===== DESKTOP STYLES ===== */
     .desktop-shell {
       width: 100%;
       min-height: 100vh;
@@ -225,7 +229,6 @@
     }
     .header-actions { display: flex; align-items: center; gap: 12px; }
 
-    /* NEON DIGITAL CLOCK */
     .neon-clock {
       display: flex;
       align-items: center;
@@ -571,7 +574,6 @@
 
   <!-- ==================== DESKTOP VIEW ==================== -->
   <div class="desktop-only desktop-shell" id="desktop-view">
-    <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-logo">
         <div class="logo-box">Q</div>
@@ -600,16 +602,13 @@
       </div>
     </aside>
 
-    <!-- MAIN AREA -->
     <div class="desktop-main">
-      <!-- Header with Clock -->
       <header class="desktop-header">
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
           <span>Search anything... (Products, Customers, Invoices...)</span>
         </div>
 
-        <!-- REAL-TIME NEON CLOCK -->
         <div class="neon-clock">
           <div class="clock-time" id="clock-time">00:00:00</div>
           <div class="clock-meta">
@@ -638,10 +637,8 @@
         </div>
       </header>
 
-      <!-- Content -->
       <div class="desktop-content custom-scrollbar">
         <div class="desktop-left">
-          <!-- Greeting -->
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
             <div>
               <h1 style="font-size:20px;font-weight:800;margin:0;" id="desk-greeting">Good day, User 👋</h1>
@@ -657,7 +654,6 @@
             </div>
           </div>
 
-          <!-- KPI Row -->
           <div class="desk-kpi-grid">
             <div class="desk-kpi">
               <div class="label">TOTAL SALES (TODAY)</div>
@@ -686,7 +682,6 @@
             </div>
           </div>
 
-          <!-- Charts -->
           <div class="charts-row">
             <div class="desk-card">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -713,7 +708,6 @@
             </div>
           </div>
 
-          <!-- Tables -->
           <div class="tables-row">
             <div class="desk-card">
               <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
@@ -744,7 +738,6 @@
             </div>
           </div>
 
-          <!-- Recent Activities -->
           <div class="desk-card">
             <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
               <span style="font-size:12px;font-weight:600;color:#94A3B8;">RECENT ACTIVITIES</span>
@@ -756,7 +749,6 @@
           </div>
         </div>
 
-        <!-- RIGHT AI PANEL -->
         <div class="desktop-right">
           <div class="ai-panel">
             <div class="ai-avatar"><i class="fa-solid fa-robot"></i></div>
@@ -853,7 +845,6 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 
-    /* ========== FORCE CORRECT VIEW ========== */
     function enforceView() {
       const isDesktop = window.innerWidth >= 1024;
       const mobile = document.getElementById('mobile-view');
@@ -862,7 +853,6 @@
       if (desktop) desktop.style.display = isDesktop ? 'flex' : 'none';
     }
 
-    /* ========== REAL-TIME CLOCK ========== */
     function updateClock() {
       const now = new Date();
       const lagos = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
@@ -917,7 +907,6 @@
       }, 900);
     }
 
-    /* ========== UPDATED BADGE LOGIC ========== */
     function updatePremiumBadge(status, daysLeft) {
       let label = 'Upgrade';
       if (status === 'active') {
