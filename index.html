@@ -3,10 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#6C5CE7">
+  <meta name="theme-color" content="#05060B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quantum OPS">
+
+  <!-- PWA Manifest + Icons -->
   <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+
   <title>Quantum OPS Elite - Login</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -273,7 +280,6 @@
     });
     let currentMode = "login";
     let isBusy = false;
-
     async function checkExistingSession() {
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -283,7 +289,6 @@
       } catch (e) {}
     }
     checkExistingSession();
-
     function togglePassword(inputId, btn) {
       const input = document.getElementById(inputId);
       const icon = btn.querySelector("i");
@@ -297,7 +302,6 @@
         icon.classList.add("fa-eye");
       }
     }
-
     function showAlert(msg, isError = true) {
       const alertBox = document.getElementById("alert");
       const alertText = document.getElementById("alert-text");
@@ -306,14 +310,12 @@
       alertBox.className = "alert show " + (isError ? "error" : "success");
       alertIcon.className = isError ? "fa-solid fa-circle-exclamation" : "fa-solid fa-circle-check";
     }
-
     function setBusy(busy) {
       isBusy = busy;
       const btn = document.getElementById("submit-btn");
       btn.disabled = busy;
       btn.style.opacity = busy ? "0.7" : "1";
     }
-
     function showSignUp() {
       currentMode = "signup";
       document.getElementById("form-title").textContent = "Create an Elite Account";
@@ -325,7 +327,6 @@
       document.getElementById("toggle-login").classList.remove("hidden");
       document.getElementById("alert").classList.remove("show");
     }
-
     function showLogin() {
       currentMode = "login";
       document.getElementById("form-title").textContent = "Sign in to your account";
@@ -337,7 +338,6 @@
       document.getElementById("toggle-login").classList.add("hidden");
       document.getElementById("alert").classList.remove("show");
     }
-
     async function createCompanyForUser(user, shopName) {
       const name = (shopName && shopName.trim()) ? shopName.trim() : (user.email?.split('@')[0] || 'My Business');
       const { data: existing } = await supabaseClient
@@ -384,7 +384,6 @@
       if (linkError) throw new Error('Could not link account: ' + linkError.message);
       return company;
     }
-
     document.getElementById("auth-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       if (isBusy) return;
@@ -442,7 +441,6 @@
         setBusy(false);
       }
     });
-
     // Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
