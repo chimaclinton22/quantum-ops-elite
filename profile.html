@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#6C5CE7">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Profile - Quantum OPS Elite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,23 +18,30 @@
     /* ========== CRITICAL CSS ========== */
     .mobile-only { display: block !important; }
     .desktop-only { display: none !important; }
-
     @media (min-width: 1024px) {
       .mobile-only { display: none !important; }
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE ===== */
+    /* ===== MOBILE (SAFE AREA FIXED) ===== */
     .iphone-frame {
-      width: 100%; max-width: 100%; height: 100dvh;
+      width: 100%; max-width: 100%; height: 100dvh; height: 100vh;
       background: #0B0B16; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
     .top-bar {
-      padding: 14px 16px; text-align: center;
-      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
+      padding: 14px 16px;
+      padding-top: calc(14px + env(safe-area-inset-top));
+      text-align: center;
+      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1);
+      flex-shrink: 0; z-index: 20;
     }
-    .main { flex: 1; overflow-y: auto; padding: 20px 16px 96px; }
+    .main {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 20px 16px 110px;
+    }
     .avatar-wrap { text-align: center; margin-bottom: 20px; }
     .avatar-box {
       width: 88px; height: 88px; border-radius: 50%; margin: 0 auto 10px;
@@ -69,9 +77,12 @@
       font-weight: 600; margin-top: 4px;
     }
     .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: calc(64px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
       background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 40;
+      display: flex; align-items: center; justify-content: space-between;
+      padding-left: 24px; padding-right: 24px; z-index: 40;
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center; gap: 2px;
@@ -79,14 +90,19 @@
     }
     .nav-item.active { color: #a78bfa; }
     .nav-item i { font-size: 14px; }
-
     .screen { display: none; flex-direction: column; height: 100%; }
     .screen.active { display: flex; }
     .edit-top {
-      padding: 12px 16px; display: flex; align-items: center; gap: 12px;
-      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
+      padding: 12px 16px;
+      padding-top: calc(12px + env(safe-area-inset-top));
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1);
+      flex-shrink: 0; z-index: 20;
     }
-    .edit-body { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 32px; }
+    .edit-body {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 16px; padding-bottom: 40px;
+    }
     .field { margin-bottom: 14px; }
     .field label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
     .field input {
@@ -138,7 +154,6 @@
   </style>
 </head>
 <body>
-
   <!-- ==================== MOBILE VIEW ==================== -->
   <div class="mobile-only" id="mobile-view">
     <div class="iphone-frame">
@@ -146,7 +161,6 @@
         <div class="top-bar">
           <div style="font-weight:700;font-size:16px;color:#fff;">Profile</div>
         </div>
-
         <div class="main custom-scrollbar">
           <div class="avatar-wrap">
             <div class="avatar-box" onclick="openBusinessInfo()">
@@ -160,9 +174,7 @@
               <i class="fa-solid fa-circle-check"></i> Verified Account
             </div>
           </div>
-
           <div class="section-label">General settings</div>
-
           <div class="row" onclick="openBusinessInfo()">
             <div class="row-icon"><i class="fa-solid fa-store"></i></div>
             <div class="row-text">
@@ -171,7 +183,6 @@
             </div>
             <i class="fa-solid fa-chevron-right row-arrow"></i>
           </div>
-
           <div class="row" onclick="alert('Settings coming soon.')">
             <div class="row-icon"><i class="fa-solid fa-gear"></i></div>
             <div class="row-text">
@@ -180,7 +191,6 @@
             </div>
             <i class="fa-solid fa-chevron-right row-arrow"></i>
           </div>
-
           <div class="row" onclick="window.location.href='notifications.html'">
             <div class="row-icon"><i class="fa-regular fa-bell"></i></div>
             <div class="row-text">
@@ -189,7 +199,6 @@
             </div>
             <i class="fa-solid fa-chevron-right row-arrow"></i>
           </div>
-
           <div class="row" onclick="alert('Help: Contact support via WhatsApp or email.')">
             <div class="row-icon"><i class="fa-solid fa-headset"></i></div>
             <div class="row-text">
@@ -198,7 +207,6 @@
             </div>
             <i class="fa-solid fa-chevron-right row-arrow"></i>
           </div>
-
           <div class="row" onclick="handleLogout()" style="margin-top:12px;">
             <div class="row-icon danger"><i class="fa-solid fa-right-from-bracket"></i></div>
             <div class="row-text">
@@ -208,7 +216,6 @@
             <i class="fa-solid fa-chevron-right row-arrow"></i>
           </div>
         </div>
-
         <nav class="bottom-nav">
           <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
           <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
@@ -216,7 +223,6 @@
           <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user"></i>Profile</a>
         </nav>
       </div>
-
       <div id="screen-edit" class="screen">
         <div class="edit-top">
           <button onclick="closeBusinessInfo()" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:16px;">
@@ -224,7 +230,6 @@
           </button>
           <div style="font-weight:700;font-size:15px;color:#fff;">Business Information</div>
         </div>
-
         <div class="edit-body custom-scrollbar">
           <div class="field">
             <label>Shop Logo</label>
@@ -239,7 +244,6 @@
               </label>
             </div>
           </div>
-
           <div class="field">
             <label>Business Name *</label>
             <input type="text" id="company_name" placeholder="e.g. Rise Beyond Store">
@@ -268,9 +272,7 @@
             <label>Receipt Thank-you Message</label>
             <input type="text" id="thank_you_message" placeholder="Thank you for your patronage!">
           </div>
-
           <div class="section-label" style="margin-top:16px;">Bank Details (for debt reminders)</div>
-
           <div class="field">
             <label>Bank Name</label>
             <input type="text" id="bank_name" placeholder="e.g. GTBank, Access Bank">
@@ -283,7 +285,6 @@
             <label>Account Number</label>
             <input type="text" id="account_number" placeholder="e.g. 0123456789">
           </div>
-
           <p id="save-status" style="font-size:11px;text-align:center;margin:8px 0;display:none;"></p>
           <button onclick="saveProfile()" id="save-btn" class="btn-save">Save Profile</button>
           <p style="font-size:10px;color:#64748b;text-align:center;margin-top:12px;">
@@ -305,7 +306,6 @@
         <i class="fa-solid fa-right-from-bracket"></i> Log Out
       </button>
     </div>
-
     <div class="desk-content">
       <div class="desk-sidebar custom-scrollbar">
         <div style="text-align:center;margin-bottom:24px;">
@@ -319,7 +319,6 @@
             <i class="fa-solid fa-circle-check"></i> Verified Account
           </div>
         </div>
-
         <div class="row" onclick="openBusinessInfo()" style="margin-bottom:8px;">
           <div class="row-icon"><i class="fa-solid fa-store"></i></div>
           <div class="row-text">
@@ -335,11 +334,9 @@
           </div>
         </div>
       </div>
-
       <div class="desk-main custom-scrollbar">
         <div class="desk-card">
           <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px;">Business Information</h3>
-
           <div class="field">
             <label>Shop Logo</label>
             <div class="logo-row">
@@ -353,7 +350,6 @@
               </label>
             </div>
           </div>
-
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="field">
               <label>Business Name *</label>
@@ -385,7 +381,6 @@
             </div>
           </div>
         </div>
-
         <div class="desk-card">
           <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">Bank Details (for debt reminders)</h3>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
@@ -403,7 +398,6 @@
             </div>
           </div>
         </div>
-
         <p id="desk-save-status" style="font-size:13px;text-align:center;margin:12px 0;display:none;"></p>
         <button onclick="saveProfile()" id="desk-save-btn" class="btn-save" style="max-width:300px;">Save Profile</button>
       </div>
@@ -458,7 +452,6 @@
     function applyHeader(c) {
       const name = (c && c.company_name) ? c.company_name : 'Your Business';
       const verified = isVerified(c);
-
       const displayName = document.getElementById('display-name');
       const displaySub = document.getElementById('display-sub');
       const badge = document.getElementById('verified-badge');
@@ -560,7 +553,6 @@
 
     async function saveProfile() {
       if (isSaving) return;
-
       const company_name = getFormValue('company_name');
       const address = getFormValue('address');
       const phone = getFormValue('phone');
@@ -602,13 +594,10 @@
           .eq('id', userCompanyId)
           .select()
           .maybeSingle();
-
         if (error) throw error;
-
         const saved = data || payload;
         applyHeader(saved);
         fillForm(saved);
-
         const statusEls = [document.getElementById('save-status'), document.getElementById('desk-save-status')];
         statusEls.forEach(el => {
           if (el) {
@@ -647,7 +636,6 @@
           window.location.replace('index.html');
           return;
         }
-
         const user = session.user;
         const { data: member } = await supabaseClient
           .from('company_users')
@@ -675,7 +663,6 @@
           document.getElementById('display-sub').textContent = 'No business found. Please re-login.';
           return;
         }
-
         applyHeader(company || {});
         fillForm(company || {});
       } catch (err) {
