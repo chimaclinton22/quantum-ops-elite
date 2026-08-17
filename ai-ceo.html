@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#6C5CE7">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>AI CEO - Quantum OPS Elite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -22,17 +23,25 @@
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE ===== */
+    /* ===== MOBILE (SAFE AREA FIXED) ===== */
     .iphone-frame {
-      width: 100%; max-width: 100%; height: 100dvh;
+      width: 100%; max-width: 100%; height: 100dvh; height: 100vh;
       background: #0B0B16; position: relative; overflow: hidden;
       display: flex; flex-direction: column;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
     }
     .top-bar {
-      padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
-      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1); flex-shrink: 0;
+      padding: 12px 16px;
+      padding-top: calc(12px + env(safe-area-inset-top));
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1);
+      flex-shrink: 0; z-index: 20;
     }
-    .chat-area { flex: 1; overflow-y: auto; padding: 12px; }
+    .chat-area {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 12px;
+    }
     .msg-ai {
       margin-right: 20px; padding: 12px 14px; border-radius: 16px 16px 16px 6px;
       background: #121224; border: 1px solid rgba(139,92,246,0.2);
@@ -69,10 +78,16 @@
       background: linear-gradient(135deg, #6C5CE7, #4F46E5); color: #fff; cursor: pointer;
     }
     .bottom-nav {
-      height: 56px; background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0;
+      height: calc(56px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between;
+      padding-left: 24px; padding-right: 24px; flex-shrink: 0;
     }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #94a3b8; text-decoration: none; font-size: 9px; }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #94a3b8; text-decoration: none; font-size: 9px;
+    }
     .nav-item.active { color: #a78bfa; }
     .nav-item i { font-size: 14px; }
 
@@ -117,7 +132,6 @@
   </style>
 </head>
 <body>
-
   <!-- ==================== MOBILE ==================== -->
   <div class="mobile-only">
     <div class="iphone-frame">
@@ -136,14 +150,12 @@
         </div>
         <span style="font-size:9px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:2px 8px;border-radius:999px;font-weight:600;">Live Data</span>
       </div>
-
       <div id="chat-area" class="chat-area custom-scrollbar">
         <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">
           <i class="fa-solid fa-robot" style="font-size:24px;color:#a78bfa;display:block;margin-bottom:8px;"></i>
           Loading your business briefing…
         </div>
       </div>
-
       <div class="chips custom-scrollbar">
         <button class="chip primary" onclick="runAction('today')">🎯 What should I do today?</button>
         <button class="chip" onclick="runAction('sales')">📈 Sales</button>
@@ -154,12 +166,10 @@
         <button class="chip" onclick="runAction('deadstock')">🧊 Dead Stock</button>
         <button class="chip" onclick="runAction('weekly')">📊 Weekly Report</button>
       </div>
-
       <div class="input-bar">
         <input id="chat-input" type="text" placeholder="Ask your AI CEO…" onkeydown="if(event.key==='Enter') sendMessage()">
         <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane" style="font-size:12px;"></i></button>
       </div>
-
       <nav class="bottom-nav">
         <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
         <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
@@ -183,9 +193,7 @@
       </div>
       <span style="font-size:11px;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.3);padding:4px 12px;border-radius:999px;font-weight:600;">Live Data</span>
     </div>
-
     <div class="desk-body">
-      <!-- Chat -->
       <div class="desk-chat">
         <div id="desk-chat-area" class="desk-chat-area custom-scrollbar">
           <div style="text-align:center;padding:60px 0;color:#64748b;">Loading…</div>
@@ -205,11 +213,8 @@
           <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
       </div>
-
-      <!-- Sidebar Insights -->
       <div class="desk-sidebar custom-scrollbar">
         <button class="action-btn" onclick="runAction('today')">🎯 What should I do today?</button>
-
         <div class="side-card" id="side-cashflow">
           <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">Cash Flow Health</div>
           <div id="side-score-wrap" style="text-align:center;">
@@ -217,12 +222,10 @@
             <div id="side-score-label" style="font-size:12px;color:#94a3b8;">Calculating…</div>
           </div>
         </div>
-
         <div class="side-card">
           <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;">Quick Insights</div>
           <div id="side-insights" style="font-size:12px;color:#cbd5e1;line-height:1.6;">Loading…</div>
         </div>
-
         <div class="side-card">
           <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;">Top Actions</div>
           <div id="side-actions" style="font-size:12px;color:#cbd5e1;line-height:1.6;">—</div>
@@ -239,7 +242,6 @@
     });
     const LOW_STOCK_UNITS = 3;
     const DEAD_STOCK_DAYS = 21;
-
     let userCompanyId = null;
     let ownerName = 'Boss';
     let biz = { sales: [], products: [], debtors: [], expenses: [] };
@@ -269,7 +271,6 @@
       if (h < 17) return 'Good afternoon';
       return 'Good evening';
     }
-
     function addMessage(html, isUser) {
       const areas = [
         document.getElementById('chat-area'),
@@ -367,8 +368,6 @@
         .sort((a, b) => parseMoney(b.amount_owing) - parseMoney(a.amount_owing))
         .slice(0, limit || 5);
     }
-
-    // Dead stock: products with stock but no sales in last X days
     function deadStockProducts() {
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - DEAD_STOCK_DAYS);
@@ -392,8 +391,6 @@
         value: parseFloat(p.stock || 0) * parseMoney(p.unit_cost || p.selling_price || 0)
       }));
     }
-
-    // Profit killers: products with low/negative margin in recent sales
     function profitKillers() {
       const week = salesInRange(daysAgo(13), getLocalDateString(new Date()));
       return Object.entries(productStats(week))
@@ -402,8 +399,6 @@
         .sort((a, b) => a.margin - b.margin)
         .slice(0, 5);
     }
-
-    // Cash Flow Health Score (0-100)
     function cashFlowScore() {
       let score = 70;
       const today = todaySales();
@@ -413,7 +408,6 @@
       const debts = debtTotal();
       const low = lowStockProducts().length;
       const dead = deadStockProducts().length;
-
       if (debts > sales * 2 && sales > 0) score -= 20;
       else if (debts > 0) score -= 10;
       if (exp > profit && today.length) score -= 15;
@@ -422,10 +416,8 @@
       if (today.length === 0 && new Date().getHours() >= 14) score -= 10;
       if (profit > 0 && exp < profit * 0.4) score += 10;
       if (debts === 0) score += 5;
-
       return Math.max(10, Math.min(100, score));
     }
-
     function scoreLabel(score) {
       if (score >= 80) return { text: 'Healthy', color: '#34d399' };
       if (score >= 60) return { text: 'Fair', color: '#fbbf24' };
@@ -448,7 +440,6 @@
       const debtCount = biz.debtors.length;
       const score = cashFlowScore();
       const sLabel = scoreLabel(score);
-
       const actions = [];
       if (debtCount > 0) {
         const topD = topDebtors(1)[0];
@@ -458,7 +449,6 @@
       if (exp > profit && tx > 0) actions.push('Review today’s expenses — they are high vs profit');
       if (!tx && new Date().getHours() >= 10) actions.push('No sales yet — open POS and start selling');
       if (!actions.length) actions.push('Business is stable. Keep recording every sale.');
-
       return `
         <p style="font-weight:700;color:#fff;font-size:13px;margin:0 0 6px;">${greeting()}, ${ownerName} 👋</p>
         <p style="color:#cbd5e1;margin:0 0 8px;">Here’s your live business snapshot:</p>
@@ -480,7 +470,6 @@
         <p style="font-size:10px;color:#64748b;margin:8px 0 0;">Tap “What should I do today?” for deeper advice.</p>
       `;
     }
-
     function answerToday() {
       const today = todaySales();
       const sales = sumAmount(today);
@@ -492,10 +481,8 @@
       const score = cashFlowScore();
       const sLabel = scoreLabel(score);
       const topD = topDebtors(3);
-
       let html = `<p style="font-weight:700;color:#fff;margin:0 0 8px;">🎯 What You Should Do Today</p>`;
       html += `<p style="margin:0 0 8px;font-size:11px;color:#cbd5e1;">Cash Flow Score: <b style="color:${sLabel.color};">${score}/100 (${sLabel.text})</b></p>`;
-
       const steps = [];
       if (topD.length) {
         steps.push(`<b>1. Collect debt</b><br>Focus on: ${topD.map(d => (d.customer_name || 'Customer') + ' (' + formatCurrency(d.amount_owing) + ')').join(', ')}. Use WhatsApp/SMS reminder.`);
@@ -515,12 +502,10 @@
       if (!steps.length) {
         steps.push('Business looks stable today. Keep recording every sale and monitor stock.');
       }
-
       html += `<p style="margin:0;font-size:12px;line-height:1.6;">${steps.join('<br><br>')}</p>`;
       html += `<p style="margin:12px 0 0;font-size:11px;"><a class="link" href="debtors.html">Open Debtors</a> · <a class="link" href="inventory.html">Open Inventory</a> · <a class="link" href="pos.html">Open POS</a></p>`;
       return html;
     }
-
     function answerSales() {
       const today = todaySales();
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
@@ -529,7 +514,6 @@
         <p style="margin:4px 0 0;">Last 7 days: <b>${formatCurrency(sumAmount(week))}</b> · ${week.length} transactions</p>
         <p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View full sales history →</a></p>`;
     }
-
     function answerProfit() {
       const today = todaySales();
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
@@ -546,7 +530,6 @@
         <p style="margin:8px 0 0;font-size:11px;"><b>Top profit products:</b><br>${lines}</p>
         <p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=profit">View profit history →</a></p>`;
     }
-
     function answerRestock() {
       const low = lowStockProducts();
       if (!low.length) {
@@ -559,7 +542,6 @@
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Restock best sellers first before weekend.</p>
         <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
     }
-
     function answerDebtors() {
       const total = debtTotal();
       const list = topDebtors(5);
@@ -573,7 +555,6 @@
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Use WhatsApp + SMS reminder. Highest balance first.</p>
         <p style="margin:8px 0 0;"><a class="link" href="debtors.html">Open Debtors →</a></p>`;
     }
-
     function answerCashflow() {
       const score = cashFlowScore();
       const sLabel = scoreLabel(score);
@@ -582,7 +563,6 @@
       const today = todaySales();
       const profit = sumProfit(today);
       const exp = todayExpenses();
-
       return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">💵 Cash Flow Health</p>
         <p style="margin:0;">Score: <b style="color:${sLabel.color};font-size:18px;">${score}/100</b> (${sLabel.text})</p>
         <p style="margin:8px 0 0;font-size:11px;">
@@ -594,7 +574,6 @@
           ${score >= 70 ? 'Cash flow is under control. Keep collecting and avoid overstocking.' : 'Focus on collecting debt and clearing slow stock to free cash.'}
         </p>`;
     }
-
     function answerDeadstock() {
       const dead = deadStockProducts();
       if (!dead.length) {
@@ -607,7 +586,6 @@
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Discount, bundle, or promote these to free your cash.</p>
         <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
     }
-
     function answerWeekly() {
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
       const sales = sumAmount(week);
@@ -617,10 +595,8 @@
       const tops = topProducts(week, 'revenue', 3);
       const low = lowStockProducts();
       const debts = debtTotal();
-
       let topLines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.revenue)).join('<br>');
       if (!topLines) topLines = 'No sales data this week.';
-
       return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📊 Weekly CEO Report</p>
         <p style="margin:0;">Sales (7 days): <b>${formatCurrency(sales)}</b></p>
         <p style="margin:4px 0 0;">Gross Profit: <b style="color:#34d399;">${formatCurrency(profit)}</b></p>
@@ -631,7 +607,6 @@
         <p style="margin:8px 0 0;font-size:11px;">Low stock items: <b>${low.length}</b> · Outstanding debt: <b style="color:#fb7185;">${formatCurrency(debts)}</b></p>
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">Focus next week: collect debt + protect best-seller stock.</p>`;
     }
-
     function answerRisks() {
       const low = lowStockProducts();
       const debts = debtTotal();
@@ -649,7 +624,6 @@
         <p style="margin:0;font-size:11px;">${risks.join('<br>')}</p>
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">Fix debt and stock issues first — they hurt cash flow fastest.</p>`;
     }
-
     function runAction(key) {
       if (!ready) return;
       const map = {
@@ -665,7 +639,6 @@
       };
       if (map[key]) addMessage(map[key](), false);
     }
-
     function handleQuestion(q) {
       const t = q.toLowerCase().trim();
       if (/what should i do|what do i do|priority|today action/.test(t)) return answerToday();
@@ -694,7 +667,6 @@
       return `<p style="margin:0;">I can help with sales, profit, cash flow, restock, debtors, dead stock, and weekly reports.</p>
         <p style="margin:6px 0 0;font-size:11px;color:#94a3b8;">Try: “What should I do today?” · “Who owes me?” · “Show dead stock”</p>`;
     }
-
     function sendMessage() {
       if (!ready) return;
       const mobileInput = document.getElementById('chat-input');
@@ -706,7 +678,6 @@
       if (deskInput) deskInput.value = '';
       setTimeout(() => addMessage(handleQuestion(q), false), 180);
     }
-
     function updateSidebar() {
       const score = cashFlowScore();
       const sLabel = scoreLabel(score);
@@ -722,7 +693,6 @@
         labelEl.textContent = sLabel.text;
         labelEl.style.color = sLabel.color;
       }
-
       const insights = document.getElementById('side-insights');
       if (insights) {
         const today = todaySales();
@@ -734,7 +704,6 @@
           Low stock: <b>${lowStockProducts().length}</b> · Dead stock: <b>${deadStockProducts().length}</b>
         `;
       }
-
       const actions = document.getElementById('side-actions');
       if (actions) {
         const list = [];
@@ -747,7 +716,6 @@
         actions.innerHTML = list.map((a, i) => (i + 1) + '. ' + a).join('<br>');
       }
     }
-
     async function init() {
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -759,13 +727,11 @@
         ownerName = (user.user_metadata && user.user_metadata.full_name) || (user.email || 'Boss').split('@')[0] || 'Boss';
         ownerName = String(ownerName).split(' ')[0];
         ownerName = ownerName.charAt(0).toUpperCase() + ownerName.slice(1).toLowerCase();
-
         const { data: member } = await supabaseClient
           .from('company_users')
           .select('company_id')
           .eq('user_id', user.id)
           .maybeSingle();
-
         if (member && member.company_id) {
           userCompanyId = member.company_id;
         } else {
@@ -773,7 +739,6 @@
             .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
           if (owned && owned.id) userCompanyId = owned.id;
         }
-
         if (!userCompanyId) {
           clearChat();
           addMessage('<p style="color:#fb7185;margin:0;">No business found. Please re-login.</p>', false);
@@ -782,7 +747,6 @@
           if (ds) ds.textContent = 'Offline';
           return;
         }
-
         const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
           supabaseClient.from('sales')
             .select('id, total_amount, total, profit, total_profit, created_at, items, payment_method')
@@ -803,16 +767,13 @@
             .order('created_at', { ascending: false })
             .limit(120)
         ]);
-
         biz.sales = salesRes.data || [];
         biz.products = productsRes.data || [];
         biz.debtors = debtorsRes.data || [];
         biz.expenses = expensesRes.data || [];
-
         document.getElementById('ceo-status').textContent = 'Ready · Live data';
         const ds = document.getElementById('desk-ceo-status');
         if (ds) ds.textContent = 'Ready · Live data';
-
         clearChat();
         addMessage(buildBriefing(), false);
         updateSidebar();
@@ -824,7 +785,6 @@
         document.getElementById('ceo-status').textContent = 'Error';
       }
     }
-
     function enforceView() {
       const isDesktop = window.innerWidth >= 1024;
       document.querySelectorAll('.mobile-only').forEach(el => {
@@ -834,7 +794,6 @@
         el.style.display = isDesktop ? 'flex' : 'none';
       });
     }
-
     window.addEventListener('resize', enforceView);
     window.addEventListener('DOMContentLoaded', function () {
       enforceView();
