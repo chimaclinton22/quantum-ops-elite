@@ -358,7 +358,7 @@
     </div>
   </div>
 
-  <!-- RECEIPT MODAL (UPGRADED) -->
+  <!-- RECEIPT MODAL -->
   <div id="receipt-modal" class="hidden">
     <div style="width:100%;max-width:400px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:92vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:12px;">
@@ -1033,7 +1033,6 @@
     async function sendReceiptWhatsApp() {
       if (!lastCompletedTransaction) return;
 
-      // First try to generate PDF and share it (best experience)
       try {
         if (!window.html2pdf) {
           await new Promise(function (resolve, reject) {
@@ -1046,6 +1045,7 @@
         }
 
         const element = document.getElementById('receipt-paper');
+
         const pdfBlob = await html2pdf().from(element).set({
           margin: 6,
           image: { type: 'jpeg', quality: 0.98 },
@@ -1053,25 +1053,46 @@
           jsPDF: { unit: 'mm', format: [80, 200], orientation: 'portrait' }
         }).outputPdf('blob');
 
-        const file = new File([pdfBlob], (lastCompletedTransaction.trxId || 'receipt') + '.pdf', { type: 'application/pdf' });
+        const fileName = (lastCompletedTransaction.trxId || 'Receipt') + '.pdf';
+        const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
+        // Best method: Native Share Sheet
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'Receipt ' + lastCompletedTransaction.trxId,
-            text: 'Here is your receipt'
+            title: 'Receipt - ' + lastCompletedTransaction.trxId,
+            text: 'Here is your receipt from ' + (userCompanyDetails?.company_name || 'our store')
           });
           return;
         }
-      } catch (e) {
-        console.log('PDF share not supported, falling back to text');
-      }
 
-      // Fallback: open WhatsApp with text
-      const phone = (selectedCustomerPhone || '').replace(/\D/g, '');
-      const text = encodeURIComponent(buildWhatsAppText());
-      const url = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
-      window.open(url, '_blank');
+        // Fallback: Download PDF + Open WhatsApp
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setTimeout(function () {
+          const phone = (selectedCustomerPhone || '').replace(/\D/g, '');
+          const text = encodeURIComponent(
+            'Hello! Here is your receipt (' + lastCompletedTransaction.trxId + ').\n\nPlease find the PDF attached.'
+          );
+          const waUrl = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
+          window.open(waUrl, '_blank');
+        }, 800);
+
+      } catch (err) {
+        console.error('WhatsApp share error:', err);
+
+        const phone = (selectedCustomerPhone || '').replace(/\D/g, '');
+        const text = encodeURIComponent(buildWhatsAppText());
+        const waUrl = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
+        window.open(waUrl, '_blank');
+      }
     }
 
     function sendReceiptSMS() {
