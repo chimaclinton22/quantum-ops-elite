@@ -1,42 +1,18 @@
-/* =====================================================
-   Quantum OPS Elite - Service Worker
-   Handles Push Notifications + Offline + Sound
-   ===================================================== */
-
-const CACHE_NAME = 'quantum-ops-v1';
-
-const PRECACHE = [
-  '/',
-  '/index.html',
-  '/dashboard.html',
-  '/manifest.json'
-];
+/* Quantum OPS Elite - Service Worker */
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE).catch(() => {});
-    })
-  );
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
+  event.waitUntil(self.clients.claim());
 });
 
+/* ---------- PUSH NOTIFICATION ---------- */
 self.addEventListener('push', (event) => {
   let data = {
     title: 'Quantum OPS Elite',
-    body: 'You have a new notification',
+    body: 'You have a new business update',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     url: '/notifications.html'
@@ -57,7 +33,7 @@ self.addEventListener('push', (event) => {
     body: data.body || 'New update from Quantum OPS',
     icon: data.icon || '/icons/icon-192.png',
     badge: data.badge || '/icons/icon-192.png',
-    vibrate: [120, 80, 120],
+    vibrate: [160, 80, 160],
     data: {
       url: data.url || '/notifications.html',
       dateOfArrival: Date.now()
@@ -71,6 +47,7 @@ self.addEventListener('push', (event) => {
   );
 });
 
+/* ---------- WHEN USER CLICKS THE NOTIFICATION ---------- */
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetUrl = event.notification.data?.url || '/notifications.html';
