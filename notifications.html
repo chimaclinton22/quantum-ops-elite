@@ -207,7 +207,10 @@
 
     async function enableNotifications() {
       const btn = document.getElementById('enable-btn');
-      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enabling…'; }
+      if (btn) { 
+        btn.disabled = true; 
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enabling…'; 
+      }
 
       try {
         if (!('Notification' in window)) {
@@ -221,7 +224,10 @@
         }
         if (permission !== 'granted') {
           updateStatus('Permission denied. Allow notifications in phone Settings.', false);
-          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bell"></i> Enable Notification Sound'; }
+          if (btn) { 
+            btn.disabled = false; 
+            btn.innerHTML = '<i class="fa-solid fa-bell"></i> Enable Notification Sound'; 
+          }
           return;
         }
 
@@ -237,6 +243,20 @@
             });
           }
 
+          // ========== SAVE SUBSCRIPTION TO SUPABASE ==========
+          if (userCompanyId && subscription) {
+            try {
+              await supabaseClient.from('push_subscriptions').upsert({
+                company_id: userCompanyId,
+                endpoint: subscription.endpoint,
+                subscription: subscription.toJSON(),
+                updated_at: new Date().toISOString()
+              }, { onConflict: 'endpoint' });
+            } catch (e) {
+              console.log('Subscription save error:', e.message);
+            }
+          }
+
           // Show test notification WITH SOUND
           await reg.showNotification('Quantum OPS Elite', {
             body: 'Sound is working! You will now hear alerts.',
@@ -248,7 +268,6 @@
             data: { url: '/notifications.html' }
           });
         } else {
-          // Fallback without service worker
           new Notification('Quantum OPS Elite', {
             body: 'Sound is working! You will now hear alerts.',
             icon: '/icons/icon-192.png',
