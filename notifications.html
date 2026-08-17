@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#6C5CE7">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Notifications - Quantum OPS Elite</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,21 +27,50 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
-    /* ========== CRITICAL: NEVER SHOW DESKTOP ON PHONE ========== */
     #mobile-view { display: block !important; }
     #desktop-view { display: none !important; }
-
     @media (min-width: 1024px) {
       #mobile-view { display: none !important; }
       #desktop-view { display: flex !important; }
     }
 
-    /* ===== MOBILE (exactly as you had it) ===== */
+    /* ===== MOBILE SAFE AREA (STRONG FIX) ===== */
     .iphone-frame {
-      width: 100%; max-width: 100%; height: 100dvh;
-      background: #0B0B16; position: relative; overflow: hidden;
+      width: 100%; max-width: 100%;
+      height: 100dvh; height: 100vh;
+      background: #0B0B16;
+      position: relative; overflow: hidden;
       display: flex; flex-direction: column;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
+    .mobile-top {
+      padding: 14px 16px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(11,11,22,0.97);
+      border-bottom: 1px solid rgba(139,92,246,0.12);
+      flex-shrink: 0; z-index: 30;
+    }
+    .mobile-list {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 12px 16px;
+      padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+    }
+    .mobile-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: calc(64px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: rgba(14,14,28,0.97);
+      border-top: 1px solid rgba(139,92,246,0.15);
+      display: flex; align-items: center; justify-content: space-between;
+      padding-left: 24px; padding-right: 24px; z-index: 40;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      color: #94a3b8; text-decoration: none; font-size: 9px;
+    }
+    .nav-item i { font-size: 14px; }
 
     /* ===== DESKTOP ===== */
     .desktop-shell {
@@ -62,73 +92,80 @@
     }
     .desk-notif:hover { border-color: rgba(139,92,246,0.35); background: #16162a; }
     .desk-notif.unread { border-color: rgba(139,92,246,0.45); box-shadow: 0 0 0 1px rgba(108,92,231,0.25); }
+
+    .enable-btn {
+      width: 100%; padding: 14px; border: none; border-radius: 14px;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      color: #fff; font-weight: 700; font-size: 13px; cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .enable-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .status-ok { color: #34d399; font-size: 12px; text-align: center; margin-bottom: 12px; }
+    .status-warn { color: #fbbf24; font-size: 12px; text-align: center; margin-bottom: 12px; }
   </style>
 </head>
 <body>
-
-  <!-- ==================== MOBILE VIEW ==================== -->
+  <!-- ==================== MOBILE ==================== -->
   <div id="mobile-view">
     <div class="iphone-frame">
-      <div class="px-4 pt-3 pb-3 flex items-center justify-between bg-[#0B0B16]/90 backdrop-blur-md z-30 flex-shrink-0 border-b border-purple-500/10">
-        <div class="flex items-center gap-3">
-          <a href="dashboard.html" class="text-slate-300 hover:text-white transition">
-            <i class="fa-solid fa-arrow-left text-sm"></i>
-          </a>
+      <div class="mobile-top">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
           <div>
-            <h2 class="font-bold tracking-wider text-xs text-white">NOTIFICATIONS</h2>
-            <p class="text-[9px] text-slate-400">What needs your attention</p>
+            <div style="font-weight:700;font-size:12px;color:#fff;letter-spacing:0.05em;">NOTIFICATIONS</div>
+            <div style="font-size:9px;color:#94a3b8;">What needs your attention</div>
           </div>
         </div>
-        <button onclick="markAllRead()" class="text-[10px] text-purple-300 font-semibold hover:text-white transition">
+        <button onclick="markAllRead()" style="background:none;border:none;color:#c4b5fd;font-size:10px;font-weight:600;cursor:pointer;">
           Mark all read
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar pb-20" id="notif-list">
-        <div class="text-center py-16 text-slate-500 text-xs">Loading…</div>
+      <div class="mobile-list custom-scrollbar" id="notif-list">
+        <div style="margin-bottom:12px;">
+          <button id="enable-btn" class="enable-btn" onclick="enableNotifications()">
+            <i class="fa-solid fa-bell"></i> Enable Notification Sound
+          </button>
+          <div id="notif-status" class="status-warn">Tap the button above to allow sound</div>
+        </div>
+        <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">Loading…</div>
       </div>
 
-      <nav class="absolute bottom-0 left-0 right-0 h-16 bg-[#0E0E1C]/95 backdrop-blur-xl border-t border-purple-500/15 px-6 flex items-center justify-between z-40">
-        <a href="dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-gauge-high text-sm"></i><span class="text-[9px] font-medium">Dashboard</span>
-        </a>
-        <a href="inventory.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-boxes-stacked text-sm"></i><span class="text-[9px] font-medium">Inventory</span>
-        </a>
-        <a href="pos.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-cash-register text-sm"></i><span class="text-[9px] font-medium">POS</span>
-        </a>
-        <a href="profile.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-white transition">
-          <i class="fa-solid fa-user text-sm"></i><span class="text-[9px] font-medium">Profile</span>
-        </a>
+      <nav class="mobile-bottom">
+        <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
+        <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
       </nav>
     </div>
   </div>
 
-  <!-- ==================== DESKTOP VIEW ==================== -->
+  <!-- ==================== DESKTOP ==================== -->
   <div id="desktop-view" class="desktop-shell">
     <div class="desk-topbar">
-      <div class="flex items-center gap-4">
-        <a href="dashboard.html" class="text-slate-400 hover:text-white transition text-sm">
-          <i class="fa-solid fa-arrow-left"></i>
-        </a>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <a href="dashboard.html" style="color:#94a3b8;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
         <div>
           <div style="font-weight:700;font-size:18px;color:#fff;">Notifications</div>
           <div style="font-size:12px;color:#94a3b8;">What needs your attention</div>
         </div>
       </div>
-      <button onclick="markAllRead()" style="padding:8px 16px;border-radius:10px;background:rgba(108,92,231,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;font-size:13px;font-weight:600;cursor:pointer;">
-        Mark all read
-      </button>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="enableNotifications()" style="padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
+          <i class="fa-solid fa-bell"></i> Enable Sound
+        </button>
+        <button onclick="markAllRead()" style="padding:8px 16px;border-radius:10px;background:rgba(108,92,231,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;font-size:13px;font-weight:600;cursor:pointer;">
+          Mark all read
+        </button>
+      </div>
     </div>
-
     <div class="desk-content custom-scrollbar" id="desk-notif-list">
-      <div class="text-center py-20 text-slate-500 text-sm">Loading…</div>
+      <div id="desk-notif-status" class="status-warn" style="margin-bottom:16px;">Tap Enable Sound to allow notifications</div>
+      <div style="text-align:center;padding:48px 0;color:#64748b;">Loading…</div>
     </div>
   </div>
 
   <script>
-    /* ========== FORCE VIEW (bulletproof) ========== */
     (function() {
       function applyView() {
         var isDesktop = window.innerWidth >= 1024;
@@ -144,16 +181,137 @@
 
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const VAPID_PUBLIC_KEY = "BGz7w7rQE8ah-bfjhTDXYiorWegqvomnB27oOQcwOLYOYXEUwflSACTcF58A-P8XDJf014BNpuh9dLuV4iQWW5U";
 
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let userCompanyId = null;
     let allNotifs = [];
+    let lastNotifiedId = localStorage.getItem('lastNotifiedId') || null;
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+      return outputArray;
+    }
+
+    function updateStatus(msg, ok) {
+      const el1 = document.getElementById('notif-status');
+      const el2 = document.getElementById('desk-notif-status');
+      const cls = ok ? 'status-ok' : 'status-warn';
+      if (el1) { el1.className = cls; el1.textContent = msg; }
+      if (el2) { el2.className = cls; el2.textContent = msg; }
+    }
+
+    async function enableNotifications() {
+      const btn = document.getElementById('enable-btn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enabling…'; }
+
+      try {
+        if (!('Notification' in window)) {
+          updateStatus('This browser does not support notifications', false);
+          return;
+        }
+
+        let permission = Notification.permission;
+        if (permission === 'default') {
+          permission = await Notification.requestPermission();
+        }
+        if (permission !== 'granted') {
+          updateStatus('Permission denied. Allow notifications in phone Settings.', false);
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bell"></i> Enable Notification Sound'; }
+          return;
+        }
+
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.register('/sw.js');
+          await navigator.serviceWorker.ready;
+
+          let subscription = await reg.pushManager.getSubscription();
+          if (!subscription) {
+            subscription = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+            });
+          }
+
+          // Show test notification WITH SOUND
+          await reg.showNotification('Quantum OPS Elite', {
+            body: 'Sound is working! You will now hear alerts.',
+            icon: '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
+            vibrate: [160, 80, 160],
+            silent: false,
+            tag: 'test-sound',
+            data: { url: '/notifications.html' }
+          });
+        } else {
+          // Fallback without service worker
+          new Notification('Quantum OPS Elite', {
+            body: 'Sound is working! You will now hear alerts.',
+            icon: '/icons/icon-192.png',
+            silent: false
+          });
+        }
+
+        updateStatus('Notifications + sound enabled successfully', true);
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> Sound Enabled';
+
+      } catch (err) {
+        console.error(err);
+        updateStatus('Error: ' + (err.message || 'Could not enable'), false);
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-bell"></i> Enable Notification Sound';
+        }
+      }
+    }
+
+    // Show system notification + sound for newest unread item
+    async function maybePlaySoundForNew(notifs) {
+      if (Notification.permission !== 'granted') return;
+      if (!notifs.length) return;
+
+      const newest = notifs[0];
+      if (!newest || newest.is_read) return;
+      if (newest.id === lastNotifiedId) return;
+
+      try {
+        let reg = null;
+        if ('serviceWorker' in navigator) {
+          reg = await navigator.serviceWorker.ready;
+        }
+
+        const title = newest.title || 'Quantum OPS Elite';
+        const body = newest.message || 'You have a new alert';
+
+        if (reg) {
+          await reg.showNotification(title, {
+            body: body,
+            icon: '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
+            vibrate: [160, 80, 160],
+            silent: false,
+            tag: newest.id,
+            data: { url: '/notifications.html' }
+          });
+        } else {
+          new Notification(title, { body: body, icon: '/icons/icon-192.png', silent: false });
+        }
+
+        lastNotifiedId = newest.id;
+        localStorage.setItem('lastNotifiedId', newest.id);
+      } catch (e) {
+        console.log('Could not show system notification:', e.message);
+      }
+    }
 
     function getLocalDateString(d) {
       const x = new Date(d);
       return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
     }
-
     function formatDateLabel(dateStr) {
       const today = getLocalDateString(new Date());
       const yesterday = getLocalDateString(new Date(Date.now() - 86400000));
@@ -162,23 +320,13 @@
       const d = new Date(dateStr + 'T12:00:00');
       return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     }
-
     function formatTime(iso) {
       return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-
     function typeIcon(type) {
-      const map = {
-        low_stock: '⚠️',
-        debt: '💰',
-        ai: '🤖',
-        sale: '✅',
-        summary: '📊',
-        system: '🔔'
-      };
+      const map = { low_stock: '⚠️', debt: '💰', ai: '🤖', sale: '✅', summary: '📊', system: '🔔' };
       return map[type] || '🔔';
     }
-
     function typeColor(type) {
       const map = {
         low_stock: 'border-amber-500/30 bg-amber-500/10',
@@ -192,23 +340,30 @@
     }
 
     function renderList() {
-      // Mobile list
       const container = document.getElementById('notif-list');
-      // Desktop list
       const deskContainer = document.getElementById('desk-notif-list');
 
+      const enableBlock = `
+        <div style="margin-bottom:12px;">
+          <button id="enable-btn" class="enable-btn" onclick="enableNotifications()">
+            <i class="fa-solid fa-bell"></i> Enable Notification Sound
+          </button>
+          <div id="notif-status" class="status-warn">Tap the button above to allow sound</div>
+        </div>`;
+
       if (!allNotifs.length) {
-        const empty = `
-          <div class="text-center py-16 text-slate-500 text-xs">
-            No notifications yet.<br>
-            <span class="text-[10px]">Low stock, debts, and AI tips will appear here.</span>
-          </div>`;
-        if (container) container.innerHTML = empty;
-        if (deskContainer) deskContainer.innerHTML = `
-          <div class="text-center py-20 text-slate-500 text-sm">
-            No notifications yet.<br>
-            <span style="font-size:12px;color:#64748b;">Low stock, debts, and AI tips will appear here.</span>
-          </div>`;
+        if (container) {
+          container.innerHTML = enableBlock + `
+            <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">
+              No notifications yet.<br>
+              <span style="font-size:10px;">Low stock and new debts will appear here.</span>
+            </div>`;
+        }
+        if (deskContainer) {
+          deskContainer.innerHTML = `
+            <div id="desk-notif-status" class="status-warn" style="margin-bottom:16px;">Tap Enable Sound to allow notifications</div>
+            <div style="text-align:center;padding:48px 0;color:#64748b;">No notifications yet.</div>`;
+        }
         return;
       }
 
@@ -219,23 +374,22 @@
         groups[d].push(n);
       });
 
-      // Mobile HTML
-      let html = '';
+      let html = enableBlock;
       Object.keys(groups).forEach(dateStr => {
-        html += `<p class="text-[10px] font-bold text-purple-300 mb-2 mt-3 first:mt-0">${formatDateLabel(dateStr)}</p>`;
+        html += `<p style="font-size:10px;font-weight:700;color:#a78bfa;margin:14px 0 8px;">${formatDateLabel(dateStr)}</p>`;
         groups[dateStr].forEach(n => {
           const unread = !n.is_read;
           html += `
-            <div onclick="markRead('${n.id}')" class="mb-2 p-3 rounded-2xl border ${typeColor(n.type)} ${unread ? 'ring-1 ring-purple-500/40' : 'opacity-80'} cursor-pointer transition">
-              <div class="flex items-start gap-2">
-                <span class="text-base leading-none mt-0.5">${typeIcon(n.type)}</span>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center justify-between gap-2">
-                    <p class="text-[12px] font-semibold text-white truncate">${n.title || 'Notification'}</p>
-                    <span class="text-[9px] text-slate-500 flex-shrink-0">${formatTime(n.created_at)}</span>
+            <div onclick="markRead('${n.id}')" class="mb-2 p-3 rounded-2xl border ${typeColor(n.type)} ${unread ? 'ring-1 ring-purple-500/40' : 'opacity-80'}" style="cursor:pointer;">
+              <div style="display:flex;align-items:flex-start;gap:8px;">
+                <span style="font-size:16px;line-height:1;margin-top:2px;">${typeIcon(n.type)}</span>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;justify-content:space-between;gap:8px;">
+                    <p style="font-size:12px;font-weight:600;color:#fff;margin:0;">${n.title || 'Notification'}</p>
+                    <span style="font-size:9px;color:#64748b;flex-shrink:0;">${formatTime(n.created_at)}</span>
                   </div>
-                  <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">${n.message || ''}</p>
-                  ${unread ? '<p class="text-[9px] text-purple-300 mt-1">Unread</p>' : ''}
+                  <p style="font-size:11px;color:#cbd5e1;margin:4px 0 0;line-height:1.4;">${n.message || ''}</p>
+                  ${unread ? '<p style="font-size:9px;color:#a78bfa;margin:4px 0 0;">Unread</p>' : ''}
                 </div>
               </div>
             </div>`;
@@ -243,10 +397,9 @@
       });
       if (container) container.innerHTML = html;
 
-      // Desktop HTML
-      let deskHtml = '';
+      let deskHtml = `<div id="desk-notif-status" class="status-warn" style="margin-bottom:16px;">Tap Enable Sound to allow notifications</div>`;
       Object.keys(groups).forEach(dateStr => {
-        deskHtml += `<p style="font-size:11px;font-weight:700;color:#a78bfa;margin:20px 0 10px;letter-spacing:0.03em;">${formatDateLabel(dateStr)}</p>`;
+        deskHtml += `<p style="font-size:11px;font-weight:700;color:#a78bfa;margin:20px 0 10px;">${formatDateLabel(dateStr)}</p>`;
         groups[dateStr].forEach(n => {
           const unread = !n.is_read;
           deskHtml += `
@@ -254,9 +407,9 @@
               <div style="display:flex;align-items:flex-start;gap:14px;">
                 <span style="font-size:20px;line-height:1;margin-top:2px;">${typeIcon(n.type)}</span>
                 <div style="flex:1;min-width:0;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                  <div style="display:flex;justify-content:space-between;gap:12px;">
                     <p style="font-size:14px;font-weight:600;color:#fff;margin:0;">${n.title || 'Notification'}</p>
-                    <span style="font-size:11px;color:#64748b;flex-shrink:0;">${formatTime(n.created_at)}</span>
+                    <span style="font-size:11px;color:#64748b;">${formatTime(n.created_at)}</span>
                   </div>
                   <p style="font-size:13px;color:#94a3b8;margin:4px 0 0;line-height:1.45;">${n.message || ''}</p>
                   ${unread ? '<p style="font-size:11px;color:#a78bfa;margin:6px 0 0;">Unread</p>' : ''}
@@ -266,6 +419,12 @@
         });
       });
       if (deskContainer) deskContainer.innerHTML = deskHtml;
+
+      if (Notification.permission === 'granted') {
+        updateStatus('Notifications + sound are enabled', true);
+        const btn = document.getElementById('enable-btn');
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> Sound Enabled';
+      }
     }
 
     async function loadNotifications() {
@@ -278,16 +437,19 @@
         .limit(100);
 
       if (error) {
-        const msg = `<div class="text-center py-16 text-rose-400 text-xs">${error.message}</div>`;
-        const deskMsg = `<div class="text-center py-20 text-rose-400 text-sm">${error.message}</div>`;
+        const msg = `<div style="text-align:center;padding:40px 0;color:#fb7185;font-size:12px;">${error.message}</div>`;
         const el = document.getElementById('notif-list');
         const del = document.getElementById('desk-notif-list');
         if (el) el.innerHTML = msg;
-        if (del) del.innerHTML = deskMsg;
+        if (del) del.innerHTML = msg;
         return;
       }
+
       allNotifs = data || [];
       renderList();
+
+      // Play sound for newest unread notification
+      await maybePlaySoundForNew(allNotifs);
     }
 
     async function markRead(id) {
@@ -328,13 +490,18 @@
       }
 
       if (!userCompanyId) {
-        const msg = '<div class="text-center py-16 text-slate-500 text-xs">No business found.</div>';
-        const deskMsg = '<div class="text-center py-20 text-slate-500 text-sm">No business found.</div>';
+        const msg = '<div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">No business found.</div>';
         const el = document.getElementById('notif-list');
         const del = document.getElementById('desk-notif-list');
         if (el) el.innerHTML = msg;
-        if (del) del.innerHTML = deskMsg;
+        if (del) del.innerHTML = msg;
         return;
+      }
+
+      if (Notification.permission === 'granted') {
+        updateStatus('Notifications + sound are enabled', true);
+      } else if (Notification.permission === 'denied') {
+        updateStatus('Notifications blocked. Enable them in phone Settings.', false);
       }
 
       await loadNotifications();
