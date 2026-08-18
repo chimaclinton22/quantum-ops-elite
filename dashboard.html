@@ -7,13 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Quantum OPS">
-
-  <!-- PWA Manifest + Icons -->
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-
   <title>Quantum OPS Elite - Business OS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -30,32 +27,21 @@
     }
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
-
     .mobile-only { display: block !important; }
     .desktop-only { display: none !important; }
-
     @media (min-width: 1024px) {
       .mobile-only { display: none !important; }
       .desktop-only { display: flex !important; }
     }
-
     .iphone-frame {
-      width: 100%;
-      max-width: 100%;
-      height: 100dvh;
-      height: 100vh;
-      background: #05060B;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      width: 100%; max-width: 100%; height: 100dvh; height: 100vh;
+      background: #05060B; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
     .neon-card {
-      background: #101326;
-      border-radius: 16px;
-      padding: 12px;
+      background: #101326; border-radius: 16px; padding: 12px;
       box-shadow: 0 0 0 1px rgba(46,168,255,0.25), 0 0 12px rgba(46,168,255,0.12);
     }
     .neon-card-elevated {
@@ -72,7 +58,6 @@
     }
     .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; }
     .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; }
-
     .premium-badge {
       display: inline-flex; align-items: center; gap: 4px;
       background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(139,92,255,0.22));
@@ -83,25 +68,17 @@
       background: linear-gradient(135deg, rgba(255,90,122,0.2), rgba(255,90,122,0.1));
       border-color: rgba(255,90,122,0.55); color: #FF5A7A;
     }
-
     .top-bar {
       padding: 12px 16px;
       padding-top: calc(12px + env(safe-area-inset-top));
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       background: rgba(8,10,20,0.92);
       border-bottom: 1px solid rgba(46,168,255,0.15);
-      flex-shrink: 0;
-      z-index: 20;
+      flex-shrink: 0; z-index: 20;
     }
     .main-scroll {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      padding: 16px;
-      padding-bottom: 110px;
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain; padding: 14px 16px; padding-bottom: 110px;
     }
     .text-main { color: #FFFFFF; }
     .text-sec { color: #A8B3CF; }
@@ -114,38 +91,38 @@
     .kpi-label { font-size: 10px; color: #A8B3CF; margin: 0 0 4px 0; }
     .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; }
     .kpi-live { font-size: 9px; color: #00FFB2; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
-    .icon-btn { width: 32px; height: 32px; border-radius: 12px; background: #12162B; border: 1px solid rgba(46,168,255,0.25); color: #A8B3CF; display: flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; }
-    .branch-chip { display: flex; align-items: center; gap: 6px; background: #12162B; border: 1px solid rgba(139,92,255,0.35); padding: 6px 10px; border-radius: 12px; font-size: 11px; color: #B07CFF; font-weight: 600; }
+    .icon-btn {
+      width: 32px; height: 32px; border-radius: 12px; background: #12162B;
+      border: 1px solid rgba(46,168,255,0.25); color: #A8B3CF;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; cursor: pointer;
+    }
+    .branch-chip {
+      display: flex; align-items: center; gap: 6px; background: #12162B;
+      border: 1px solid rgba(139,92,255,0.35); padding: 6px 10px; border-radius: 12px;
+      font-size: 11px; color: #B07CFF; font-weight: 600;
+    }
     .bottom-nav {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      position: absolute; bottom: 0; left: 0; right: 0;
       height: calc(64px + env(safe-area-inset-bottom));
       padding-bottom: env(safe-area-inset-bottom);
       background: rgba(8,10,20,0.94);
       border-top: 1px solid rgba(46,168,255,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-left: 20px;
-      padding-right: 20px;
-      z-index: 40;
+      display: flex; align-items: center; justify-content: space-between;
+      padding-left: 20px; padding-right: 20px; z-index: 40;
     }
     .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #8A93B2; text-decoration: none; font-size: 9px; }
     .nav-item.active { color: #B07CFF; }
-    .fab-plus { position: relative; top: -18px; width: 52px; height: 52px; border-radius: 999px; border: 3px solid #05060B; background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(139,92,255,0.55); }
+    .fab-plus {
+      position: relative; top: -18px; width: 52px; height: 52px; border-radius: 999px;
+      border: 3px solid #05060B; background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 0 20px rgba(139,92,255,0.55);
+    }
     .hidden { display: none !important; }
-
-    /* ===== NEW: Profile + Trial banners ===== */
     .status-banner {
-      border-radius: 14px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
     .status-banner.verify {
       background: linear-gradient(135deg, rgba(108,92,231,0.18), rgba(79,70,229,0.12));
@@ -159,271 +136,154 @@
       background: linear-gradient(135deg, rgba(255,90,122,0.18), rgba(255,90,122,0.08));
       border: 1px solid rgba(255,90,122,0.45);
     }
-    .status-banner.verified {
-      background: linear-gradient(135deg, rgba(34,245,160,0.12), rgba(16,185,129,0.08));
-      border: 1px solid rgba(34,245,160,0.3);
-    }
     .status-banner .banner-btn {
-      flex-shrink: 0;
-      padding: 8px 12px;
-      border-radius: 10px;
-      border: none;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
+      flex-shrink: 0; padding: 8px 12px; border-radius: 10px; border: none;
+      font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
     }
     .banner-btn.purple { background: linear-gradient(135deg,#5B3DFF,#8B5CFF); color: #fff; }
     .banner-btn.gold { background: linear-gradient(135deg,#FFD54A,#F59E0B); color: #1a1a2e; }
-    .banner-btn.green { background: rgba(34,245,160,0.2); color: #22F5A0; border: 1px solid rgba(34,245,160,0.35); }
-
-    #action-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    #action-sheet {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
     #action-sheet.open { opacity: 1; pointer-events: auto; }
-    #action-sheet-content { width: 100%; max-width: 430px; background: #101326; border-top: 1px solid rgba(139,92,255,0.35); border-radius: 28px 28px 0 0; padding: 20px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
+    #action-sheet-content {
+      width: 100%; max-width: 430px; background: #101326;
+      border-top: 1px solid rgba(139,92,255,0.35); border-radius: 28px 28px 0 0;
+      padding: 20px; transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
     #action-sheet.open #action-sheet-content { transform: translateY(0); }
-    .action-tile { background: #131832; border: 1px solid rgba(46,168,255,0.2); border-radius: 16px; padding: 14px; text-align: center; text-decoration: none; color: #F8FAFF; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    #debt-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .modal-panel { width: 100%; max-width: 360px; background: #101326; border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 20px; }
+    .action-tile {
+      background: #131832; border: 1px solid rgba(46,168,255,0.2); border-radius: 16px;
+      padding: 14px; text-align: center; text-decoration: none; color: #F8FAFF;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    #debt-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-panel {
+      width: 100%; max-width: 360px; background: #101326;
+      border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 20px;
+    }
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 10px; color: #A8B3CF; margin-bottom: 4px; }
-    .field input { width: 100%; background: #131832; border: 1px solid rgba(46,168,255,0.25); border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none; }
-    .btn-primary { width: 100%; padding: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; }
+    .field input {
+      width: 100%; background: #131832; border: 1px solid rgba(46,168,255,0.25);
+      border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
+    }
+    .btn-primary {
+      width: 100%; padding: 12px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff;
+      font-weight: 700; font-size: 12px; cursor: pointer;
+    }
     a.neon-card { text-decoration: none; color: inherit; display: block; }
-
-    .desktop-shell {
-      width: 100%;
-      min-height: 100vh;
-      background: #07070F;
-    }
+    .desktop-shell { width: 100%; min-height: 100vh; background: #07070F; }
     .sidebar {
-      width: 240px;
-      background: #0B0B16;
-      border-right: 1px solid rgba(139,92,246,0.15);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      padding: 16px 12px;
+      width: 240px; background: #0B0B16; border-right: 1px solid rgba(139,92,246,0.15);
+      display: flex; flex-direction: column; flex-shrink: 0; padding: 16px 12px;
     }
-    .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px 20px;
-    }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 8px 10px 20px; }
     .sidebar-logo .logo-box {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
       font-weight: 800; font-size: 14px; color: #fff;
     }
     .sidebar-nav { flex: 1; overflow-y: auto; }
     .nav-link {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 12px; border-radius: 10px;
-      color: #94A3B8; font-size: 13px; text-decoration: none;
-      margin-bottom: 2px; transition: all 0.15s;
+      display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px;
+      color: #94A3B8; font-size: 13px; text-decoration: none; margin-bottom: 2px; transition: all 0.15s;
     }
     .nav-link:hover { background: rgba(108,92,231,0.1); color: #E2E8F0; }
     .nav-link.active {
-      background: rgba(108,92,231,0.2);
-      color: #C4B5FD;
-      border: 1px solid rgba(108,92,231,0.3);
+      background: rgba(108,92,231,0.2); color: #C4B5FD; border: 1px solid rgba(108,92,231,0.3);
     }
     .nav-link i { width: 18px; text-align: center; font-size: 14px; }
     .sidebar-footer {
-      padding: 12px;
-      background: rgba(16,16,34,0.8);
-      border: 1px solid rgba(139,92,246,0.15);
-      border-radius: 14px;
-      margin-top: 12px;
+      padding: 12px; background: rgba(16,16,34,0.8); border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 14px; margin-top: 12px;
     }
-
-    .desktop-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
+    .desktop-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .desktop-header {
-      height: 64px;
-      border-bottom: 1px solid rgba(139,92,246,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      background: rgba(11,11,22,0.95);
-      flex-shrink: 0;
-      gap: 16px;
+      height: 64px; border-bottom: 1px solid rgba(139,92,246,0.12);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; background: rgba(11,11,22,0.95); flex-shrink: 0; gap: 16px;
     }
     .search-box {
-      display: flex; align-items: center; gap: 8px;
-      background: #121224;
-      border: 1px solid rgba(139,92,246,0.2);
-      border-radius: 10px;
-      padding: 8px 14px;
-      width: 280px;
-      color: #64748B;
-      font-size: 13px;
-      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px; background: #121224;
+      border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; padding: 8px 14px;
+      width: 280px; color: #64748B; font-size: 13px; flex-shrink: 0;
     }
     .header-actions { display: flex; align-items: center; gap: 12px; }
-
     .neon-clock {
-      display: flex;
-      align-items: center;
-      gap: 14px;
+      display: flex; align-items: center; gap: 14px;
       background: linear-gradient(145deg, #0a0f1f, #0d1528);
-      border: 1px solid rgba(0, 200, 255, 0.35);
-      border-radius: 12px;
-      padding: 6px 14px;
+      border: 1px solid rgba(0, 200, 255, 0.35); border-radius: 12px; padding: 6px 14px;
       box-shadow: 0 0 12px rgba(0, 180, 255, 0.15), inset 0 0 20px rgba(0, 100, 200, 0.08);
       flex-shrink: 0;
     }
     .clock-time {
-      font-family: 'Courier New', monospace;
-      font-size: 22px;
-      font-weight: 700;
-      color: #00d4ff;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
-      line-height: 1;
+      font-family: 'Courier New', monospace; font-size: 22px; font-weight: 700;
+      color: #00d4ff; letter-spacing: 2px; text-shadow: 0 0 10px rgba(0, 212, 255, 0.6); line-height: 1;
     }
-    .clock-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-    .clock-date {
-      font-size: 10px;
-      color: #94A3B8;
-      white-space: nowrap;
-    }
-    .clock-live {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 10px;
-      color: #22F5A0;
-      font-weight: 600;
-    }
+    .clock-meta { display: flex; flex-direction: column; gap: 1px; }
+    .clock-date { font-size: 10px; color: #94A3B8; white-space: nowrap; }
+    .clock-live { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #22F5A0; font-weight: 600; }
     .clock-live .dot {
-      width: 7px;
-      height: 7px;
-      background: #22F5A0;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #22F5A0;
-      animation: pulse-live 1.5s ease-in-out infinite;
+      width: 7px; height: 7px; background: #22F5A0; border-radius: 50%;
+      box-shadow: 0 0 6px #22F5A0; animation: pulse-live 1.5s ease-in-out infinite;
     }
-    @keyframes pulse-live {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
+    @keyframes pulse-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     .desktop-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px;
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 20px;
+      flex: 1; overflow-y: auto; padding: 20px 24px;
+      display: grid; grid-template-columns: 1fr 300px; gap: 20px;
     }
     .desktop-left { min-width: 0; }
     .desktop-right { display: flex; flex-direction: column; gap: 16px; }
-
     .desk-card {
-      background: #121224;
-      border: 1px solid rgba(139,92,246,0.15);
-      border-radius: 16px;
-      padding: 16px;
+      background: #121224; border: 1px solid rgba(139,92,246,0.15); border-radius: 16px; padding: 16px;
     }
     .desk-kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px;
     }
     .desk-kpi {
-      background: #121224;
-      border: 1px solid rgba(139,92,246,0.15);
-      border-radius: 14px;
-      padding: 14px;
+      background: #121224; border: 1px solid rgba(139,92,246,0.15); border-radius: 14px; padding: 14px;
     }
     .desk-kpi .label { font-size: 11px; color: #94A3B8; margin-bottom: 6px; }
     .desk-kpi .value { font-size: 18px; font-weight: 800; color: #F8FAFC; }
     .desk-kpi .sub { font-size: 11px; margin-top: 4px; }
-
     .charts-row {
-      display: grid;
-      grid-template-columns: 1.6fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
+      display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 16px;
     }
     .ai-panel {
       background: linear-gradient(180deg, rgba(108,92,231,0.12), #121224);
-      border: 1px solid rgba(108,92,231,0.3);
-      border-radius: 16px;
-      padding: 18px;
-      text-align: center;
+      border: 1px solid rgba(108,92,231,0.3); border-radius: 16px; padding: 18px; text-align: center;
     }
     .ai-avatar {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
-      margin: 0 auto 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 32px;
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5); margin: 0 auto 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 32px;
       border: 2px solid rgba(167,139,250,0.4);
     }
     .insight-item {
-      background: rgba(16,16,34,0.8);
-      border: 1px solid rgba(139,92,246,0.12);
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      text-align: left;
-      font-size: 12px;
+      background: rgba(16,16,34,0.8); border: 1px solid rgba(139,92,246,0.12);
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; font-size: 12px;
     }
-    .quick-actions-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+    .quick-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .qa-btn {
-      background: #16162D;
-      border: 1px solid rgba(139,92,246,0.2);
-      border-radius: 10px;
-      padding: 12px 8px;
-      text-align: center;
-      font-size: 11px;
-      color: #E2E8F0;
-      cursor: pointer;
-      text-decoration: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
+      background: #16162D; border: 1px solid rgba(139,92,246,0.2); border-radius: 10px;
+      padding: 12px 8px; text-align: center; font-size: 11px; color: #E2E8F0; cursor: pointer;
+      text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 6px;
     }
     .qa-btn:hover { border-color: #8B5CFF; background: rgba(108,92,231,0.15); }
     .qa-btn i { font-size: 16px; }
-
-    .tables-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
+    .tables-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .table-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(139,92,246,0.08);
-      font-size: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid rgba(139,92,246,0.08); font-size: 12px;
     }
   </style>
 </head>
@@ -432,7 +292,6 @@
   <!-- ==================== MOBILE VIEW ==================== -->
   <div class="mobile-only" id="mobile-view">
     <div class="iphone-frame">
-      <!-- Subscription Lock -->
       <div id="subscription-lock" class="hidden" style="position:absolute;inset:0;background:rgba(5,6,11,0.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;">
         <div style="background:#101326;border:1px solid rgba(139,92,255,0.4);border-radius:24px;padding:28px 22px;max-width:320px;width:100%;">
           <div style="width:64px;height:64px;border-radius:20px;background:rgba(255,90,122,0.15);border:1px solid rgba(255,90,122,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
@@ -457,7 +316,10 @@
             <span style="font-weight:800;font-size:11px;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;">ELITE</span></span>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="enableNotifications()" class="icon-btn" title="Enable Notifications" style="width:28px;height:28px;">
+            <i class="fa-solid fa-bell" style="font-size:12px;"></i>
+          </button>
           <a href="ai-ceo.html" class="icon-btn"><i class="fa-solid fa-robot" style="color:#B07CFF;font-size:12px;"></i></a>
           <a href="notifications.html" class="icon-btn" style="position:relative;">
             <i class="fa-regular fa-bell" style="font-size:12px;"></i>
@@ -471,45 +333,37 @@
       </div>
 
       <div class="main-scroll custom-scrollbar">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:8px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px;">
           <div>
             <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day, User 👋</h1>
             <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <div class="branch-chip"><i class="fa-solid fa-store" style="font-size:10px;"></i><span id="current-branch-name">My Business</span></div>
+            <div class="branch-chip">
+              <i class="fa-solid fa-store" style="font-size:10px;"></i>
+              <span id="current-branch-name">My Business</span>
+              <i id="profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:11px;"></i>
+            </div>
             <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">
               <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
             </div>
-            <button onclick="enableNotifications()" style="padding:7px 12px;background:linear-gradient(135deg,#5B3DFF,#8B5CFF);border:none;border-radius:10px;color:white;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
-              <i class="fa-solid fa-bell"></i> Enable Notifications
-            </button>
           </div>
         </div>
 
-        <!-- ===== VERIFY PROFILE BANNER (MOBILE) ===== -->
+        <!-- Verify Profile (only when incomplete) -->
         <div id="profile-verify-banner" class="status-banner verify hidden">
           <div style="min-width:0;">
             <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:3px;">
               <i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Verify Your Business Profile
             </div>
             <div style="font-size:10px;color:#A8B3CF;line-height:1.4;">
-              Complete your business info to unlock the full Quantum Ops Elite experience.
+              Complete your business info to unlock the full experience.
             </div>
           </div>
           <a href="profile.html" class="banner-btn purple">Verify →</a>
         </div>
 
-        <!-- ===== PROFILE VERIFIED (MOBILE) ===== -->
-        <div id="profile-verified-banner" class="status-banner verified hidden">
-          <div style="min-width:0;">
-            <div style="font-size:12px;font-weight:700;color:#22F5A0;">
-              <i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Business Profile Verified
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== TRIAL BANNER (MOBILE) ===== -->
+        <!-- Trial Banner -->
         <div id="trial-banner" class="status-banner trial hidden">
           <div style="min-width:0;">
             <div style="font-size:12px;font-weight:700;color:#FFD54A;margin-bottom:3px;" id="trial-banner-title">
@@ -616,7 +470,6 @@
       </nav>
     </div>
 
-    <!-- Action Sheet + Debt Modal -->
     <div id="action-sheet">
       <div id="action-sheet-content">
         <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
@@ -661,7 +514,6 @@
           <div style="font-size:10px;color:#A78BFA;letter-spacing:0.08em;">AI BUSINESS OS</div>
         </div>
       </div>
-
       <nav class="sidebar-nav custom-scrollbar">
         <a href="dashboard.html" class="nav-link active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
         <a href="ai-ceo.html" class="nav-link"><i class="fa-solid fa-robot"></i> AI CEO Command Center <span style="margin-left:auto;font-size:9px;background:#6C5CE7;color:#fff;padding:1px 6px;border-radius:4px;">New</span></a>
@@ -673,7 +525,6 @@
         <a href="profile.html" class="nav-link"><i class="fa-solid fa-user"></i> Profile</a>
         <a href="upgrade.html" class="nav-link"><i class="fa-solid fa-crown"></i> Upgrade Plan</a>
       </nav>
-
       <div class="sidebar-footer">
         <div style="font-size:11px;color:#94A3B8;margin-bottom:4px;">Quantum Cloud</div>
         <div style="font-size:12px;font-weight:600;margin-bottom:8px;">Secure • Always Synced</div>
@@ -687,7 +538,6 @@
           <i class="fa-solid fa-magnifying-glass"></i>
           <span>Search anything... (Products, Customers, Invoices...)</span>
         </div>
-
         <div class="neon-clock">
           <div class="clock-time" id="clock-time">00:00:00</div>
           <div class="clock-meta">
@@ -695,7 +545,6 @@
             <div class="clock-live"><span class="dot"></span> LIVE • Lagos</div>
           </div>
         </div>
-
         <div class="header-actions">
           <button onclick="enableNotifications()" style="background:rgba(108,92,231,0.2);border:1px solid rgba(108,92,231,0.4);color:#C4B5FD;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">
             <i class="fa-solid fa-bell" style="margin-right:6px;"></i>Enable Notifications
@@ -724,8 +573,9 @@
               <p style="font-size:13px;color:#94A3B8;margin:4px 0 0;">Here's what's happening with <span id="desk-branch-name">your business</span> today.</p>
             </div>
             <div style="display:flex;gap:10px;align-items:center;">
-              <div style="background:#121224;border:1px solid rgba(139,92,246,0.2);padding:6px 12px;border-radius:8px;font-size:12px;color:#A78BFA;">
-                <i class="fa-solid fa-store" style="margin-right:6px;"></i><span id="desk-branch-chip">Main Branch</span>
+              <div style="background:#121224;border:1px solid rgba(139,92,246,0.2);padding:6px 12px;border-radius:8px;font-size:12px;color:#A78BFA;display:flex;align-items:center;gap:6px;">
+                <i class="fa-solid fa-store"></i><span id="desk-branch-chip">Main Branch</span>
+                <i id="desk-profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:12px;"></i>
               </div>
               <div class="premium-badge" id="desk-premium-badge" onclick="window.location.href='upgrade.html'">
                 <i class="fa-solid fa-crown"></i> <span id="desk-premium-label">Upgrade</span>
@@ -733,23 +583,14 @@
             </div>
           </div>
 
-          <!-- ===== VERIFY + TRIAL BANNERS (DESKTOP) ===== -->
           <div id="desk-profile-verify-banner" class="status-banner verify hidden" style="margin-bottom:14px;">
             <div style="min-width:0;">
               <div style="font-size:13px;font-weight:700;color:#C4B5FD;margin-bottom:3px;">
                 <i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Verify Your Business Profile
               </div>
-              <div style="font-size:12px;color:#A8B3CF;">
-                Complete your business information to unlock the full Quantum Ops Elite experience.
-              </div>
+              <div style="font-size:12px;color:#A8B3CF;">Complete your business information to unlock the full experience.</div>
             </div>
             <a href="profile.html" class="banner-btn purple">Verify Profile →</a>
-          </div>
-
-          <div id="desk-profile-verified-banner" class="status-banner verified hidden" style="margin-bottom:14px;">
-            <div style="font-size:13px;font-weight:700;color:#22F5A0;">
-              <i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Business Profile Verified
-            </div>
           </div>
 
           <div id="desk-trial-banner" class="status-banner trial hidden" style="margin-bottom:14px;">
@@ -757,9 +598,7 @@
               <div style="font-size:13px;font-weight:700;color:#FFD54A;margin-bottom:3px;" id="desk-trial-banner-title">
                 <i class="fa-solid fa-gift" style="margin-right:6px;"></i>14-Day Free Trial Active
               </div>
-              <div style="font-size:12px;color:#A8B3CF;" id="desk-trial-banner-text">
-                You have full access to all features.
-              </div>
+              <div style="font-size:12px;color:#A8B3CF;" id="desk-trial-banner-text">You have full access to all features.</div>
             </div>
             <a href="upgrade.html" class="banner-btn gold">View Subscription</a>
           </div>
@@ -801,9 +640,7 @@
                 </div>
                 <span style="font-size:11px;background:rgba(108,92,231,0.2);color:#C4B5FD;padding:4px 10px;border-radius:999px;">This Week</span>
               </div>
-              <div style="height:180px;">
-                <canvas id="deskSalesChart"></canvas>
-              </div>
+              <div style="height:180px;"><canvas id="deskSalesChart"></canvas></div>
             </div>
             <div class="desk-card">
               <div style="font-size:12px;color:#94A3B8;margin-bottom:12px;">BUSINESS HEALTH</div>
@@ -824,27 +661,21 @@
                 <span style="font-size:12px;font-weight:600;color:#94A3B8;">TOP SELLING PRODUCTS</span>
                 <span style="font-size:11px;color:#A78BFA;">This Week</span>
               </div>
-              <div id="desk-top-products">
-                <div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">No data yet</div>
-              </div>
+              <div id="desk-top-products"><div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">No data yet</div></div>
             </div>
             <div class="desk-card">
               <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
                 <span style="font-size:12px;font-weight:600;color:#94A3B8;">LOW STOCK ALERTS</span>
                 <a href="inventory.html" style="font-size:11px;color:#A78BFA;text-decoration:none;">View All</a>
               </div>
-              <div id="desk-low-stock-list">
-                <div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">All stock healthy</div>
-              </div>
+              <div id="desk-low-stock-list"><div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">All stock healthy</div></div>
             </div>
             <div class="desk-card">
               <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
                 <span style="font-size:12px;font-weight:600;color:#94A3B8;">TOP DEBTORS</span>
                 <a href="debtors.html" style="font-size:11px;color:#A78BFA;text-decoration:none;">View All</a>
               </div>
-              <div id="desk-top-debtors">
-                <div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">No outstanding debts</div>
-              </div>
+              <div id="desk-top-debtors"><div style="text-align:center;padding:20px 0;color:#64748B;font-size:12px;">No outstanding debts</div></div>
             </div>
           </div>
 
@@ -853,9 +684,7 @@
               <span style="font-size:12px;font-weight:600;color:#94A3B8;">RECENT ACTIVITIES</span>
               <span style="font-size:11px;color:#A78BFA;">Live</span>
             </div>
-            <div id="desk-recent-activities">
-              <div style="text-align:center;padding:16px 0;color:#64748B;font-size:12px;">No recent activity</div>
-            </div>
+            <div id="desk-recent-activities"><div style="text-align:center;padding:16px 0;color:#64748B;font-size:12px;">No recent activity</div></div>
           </div>
         </div>
 
@@ -864,7 +693,6 @@
             <div class="ai-avatar"><i class="fa-solid fa-robot"></i></div>
             <h3 style="font-size:15px;font-weight:700;margin:0 0 4px;">Hello <span id="ai-user-name">User</span>! 👋</h3>
             <p style="font-size:12px;color:#94A3B8;margin:0 0 14px;">Here are my top insights for you.</p>
-
             <div class="insight-item">
               <div style="color:#22F5A0;font-weight:600;margin-bottom:2px;"><i class="fa-solid fa-arrow-trend-up"></i> Sales Performance</div>
               <div style="color:#CBD5E1;font-size:11px;" id="ai-insight-sales">Tracking your live sales data...</div>
@@ -877,12 +705,8 @@
               <div style="color:#FF5A7A;font-weight:600;margin-bottom:2px;"><i class="fa-solid fa-file-invoice-dollar"></i> Debt Watch</div>
               <div style="color:#CBD5E1;font-size:11px;" id="ai-insight-debt">Monitoring outstanding balances...</div>
             </div>
-
-            <a href="ai-ceo.html" style="display:block;margin-top:14px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);color:#fff;padding:11px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;">
-              Chat with AI CEO
-            </a>
+            <a href="ai-ceo.html" style="display:block;margin-top:14px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);color:#fff;padding:11px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;">Chat with AI CEO</a>
           </div>
-
           <div class="desk-card">
             <div style="font-size:12px;font-weight:600;color:#94A3B8;margin-bottom:12px;">QUICK ACTIONS</div>
             <div class="quick-actions-grid">
@@ -894,25 +718,12 @@
               <a href="ai-ceo.html" class="qa-btn"><i class="fa-solid fa-robot" style="color:#B07CFF;"></i>AI CEO</a>
             </div>
           </div>
-
           <div class="desk-card">
             <div style="font-size:12px;font-weight:600;color:#94A3B8;margin-bottom:10px;">TODAY'S SUMMARY</div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-              <span style="color:#94A3B8;">Sales</span>
-              <span style="font-weight:700;" id="desk-sum-sales">₦0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-              <span style="color:#94A3B8;">Profit</span>
-              <span style="font-weight:700;color:#22F5A0;" id="desk-sum-profit">₦0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-              <span style="color:#94A3B8;">Expenses</span>
-              <span style="font-weight:700;color:#FF5A7A;" id="desk-sum-expenses">₦0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:12px;">
-              <span style="color:#94A3B8;">Net Profit</span>
-              <span style="font-weight:700;color:#00E5FF;" id="desk-sum-net">₦0</span>
-            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#94A3B8;">Sales</span><span style="font-weight:700;" id="desk-sum-sales">₦0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#94A3B8;">Profit</span><span style="font-weight:700;color:#22F5A0;" id="desk-sum-profit">₦0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:#94A3B8;">Expenses</span><span style="font-weight:700;color:#FF5A7A;" id="desk-sum-expenses">₦0</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#94A3B8;">Net Profit</span><span style="font-weight:700;color:#00E5FF;" id="desk-sum-net">₦0</span></div>
           </div>
         </div>
       </div>
@@ -954,7 +765,6 @@
       const d = new Date(dateObj);
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
-
     function enforceView() {
       const isDesktop = window.innerWidth >= 1024;
       const mobile = document.getElementById('mobile-view');
@@ -962,26 +772,21 @@
       if (mobile) mobile.style.display = isDesktop ? 'none' : 'block';
       if (desktop) desktop.style.display = isDesktop ? 'flex' : 'none';
     }
-
     function updateClock() {
       const now = new Date();
       const lagos = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Lagos' }));
-      
       let hours = lagos.getHours();
       const mins = String(lagos.getMinutes()).padStart(2, '0');
       const secs = String(lagos.getSeconds()).padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12 || 12;
       const timeStr = String(hours).padStart(2, '0') + ':' + mins + ':' + secs + ' ' + ampm;
-
       const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
       const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
       const dateStr = days[lagos.getDay()] + ', ' + months[lagos.getMonth()] + ' ' + lagos.getDate() + ', ' + lagos.getFullYear();
-
       setText('clock-time', timeStr);
       setText('clock-date', dateStr);
     }
-
     function toggleActionSheet() {
       const sheet = $('action-sheet');
       if (sheet) sheet.classList.toggle('open');
@@ -995,7 +800,6 @@
       const m = $('debt-modal');
       if (m) m.classList.add('hidden');
     }
-
     async function handleLogout() {
       if (loggingOut) return;
       loggingOut = true;
@@ -1007,7 +811,6 @@
       try { localStorage.clear(); sessionStorage.clear(); } catch(e) {}
       window.location.replace('index.html');
     }
-
     function scheduleLiveRefresh() {
       if (!appReady || loggingOut) return;
       if (liveRefreshTimer) clearTimeout(liveRefreshTimer);
@@ -1016,22 +819,14 @@
         loadUnreadBadge();
       }, 900);
     }
-
     function updatePremiumBadge(status, daysLeft) {
       let label = 'Upgrade';
-      if (status === 'active') {
-        label = 'PREMIUM';
-      } else if (status === 'expired') {
-        label = 'EXPIRED';
-      } else if (status === 'trial' && daysLeft !== null && daysLeft >= 0) {
-        label = daysLeft + ' days left';
-      }
-
+      if (status === 'active') label = 'PREMIUM';
+      else if (status === 'expired') label = 'EXPIRED';
+      else if (status === 'trial' && daysLeft !== null && daysLeft >= 0) label = daysLeft + ' days left';
       ['premium-label', 'desk-premium-label'].forEach(function(id) {
-        const el = $(id);
-        if (el) el.textContent = label;
+        const el = $(id); if (el) el.textContent = label;
       });
-
       ['premium-badge', 'desk-premium-badge'].forEach(function(id) {
         const badge = $(id);
         if (badge) {
@@ -1040,7 +835,6 @@
         }
       });
     }
-
     function isProfileComplete(company) {
       if (!company) return false;
       const name = (company.company_name || '').trim();
@@ -1048,46 +842,41 @@
       const phone = (company.phone || '').trim();
       return !!(name && address && phone);
     }
-
     function updateProfileAndTrialBanners(company) {
       if (!company) return;
-
-      // --- Profile verify ---
       const complete = isProfileComplete(company);
-      const verifyIds = ['profile-verify-banner', 'desk-profile-verify-banner'];
-      const verifiedIds = ['profile-verified-banner', 'desk-profile-verified-banner'];
 
-      verifyIds.forEach(function(id) {
+      // Verify banner (show only when incomplete)
+      ['profile-verify-banner', 'desk-profile-verify-banner'].forEach(function(id) {
         const el = $(id);
         if (el) {
           if (complete) el.classList.add('hidden');
           else el.classList.remove('hidden');
         }
       });
-      verifiedIds.forEach(function(id) {
-        const el = $(id);
-        if (el) {
-          if (complete) el.classList.remove('hidden');
-          else el.classList.add('hidden');
+
+      // Small blue tick next to business name
+      ['profile-verified-tick', 'desk-profile-verified-tick'].forEach(function(id) {
+        const tick = $(id);
+        if (tick) {
+          if (complete) tick.classList.remove('hidden');
+          else tick.classList.add('hidden');
         }
       });
 
-      // --- Trial banner ---
+      // Trial banner
       const status = (company.subscription_status || 'trial').toLowerCase();
       const trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
       const now = new Date();
       let daysLeft = null;
       let showTrial = false;
-
       if (status === 'trial' && trialEnds) {
         const diff = trialEnds.getTime() - now.getTime();
         daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
         if (daysLeft < 0) daysLeft = 0;
         showTrial = daysLeft > 0;
       }
-
-      const trialBannerIds = ['trial-banner', 'desk-trial-banner'];
-      trialBannerIds.forEach(function(id) {
+      ['trial-banner', 'desk-trial-banner'].forEach(function(id) {
         const el = $(id);
         if (!el) return;
         if (showTrial) {
@@ -1098,19 +887,15 @@
           el.classList.add('hidden');
         }
       });
-
       if (showTrial && daysLeft !== null) {
-        let title = '14-Day Free Trial';
-        let text = 'You have full access to all features.';
+        let title = '14-Day Free Trial Active';
+        let text = daysLeft + ' days remaining. Explore all features.';
         if (daysLeft <= 1) {
           title = 'Trial ends tomorrow';
-          text = 'Subscribe now to continue using Quantum Ops Elite without interruption.';
+          text = 'Subscribe now to continue without interruption.';
         } else if (daysLeft <= 3) {
           title = daysLeft + ' days left on your free trial';
-          text = 'Subscribe now to keep your business tools active.';
-        } else {
-          title = '14-Day Free Trial Active';
-          text = daysLeft + ' days remaining. Explore all features.';
+          text = 'Subscribe now to keep your tools active.';
         }
         setText('trial-banner-title', title);
         setText('trial-banner-text', text);
@@ -1118,44 +903,75 @@
         setText('desk-trial-banner-text', text);
       }
     }
-
+    async function maybeSendTrialReminders(company) {
+      if (!company || !userCompanyId) return;
+      const status = (company.subscription_status || 'trial').toLowerCase();
+      if (status !== 'trial') return;
+      const trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
+      if (!trialEnds) return;
+      const now = new Date();
+      const daysLeft = Math.ceil((trialEnds.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      let title = null, message = null, key = null;
+      if (daysLeft === 4) {
+        key = 'trial_day10';
+        title = 'Your free trial is ending soon';
+        message = 'You have 4 days remaining on your Quantum Ops Elite free trial. Subscribe now to keep using all your business tools.';
+      } else if (daysLeft === 2) {
+        key = 'trial_day12';
+        title = '2 days left';
+        message = 'Your Quantum Ops Elite free trial ends soon. Subscribe now to keep your business data and tools active.';
+      } else if (daysLeft === 1) {
+        key = 'trial_day13';
+        title = 'Your trial ends tomorrow';
+        message = 'Subscribe now to continue using Quantum Ops Elite without interruption.';
+      } else if (daysLeft <= 0) {
+        key = 'trial_day14';
+        title = 'Your free trial has ended';
+        message = 'Subscribe to continue using Quantum Ops Elite.';
+      } else return;
+      const storageKey = 'trial_reminder_' + userCompanyId + '_' + key;
+      if (localStorage.getItem(storageKey) === '1') return;
+      try {
+        await supabaseClient.from('notifications').insert([{
+          company_id: userCompanyId, title: title, message: message, type: 'trial', is_read: false
+        }]);
+        try {
+          await fetch('https://ptznejibslwmzlxzmsgh.supabase.co/functions/v1/instant-push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+            body: JSON.stringify({ company_id: userCompanyId, title: title, message: message, url: '/upgrade.html' })
+          });
+        } catch (e) {}
+        localStorage.setItem(storageKey, '1');
+      } catch (e) {}
+    }
     function checkAndApplySubscriptionLock(company) {
       if (!company) return;
-
       var status = (company.subscription_status || 'trial').toLowerCase();
       var trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
       var subEnds = company.subscription_ends_at ? new Date(company.subscription_ends_at) : null;
       var now = new Date();
       var isExpired = false;
       var daysLeft = null;
-
       if (status === 'active') {
         if (subEnds && subEnds < now) isExpired = true;
       } else if (status === 'trial') {
         if (trialEnds) {
-          const diffTime = trialEnds.getTime() - now.getTime();
-          daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          if (daysLeft < 0) {
-            isExpired = true;
-            daysLeft = 0;
-          }
+          daysLeft = Math.ceil((trialEnds.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysLeft < 0) { isExpired = true; daysLeft = 0; }
         }
       } else if (status === 'expired' || status === 'cancelled') {
         isExpired = true;
       }
-
       updatePremiumBadge(isExpired ? 'expired' : status, daysLeft);
-
       var lock = $('subscription-lock');
       if (lock) {
         if (isExpired) lock.classList.remove('hidden');
         else lock.classList.add('hidden');
       }
-
-      // NEW: profile + trial banners
       updateProfileAndTrialBanners(company);
+      maybeSendTrialReminders(company);
     }
-
     function applyCompanyProfile(c) {
       if (!c) return;
       if (c.company_name) {
@@ -1172,7 +988,6 @@
       }
       checkAndApplySubscriptionLock(c);
     }
-
     async function loadUnreadBadge() {
       if (!userCompanyId) return;
       try {
@@ -1184,10 +999,8 @@
         badge.classList.remove('hidden');
       } catch(e) {}
     }
-
     async function initializeApp() {
       enforceView();
-
       if (loggingOut) return;
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -1201,21 +1014,18 @@
         const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
         const hour = new Date().getHours();
         const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-
         setText('greeting-title', greeting + ', ' + capitalizedName + ' 👋');
         setText('desk-greeting', greeting + ', ' + capitalizedName + ' 👋');
         setText('user-avatar-initial', capitalizedName.charAt(0));
         setText('desk-avatar', capitalizedName.charAt(0));
         setText('desk-username', capitalizedName);
         setText('ai-user-name', capitalizedName);
-
         userCompanyId = null;
         const { data: member } = await supabaseClient
           .from('company_users')
           .select('company_id, companies(company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at)')
           .eq('user_id', user.id)
           .maybeSingle();
-
         if (member && member.company_id) {
           userCompanyId = member.company_id;
           applyCompanyProfile(member.companies);
@@ -1230,14 +1040,11 @@
             applyCompanyProfile(owned);
           }
         }
-
         await fetchAllLiveMetrics();
         await loadUnreadBadge();
         appReady = true;
-
         updateClock();
         setInterval(updateClock, 1000);
-
         if (userCompanyId) {
           if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch(e){} }
           liveChannel = supabaseClient.channel('live-' + userCompanyId)
@@ -1253,21 +1060,14 @@
         appReady = true;
       }
     }
-
     async function fetchAllLiveMetrics() {
       if (!userCompanyId) {
-        processSalesMetrics([]);
-        processInventoryMetrics([]);
-        processDebtorsMetrics([]);
-        processExpensesMetrics([]);
-        renderSalesChart([]);
-        renderTopProducts([]);
-        renderRecentActivities([]);
+        processSalesMetrics([]); processInventoryMetrics([]); processDebtorsMetrics([]); processExpensesMetrics([]);
+        renderSalesChart([]); renderTopProducts([]); renderRecentActivities([]);
         return;
       }
       if (isFetchingMetrics) return;
       isFetchingMetrics = true;
-
       try {
         const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
           supabaseClient.from('sales').select('id, total_amount, total, profit, total_profit, created_at, payment_method, items').eq('company_id', userCompanyId).order('created_at', { ascending: false }).limit(120),
@@ -1275,7 +1075,6 @@
           supabaseClient.from('debtors').select('id, customer_name, amount_owing, status').eq('company_id', userCompanyId).limit(100),
           supabaseClient.from('expenses').select('id, amount, created_at').eq('company_id', userCompanyId).order('created_at', { ascending: false }).limit(60)
         ]);
-
         processSalesMetrics(salesRes.data || []);
         processInventoryMetrics(productsRes.data || []);
         processDebtorsMetrics(debtorsRes.data || []);
@@ -1290,7 +1089,6 @@
         isFetchingMetrics = false;
       }
     }
-
     function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0;
@@ -1299,19 +1097,15 @@
         const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
         weeklyTotal += amount;
         if (getLocalDateString(new Date(s.created_at)) === todayStr) {
-          todaySales += amount;
-          todayProfit += profit;
-          todayCount++;
+          todaySales += amount; todayProfit += profit; todayCount++;
         }
       });
       todayGrossProfit = todayProfit;
       todaySalesAmount = todaySales;
-
       setText('val-today-sales', formatCurrency(todaySales));
       setText('val-today-profit', formatCurrency(todayProfit));
       setText('val-transactions', String(todayCount));
       setText('val-weekly-total', formatCurrency(weeklyTotal));
-
       setText('desk-today-sales', formatCurrency(todaySales));
       setText('desk-today-profit', formatCurrency(todayProfit));
       setText('desk-transactions', String(todayCount));
@@ -1319,7 +1113,6 @@
       setText('desk-sum-sales', formatCurrency(todaySales));
       setText('desk-sum-profit', formatCurrency(todayProfit));
     }
-
     function processExpensesMetrics(expenses) {
       const todayStr = getLocalDateString(new Date());
       let todayExp = 0;
@@ -1329,7 +1122,6 @@
       setText('val-today-expenses', formatCurrency(todayExp));
       setText('desk-today-expenses', formatCurrency(todayExp));
       setText('desk-sum-expenses', formatCurrency(todayExp));
-
       const net = todayGrossProfit - todayExp;
       const netEl = $('val-net-profit');
       if (netEl) {
@@ -1338,7 +1130,6 @@
       }
       setText('desk-net-profit', formatCurrency(net));
       setText('desk-sum-net', formatCurrency(net));
-
       var expCard = $('card-expenses');
       if (expCard) {
         var tooHigh = todayExp > 0 && (todayExp >= todayGrossProfit || (todaySalesAmount > 0 && todayExp > todaySalesAmount * 0.35));
@@ -1346,7 +1137,6 @@
         else expCard.classList.remove('alert-breathing-red');
       }
     }
-
     function processInventoryMetrics(products) {
       let low = 0;
       const lowItems = [];
@@ -1354,21 +1144,18 @@
         const pieces = parseFloat(p.stock || 0);
         const pack = parseFloat(p.items_per_pack || 24) || 24;
         if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) {
-          low++;
-          lowItems.push(p);
+          low++; lowItems.push(p);
         }
       });
       setText('val-low-stock', low + ' Items');
       setText('desk-low-stock', low + ' Items');
       setText('val-business-health', Math.max(100 - low * 5, 40) + '%');
       setText('desk-business-health', Math.max(100 - low * 5, 40) + '%');
-
       var lowCard = $('card-low-stock');
       if (lowCard) {
         if (low > 0) lowCard.classList.add('alert-breathing-amber');
         else lowCard.classList.remove('alert-breathing-amber');
       }
-
       const list = $('desk-low-stock-list');
       if (list) {
         if (!lowItems.length) {
@@ -1379,42 +1166,24 @@
           }).join('');
         }
       }
-
       if (lowItems.length > 0 && !window._lowStockPushSent && userCompanyId) {
         window._lowStockPushSent = true;
         const names = lowItems.slice(0, 3).map(function(p){ return p.name || 'Product'; }).join(', ');
-        const msg = lowItems.length === 1
-          ? (names + ' is running low. Restock soon.')
-          : (lowItems.length + ' products are running low: ' + names);
-
+        const msg = lowItems.length === 1 ? (names + ' is running low. Restock soon.') : (lowItems.length + ' products are running low: ' + names);
         try {
           supabaseClient.from('notifications').insert([{
-            company_id: userCompanyId,
-            title: 'Low Stock Alert',
-            message: msg,
-            type: 'low_stock',
-            is_read: false
+            company_id: userCompanyId, title: 'Low Stock Alert', message: msg, type: 'low_stock', is_read: false
           }]).then(function(){}).catch(function(){});
         } catch(e) {}
-
         try {
           fetch('https://ptznejibslwmzlxzmsgh.supabase.co/functions/v1/instant-push', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-            },
-            body: JSON.stringify({
-              company_id: userCompanyId,
-              title: 'Low Stock Alert',
-              message: msg,
-              url: '/inventory.html'
-            })
-          }).catch(function(e){ console.log('Low stock push error:', e); });
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
+            body: JSON.stringify({ company_id: userCompanyId, title: 'Low Stock Alert', message: msg, url: '/inventory.html' })
+          }).catch(function(){});
         } catch(e) {}
       }
     }
-
     function processDebtorsMetrics(debtors) {
       let total = 0;
       (debtors || []).forEach(function(d) { total += parseMoney(d.amount_owing); });
@@ -1422,13 +1191,11 @@
       setText('desk-outstanding-debt', formatCurrency(total));
       setText('val-debt-customers', (debtors || []).length + ' Customers');
       setText('desk-debt-customers', (debtors || []).length + ' Customers');
-
       var debtCard = $('card-outstanding-debt');
       if (debtCard) {
         if (total > 0) debtCard.classList.add('alert-breathing-red');
         else debtCard.classList.remove('alert-breathing-red');
       }
-
       const list = $('desk-top-debtors');
       if (list) {
         if (!debtors || !debtors.length) {
@@ -1441,7 +1208,6 @@
         }
       }
     }
-
     function updateAIInsights(sales, products, debtors) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0;
@@ -1451,7 +1217,6 @@
         }
       });
       setText('ai-insight-sales', todaySales > 0 ? 'You made ' + formatCurrency(todaySales) + ' in sales today. Keep it up!' : 'No sales recorded yet today. Time to push!');
-
       let low = 0;
       (products || []).forEach(function(p) {
         const pieces = parseFloat(p.stock || 0);
@@ -1459,12 +1224,10 @@
         if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
       });
       setText('ai-insight-stock', low > 0 ? low + ' item(s) are running low. Restock soon.' : 'All stock levels look healthy.');
-
       let debtTotal = 0;
       (debtors || []).forEach(function(d) { debtTotal += parseMoney(d.amount_owing); });
       setText('ai-insight-debt', debtTotal > 0 ? formatCurrency(debtTotal) + ' is still outstanding from customers.' : 'No outstanding debts. Great job!');
     }
-
     function renderSalesChart(sales) {
       const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
       const totals = [0,0,0,0,0,0,0];
@@ -1476,15 +1239,13 @@
       const chartKey = totals.join(',');
       if (chartKey === lastChartKey && salesChartInstance) return;
       lastChartKey = chartKey;
-
       const canvas = $('salesOverviewChart');
       if (canvas) {
         try {
           if (salesChartInstance) { try { salesChartInstance.destroy(); } catch(e){} }
           const ctx = canvas.getContext('2d');
           const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
-          gradient.addColorStop(0, '#8B5CFF');
-          gradient.addColorStop(1, '#2EA8FF');
+          gradient.addColorStop(0, '#8B5CFF'); gradient.addColorStop(1, '#2EA8FF');
           salesChartInstance = new Chart(ctx, {
             type: 'line',
             data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: 'rgba(139,92,255,0.12)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
@@ -1492,15 +1253,13 @@
           });
         } catch(e) {}
       }
-
       const deskCanvas = $('deskSalesChart');
       if (deskCanvas) {
         try {
           if (deskChartInstance) { try { deskChartInstance.destroy(); } catch(e){} }
           const ctx2 = deskCanvas.getContext('2d');
           const gradient2 = ctx2.createLinearGradient(0, 0, deskCanvas.width || 400, 0);
-          gradient2.addColorStop(0, '#8B5CFF');
-          gradient2.addColorStop(1, '#2EA8FF');
+          gradient2.addColorStop(0, '#8B5CFF'); gradient2.addColorStop(1, '#2EA8FF');
           deskChartInstance = new Chart(ctx2, {
             type: 'line',
             data: { labels: days, datasets: [{ data: totals, borderColor: gradient2, backgroundColor: 'rgba(139,92,255,0.1)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
@@ -1509,7 +1268,6 @@
         } catch(e) {}
       }
     }
-
     function renderTopProducts(sales) {
       const counts = {};
       (sales || []).forEach(function(s) {
@@ -1522,7 +1280,6 @@
         });
       });
       const sorted = Object.entries(counts).sort(function(a,b){ return b[1].revenue - a[1].revenue; }).slice(0,5);
-
       const container = $('top-products-list');
       if (container) {
         if (!sorted.length) {
@@ -1533,7 +1290,6 @@
           }).join('');
         }
       }
-
       const deskContainer = $('desk-top-products');
       if (deskContainer) {
         if (!sorted.length) {
@@ -1545,7 +1301,6 @@
         }
       }
     }
-
     function renderRecentActivities(sales) {
       const container = $('recent-activities-list');
       const deskContainer = $('desk-recent-activities');
@@ -1555,18 +1310,15 @@
         return;
       }
       const sorted = sales.slice().sort(function(a,b){ return new Date(b.created_at) - new Date(a.created_at); }).slice(0,5);
-
       const html = sorted.map(function(s) {
         const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
         let label = 'New Sale';
         if (Array.isArray(s.items) && s.items[0]) label = s.items[0].name || 'New Sale';
         return '<div style="display:flex;justify-content:space-between;padding:6px 0;"><div style="display:flex;gap:10px;align-items:center;"><div style="width:28px;height:28px;border-radius:10px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;font-size:11px;"><i class="fa-solid fa-cart-shopping"></i></div><div><p style="margin:0;font-weight:600;font-size:11px;">'+label+'</p><p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">'+(s.payment_method||'Cash')+'</p></div></div><div style="text-align:right;"><p style="margin:0;font-weight:700;color:#22F5A0;font-size:11px;">'+formatCurrency(amount)+'</p><p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">'+getTimeAgo(s.created_at)+'</p></div></div>';
       }).join('');
-
       if (container) container.innerHTML = html;
       if (deskContainer) deskContainer.innerHTML = html;
     }
-
     function getTimeAgo(dateString) {
       if (!dateString) return 'Just now';
       const mins = Math.floor((new Date() - new Date(dateString)) / 60000);
@@ -1576,7 +1328,6 @@
       if (hrs < 24) return hrs + 'h ago';
       return getLocalDateString(new Date(dateString));
     }
-
     async function submitNewDebt() {
       const customer = ($('debt-customer')||{}).value;
       const phone = ($('debt-phone')||{}).value;
@@ -1587,10 +1338,8 @@
       if (!cust) return alert('Enter customer name');
       if (!amount || parseFloat(amount) <= 0) return alert('Enter valid amount');
       if (!userCompanyId) return alert('Company not loaded. Refresh page.');
-
       const btn = $('save-debt-btn');
       if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
-
       try {
         const payload = {
           company_id: userCompanyId,
@@ -1601,7 +1350,6 @@
           status: 'unpaid'
         };
         if (phone && phone.trim()) payload.phone = phone.trim();
-
         const { error } = await supabaseClient.from('debtors').insert([payload]);
         if (error) {
           alert(error.message);
@@ -1611,18 +1359,13 @@
               company_id: userCompanyId,
               title: 'New Debt Recorded',
               message: cust + ' owes ' + formatCurrency(amount) + ' for ' + ((item||'').trim() || 'General Goods'),
-              type: 'debt',
-              is_read: false
+              type: 'debt', is_read: false
             }]);
           } catch (e) {}
-
           try {
             await fetch('https://ptznejibslwmzlxzmsgh.supabase.co/functions/v1/instant-push', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-              },
+              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
               body: JSON.stringify({
                 company_id: userCompanyId,
                 title: 'New Debt Recorded',
@@ -1630,10 +1373,7 @@
                 url: '/debtors.html'
               })
             });
-          } catch (e) {
-            console.log('Push notification error:', e);
-          }
-
+          } catch (e) {}
           closeAddDebtModal();
           ['debt-customer','debt-phone','debt-item','debt-amount','debt-duedate'].forEach(function(id){ if($(id)) $(id).value = ''; });
           fetchAllLiveMetrics();
@@ -1643,29 +1383,23 @@
       }
       if (btn) { btn.disabled = false; btn.textContent = 'Save Debt Record'; }
     }
-
     window.addEventListener('resize', enforceView);
-
     supabaseClient.auth.onAuthStateChange(function(event) {
       if (loggingOut) return;
       if (event === 'SIGNED_OUT') window.location.replace('index.html');
     });
-
     async function enableNotifications() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
         alert('Push notifications are not supported on this browser');
         return;
       }
-
       try {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
           alert('Please allow notifications to receive alerts');
           return;
         }
-
         const reg = await navigator.serviceWorker.ready;
-
         let subscription = await reg.pushManager.getSubscription();
         if (!subscription) {
           subscription = await reg.pushManager.subscribe({
@@ -1673,53 +1407,36 @@
             applicationServerKey: urlBase64ToUint8Array('BGz7w7rQE8ah-bfjhTDXYiorWegqvomnB27oOQcwOLYOYXEUwflSACTcF58A-P8XDJf014BNpuh9dLuV4iQWW5U')
           });
         }
-
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) return;
-
-        const { data: member } = await supabaseClient
-          .from('company_users')
-          .select('company_id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
+        const { data: member } = await supabaseClient.from('company_users').select('company_id').eq('user_id', user.id).maybeSingle();
         let companyId = member && member.company_id ? member.company_id : null;
         if (!companyId) {
-          const { data: owned } = await supabaseClient
-            .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
+          const { data: owned } = await supabaseClient.from('companies').select('id').eq('owner_id', user.id).maybeSingle();
           if (owned && owned.id) companyId = owned.id;
         }
         if (!companyId) return;
-
         const subJson = subscription.toJSON ? subscription.toJSON() : subscription;
-
-        await supabaseClient
-          .from('push_subscriptions')
-          .upsert({
-            company_id: companyId,
-            endpoint: subscription.endpoint,
-            subscription: subJson,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'endpoint' });
-
+        await supabaseClient.from('push_subscriptions').upsert({
+          company_id: companyId,
+          endpoint: subscription.endpoint,
+          subscription: subJson,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'endpoint' });
         alert('Notifications enabled successfully!');
       } catch (err) {
         console.error('Push setup error:', err);
         alert('Failed to enable notifications. Please try again.');
       }
     }
-
     function urlBase64ToUint8Array(base64String) {
       const padding = '='.repeat((4 - base64String.length % 4) % 4);
       const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
       const rawData = window.atob(base64);
       const outputArray = new Uint8Array(rawData.length);
-      for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-      }
+      for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
       return outputArray;
     }
-
     window.addEventListener('DOMContentLoaded', function() {
       initializeApp();
     });
