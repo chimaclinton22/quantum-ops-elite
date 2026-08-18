@@ -137,6 +137,50 @@
     .fab-plus { position: relative; top: -18px; width: 52px; height: 52px; border-radius: 999px; border: 3px solid #05060B; background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 20px rgba(139,92,255,0.55); }
     .hidden { display: none !important; }
 
+    /* ===== NEW: Profile + Trial banners ===== */
+    .status-banner {
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .status-banner.verify {
+      background: linear-gradient(135deg, rgba(108,92,231,0.18), rgba(79,70,229,0.12));
+      border: 1px solid rgba(139,92,255,0.35);
+    }
+    .status-banner.trial {
+      background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(139,92,255,0.1));
+      border: 1px solid rgba(255,215,0,0.4);
+    }
+    .status-banner.trial.urgent {
+      background: linear-gradient(135deg, rgba(255,90,122,0.18), rgba(255,90,122,0.08));
+      border: 1px solid rgba(255,90,122,0.45);
+    }
+    .status-banner.verified {
+      background: linear-gradient(135deg, rgba(34,245,160,0.12), rgba(16,185,129,0.08));
+      border: 1px solid rgba(34,245,160,0.3);
+    }
+    .status-banner .banner-btn {
+      flex-shrink: 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .banner-btn.purple { background: linear-gradient(135deg,#5B3DFF,#8B5CFF); color: #fff; }
+    .banner-btn.gold { background: linear-gradient(135deg,#FFD54A,#F59E0B); color: #1a1a2e; }
+    .banner-btn.green { background: rgba(34,245,160,0.2); color: #22F5A0; border: 1px solid rgba(34,245,160,0.35); }
+
     #action-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
     #action-sheet.open { opacity: 1; pointer-events: auto; }
     #action-sheet-content { width: 100%; max-width: 430px; background: #101326; border-top: 1px solid rgba(139,92,255,0.35); border-radius: 28px 28px 0 0; padding: 20px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16,1,0.3,1); }
@@ -443,6 +487,41 @@
           </div>
         </div>
 
+        <!-- ===== VERIFY PROFILE BANNER (MOBILE) ===== -->
+        <div id="profile-verify-banner" class="status-banner verify hidden">
+          <div style="min-width:0;">
+            <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:3px;">
+              <i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Verify Your Business Profile
+            </div>
+            <div style="font-size:10px;color:#A8B3CF;line-height:1.4;">
+              Complete your business info to unlock the full Quantum Ops Elite experience.
+            </div>
+          </div>
+          <a href="profile.html" class="banner-btn purple">Verify →</a>
+        </div>
+
+        <!-- ===== PROFILE VERIFIED (MOBILE) ===== -->
+        <div id="profile-verified-banner" class="status-banner verified hidden">
+          <div style="min-width:0;">
+            <div style="font-size:12px;font-weight:700;color:#22F5A0;">
+              <i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Business Profile Verified
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TRIAL BANNER (MOBILE) ===== -->
+        <div id="trial-banner" class="status-banner trial hidden">
+          <div style="min-width:0;">
+            <div style="font-size:12px;font-weight:700;color:#FFD54A;margin-bottom:3px;" id="trial-banner-title">
+              <i class="fa-solid fa-gift" style="margin-right:6px;"></i>14-Day Free Trial
+            </div>
+            <div style="font-size:10px;color:#A8B3CF;line-height:1.4;" id="trial-banner-text">
+              You have access to all features.
+            </div>
+          </div>
+          <a href="upgrade.html" class="banner-btn gold">Subscribe</a>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
           <a href="transactions.html?view=sales" class="neon-card">
             <p class="kpi-label">Total Sales (Today)</p>
@@ -652,6 +731,37 @@
                 <i class="fa-solid fa-crown"></i> <span id="desk-premium-label">Upgrade</span>
               </div>
             </div>
+          </div>
+
+          <!-- ===== VERIFY + TRIAL BANNERS (DESKTOP) ===== -->
+          <div id="desk-profile-verify-banner" class="status-banner verify hidden" style="margin-bottom:14px;">
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#C4B5FD;margin-bottom:3px;">
+                <i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Verify Your Business Profile
+              </div>
+              <div style="font-size:12px;color:#A8B3CF;">
+                Complete your business information to unlock the full Quantum Ops Elite experience.
+              </div>
+            </div>
+            <a href="profile.html" class="banner-btn purple">Verify Profile →</a>
+          </div>
+
+          <div id="desk-profile-verified-banner" class="status-banner verified hidden" style="margin-bottom:14px;">
+            <div style="font-size:13px;font-weight:700;color:#22F5A0;">
+              <i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Business Profile Verified
+            </div>
+          </div>
+
+          <div id="desk-trial-banner" class="status-banner trial hidden" style="margin-bottom:14px;">
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#FFD54A;margin-bottom:3px;" id="desk-trial-banner-title">
+                <i class="fa-solid fa-gift" style="margin-right:6px;"></i>14-Day Free Trial Active
+              </div>
+              <div style="font-size:12px;color:#A8B3CF;" id="desk-trial-banner-text">
+                You have full access to all features.
+              </div>
+            </div>
+            <a href="upgrade.html" class="banner-btn gold">View Subscription</a>
           </div>
 
           <div class="desk-kpi-grid">
@@ -931,6 +1041,84 @@
       });
     }
 
+    function isProfileComplete(company) {
+      if (!company) return false;
+      const name = (company.company_name || '').trim();
+      const address = (company.address || '').trim();
+      const phone = (company.phone || '').trim();
+      return !!(name && address && phone);
+    }
+
+    function updateProfileAndTrialBanners(company) {
+      if (!company) return;
+
+      // --- Profile verify ---
+      const complete = isProfileComplete(company);
+      const verifyIds = ['profile-verify-banner', 'desk-profile-verify-banner'];
+      const verifiedIds = ['profile-verified-banner', 'desk-profile-verified-banner'];
+
+      verifyIds.forEach(function(id) {
+        const el = $(id);
+        if (el) {
+          if (complete) el.classList.add('hidden');
+          else el.classList.remove('hidden');
+        }
+      });
+      verifiedIds.forEach(function(id) {
+        const el = $(id);
+        if (el) {
+          if (complete) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        }
+      });
+
+      // --- Trial banner ---
+      const status = (company.subscription_status || 'trial').toLowerCase();
+      const trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
+      const now = new Date();
+      let daysLeft = null;
+      let showTrial = false;
+
+      if (status === 'trial' && trialEnds) {
+        const diff = trialEnds.getTime() - now.getTime();
+        daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        if (daysLeft < 0) daysLeft = 0;
+        showTrial = daysLeft > 0;
+      }
+
+      const trialBannerIds = ['trial-banner', 'desk-trial-banner'];
+      trialBannerIds.forEach(function(id) {
+        const el = $(id);
+        if (!el) return;
+        if (showTrial) {
+          el.classList.remove('hidden');
+          if (daysLeft <= 3) el.classList.add('urgent');
+          else el.classList.remove('urgent');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      if (showTrial && daysLeft !== null) {
+        let title = '14-Day Free Trial';
+        let text = 'You have full access to all features.';
+        if (daysLeft <= 1) {
+          title = 'Trial ends tomorrow';
+          text = 'Subscribe now to continue using Quantum Ops Elite without interruption.';
+        } else if (daysLeft <= 3) {
+          title = daysLeft + ' days left on your free trial';
+          text = 'Subscribe now to keep your business tools active.';
+        } else {
+          title = '14-Day Free Trial Active';
+          text = daysLeft + ' days remaining. Explore all features.';
+        }
+        setText('trial-banner-title', title);
+        setText('trial-banner-text', text);
+        setText('desk-trial-banner-title', title);
+        setText('desk-trial-banner-text', text);
+      }
+    }
+
     function checkAndApplySubscriptionLock(company) {
       if (!company) return;
 
@@ -963,6 +1151,9 @@
         if (isExpired) lock.classList.remove('hidden');
         else lock.classList.add('hidden');
       }
+
+      // NEW: profile + trial banners
+      updateProfileAndTrialBanners(company);
     }
 
     function applyCompanyProfile(c) {
@@ -1021,7 +1212,7 @@
         userCompanyId = null;
         const { data: member } = await supabaseClient
           .from('company_users')
-          .select('company_id, companies(company_name, logo, address, phone, subscription_status, trial_ends_at, subscription_ends_at)')
+          .select('company_id, companies(company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at)')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -1031,7 +1222,7 @@
         } else {
           const { data: owned } = await supabaseClient
             .from('companies')
-            .select('id, company_name, logo, address, phone, subscription_status, trial_ends_at, subscription_ends_at')
+            .select('id, company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at')
             .eq('owner_id', user.id)
             .maybeSingle();
           if (owned && owned.id) {
@@ -1189,7 +1380,6 @@
         }
       }
 
-      // ===== LOW STOCK PUSH (same style as debt) =====
       if (lowItems.length > 0 && !window._lowStockPushSent && userCompanyId) {
         window._lowStockPushSent = true;
         const names = lowItems.slice(0, 3).map(function(p){ return p.name || 'Product'; }).join(', ');
@@ -1416,7 +1606,6 @@
         if (error) {
           alert(error.message);
         } else {
-          // In-app notification
           try {
             await supabaseClient.from('notifications').insert([{
               company_id: userCompanyId,
@@ -1427,7 +1616,6 @@
             }]);
           } catch (e) {}
 
-          // Real push notification (sound + banner)
           try {
             await fetch('https://ptznejibslwmzlxzmsgh.supabase.co/functions/v1/instant-push', {
               method: 'POST',
@@ -1463,7 +1651,6 @@
       if (event === 'SIGNED_OUT') window.location.replace('index.html');
     });
 
-    // ========== MANUAL ENABLE NOTIFICATIONS ==========
     async function enableNotifications() {
       if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
         alert('Push notifications are not supported on this browser');
