@@ -287,7 +287,7 @@
       if (v == null || v === '') return 0;
       if (typeof v === 'number') return isNaN(v) ? 0 : v;
       const n = parseFloat(String(v).replace(/[₦$,\s]/g, ''));
-      return isNaN(n) ? 0 : n;
+      return isNaN(n) ? 0 : v;
     }
     function formatDate(isoString) {
       if (!isoString) return 'N/A';
@@ -310,25 +310,44 @@
       if (hour < 17) return 'Good afternoon';
       return 'Good evening';
     }
+
+    // ========== IMPROVED REMINDER MESSAGE (exactly as you requested) ==========
     function buildReminderMessage(debt) {
       const name = debt.customer_name || 'Customer';
       const amount = formatCurrency(parseMoney(debt.amount_owing));
       const item = debt.item_bought || 'General Goods';
       const date = formatShortDate(debt.created_at);
       const biz = businessName || 'Our Shop';
+
       let msg = `${getGreeting()}, ${name}.
+
 This is a friendly payment reminder from ${biz}.
-Our records show an outstanding balance of ${amount} for ${item} on ${date}.
+
+Our records show that you have an outstanding balance of ${amount} for ${item}, purchased on ${date}.
+
 Kindly settle the outstanding balance at your earliest convenience.`;
+
       if (bankName || accountNumber) {
-        msg += `\n\nPayment Details:`;
-        if (bankName) msg += `\nBank: ${bankName}`;
-        if (accountName) msg += `\nAccount Name: ${accountName}`;
-        if (accountNumber) msg += `\nAccount Number: ${accountNumber}`;
+        msg += `
+
+PAYMENT DETAILS
+`;
+        if (bankName) msg += `Bank: ${bankName}\n`;
+        if (accountName) msg += `Account Name: ${accountName}\n`;
+        if (accountNumber) msg += `Account Number: ${accountNumber}\n`;
+        msg += `Amount Due: ${amount}`;
       }
-      msg += `\n\nThank you for your business.\n— Quantum Ops Elite`;
+
+      msg += `
+
+Thank you for your business.
+
+— ${biz}
+Powered by Quantum Ops Elite`;
+
       return msg;
     }
+
     function openAddDebtModal() {
       document.getElementById('debt-modal').classList.remove('hidden');
     }
@@ -546,6 +565,18 @@ Kindly settle the outstanding balance at your earliest convenience.`;
         if (phone) payload.phone = phone;
         const { error } = await supabaseClient.from('debtors').insert([payload]);
         if (error) throw error;
+
+        // Create in-app notification
+        try {
+          await supabaseClient.from('notifications').insert([{
+            company_id: userCompanyId,
+            title: 'New Debt Recorded',
+            message: `${customer} owes ${formatCurrency(amount)} for ${item || 'General Goods'}`,
+            type: 'debt',
+            is_read: false
+          }]);
+        } catch (e) {}
+
         closeAddDebtModal();
         document.getElementById('debt-customer').value = '';
         document.getElementById('debt-phone').value = '';
