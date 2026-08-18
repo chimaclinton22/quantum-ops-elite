@@ -287,7 +287,7 @@
       if (v == null || v === '') return 0;
       if (typeof v === 'number') return isNaN(v) ? 0 : v;
       const n = parseFloat(String(v).replace(/[₦$,\s]/g, ''));
-      return isNaN(n) ? 0 : v;
+      return isNaN(n) ? 0 : n;
     }
     function formatDate(isoString) {
       if (!isoString) return 'N/A';
@@ -311,39 +311,57 @@
       return 'Good evening';
     }
 
-    // ========== IMPROVED REMINDER MESSAGE (exactly as you requested) ==========
-    function buildReminderMessage(debt) {
+    // ========== WHATSAPP (beautiful detailed version) ==========
+    function buildWhatsAppReminder(debt) {
       const name = debt.customer_name || 'Customer';
+      const amount = formatCurrency(parseMoney(debt.amount_owing));
+      const item = debt.item_bought || 'General Goods';
+      const date = formatShortDate(debt.created_at);
+      const biz = (businessName || 'Our Shop').toUpperCase();
+
+      let msg = `*${biz}*\nPayment Reminder\n\n`;
+      msg += `${getGreeting()}, ${name}.\n\n`;
+      msg += `This is a friendly payment reminder regarding your outstanding balance.\n\n`;
+      msg += `*ITEM:* ${item}\n`;
+      msg += `*PURCHASE DATE:* ${date}\n`;
+      msg += `*AMOUNT DUE:* ${amount}\n\n`;
+      msg += `━━━━━━━━━━━━━━\n\n`;
+
+      if (bankName || accountNumber || accountName) {
+        msg += `*PAYMENT DETAILS*\n\n`;
+        if (bankName) msg += `Bank: ${bankName}\n`;
+        if (accountName) msg += `Account Name: ${accountName}\n`;
+        if (accountNumber) msg += `Account Number: ${accountNumber}\n`;
+        msg += `Amount: ${amount}\n\n`;
+        msg += `━━━━━━━━━━━━━━\n\n`;
+      }
+
+      msg += `Kindly settle the outstanding balance at your earliest convenience.\n\n`;
+      msg += `Thank you for your business.\n\n`;
+      msg += `${businessName || 'Our Shop'}\n`;
+      msg += `_Powered by Quantum Ops Elite_`;
+
+      return msg;
+    }
+
+    // ========== SMS (short version) ==========
+    function buildSmsReminder(debt) {
       const amount = formatCurrency(parseMoney(debt.amount_owing));
       const item = debt.item_bought || 'General Goods';
       const date = formatShortDate(debt.created_at);
       const biz = businessName || 'Our Shop';
 
-      let msg = `${getGreeting()}, ${name}.
+      let msg = `${biz}: Payment reminder. Your outstanding balance is ${amount} for ${item} purchased on ${date}.`;
 
-This is a friendly payment reminder from ${biz}.
-
-Our records show that you have an outstanding balance of ${amount} for ${item}, purchased on ${date}.
-
-Kindly settle the outstanding balance at your earliest convenience.`;
-
-      if (bankName || accountNumber) {
-        msg += `
-
-PAYMENT DETAILS
-`;
-        if (bankName) msg += `Bank: ${bankName}\n`;
-        if (accountName) msg += `Account Name: ${accountName}\n`;
-        if (accountNumber) msg += `Account Number: ${accountNumber}\n`;
-        msg += `Amount Due: ${amount}`;
+      if (bankName || accountNumber || accountName) {
+        msg += `\n\nPayment:`;
+        if (bankName) msg += `\n${bankName}`;
+        if (accountName) msg += `\n${accountName}`;
+        if (accountNumber) msg += `\n${accountNumber}`;
+        msg += `\nAmount: ${amount}`;
       }
 
-      msg += `
-
-Thank you for your business.
-
-— ${biz}
-Powered by Quantum Ops Elite`;
+      msg += `\n\nKindly settle your outstanding balance. Thank you.\n— ${biz} | Quantum Ops Elite`;
 
       return msg;
     }
@@ -458,11 +476,11 @@ Powered by Quantum Ops Elite`;
       let waNumber = phoneClean;
       if (waNumber.startsWith('0')) waNumber = '234' + waNumber.slice(1);
       if (!waNumber.startsWith('234') && !waNumber.startsWith('+')) waNumber = '234' + waNumber;
-      const message = encodeURIComponent(buildReminderMessage(debt));
-      const smsBody = encodeURIComponent(buildReminderMessage(debt));
+      const waMessage = encodeURIComponent(buildWhatsAppReminder(debt));
+      const smsBody = encodeURIComponent(buildSmsReminder(debt));
       const callNumber = phoneClean;
       return `
-        <a class="btn-wa" href="https://wa.me/${waNumber}?text=${message}" target="_blank">
+        <a class="btn-wa" href="https://wa.me/${waNumber}?text=${waMessage}" target="_blank">
           <i class="fa-brands fa-whatsapp"></i> WhatsApp
         </a>
         <a class="btn-sms" href="sms:${callNumber}?body=${smsBody}">
