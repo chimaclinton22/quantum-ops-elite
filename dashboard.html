@@ -1188,6 +1188,41 @@
           }).join('');
         }
       }
+
+      // ===== LOW STOCK PUSH (same style as debt) =====
+      if (lowItems.length > 0 && !window._lowStockPushSent && userCompanyId) {
+        window._lowStockPushSent = true;
+        const names = lowItems.slice(0, 3).map(function(p){ return p.name || 'Product'; }).join(', ');
+        const msg = lowItems.length === 1
+          ? (names + ' is running low. Restock soon.')
+          : (lowItems.length + ' products are running low: ' + names);
+
+        try {
+          supabaseClient.from('notifications').insert([{
+            company_id: userCompanyId,
+            title: 'Low Stock Alert',
+            message: msg,
+            type: 'low_stock',
+            is_read: false
+          }]).then(function(){}).catch(function(){});
+        } catch(e) {}
+
+        try {
+          fetch('https://ptznejibslwmzlxzmsgh.supabase.co/functions/v1/instant-push', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+            },
+            body: JSON.stringify({
+              company_id: userCompanyId,
+              title: 'Low Stock Alert',
+              message: msg,
+              url: '/inventory.html'
+            })
+          }).catch(function(e){ console.log('Low stock push error:', e); });
+        } catch(e) {}
+      }
     }
 
     function processDebtorsMetrics(debtors) {
@@ -1378,8 +1413,39 @@
         if (phone && phone.trim()) payload.phone = phone.trim();
 
         const { error } = await supabaseClient.from('debtors').insert([payload]);
-        if (error) alert(error.message);
-        else {
+        if (error) {
+          alert(error.message);
+        } else {
+          // In-app notification
+          try {
+            await supabaseClient.from('notifications').insert([{
+              company_id: userCompanyId,
+              title: 'New Debt Recorded',
+              message: cust + ' owes ' + formatCurrency(amount) + ' for ' + ((item||'').trim() || 'General Goods'),
+              type: 'debt',
+              is_read: false
+            }]);
+          } catch (e) {}
+
+          // Real push notification (sound + banner)
+          try {
+            await fetch('https://ptznejibslwmzlxzmsgh.supabase.co/functions/v1/instant-push', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+              },
+              body: JSON.stringify({
+                company_id: userCompanyId,
+                title: 'New Debt Recorded',
+                message: cust + ' owes ' + formatCurrency(amount) + ' for ' + ((item||'').trim() || 'General Goods'),
+                url: '/debtors.html'
+              })
+            });
+          } catch (e) {
+            console.log('Push notification error:', e);
+          }
+
           closeAddDebtModal();
           ['debt-customer','debt-phone','debt-item','debt-amount','debt-duedate'].forEach(function(id){ if($(id)) $(id).value = ''; });
           fetchAllLiveMetrics();
@@ -1430,16 +1496,24 @@
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (!member?.company_id) return;
+        let companyId = member && member.company_id ? member.company_id : null;
+        if (!companyId) {
+          const { data: owned } = await supabaseClient
+            .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
+          if (owned && owned.id) companyId = owned.id;
+        }
+        if (!companyId) return;
+
+        const subJson = subscription.toJSON ? subscription.toJSON() : subscription;
 
         await supabaseClient
           .from('push_subscriptions')
           .upsert({
-            user_id: user.id,
-            company_id: member.company_id,
-            subscription: subscription,
+            company_id: companyId,
+            endpoint: subscription.endpoint,
+            subscription: subJson,
             updated_at: new Date().toISOString()
-          }, { onConflict: 'user_id' });
+          }, { onConflict: 'endpoint' });
 
         alert('Notifications enabled successfully!');
       } catch (err) {
