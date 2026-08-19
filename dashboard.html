@@ -285,6 +285,95 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 0; border-bottom: 1px solid rgba(139,92,246,0.08); font-size: 12px;
     }
+
+    /* ===== DAY THEME (from Profile Preferences) ===== */
+    body.theme-day {
+      background: #F4F6FB !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .iphone-frame,
+    body.theme-day .desktop-shell {
+      background: #F4F6FB !important;
+    }
+    body.theme-day .top-bar,
+    body.theme-day .bottom-nav,
+    body.theme-day .desktop-header,
+    body.theme-day .sidebar {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .neon-card,
+    body.theme-day .neon-card-elevated,
+    body.theme-day .desk-card,
+    body.theme-day .desk-kpi,
+    body.theme-day .ai-panel,
+    body.theme-day .modal-panel,
+    body.theme-day #action-sheet-content {
+      background: #FFFFFF !important;
+      box-shadow: 0 0 0 1px #E2E8F0, 0 4px 12px rgba(0,0,0,0.04) !important;
+    }
+    body.theme-day .text-main,
+    body.theme-day .kpi-value,
+    body.theme-day .desk-kpi .value {
+      color: #0F172A !important;
+    }
+    body.theme-day .text-sec,
+    body.theme-day .text-muted,
+    body.theme-day .kpi-label,
+    body.theme-day .desk-kpi .label {
+      color: #64748B !important;
+    }
+    body.theme-day .icon-btn,
+    body.theme-day .branch-chip,
+    body.theme-day .search-box {
+      background: #F1F5F9 !important;
+      border-color: #E2E8F0 !important;
+      color: #475569 !important;
+    }
+    body.theme-day .nav-item { color: #64748B !important; }
+    body.theme-day .nav-item.active { color: #6C5CE7 !important; }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active {
+      background: rgba(108,92,231,0.12) !important;
+      color: #6C5CE7 !important;
+      border-color: rgba(108,92,231,0.25) !important;
+    }
+    body.theme-day .field input {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .action-tile,
+    body.theme-day .qa-btn {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .fab-plus {
+      border-color: #F4F6FB !important;
+    }
+
+    /* ===== TEXT SIZE (from Profile Preferences) ===== */
+    body.text-small .kpi-label { font-size: 9px; }
+    body.text-small .kpi-value { font-size: 12px; }
+    body.text-small .nav-item { font-size: 8px; }
+
+    body.text-medium .kpi-label { font-size: 10px; }
+    body.text-medium .kpi-value { font-size: 13px; }
+    body.text-medium .nav-item { font-size: 9px; }
+
+    body.text-large .kpi-label { font-size: 12px; }
+    body.text-large .kpi-value { font-size: 15px; }
+    body.text-large .nav-item { font-size: 10px; }
+    body.text-large .text-main { font-size: 17px !important; }
+    body.text-large .desk-kpi .value { font-size: 20px; }
+
+    body.text-xlarge .kpi-label { font-size: 13px; }
+    body.text-xlarge .kpi-value { font-size: 17px; }
+    body.text-xlarge .nav-item { font-size: 11px; }
+    body.text-xlarge .text-main { font-size: 18px !important; }
+    body.text-xlarge .desk-kpi .value { font-size: 22px; }
+    body.text-xlarge .field input { font-size: 14px; }
   </style>
 </head>
 <body>
@@ -747,6 +836,36 @@
     let loggingOut = false;
     let lastChartKey = '';
 
+    /* ========== THEME + TEXT SIZE (from Profile Preferences) ========== */
+    function getSavedTheme() {
+      return localStorage.getItem('quantum_theme') || 'night';
+    }
+    function resolveTheme(pref) {
+      if (pref === 'system') {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
+      }
+      return pref;
+    }
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref);
+      document.body.classList.remove('theme-day', 'theme-night');
+      document.body.classList.add(resolved === 'day' ? 'theme-day' : 'theme-night');
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'day' ? '#F4F6FB' : '#05060B');
+      } catch(e) {}
+    }
+    function getSavedTextSize() {
+      return localStorage.getItem('quantum_text_size') || 'medium';
+    }
+    function applyTextSize(size) {
+      document.body.classList.remove('text-small', 'text-medium', 'text-large', 'text-xlarge');
+      document.body.classList.add('text-' + size);
+    }
+    function applyUserPreferences() {
+      applyTheme(getSavedTheme());
+      applyTextSize(getSavedTextSize());
+    }
+
     function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
     function formatCurrency(amount) {
@@ -991,6 +1110,7 @@
       } catch(e) {}
     }
     async function initializeApp() {
+      applyUserPreferences();
       enforceView();
       if (loggingOut) return;
       try {
@@ -1037,7 +1157,6 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Load metrics in background (non-blocking)
         setTimeout(function() {
           fetchAllLiveMetrics();
           loadUnreadBadge();
@@ -1436,6 +1555,7 @@
       return outputArray;
     }
     window.addEventListener('DOMContentLoaded', function() {
+      applyUserPreferences();
       initializeApp();
     });
   </script>
