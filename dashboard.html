@@ -307,7 +307,6 @@
         </div>
       </div>
 
-      <!-- Top Bar -->
       <div class="top-bar">
         <div style="display:flex;align-items:center;gap:10px;">
           <button onclick="toggleActionSheet()" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
@@ -350,7 +349,6 @@
           </div>
         </div>
 
-        <!-- Verify Profile (only when incomplete) -->
         <div id="profile-verify-banner" class="status-banner verify hidden">
           <div style="min-width:0;">
             <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:3px;">
@@ -363,7 +361,6 @@
           <a href="profile.html" class="banner-btn purple">Verify →</a>
         </div>
 
-        <!-- Trial Banner -->
         <div id="trial-banner" class="status-banner trial hidden">
           <div style="min-width:0;">
             <div style="font-size:12px;font-weight:700;color:#FFD54A;margin-bottom:3px;" id="trial-banner-title">
@@ -817,7 +814,7 @@
       liveRefreshTimer = setTimeout(function() {
         fetchAllLiveMetrics();
         loadUnreadBadge();
-      }, 900);
+      }, 1200);
     }
     function updatePremiumBadge(status, daysLeft) {
       let label = 'Upgrade';
@@ -845,8 +842,6 @@
     function updateProfileAndTrialBanners(company) {
       if (!company) return;
       const complete = isProfileComplete(company);
-
-      // Verify banner (show only when incomplete)
       ['profile-verify-banner', 'desk-profile-verify-banner'].forEach(function(id) {
         const el = $(id);
         if (el) {
@@ -854,8 +849,6 @@
           else el.classList.remove('hidden');
         }
       });
-
-      // Small blue tick next to business name
       ['profile-verified-tick', 'desk-profile-verified-tick'].forEach(function(id) {
         const tick = $(id);
         if (tick) {
@@ -863,8 +856,6 @@
           else tick.classList.add('hidden');
         }
       });
-
-      // Trial banner
       const status = (company.subscription_status || 'trial').toLowerCase();
       const trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
       const now = new Date();
@@ -970,7 +961,7 @@
         else lock.classList.add('hidden');
       }
       updateProfileAndTrialBanners(company);
-      maybeSendTrialReminders(company);
+      setTimeout(function(){ maybeSendTrialReminders(company); }, 800);
     }
     function applyCompanyProfile(c) {
       if (!c) return;
@@ -1020,6 +1011,7 @@
         setText('desk-avatar', capitalizedName.charAt(0));
         setText('desk-username', capitalizedName);
         setText('ai-user-name', capitalizedName);
+
         userCompanyId = null;
         const { data: member } = await supabaseClient
           .from('company_users')
@@ -1040,11 +1032,17 @@
             applyCompanyProfile(owned);
           }
         }
-        await fetchAllLiveMetrics();
-        await loadUnreadBadge();
+
         appReady = true;
         updateClock();
         setInterval(updateClock, 1000);
+
+        // Load metrics in background (non-blocking)
+        setTimeout(function() {
+          fetchAllLiveMetrics();
+          loadUnreadBadge();
+        }, 60);
+
         if (userCompanyId) {
           if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch(e){} }
           liveChannel = supabaseClient.channel('live-' + userCompanyId)
