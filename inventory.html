@@ -63,6 +63,10 @@
       position: relative; background: #121224; border: 1px solid rgba(139,92,246,0.15);
       border-radius: 16px; padding: 14px; margin-bottom: 12px;
     }
+    .prod-name { font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 2px; word-break: break-word; }
+    .prod-sku { font-size: 10px; color: #94a3b8; }
+    .prod-meta { font-size: 10px; color: #cbd5e1; }
+    .prod-price { font-weight: 800; color: #fff; font-size: 13px; }
     .menu-btn {
       width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
       border-radius: 8px; color: #94a3b8; background: transparent; border: none; cursor: pointer;
@@ -209,6 +213,19 @@
       gap: 8px;
       box-shadow: 0 4px 14px rgba(108,92,231,0.35);
     }
+    .desk-price-btn {
+      padding: 10px 16px;
+      border-radius: 11px;
+      background: rgba(34,245,160,0.12);
+      border: 1px solid rgba(34,245,160,0.35);
+      color: #22F5A0;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .desk-filters {
       display: flex;
       gap: 8px;
@@ -299,6 +316,34 @@
     }
     .hidden { display: none !important; }
 
+    /* Price List Modal */
+    #price-list-modal .price-list-paper {
+      background: #fff;
+      color: #111;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    #price-list-modal .pl-header {
+      text-align: center;
+      border-bottom: 2px solid #6C5CE7;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    #price-list-modal .pl-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #E5E7EB;
+      font-size: 13px;
+    }
+    #price-list-modal .pl-name { font-weight: 600; color: #111; flex: 1; padding-right: 12px; }
+    #price-list-modal .pl-price { font-weight: 800; color: #6C5CE7; white-space: nowrap; }
+
     /* ===== DAY THEME ===== */
     body.theme-day {
       background: #F4F6FB !important;
@@ -325,21 +370,14 @@
     body.theme-day .filter-tab {
       background: #FFFFFF !important;
       border-color: #E2E8F0 !important;
-      color: #0F172A !important;
     }
     body.theme-day .filter-tab.active {
       background: #6C5CE7 !important;
       color: #fff !important;
     }
-    body.theme-day .desk-header .title,
-    body.theme-day .card,
-    body.theme-day .desk-card {
-      color: #0F172A !important;
-    }
+    body.theme-day .desk-header .title { color: #0F172A !important; }
     body.theme-day .desk-header .subtitle,
-    body.theme-day .nav-item {
-      color: #64748B !important;
-    }
+    body.theme-day .nav-item { color: #64748B !important; }
     body.theme-day .nav-item.active { color: #6C5CE7 !important; }
     body.theme-day .icon-btn {
       background: #F1F5F9 !important;
@@ -363,17 +401,26 @@
       border-color: #C7D2FE !important;
       color: #3730A3 !important;
     }
+    /* Critical: product name always visible in Day mode */
+    body.theme-day .prod-name { color: #0F172A !important; }
+    body.theme-day .prod-sku { color: #64748B !important; }
+    body.theme-day .prod-meta { color: #475569 !important; }
+    body.theme-day .prod-price { color: #0F172A !important; }
 
     /* ===== TEXT SIZE ===== */
     body.text-small .filter-tab { font-size: 11px; }
     body.text-small .nav-item { font-size: 8px; }
+    body.text-small .prod-name { font-size: 12px; }
     body.text-medium .filter-tab { font-size: 12px; }
     body.text-medium .nav-item { font-size: 9px; }
+    body.text-medium .prod-name { font-size: 13px; }
     body.text-large .filter-tab { font-size: 13px; }
     body.text-large .nav-item { font-size: 10px; }
+    body.text-large .prod-name { font-size: 15px; }
     body.text-large .desk-header .title { font-size: 20px; }
     body.text-xlarge .filter-tab { font-size: 14px; }
     body.text-xlarge .nav-item { font-size: 11px; }
+    body.text-xlarge .prod-name { font-size: 16px; }
     body.text-xlarge .desk-header .title { font-size: 22px; }
     body.text-xlarge .field input { font-size: 14px; }
   </style>
@@ -385,10 +432,11 @@
     <div class="iphone-frame">
       <div class="top-bar">
         <div>
-          <div style="font-weight:800;color:#fff;font-size:16px;">All Products</div>
+          <div style="font-weight:800;color:#fff;font-size:16px;" class="prod-name">All Products</div>
           <div style="font-size:10px;color:#94a3b8;" id="product-count-label">0 products</div>
         </div>
         <div style="display:flex;gap:8px;">
+          <button class="icon-btn" onclick="openPriceList()" title="Price List"><i class="fa-solid fa-list" style="font-size:12px;"></i></button>
           <button class="icon-btn" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass" style="font-size:12px;"></i></button>
           <button class="icon-btn primary" onclick="openAddProductModal()"><i class="fa-solid fa-plus" style="font-size:12px;"></i></button>
         </div>
@@ -440,6 +488,9 @@
               <i class="fa-solid fa-magnifying-glass"></i>
               <input type="text" id="desk-search-input" oninput="filterProducts()" placeholder="Search product name or SKU...">
             </div>
+            <button class="desk-price-btn" onclick="openPriceList()">
+              <i class="fa-solid fa-list"></i> Price List
+            </button>
             <button class="desk-add-btn" onclick="openAddProductModal()">
               <i class="fa-solid fa-plus"></i> Add Product
             </button>
@@ -542,6 +593,31 @@
     </div>
   </div>
 
+  <!-- PRICE LIST MODAL -->
+  <div id="price-list-modal" class="modal-bg hidden">
+    <div style="width:100%;max-width:500px;background:#121224;border:1px solid rgba(139,92,246,0.35);border-radius:20px;padding:16px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="margin:0;font-size:15px;font-weight:700;color:#fff;">
+          <i class="fa-solid fa-list" style="color:#22F5A0;margin-right:8px;"></i>Price List
+        </h3>
+        <button onclick="closePriceList()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="price-list-paper" class="price-list-paper">
+        <!-- Generated content -->
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button onclick="printPriceList()" style="flex:1;padding:12px;border:none;border-radius:12px;background:linear-gradient(to right,#6C5CE7,#4F46E5);color:#fff;font-weight:700;font-size:13px;cursor:pointer;">
+          <i class="fa-solid fa-print" style="margin-right:6px;"></i>Print / Share
+        </button>
+        <button onclick="closePriceList()" style="padding:12px 16px;border:1px solid rgba(139,92,246,0.3);border-radius:12px;background:#191932;color:#cbd5e1;font-size:13px;cursor:pointer;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- SCANNER MODAL -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
@@ -571,6 +647,7 @@
     const LOW_STOCK_UNITS = 3;
 
     let userCompanyId = null;
+    let companyName = 'My Business';
     let allProducts = [];
     let currentFilter = 'all';
     let uploadedImageBase64 = '';
@@ -721,6 +798,56 @@
       if (!url) return;
       uploadedImageBase64 = url;
       document.getElementById('photo-preview-box').innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML=\'<i class=\\\'fa-solid fa-image\\\'></i>\'">';
+    }
+
+    /* ========== PRICE LIST ========== */
+    function openPriceList() {
+      var paper = document.getElementById('price-list-paper');
+      var inStock = allProducts.filter(function(p) {
+        return parseFloat(p.stock || 0) > 0;
+      }).sort(function(a, b) {
+        return (a.name || '').localeCompare(b.name || '');
+      });
+
+      var today = new Date();
+      var dateStr = today.toLocaleDateString('en-NG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      var rows = inStock.map(function(p) {
+        return '<div class="pl-row"><div class="pl-name">' + (p.name || 'Product') + '</div><div class="pl-price">' + formatCurrency(p.selling_price) + '</div></div>';
+      }).join('');
+
+      if (!rows) {
+        rows = '<div style="text-align:center;padding:30px 0;color:#64748B;">No products in stock yet.</div>';
+      }
+
+      paper.innerHTML =
+        '<div class="pl-header">' +
+          '<div style="font-size:20px;font-weight:800;color:#6C5CE7;margin-bottom:4px;">' + companyName + '</div>' +
+          '<div style="font-size:12px;color:#64748B;">PRICE LIST</div>' +
+          '<div style="font-size:11px;color:#94A3B8;margin-top:6px;">' + dateStr + '</div>' +
+        '</div>' +
+        rows +
+        '<div style="text-align:center;margin-top:20px;padding-top:14px;border-top:1px dashed #CBD5E1;font-size:11px;color:#94A3B8;">' +
+          'Thank you for your patronage<br>Powered by Quantum OPS Elite' +
+        '</div>';
+
+      document.getElementById('price-list-modal').classList.remove('hidden');
+    }
+
+    function closePriceList() {
+      document.getElementById('price-list-modal').classList.add('hidden');
+    }
+
+    function printPriceList() {
+      var paper = document.getElementById('price-list-paper');
+      var w = window.open('', '_blank', 'width=480,height=700');
+      w.document.write('<html><head><title>Price List - ' + companyName + '</title>');
+      w.document.write('<style>body{font-family:system-ui,sans-serif;padding:24px;color:#111;} .pl-header{text-align:center;border-bottom:2px solid #6C5CE7;padding-bottom:14px;margin-bottom:16px;} .pl-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #E5E7EB;font-size:14px;} .pl-name{font-weight:600;} .pl-price{font-weight:800;color:#6C5CE7;}</style>');
+      w.document.write('</head><body>');
+      w.document.write(paper.innerHTML);
+      w.document.write('</body></html>');
+      w.document.close();
+      setTimeout(function(){ w.print(); }, 400);
     }
 
     async function startBarcodeScanner() {
@@ -897,14 +1024,28 @@
           return;
         }
         userCompanyId = null;
-        var memberRes = await supabaseClient.from('company_users').select('company_id').eq('user_id', session.user.id).maybeSingle();
+        var memberRes = await supabaseClient
+          .from('company_users')
+          .select('company_id, companies(company_name)')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
         var member = memberRes.data;
 
         if (member && member.company_id) {
           userCompanyId = member.company_id;
+          if (member.companies && member.companies.company_name) {
+            companyName = member.companies.company_name;
+          }
         } else {
-          var ownedRes = await supabaseClient.from('companies').select('id').eq('owner_id', session.user.id).maybeSingle();
-          if (ownedRes.data && ownedRes.data.id) userCompanyId = ownedRes.data.id;
+          var ownedRes = await supabaseClient
+            .from('companies')
+            .select('id, company_name')
+            .eq('owner_id', session.user.id)
+            .maybeSingle();
+          if (ownedRes.data && ownedRes.data.id) {
+            userCompanyId = ownedRes.data.id;
+            if (ownedRes.data.company_name) companyName = ownedRes.data.company_name;
+          }
         }
         await fetchProducts();
       } catch (err) {
@@ -940,11 +1081,6 @@
     function setFilter(filter, btn) {
       currentFilter = filter;
       document.querySelectorAll('.filter-tab').forEach(function (b) { b.classList.remove('active'); });
-      document.querySelectorAll('.filter-tab').forEach(function(b) {
-        if (b.textContent.trim().toLowerCase().includes(filter === 'all' ? 'all' : filter === 'instock' ? 'in stock' : filter === 'lowstock' ? 'low stock' : 'out of stock')) {
-          b.classList.add('active');
-        }
-      });
       if (btn) btn.classList.add('active');
       filterProducts();
     }
@@ -1019,26 +1155,27 @@
       var profit = price - cost;
       var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
       var safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      var displayName = p.name || 'Unnamed Product';
       return ''
         + '<div class="card">'
         + '<div style="display:flex;align-items:flex-start;gap:12px;">'
         + '<img src="' + imgUrl + '" style="width:56px;height:56px;border-radius:12px;object-fit:cover;background:rgba(88,28,135,0.3);border:1px solid rgba(139,92,246,0.2);flex-shrink:0;" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150\'">'
         + '<div style="flex:1;min-width:0;">'
-        + '<div style="display:flex;justify-content:space-between;gap:8px;">'
-        + '<div style="min-width:0;">'
-        + '<div style="font-weight:700;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (p.name || 'Unnamed') + '</div>'
-        + '<div style="font-size:10px;color:#94a3b8;margin-top:2px;">SKU: ' + (p.sku || 'N/A') + '</div>'
+        + '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">'
+        + '<div style="min-width:0;flex:1;">'
+        + '<div class="prod-name">' + displayName + '</div>'
+        + '<div class="prod-sku">SKU: ' + (p.sku || 'N/A') + '</div>'
         + '</div>'
         + '<button class="menu-btn" onclick="toggleActionMenu(event, \'' + p.id + '\')"><i class="fa-solid fa-ellipsis-vertical"></i></button>'
         + '</div>'
         + '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
         + '<span class="badge ' + status.cls + '">' + status.text + '</span>'
-        + '<span style="font-size:10px;color:#cbd5e1;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces.toLocaleString() + ' pcs</b></span>'
+        + '<span class="prod-meta">' + displayUnits + ' units = <b>' + totalPieces.toLocaleString() + ' pcs</b></span>'
         + '</div>'
         + '<div style="display:flex;justify-content:space-between;margin-top:8px;">'
-        + '<div style="font-size:10px;color:#94a3b8;">Cost: ' + formatCurrency(cost) + '</div>'
+        + '<div class="prod-meta">Cost: ' + formatCurrency(cost) + '</div>'
         + '<div style="text-align:right;">'
-        + '<div style="font-weight:800;color:#fff;font-size:12px;">' + formatCurrency(price) + '</div>'
+        + '<div class="prod-price">' + formatCurrency(price) + '</div>'
         + '<div style="font-size:10px;font-weight:600;color:' + (profit >= 0 ? '#34d399' : '#fb7185') + ';">Profit: ' + formatCurrency(profit) + '</div>'
         + '</div></div></div></div>'
         + '<div id="menu-' + p.id + '" class="action-menu">'
@@ -1058,25 +1195,26 @@
       var profit = price - cost;
       var imgUrl = p.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150';
       var safeName = String(p.name || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      var displayName = p.name || 'Unnamed Product';
       return ''
         + '<div class="desk-card">'
         + '<div style="display:flex;gap:14px;">'
         + '<img src="' + imgUrl + '" style="width:72px;height:72px;border-radius:12px;object-fit:cover;background:#191932;flex-shrink:0;" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150\'">'
         + '<div style="flex:1;min-width:0;">'
         + '<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
-        + '<div style="font-weight:700;color:#fff;font-size:14px;margin-bottom:4px;">' + (p.name || 'Unnamed') + '</div>'
+        + '<div class="prod-name" style="font-size:14px;margin-bottom:4px;">' + displayName + '</div>'
         + '<div style="display:flex;gap:6px;">'
         + '<button onclick="editProduct(\'' + p.id + '\')" style="width:32px;height:32px;border-radius:8px;background:#191932;border:1px solid rgba(139,92,246,0.2);color:#a78bfa;cursor:pointer;"><i class="fa-solid fa-pen" style="font-size:12px;"></i></button>'
         + '<button onclick="deleteProduct(\'' + p.id + '\', \'' + safeName + '\')" style="width:32px;height:32px;border-radius:8px;background:#191932;border:1px solid rgba(251,113,133,0.3);color:#fb7185;cursor:pointer;"><i class="fa-solid fa-trash" style="font-size:12px;"></i></button>'
         + '</div></div>'
-        + '<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">SKU: ' + (p.sku || 'N/A') + '</div>'
+        + '<div class="prod-sku" style="margin-bottom:8px;">SKU: ' + (p.sku || 'N/A') + '</div>'
         + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
         + '<span class="badge ' + status.cls + '">' + status.text + '</span>'
-        + '<span style="font-size:12px;color:#cbd5e1;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces.toLocaleString() + ' pcs</b></span>'
+        + '<span class="prod-meta">' + displayUnits + ' units = <b>' + totalPieces.toLocaleString() + ' pcs</b></span>'
         + '</div>'
         + '<div style="display:flex;justify-content:space-between;font-size:13px;">'
-        + '<span style="color:#94a3b8;">Cost: ' + formatCurrency(cost) + '</span>'
-        + '<span style="font-weight:700;color:#fff;">' + formatCurrency(price) + '</span>'
+        + '<span class="prod-meta">Cost: ' + formatCurrency(cost) + '</span>'
+        + '<span class="prod-price">' + formatCurrency(price) + '</span>'
         + '<span style="font-weight:600;color:' + (profit >= 0 ? '#34d399' : '#fb7185') + ';">+' + formatCurrency(profit) + '</span>'
         + '</div></div></div></div>';
     }
