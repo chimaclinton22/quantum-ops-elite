@@ -839,16 +839,29 @@
     }
 
     function printPriceList() {
-      var paper = document.getElementById('price-list-paper');
-      var w = window.open('', '_blank', 'width=480,height=700');
-      w.document.write('<html><head><title>Price List - ' + companyName + '</title>');
-      w.document.write('<style>body{font-family:system-ui,sans-serif;padding:24px;color:#111;} .pl-header{text-align:center;border-bottom:2px solid #6C5CE7;padding-bottom:14px;margin-bottom:16px;} .pl-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #E5E7EB;font-size:14px;} .pl-name{font-weight:600;} .pl-price{font-weight:800;color:#6C5CE7;}</style>');
-      w.document.write('</head><body>');
-      w.document.write(paper.innerHTML);
-      w.document.write('</body></html>');
-      w.document.close();
-      setTimeout(function(){ w.print(); }, 400);
-    }
+  var paper = document.getElementById('price-list-paper');
+  var w = window.open('', '_blank', 'width=480,height=720');
+  if (!w) {
+    alert('Please allow pop-ups to print the price list.');
+    return;
+  }
+  w.document.write('<html><head><title>Price List - ' + companyName + '</title>');
+  w.document.write('<style>');
+  w.document.write('body{font-family:system-ui,-apple-system,sans-serif;padding:24px;color:#111;background:#fff;margin:0;}');
+  w.document.write('.pl-header{text-align:center;border-bottom:2px solid #6C5CE7;padding-bottom:14px;margin-bottom:16px;}');
+  w.document.write('.pl-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #E5E7EB;font-size:14px;}');
+  w.document.write('.pl-name{font-weight:600;} .pl-price{font-weight:800;color:#6C5CE7;}');
+  w.document.write('.back-btn{display:block;width:100%;max-width:320px;margin:24px auto 0;padding:14px;border:none;border-radius:12px;');
+  w.document.write('background:#6C5CE7;color:#fff;font-size:15px;font-weight:700;cursor:pointer;text-align:center;}');
+  w.document.write('.back-btn:active{opacity:0.85;}');
+  w.document.write('@media print{.back-btn{display:none!important;}}');
+  w.document.write('</style></head><body>');
+  w.document.write(paper.innerHTML);
+  w.document.write('<button class="back-btn" onclick="window.close()">← Back to Inventory</button>');
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 400);
+}
 
     async function startBarcodeScanner() {
       if (scannerStarting) return;
