@@ -15,7 +15,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
-    /* ========== CRITICAL CSS ========== */
     .mobile-only { display: block !important; }
     .desktop-only { display: none !important; }
     @media (min-width: 1024px) {
@@ -23,7 +22,6 @@
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE (SAFE AREA FIXED) ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh; height: 100vh;
       background: #0B0B16; position: relative; overflow: hidden;
@@ -128,8 +126,24 @@
       border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; font-size: 11px;
       font-weight: 600; cursor: pointer;
     }
+    .theme-option {
+      display: flex; align-items: center; gap: 12px;
+      background: #121224; border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer;
+    }
+    .theme-option.active {
+      border-color: #6C5CE7;
+      background: rgba(108,92,231,0.15);
+    }
+    .theme-option .check {
+      margin-left: auto; color: #6C5CE7; font-size: 16px; display: none;
+    }
+    .theme-option.active .check { display: block; }
+    .theme-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
 
-    /* ===== DESKTOP ===== */
     .desktop-shell {
       width: 100%; min-height: 100vh; background: #07070F;
       flex-direction: column;
@@ -151,6 +165,52 @@
       background: #121224; border: 1px solid rgba(139,92,246,0.15);
       border-radius: 16px; padding: 20px; margin-bottom: 16px;
     }
+
+    /* ===== LIGHT THEME ===== */
+    body.theme-day {
+      background: #F4F6FB;
+      color: #1E293B;
+    }
+    body.theme-day .iphone-frame,
+    body.theme-day .desktop-shell {
+      background: #F4F6FB;
+    }
+    body.theme-day .top-bar,
+    body.theme-day .edit-top,
+    body.theme-day .desk-topbar {
+      background: #FFFFFF;
+      border-bottom-color: #E2E8F0;
+    }
+    body.theme-day .row,
+    body.theme-day .desk-card,
+    body.theme-day .theme-option {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+    }
+    body.theme-day .row-text h4,
+    body.theme-day .section-label,
+    body.theme-day #display-name,
+    body.theme-day #desk-display-name {
+      color: #0F172A;
+    }
+    body.theme-day .row-text p,
+    body.theme-day #display-sub,
+    body.theme-day #desk-display-sub {
+      color: #64748B;
+    }
+    body.theme-day .bottom-nav {
+      background: #FFFFFF;
+      border-top-color: #E2E8F0;
+    }
+    body.theme-day .field input {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+      color: #0F172A;
+    }
+    body.theme-day .avatar-box {
+      background: #EEF2FF;
+      border-color: #C7D2FE;
+    }
   </style>
 </head>
 <body>
@@ -159,7 +219,7 @@
     <div class="iphone-frame">
       <div id="screen-home" class="screen active">
         <div class="top-bar">
-          <div style="font-weight:700;font-size:16px;color:#fff;">Profile</div>
+          <div style="font-weight:700;font-size:16px;color:#fff;" id="profile-title">Profile</div>
         </div>
         <div class="main custom-scrollbar">
           <div class="avatar-wrap">
@@ -183,11 +243,11 @@
             </div>
             <i class="fa-solid fa-chevron-right row-arrow"></i>
           </div>
-          <div class="row" onclick="alert('Settings coming soon.')">
-            <div class="row-icon"><i class="fa-solid fa-gear"></i></div>
+          <div class="row" onclick="openPreferences()">
+            <div class="row-icon"><i class="fa-solid fa-sliders"></i></div>
             <div class="row-text">
-              <h4>Settings</h4>
-              <p>Account preferences</p>
+              <h4>Preferences</h4>
+              <p>Day, Night or System theme</p>
             </div>
             <i class="fa-solid fa-chevron-right row-arrow"></i>
           </div>
@@ -223,6 +283,57 @@
           <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user"></i>Profile</a>
         </nav>
       </div>
+
+      <!-- Preferences Screen -->
+      <div id="screen-preferences" class="screen">
+        <div class="edit-top">
+          <button onclick="closePreferences()" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:16px;">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <div style="font-weight:700;font-size:15px;color:#fff;">Preferences</div>
+        </div>
+        <div class="edit-body custom-scrollbar">
+          <div class="section-label">Appearance</div>
+
+          <div class="theme-option" id="theme-day" onclick="setTheme('day')">
+            <div class="theme-icon" style="background:rgba(251,191,36,0.15);color:#FBBF24;">
+              <i class="fa-solid fa-sun"></i>
+            </div>
+            <div class="row-text">
+              <h4>Day</h4>
+              <p>Light background (best outdoors)</p>
+            </div>
+            <i class="fa-solid fa-circle-check check"></i>
+          </div>
+
+          <div class="theme-option" id="theme-night" onclick="setTheme('night')">
+            <div class="theme-icon" style="background:rgba(139,92,246,0.15);color:#A78BFA;">
+              <i class="fa-solid fa-moon"></i>
+            </div>
+            <div class="row-text">
+              <h4>Night</h4>
+              <p>Dark background (default)</p>
+            </div>
+            <i class="fa-solid fa-circle-check check"></i>
+          </div>
+
+          <div class="theme-option" id="theme-system" onclick="setTheme('system')">
+            <div class="theme-icon" style="background:rgba(56,189,248,0.15);color:#38BDF8;">
+              <i class="fa-solid fa-mobile-screen"></i>
+            </div>
+            <div class="row-text">
+              <h4>System</h4>
+              <p>Follow your phone setting</p>
+            </div>
+            <i class="fa-solid fa-circle-check check"></i>
+          </div>
+
+          <p style="font-size:11px;color:#64748b;margin-top:16px;line-height:1.5;">
+            Your choice is saved on this device. Other pages will follow this setting after we connect them.
+          </p>
+        </div>
+      </div>
+
       <div id="screen-edit" class="screen">
         <div class="edit-top">
           <button onclick="closeBusinessInfo()" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:16px;">
@@ -326,6 +437,13 @@
             <p>Shop details & bank info</p>
           </div>
         </div>
+        <div class="row" onclick="openPreferences()" style="margin-bottom:8px;">
+          <div class="row-icon"><i class="fa-solid fa-sliders"></i></div>
+          <div class="row-text">
+            <h4>Preferences</h4>
+            <p>Day, Night or System</p>
+          </div>
+        </div>
         <div class="row" onclick="window.location.href='notifications.html'" style="margin-bottom:8px;">
           <div class="row-icon"><i class="fa-regular fa-bell"></i></div>
           <div class="row-text">
@@ -335,7 +453,25 @@
         </div>
       </div>
       <div class="desk-main custom-scrollbar">
-        <div class="desk-card">
+        <div class="desk-card" id="desk-preferences-card" style="display:none;">
+          <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;">Appearance</h3>
+          <div class="theme-option" id="desk-theme-day" onclick="setTheme('day')">
+            <div class="theme-icon" style="background:rgba(251,191,36,0.15);color:#FBBF24;"><i class="fa-solid fa-sun"></i></div>
+            <div class="row-text"><h4>Day</h4><p>Light background</p></div>
+            <i class="fa-solid fa-circle-check check"></i>
+          </div>
+          <div class="theme-option" id="desk-theme-night" onclick="setTheme('night')">
+            <div class="theme-icon" style="background:rgba(139,92,246,0.15);color:#A78BFA;"><i class="fa-solid fa-moon"></i></div>
+            <div class="row-text"><h4>Night</h4><p>Dark background</p></div>
+            <i class="fa-solid fa-circle-check check"></i>
+          </div>
+          <div class="theme-option" id="desk-theme-system" onclick="setTheme('system')">
+            <div class="theme-icon" style="background:rgba(56,189,248,0.15);color:#38BDF8;"><i class="fa-solid fa-mobile-screen"></i></div>
+            <div class="row-text"><h4>System</h4><p>Follow phone setting</p></div>
+            <i class="fa-solid fa-circle-check check"></i>
+          </div>
+        </div>
+        <div class="desk-card" id="desk-business-card">
           <h3 style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px;">Business Information</h3>
           <div class="field">
             <label>Shop Logo</label>
@@ -405,7 +541,6 @@
   </div>
 
   <script>
-    /* ========== FORCE VIEW SWITCH (bulletproof) ========== */
     function forceViewSwitch() {
       var isDesktop = window.innerWidth >= 1024;
       var mobile = document.getElementById('mobile-view');
@@ -427,6 +562,62 @@
     let isSaving = false;
     let loggingOut = false;
 
+    /* ========== THEME SYSTEM ========== */
+    function getSavedTheme() {
+      return localStorage.getItem('quantum_theme') || 'night';
+    }
+
+    function resolveTheme(pref) {
+      if (pref === 'system') {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
+      }
+      return pref;
+    }
+
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref);
+      document.body.classList.remove('theme-day', 'theme-night');
+      document.body.classList.add(resolved === 'day' ? 'theme-day' : 'theme-night');
+      document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+      const ids = ['theme-' + pref, 'desk-theme-' + pref];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
+      });
+    }
+
+    function setTheme(pref) {
+      localStorage.setItem('quantum_theme', pref);
+      applyTheme(pref);
+    }
+
+    function openPreferences() {
+      const home = document.getElementById('screen-home');
+      const prefs = document.getElementById('screen-preferences');
+      if (home && prefs) {
+        home.classList.remove('active');
+        prefs.classList.add('active');
+      }
+      const deskPrefs = document.getElementById('desk-preferences-card');
+      const deskBiz = document.getElementById('desk-business-card');
+      if (deskPrefs) deskPrefs.style.display = 'block';
+      if (deskBiz) deskBiz.style.display = 'none';
+      applyTheme(getSavedTheme());
+    }
+
+    function closePreferences() {
+      const home = document.getElementById('screen-home');
+      const prefs = document.getElementById('screen-preferences');
+      if (home && prefs) {
+        prefs.classList.remove('active');
+        home.classList.add('active');
+      }
+      const deskPrefs = document.getElementById('desk-preferences-card');
+      const deskBiz = document.getElementById('desk-business-card');
+      if (deskPrefs) deskPrefs.style.display = 'none';
+      if (deskBiz) deskBiz.style.display = 'block';
+    }
+
     function isVerified(c) {
       return !!(c && c.company_name && c.company_name.trim() && c.address && c.address.trim() && c.phone && c.phone.trim());
     }
@@ -438,6 +629,10 @@
         home.classList.remove('active');
         edit.classList.add('active');
       }
+      const deskPrefs = document.getElementById('desk-preferences-card');
+      const deskBiz = document.getElementById('desk-business-card');
+      if (deskPrefs) deskPrefs.style.display = 'none';
+      if (deskBiz) deskBiz.style.display = 'block';
     }
 
     function closeBusinessInfo() {
@@ -492,12 +687,10 @@
         if (letter) letter.style.display = 'none';
         if (deskLogo) { deskLogo.src = c.logo; deskLogo.style.display = 'block'; }
         if (deskLetter) deskLetter.style.display = 'none';
-
         const preview = document.getElementById('logo-preview');
         const placeholder = document.getElementById('logo-placeholder');
         if (preview) { preview.src = c.logo; preview.style.display = 'block'; }
         if (placeholder) placeholder.style.display = 'none';
-
         const dPreview = document.getElementById('desk-logo-preview');
         const dPlaceholder = document.getElementById('desk-logo-placeholder');
         if (dPreview) { dPreview.src = c.logo; dPreview.style.display = 'block'; }
@@ -574,9 +767,7 @@
       btns.forEach(b => { if (b) { b.disabled = true; b.textContent = 'Saving...'; } });
 
       const payload = {
-        company_name,
-        address,
-        phone,
+        company_name, address, phone,
         email: email || null,
         website: website || null,
         tax_id: tax_id || null,
@@ -630,6 +821,7 @@
     }
 
     async function init() {
+      applyTheme(getSavedTheme());
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
