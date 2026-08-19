@@ -15,7 +15,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
-    /* STRICT ISOLATION */
     .mobile-only { display: block !important; }
     .desktop-only { display: none !important; }
     @media (min-width: 1024px) {
@@ -23,7 +22,7 @@
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE (SAFE AREA FIXED) ===== */
+    /* ===== MOBILE ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh; height: 100vh;
       background: #0B0B16; position: relative; overflow: hidden;
@@ -144,6 +143,60 @@
     }
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
     .hidden { display: none !important; }
+
+    .prod-name { font-weight: 700; color: #fff; }
+    .prod-meta { color: #94a3b8; }
+
+    /* ===== DAY THEME ===== */
+    body.theme-day {
+      background: #F4F6FB !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .iphone-frame,
+    body.theme-day .desktop-shell {
+      background: #F4F6FB !important;
+    }
+    body.theme-day .top-bar,
+    body.theme-day .bottom-nav,
+    body.theme-day .desk-topbar {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .card,
+    body.theme-day .desk-summary-card,
+    body.theme-day .desk-table,
+    body.theme-day .modal {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .desk-table th {
+      background: #F8FAFC !important;
+      color: #64748B !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .desk-table td {
+      border-color: #F1F5F9 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .search-wrap input,
+    body.theme-day .field input {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .nav-item { color: #64748B !important; }
+    body.theme-day .prod-name { color: #0F172A !important; }
+    body.theme-day .prod-meta { color: #64748B !important; }
+    body.theme-day .summary {
+      background: linear-gradient(90deg, rgba(254,226,226,0.9), #FFFFFF, rgba(243,232,255,0.5)) !important;
+      border-color: #FECACA !important;
+    }
+
+    /* ===== TEXT SIZE ===== */
+    body.text-small .nav-item { font-size: 8px; }
+    body.text-medium .nav-item { font-size: 9px; }
+    body.text-large .nav-item { font-size: 10px; }
+    body.text-xlarge .nav-item { font-size: 11px; }
   </style>
 </head>
 <body>
@@ -153,19 +206,19 @@
       <div class="top-bar">
         <div style="display:flex;align-items:center;gap:12px;">
           <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
-          <span style="font-weight:700;font-size:12px;color:#fff;letter-spacing:0.05em;">CUSTOMER DEBTS</span>
+          <span style="font-weight:700;font-size:12px;color:#fff;letter-spacing:0.05em;" class="prod-name">CUSTOMER DEBTS</span>
         </div>
         <button class="btn-add" onclick="openAddDebtModal()"><i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Debt</button>
       </div>
       <div class="main custom-scrollbar">
         <div class="summary">
           <div>
-            <div style="font-size:10px;color:#94a3b8;">Total Outstanding</div>
+            <div style="font-size:10px;color:#94a3b8;" class="prod-meta">Total Outstanding</div>
             <div style="font-size:18px;font-weight:800;color:#fb7185;" id="val-total-debt">₦0</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:10px;color:#94a3b8;">Total Debtors</div>
-            <div style="font-size:18px;font-weight:800;color:#fff;" id="val-total-count">0</div>
+            <div style="font-size:10px;color:#94a3b8;" class="prod-meta">Total Debtors</div>
+            <div style="font-size:18px;font-weight:800;color:#fff;" id="val-total-count" class="prod-name">0</div>
           </div>
         </div>
         <div class="search-wrap">
@@ -189,8 +242,8 @@
   <div class="desktop-only desktop-shell">
     <div class="desk-topbar">
       <div>
-        <div style="font-weight:700;font-size:18px;color:#fff;">Customer Debts</div>
-        <div style="font-size:12px;color:#94a3b8;">Manage outstanding balances</div>
+        <div style="font-weight:700;font-size:18px;color:#fff;" class="prod-name">Customer Debts</div>
+        <div style="font-size:12px;color:#94a3b8;" class="prod-meta">Manage outstanding balances</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px;">
         <div style="position:relative;width:280px;">
@@ -206,12 +259,12 @@
     <div class="desk-content custom-scrollbar">
       <div class="desk-summary">
         <div class="desk-summary-card">
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">Total Outstanding</div>
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;" class="prod-meta">Total Outstanding</div>
           <div style="font-size:28px;font-weight:800;color:#fb7185;" id="desk-val-total-debt">₦0</div>
         </div>
         <div class="desk-summary-card" style="background:linear-gradient(135deg,rgba(88,28,135,0.25),#121224);border-color:rgba(139,92,246,0.2);">
-          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;">Total Debtors</div>
-          <div style="font-size:28px;font-weight:800;color:#fff;" id="desk-val-total-count">0</div>
+          <div style="font-size:13px;color:#94a3b8;margin-bottom:6px;" class="prod-meta">Total Debtors</div>
+          <div style="font-size:28px;font-weight:800;color:#fff;" id="desk-val-total-count" class="prod-name">0</div>
         </div>
       </div>
       <table class="desk-table">
@@ -236,7 +289,7 @@
   <div id="debt-modal" class="modal-bg hidden">
     <div class="modal">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h3 style="margin:0;font-size:14px;font-weight:700;color:#fff;">
+        <h3 style="margin:0;font-size:14px;font-weight:700;color:#fff;" class="prod-name">
           <i class="fa-solid fa-file-invoice-dollar" style="color:#fb7185;margin-right:8px;"></i>Record New Debt
         </h3>
         <button onclick="closeAddDebtModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
@@ -280,6 +333,36 @@
     let isSaving = false;
     let isFetching = false;
 
+    /* ========== THEME + TEXT SIZE ========== */
+    function getSavedTheme() {
+      return localStorage.getItem('quantum_theme') || 'night';
+    }
+    function resolveTheme(pref) {
+      if (pref === 'system') {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
+      }
+      return pref;
+    }
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref);
+      document.body.classList.remove('theme-day', 'theme-night');
+      document.body.classList.add(resolved === 'day' ? 'theme-day' : 'theme-night');
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'day' ? '#F4F6FB' : '#6C5CE7');
+      } catch (e) {}
+    }
+    function getSavedTextSize() {
+      return localStorage.getItem('quantum_text_size') || 'medium';
+    }
+    function applyTextSize(size) {
+      document.body.classList.remove('text-small', 'text-medium', 'text-large', 'text-xlarge');
+      document.body.classList.add('text-' + size);
+    }
+    function applyUserPreferences() {
+      applyTheme(getSavedTheme());
+      applyTextSize(getSavedTextSize());
+    }
+
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
@@ -311,7 +394,6 @@
       return 'Good evening';
     }
 
-    // ========== WHATSAPP (beautiful detailed version) ==========
     function buildWhatsAppReminder(debt) {
       const name = debt.customer_name || 'Customer';
       const amount = formatCurrency(parseMoney(debt.amount_owing));
@@ -344,7 +426,6 @@
       return msg;
     }
 
-    // ========== SMS (short version) ==========
     function buildSmsReminder(debt) {
       const amount = formatCurrency(parseMoney(debt.amount_owing));
       const item = debt.item_bought || 'General Goods';
@@ -372,7 +453,9 @@
     function closeAddDebtModal() {
       document.getElementById('debt-modal').classList.add('hidden');
     }
+
     async function initializeDebtors() {
+      applyUserPreferences();
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
@@ -416,6 +499,7 @@
         console.error('Init error:', err);
       }
     }
+
     async function fetchDebtors() {
       if (!userCompanyId) {
         allDebtors = [];
@@ -440,6 +524,7 @@
         isFetching = false;
       }
     }
+
     function renderDebtors(debtors) {
       let totalAmount = 0;
       debtors.forEach(d => totalAmount += parseMoney(d.amount_owing));
@@ -450,7 +535,6 @@
       if (deskDebt) deskDebt.textContent = formatCurrency(totalAmount);
       if (deskCount) deskCount.textContent = String(debtors.length);
 
-      // Mobile
       const container = document.getElementById('debtors-list-container');
       if (container) {
         if (!debtors.length) {
@@ -460,7 +544,6 @@
         }
       }
 
-      // Desktop
       const tbody = document.getElementById('desk-debtors-body');
       if (tbody) {
         if (!debtors.length) {
@@ -470,6 +553,7 @@
         }
       }
     }
+
     function buildActionButtons(debt) {
       const phoneClean = cleanPhone(debt.phone);
       if (!phoneClean) return '';
@@ -491,6 +575,7 @@
         </a>
       `;
     }
+
     function buildMobileCard(debt) {
       const amount = parseMoney(debt.amount_owing);
       const itemBought = debt.item_bought || 'General Goods';
@@ -502,9 +587,9 @@
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:32px;height:32px;border-radius:12px;background:rgba(225,29,72,0.2);color:#fb7185;display:flex;align-items:center;justify-content:center;border:1px solid rgba(244,63,94,0.3);font-size:12px;"><i class="fa-solid fa-user"></i></div>
               <div>
-                <div style="font-weight:700;color:#fff;font-size:12px;">${debt.customer_name || 'Unknown'}</div>
-                <div style="font-size:10px;color:#94a3b8;margin-top:2px;"><i class="fa-solid fa-phone" style="color:#a78bfa;margin-right:4px;"></i>${phoneDisplay}</div>
-                <div style="font-size:10px;color:#94a3b8;margin-top:2px;"><i class="fa-solid fa-bag-shopping" style="color:#a78bfa;margin-right:4px;"></i>${itemBought}</div>
+                <div class="prod-name" style="font-size:12px;">${debt.customer_name || 'Unknown'}</div>
+                <div class="prod-meta" style="font-size:10px;margin-top:2px;"><i class="fa-solid fa-phone" style="color:#a78bfa;margin-right:4px;"></i>${phoneDisplay}</div>
+                <div class="prod-meta" style="font-size:10px;margin-top:2px;"><i class="fa-solid fa-bag-shopping" style="color:#a78bfa;margin-right:4px;"></i>${itemBought}</div>
               </div>
             </div>
             <div style="text-align:right;">
@@ -522,17 +607,18 @@
         </div>
       `;
     }
+
     function buildDesktopRow(debt) {
       const amount = parseMoney(debt.amount_owing);
       const itemBought = debt.item_bought || 'General Goods';
       const phone = debt.phone || '—';
       return `
         <tr>
-          <td style="font-weight:600;color:#fff;">${debt.customer_name || 'Unknown'}</td>
-          <td style="color:#94a3b8;">${phone}</td>
-          <td style="color:#cbd5e1;">${itemBought}</td>
+          <td style="font-weight:600;" class="prod-name">${debt.customer_name || 'Unknown'}</td>
+          <td class="prod-meta">${phone}</td>
+          <td class="prod-meta">${itemBought}</td>
           <td style="font-weight:700;color:#fb7185;">${formatCurrency(amount)}</td>
-          <td style="color:#94a3b8;font-size:12px;">${formatDate(debt.created_at)}</td>
+          <td class="prod-meta" style="font-size:12px;">${formatDate(debt.created_at)}</td>
           <td style="text-align:right;">
             <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;">
               ${buildActionButtons(debt)}
@@ -542,6 +628,7 @@
         </tr>
       `;
     }
+
     function filterDebtors() {
       const mobileSearch = document.getElementById('search-debtor');
       const deskSearch = document.getElementById('desk-search-debtor');
@@ -557,6 +644,7 @@
       });
       renderDebtors(filtered);
     }
+
     async function submitNewDebt() {
       if (isSaving) return;
       const customer = document.getElementById('debt-customer').value.trim();
@@ -584,7 +672,6 @@
         const { error } = await supabaseClient.from('debtors').insert([payload]);
         if (error) throw error;
 
-        // Create in-app notification
         try {
           await supabaseClient.from('notifications').insert([{
             company_id: userCompanyId,
@@ -610,6 +697,7 @@
         btn.textContent = 'Save Debt Record';
       }
     }
+
     async function markAsPaid(debtId) {
       if (!confirm('Mark this debt as fully paid? It will be removed from the list.')) return;
       try {
@@ -625,18 +713,8 @@
       }
     }
 
-    function enforceView() {
-      const isDesktop = window.innerWidth >= 1024;
-      document.querySelectorAll('.mobile-only').forEach(el => {
-        el.style.display = isDesktop ? 'none' : 'block';
-      });
-      document.querySelectorAll('.desktop-only').forEach(el => {
-        el.style.display = isDesktop ? 'flex' : 'none';
-      });
-    }
-    window.addEventListener('resize', enforceView);
     window.addEventListener('DOMContentLoaded', function() {
-      enforceView();
+      applyUserPreferences();
       initializeDebtors();
     });
   </script>
