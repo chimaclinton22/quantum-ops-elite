@@ -81,6 +81,10 @@
       width: 48px; height: 48px; border-radius: 8px; object-fit: cover;
       background: rgba(88,28,135,0.3); flex-shrink: 0;
     }
+    .prod-name { font-weight: 700; color: #fff; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prod-sku { font-size: 9px; color: #94a3b8; }
+    .prod-meta { font-size: 9px; color: #cbd5e1; }
+    .prod-price { font-size: 12px; font-weight: 700; color: #c4b5fd; }
     .badge {
       display: inline-block; padding: 2px 6px; border-radius: 4px;
       font-size: 8px; font-weight: 600; border: 1px solid;
@@ -130,6 +134,62 @@
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
     #scanner-reader { width: 100%; min-height: 300px; background: #000; border-radius: 12px; overflow: hidden; }
+
+    /* ===== DAY THEME ===== */
+    body.theme-day {
+      background: #F4F6FB !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .iphone-frame,
+    body.theme-day .desktop-shell {
+      background: #F4F6FB !important;
+    }
+    body.theme-day .top-bar,
+    body.theme-day .bottom-nav,
+    body.theme-day .desk-topbar,
+    body.theme-day .desk-right {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .card,
+    body.theme-day .tool,
+    body.theme-day .product-row,
+    body.theme-day .desk-product-card,
+    body.theme-day .desk-cart-item,
+    body.theme-day .pay-btn {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .pay-btn.active {
+      background: rgba(108,92,231,0.15) !important;
+      border-color: #6C5CE7 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .input,
+    body.theme-day input[type="number"],
+    body.theme-day input[type="text"] {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .nav-item { color: #64748B !important; }
+    body.theme-day .nav-item.active { color: #6C5CE7 !important; }
+    body.theme-day .prod-name { color: #0F172A !important; }
+    body.theme-day .prod-sku { color: #64748B !important; }
+    body.theme-day .prod-meta { color: #475569 !important; }
+    body.theme-day .prod-price { color: #6C5CE7 !important; }
+    body.theme-day .desk-product-card:hover { border-color: #6C5CE7 !important; }
+
+    /* ===== TEXT SIZE ===== */
+    body.text-small .prod-name { font-size: 10px; }
+    body.text-small .nav-item { font-size: 8px; }
+    body.text-medium .prod-name { font-size: 11px; }
+    body.text-medium .nav-item { font-size: 9px; }
+    body.text-large .prod-name { font-size: 13px; }
+    body.text-large .nav-item { font-size: 10px; }
+    body.text-xlarge .prod-name { font-size: 14px; }
+    body.text-xlarge .nav-item { font-size: 11px; }
   </style>
 </head>
 <body>
@@ -141,7 +201,7 @@
         <div style="display:flex;align-items:center;gap:12px;">
           <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
           <div>
-            <div style="font-weight:700;font-size:12px;color:#fff;">POS Sales</div>
+            <div style="font-weight:700;font-size:12px;color:#fff;" class="prod-name">POS Sales</div>
             <div style="font-size:9px;color:#94a3b8;">Create new sale</div>
           </div>
         </div>
@@ -244,7 +304,7 @@
       <div style="display:flex;align-items:center;gap:16px;">
         <a href="dashboard.html" style="color:#94a3b8;text-decoration:none;font-size:18px;"><i class="fa-solid fa-arrow-left"></i></a>
         <div>
-          <div style="font-weight:700;font-size:16px;color:#fff;">POS Sales</div>
+          <div style="font-weight:700;font-size:16px;color:#fff;" class="prod-name">POS Sales</div>
           <div style="font-size:12px;color:#94a3b8;">Create new sale • Live Inventory</div>
         </div>
       </div>
@@ -462,6 +522,36 @@
     let lastScanTime = 0;
     let scannerStarting = false;
 
+    /* ========== THEME + TEXT SIZE ========== */
+    function getSavedTheme() {
+      return localStorage.getItem('quantum_theme') || 'night';
+    }
+    function resolveTheme(pref) {
+      if (pref === 'system') {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
+      }
+      return pref;
+    }
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref);
+      document.body.classList.remove('theme-day', 'theme-night');
+      document.body.classList.add(resolved === 'day' ? 'theme-day' : 'theme-night');
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'day' ? '#F4F6FB' : '#6C5CE7');
+      } catch (e) {}
+    }
+    function getSavedTextSize() {
+      return localStorage.getItem('quantum_text_size') || 'medium';
+    }
+    function applyTextSize(size) {
+      document.body.classList.remove('text-small', 'text-medium', 'text-large', 'text-xlarge');
+      document.body.classList.add('text-' + size);
+    }
+    function applyUserPreferences() {
+      applyTheme(getSavedTheme());
+      applyTextSize(getSavedTextSize());
+    }
+
     function formatCurrency(amount) {
       return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
@@ -488,6 +578,7 @@
     }
 
     async function initializePOS() {
+      applyUserPreferences();
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) { window.location.replace('index.html'); return; }
@@ -564,13 +655,13 @@
             + '<div onclick="addToCart(\'' + item.id + '\')" class="product-row ' + disabled + '">'
             + '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
             + '<div style="flex:1;min-width:0;">'
-            + '<div style="font-weight:700;color:#fff;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (item.name || 'Product') + '</div>'
-            + '<div style="font-size:9px;color:#94a3b8;">SKU: ' + (item.sku || 'N/A') + '</div>'
+            + '<div class="prod-name">' + (item.name || 'Product') + '</div>'
+            + '<div class="prod-sku">SKU: ' + (item.sku || 'N/A') + '</div>'
             + '<div style="margin-top:4px;"><span class="badge ' + status.cls + '">' + status.text + '</span>'
-            + '<span style="font-size:9px;color:#cbd5e1;margin-left:6px;">' + displayUnits + ' units = <b style="color:#fff;">' + totalPieces + ' pcs</b></span></div>'
+            + '<span class="prod-meta" style="margin-left:6px;">' + displayUnits + ' units = <b>' + totalPieces + ' pcs</b></span></div>'
             + '</div>'
             + '<div style="text-align:right;flex-shrink:0;">'
-            + '<div style="font-size:12px;font-weight:700;color:#c4b5fd;">' + formatCurrency(price) + '</div>'
+            + '<div class="prod-price">' + formatCurrency(price) + '</div>'
             + '<div style="font-size:8px;color:#34d399;margin-top:2px;"><i class="fa-solid fa-plus"></i> Add</div>'
             + '</div></div>';
         }).join('');
@@ -588,13 +679,13 @@
           return ''
             + '<div onclick="addToCart(\'' + item.id + '\')" class="desk-product-card ' + disabled + '">'
             + '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
-            + '<div style="font-weight:700;color:#fff;font-size:13px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (item.name || 'Product') + '</div>'
-            + '<div style="font-size:11px;color:#94a3b8;margin-bottom:6px;">SKU: ' + (item.sku || 'N/A') + '</div>'
+            + '<div class="prod-name" style="font-size:13px;margin-bottom:4px;">' + (item.name || 'Product') + '</div>'
+            + '<div class="prod-sku" style="margin-bottom:6px;">SKU: ' + (item.sku || 'N/A') + '</div>'
             + '<div style="display:flex;justify-content:space-between;align-items:center;">'
             + '<span class="badge ' + status.cls + '">' + status.text + '</span>'
-            + '<span style="font-size:14px;font-weight:700;color:#c4b5fd;">' + formatCurrency(price) + '</span>'
+            + '<span class="prod-price" style="font-size:14px;">' + formatCurrency(price) + '</span>'
             + '</div>'
-            + '<div style="font-size:11px;color:#94a3b8;margin-top:6px;">' + displayUnits + ' units (' + totalPieces + ' pcs)</div>'
+            + '<div class="prod-meta" style="margin-top:6px;">' + displayUnits + ' units (' + totalPieces + ' pcs)</div>'
             + '</div>';
         }).join('');
       }
@@ -749,8 +840,8 @@
             return ''
               + '<div style="display:flex;align-items:center;justify-content:space-between;background:#191932;border:1px solid rgba(139,92,246,0.1);padding:10px;border-radius:12px;margin-bottom:8px;">'
               + '<div style="flex:1;padding-right:8px;">'
-              + '<div style="font-weight:700;color:#fff;font-size:11px;">' + item.name + '</div>'
-              + '<div style="font-size:10px;color:#a78bfa;font-weight:600;">' + formatCurrency(item.price) + ' each</div>'
+              + '<div class="prod-name">' + item.name + '</div>'
+              + '<div class="prod-price" style="font-size:10px;">' + formatCurrency(item.price) + ' each</div>'
               + '</div>'
               + '<div style="display:flex;align-items:center;gap:8px;">'
               + '<div style="display:flex;align-items:center;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">'
@@ -773,8 +864,8 @@
             return ''
               + '<div class="desk-cart-item">'
               + '<div style="flex:1;">'
-              + '<div style="font-weight:700;color:#fff;font-size:13px;">' + item.name + '</div>'
-              + '<div style="font-size:12px;color:#a78bfa;">' + formatCurrency(item.price) + ' each</div>'
+              + '<div class="prod-name" style="font-size:13px;">' + item.name + '</div>'
+              + '<div class="prod-price" style="font-size:12px;">' + formatCurrency(item.price) + ' each</div>'
               + '</div>'
               + '<div style="display:flex;align-items:center;gap:12px;">'
               + '<div style="display:flex;align-items:center;background:#0B0B16;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">'
@@ -1056,7 +1147,6 @@
         const fileName = (lastCompletedTransaction.trxId || 'Receipt') + '.pdf';
         const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-        // Best method: Native Share Sheet
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
@@ -1066,7 +1156,6 @@
           return;
         }
 
-        // Fallback: Download PDF + Open WhatsApp
         const url = URL.createObjectURL(pdfBlob);
         const a = document.createElement('a');
         a.href = url;
@@ -1103,7 +1192,10 @@
       window.location.href = url;
     }
 
-    window.addEventListener('DOMContentLoaded', initializePOS);
+    window.addEventListener('DOMContentLoaded', function () {
+      applyUserPreferences();
+      initializePOS();
+    });
   </script>
 </body>
 </html>
