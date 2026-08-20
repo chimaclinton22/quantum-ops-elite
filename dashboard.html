@@ -40,14 +40,26 @@
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
+
+    /* ===== BRAND CARDS (purple accent) ===== */
     .neon-card {
-      background: #101326; border-radius: 16px; padding: 12px;
-      box-shadow: 0 0 0 1px rgba(46,168,255,0.25), 0 0 12px rgba(46,168,255,0.12);
+      background: #101326;
+      border-radius: 16px;
+      padding: 12px;
+      border: 1px solid rgba(139,92,255,0.22);
+      box-shadow: 0 0 0 1px rgba(139,92,255,0.08), 0 4px 14px rgba(0,0,0,0.25);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .neon-card:active, a.neon-card:hover {
+      border-color: rgba(139,92,255,0.45);
+      box-shadow: 0 0 0 1px rgba(139,92,255,0.2), 0 0 18px rgba(139,92,255,0.12);
     }
     .neon-card-elevated {
       background: #131832;
-      box-shadow: 0 0 0 1px rgba(139,92,255,0.3), 0 0 14px rgba(139,92,255,0.15);
+      border: 1px solid rgba(139,92,255,0.28);
+      box-shadow: 0 0 0 1px rgba(139,92,255,0.1), 0 6px 18px rgba(0,0,0,0.3);
     }
+
     @keyframes breathe-red {
       0%, 100% { box-shadow: 0 0 0 1px rgba(255,90,122,0.55), 0 0 14px rgba(255,90,122,0.35); }
       50% { box-shadow: 0 0 0 1px rgba(255,90,122,0.9), 0 0 22px rgba(255,90,122,0.55); }
@@ -58,6 +70,7 @@
     }
     .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; }
     .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; }
+
     .premium-badge {
       display: inline-flex; align-items: center; gap: 4px;
       background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(139,92,255,0.22));
@@ -72,8 +85,8 @@
       padding: 12px 16px;
       padding-top: calc(12px + env(safe-area-inset-top));
       display: flex; align-items: center; justify-content: space-between;
-      background: rgba(8,10,20,0.92);
-      border-bottom: 1px solid rgba(46,168,255,0.15);
+      background: rgba(8,10,20,0.95);
+      border-bottom: 1px solid rgba(139,92,255,0.18);
       flex-shrink: 0; z-index: 20;
     }
     .main-scroll {
@@ -88,12 +101,12 @@
     .text-warn { color: #FFD54A; }
     .text-cyan { color: #00E5FF; }
     .text-purple { color: #B07CFF; }
-    .kpi-label { font-size: 10px; color: #A8B3CF; margin: 0 0 4px 0; }
-    .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; }
+    .kpi-label { font-size: 10px; color: #A8B3CF; margin: 0 0 4px 0; font-weight: 500; }
+    .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; letter-spacing: -0.02em; }
     .kpi-live { font-size: 9px; color: #00FFB2; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
     .icon-btn {
       width: 32px; height: 32px; border-radius: 12px; background: #12162B;
-      border: 1px solid rgba(46,168,255,0.25); color: #A8B3CF;
+      border: 1px solid rgba(139,92,255,0.28); color: #A8B3CF;
       display: flex; align-items: center; justify-content: center;
       text-decoration: none; cursor: pointer;
     }
@@ -106,8 +119,8 @@
       position: absolute; bottom: 0; left: 0; right: 0;
       height: calc(64px + env(safe-area-inset-bottom));
       padding-bottom: env(safe-area-inset-bottom);
-      background: rgba(8,10,20,0.94);
-      border-top: 1px solid rgba(46,168,255,0.25);
+      background: rgba(8,10,20,0.96);
+      border-top: 1px solid rgba(139,92,255,0.22);
       display: flex; align-items: center; justify-content: space-between;
       padding-left: 20px; padding-right: 20px; z-index: 40;
     }
@@ -157,7 +170,7 @@
     }
     #action-sheet.open #action-sheet-content { transform: translateY(0); }
     .action-tile {
-      background: #131832; border: 1px solid rgba(46,168,255,0.2); border-radius: 16px;
+      background: #131832; border: 1px solid rgba(139,92,255,0.22); border-radius: 16px;
       padding: 14px; text-align: center; text-decoration: none; color: #F8FAFF;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
@@ -172,7 +185,7 @@
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 10px; color: #A8B3CF; margin-bottom: 4px; }
     .field input {
-      width: 100%; background: #131832; border: 1px solid rgba(46,168,255,0.25);
+      width: 100%; background: #131832; border: 1px solid rgba(139,92,255,0.25);
       border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
     }
     .btn-primary {
@@ -181,9 +194,11 @@
       font-weight: 700; font-size: 12px; cursor: pointer;
     }
     a.neon-card { text-decoration: none; color: inherit; display: block; }
+
+    /* Desktop */
     .desktop-shell { width: 100%; min-height: 100vh; background: #07070F; }
     .sidebar {
-      width: 240px; background: #0B0B16; border-right: 1px solid rgba(139,92,246,0.15);
+      width: 240px; background: #0B0B16; border-right: 1px solid rgba(139,92,255,0.15);
       display: flex; flex-direction: column; flex-shrink: 0; padding: 16px 12px;
     }
     .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 8px 10px 20px; }
@@ -203,18 +218,18 @@
     }
     .nav-link i { width: 18px; text-align: center; font-size: 14px; }
     .sidebar-footer {
-      padding: 12px; background: rgba(16,16,34,0.8); border: 1px solid rgba(139,92,246,0.15);
+      padding: 12px; background: rgba(16,16,34,0.8); border: 1px solid rgba(139,92,255,0.15);
       border-radius: 14px; margin-top: 12px;
     }
     .desktop-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
     .desktop-header {
-      height: 64px; border-bottom: 1px solid rgba(139,92,246,0.12);
+      height: 64px; border-bottom: 1px solid rgba(139,92,255,0.12);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 24px; background: rgba(11,11,22,0.95); flex-shrink: 0; gap: 16px;
     }
     .search-box {
       display: flex; align-items: center; gap: 8px; background: #121224;
-      border: 1px solid rgba(139,92,246,0.2); border-radius: 10px; padding: 8px 14px;
+      border: 1px solid rgba(139,92,255,0.2); border-radius: 10px; padding: 8px 14px;
       width: 280px; color: #64748B; font-size: 13px; flex-shrink: 0;
     }
     .header-actions { display: flex; align-items: center; gap: 12px; }
@@ -244,16 +259,16 @@
     .desktop-left { min-width: 0; }
     .desktop-right { display: flex; flex-direction: column; gap: 16px; }
     .desk-card {
-      background: #121224; border: 1px solid rgba(139,92,246,0.15); border-radius: 16px; padding: 16px;
+      background: #121224; border: 1px solid rgba(139,92,255,0.18); border-radius: 16px; padding: 16px;
     }
     .desk-kpi-grid {
       display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px;
     }
     .desk-kpi {
-      background: #121224; border: 1px solid rgba(139,92,246,0.15); border-radius: 14px; padding: 14px;
+      background: #121224; border: 1px solid rgba(139,92,255,0.2); border-radius: 14px; padding: 14px;
     }
-    .desk-kpi .label { font-size: 11px; color: #94A3B8; margin-bottom: 6px; }
-    .desk-kpi .value { font-size: 18px; font-weight: 800; color: #F8FAFC; }
+    .desk-kpi .label { font-size: 11px; color: #94A3B8; margin-bottom: 6px; font-weight: 500; }
+    .desk-kpi .value { font-size: 18px; font-weight: 800; color: #F8FAFC; letter-spacing: -0.02em; }
     .desk-kpi .sub { font-size: 11px; margin-top: 4px; }
     .charts-row {
       display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 16px;
@@ -269,12 +284,12 @@
       border: 2px solid rgba(167,139,250,0.4);
     }
     .insight-item {
-      background: rgba(16,16,34,0.8); border: 1px solid rgba(139,92,246,0.12);
+      background: rgba(16,16,34,0.8); border: 1px solid rgba(139,92,255,0.12);
       border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; font-size: 12px;
     }
     .quick-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .qa-btn {
-      background: #16162D; border: 1px solid rgba(139,92,246,0.2); border-radius: 10px;
+      background: #16162D; border: 1px solid rgba(139,92,255,0.2); border-radius: 10px;
       padding: 12px 8px; text-align: center; font-size: 11px; color: #E2E8F0; cursor: pointer;
       text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 6px;
     }
@@ -283,10 +298,10 @@
     .tables-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .table-item {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 0; border-bottom: 1px solid rgba(139,92,246,0.08); font-size: 12px;
+      padding: 8px 0; border-bottom: 1px solid rgba(139,92,255,0.08); font-size: 12px;
     }
 
-    /* ===== DAY THEME (from Profile Preferences) ===== */
+    /* ===== DAY THEME — full contrast, no invisible text ===== */
     body.theme-day {
       background: #F4F6FB !important;
       color: #0F172A !important;
@@ -310,7 +325,8 @@
     body.theme-day .modal-panel,
     body.theme-day #action-sheet-content {
       background: #FFFFFF !important;
-      box-shadow: 0 0 0 1px #E2E8F0, 0 4px 12px rgba(0,0,0,0.04) !important;
+      border-color: rgba(108,92,231,0.22) !important;
+      box-shadow: 0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(108,92,231,0.08) !important;
     }
     body.theme-day .text-main,
     body.theme-day .kpi-value,
@@ -323,6 +339,11 @@
     body.theme-day .desk-kpi .label {
       color: #64748B !important;
     }
+    /* Logo + brand name visible in day mode */
+    body.theme-day .top-bar span,
+    body.theme-day .top-bar .text-main {
+      color: #0F172A !important;
+    }
     body.theme-day .icon-btn,
     body.theme-day .branch-chip,
     body.theme-day .search-box {
@@ -330,6 +351,7 @@
       border-color: #E2E8F0 !important;
       color: #475569 !important;
     }
+    body.theme-day .branch-chip { color: #6C5CE7 !important; }
     body.theme-day .nav-item { color: #64748B !important; }
     body.theme-day .nav-item.active { color: #6C5CE7 !important; }
     body.theme-day .nav-link { color: #64748B !important; }
@@ -352,22 +374,22 @@
     body.theme-day .fab-plus {
       border-color: #F4F6FB !important;
     }
+    body.theme-day .sidebar-logo div {
+      color: #0F172A !important;
+    }
 
-    /* ===== TEXT SIZE (from Profile Preferences) ===== */
+    /* Text size */
     body.text-small .kpi-label { font-size: 9px; }
     body.text-small .kpi-value { font-size: 12px; }
     body.text-small .nav-item { font-size: 8px; }
-
     body.text-medium .kpi-label { font-size: 10px; }
     body.text-medium .kpi-value { font-size: 13px; }
     body.text-medium .nav-item { font-size: 9px; }
-
     body.text-large .kpi-label { font-size: 12px; }
     body.text-large .kpi-value { font-size: 15px; }
     body.text-large .nav-item { font-size: 10px; }
     body.text-large .text-main { font-size: 17px !important; }
     body.text-large .desk-kpi .value { font-size: 20px; }
-
     body.text-xlarge .kpi-label { font-size: 13px; }
     body.text-xlarge .kpi-value { font-size: 17px; }
     body.text-xlarge .nav-item { font-size: 11px; }
@@ -401,7 +423,7 @@
           <button onclick="toggleActionSheet()" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
           <div style="display:flex;align-items:center;gap:8px;">
             <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;">Q</div>
-            <span style="font-weight:800;font-size:11px;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;">ELITE</span></span>
+            <span class="brand-title" style="font-weight:800;font-size:11px;color:#fff;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;">ELITE</span></span>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -596,7 +618,7 @@
       <div class="sidebar-logo">
         <div class="logo-box">Q</div>
         <div>
-          <div style="font-weight:800;font-size:13px;letter-spacing:0.04em;">QUANTUM OPS</div>
+          <div style="font-weight:800;font-size:13px;letter-spacing:0.04em;" class="brand-title">QUANTUM OPS</div>
           <div style="font-size:10px;color:#A78BFA;letter-spacing:0.08em;">AI BUSINESS OS</div>
         </div>
       </div>
@@ -638,10 +660,10 @@
           <a href="ai-ceo.html" style="background:rgba(108,92,231,0.2);border:1px solid rgba(108,92,231,0.4);color:#C4B5FD;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;">
             <i class="fa-solid fa-robot" style="margin-right:6px;"></i>AI CEO
           </a>
-          <a href="notifications.html" style="width:36px;height:36px;border-radius:10px;background:#121224;border:1px solid rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;text-decoration:none;position:relative;">
+          <a href="notifications.html" style="width:36px;height:36px;border-radius:10px;background:#121224;border:1px solid rgba(139,92,255,0.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;text-decoration:none;position:relative;">
             <i class="fa-regular fa-bell"></i>
           </a>
-          <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;background:#121224;border-radius:999px;border:1px solid rgba(139,92,246,0.2);">
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;background:#121224;border-radius:999px;border:1px solid rgba(139,92,255,0.2);">
             <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6C5CE7,#4F46E5);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;" id="desk-avatar">C</div>
             <div>
               <div style="font-size:12px;font-weight:600;" id="desk-username">User</div>
@@ -655,11 +677,11 @@
         <div class="desktop-left">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
             <div>
-              <h1 style="font-size:20px;font-weight:800;margin:0;" id="desk-greeting">Good day, User 👋</h1>
-              <p style="font-size:13px;color:#94A3B8;margin:4px 0 0;">Here's what's happening with <span id="desk-branch-name">your business</span> today.</p>
+              <h1 style="font-size:20px;font-weight:800;margin:0;" class="text-main" id="desk-greeting">Good day, User 👋</h1>
+              <p style="font-size:13px;color:#94A3B8;margin:4px 0 0;" class="text-sec">Here's what's happening with <span id="desk-branch-name">your business</span> today.</p>
             </div>
             <div style="display:flex;gap:10px;align-items:center;">
-              <div style="background:#121224;border:1px solid rgba(139,92,246,0.2);padding:6px 12px;border-radius:8px;font-size:12px;color:#A78BFA;display:flex;align-items:center;gap:6px;">
+              <div style="background:#121224;border:1px solid rgba(139,92,255,0.2);padding:6px 12px;border-radius:8px;font-size:12px;color:#A78BFA;display:flex;align-items:center;gap:6px;" class="branch-chip">
                 <i class="fa-solid fa-store"></i><span id="desk-branch-chip">Main Branch</span>
                 <i id="desk-profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:12px;"></i>
               </div>
@@ -722,7 +744,7 @@
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                 <div>
                   <div style="font-size:12px;color:#94A3B8;">SALES OVERVIEW</div>
-                  <div style="font-size:20px;font-weight:800;" id="desk-weekly-total">₦0</div>
+                  <div style="font-size:20px;font-weight:800;" class="text-main" id="desk-weekly-total">₦0</div>
                 </div>
                 <span style="font-size:11px;background:rgba(108,92,231,0.2);color:#C4B5FD;padding:4px 10px;border-radius:999px;">This Week</span>
               </div>
@@ -777,8 +799,8 @@
         <div class="desktop-right">
           <div class="ai-panel">
             <div class="ai-avatar"><i class="fa-solid fa-robot"></i></div>
-            <h3 style="font-size:15px;font-weight:700;margin:0 0 4px;">Hello <span id="ai-user-name">User</span>! 👋</h3>
-            <p style="font-size:12px;color:#94A3B8;margin:0 0 14px;">Here are my top insights for you.</p>
+            <h3 style="font-size:15px;font-weight:700;margin:0 0 4px;" class="text-main">Hello <span id="ai-user-name">User</span>! 👋</h3>
+            <p style="font-size:12px;color:#94A3B8;margin:0 0 14px;" class="text-sec">Here are my top insights for you.</p>
             <div class="insight-item">
               <div style="color:#22F5A0;font-weight:600;margin-bottom:2px;"><i class="fa-solid fa-arrow-trend-up"></i> Sales Performance</div>
               <div style="color:#CBD5E1;font-size:11px;" id="ai-insight-sales">Tracking your live sales data...</div>
@@ -835,8 +857,9 @@
     let appReady = false;
     let loggingOut = false;
     let lastChartKey = '';
+    let chartBusy = false;
 
-    /* ========== THEME + TEXT SIZE (from Profile Preferences) ========== */
+    /* ========== THEME + TEXT SIZE ========== */
     function getSavedTheme() {
       return localStorage.getItem('quantum_theme') || 'night';
     }
@@ -853,6 +876,10 @@
       try {
         document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'day' ? '#F4F6FB' : '#05060B');
       } catch(e) {}
+      // Force brand title colour in day mode
+      document.querySelectorAll('.brand-title').forEach(function(el) {
+        el.style.color = resolved === 'day' ? '#0F172A' : '#FFFFFF';
+      });
     }
     function getSavedTextSize() {
       return localStorage.getItem('quantum_text_size') || 'medium';
@@ -1346,43 +1373,71 @@
       setText('ai-insight-debt', debtTotal > 0 ? formatCurrency(debtTotal) + ' is still outstanding from customers.' : 'No outstanding debts. Great job!');
     }
     function renderSalesChart(sales) {
-      const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-      const totals = [0,0,0,0,0,0,0];
-      (sales || []).forEach(function(s) {
-        let idx = new Date(s.created_at).getDay() - 1;
-        if (idx === -1) idx = 6;
-        totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
-      });
-      const chartKey = totals.join(',');
-      if (chartKey === lastChartKey && salesChartInstance) return;
-      lastChartKey = chartKey;
-      const canvas = $('salesOverviewChart');
-      if (canvas) {
-        try {
-          if (salesChartInstance) { try { salesChartInstance.destroy(); } catch(e){} }
-          const ctx = canvas.getContext('2d');
-          const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
-          gradient.addColorStop(0, '#8B5CFF'); gradient.addColorStop(1, '#2EA8FF');
-          salesChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: 'rgba(139,92,255,0.12)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
-            options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#7C88A5', font: { size: 9 } } }, y: { grid: { color: 'rgba(46,168,255,0.06)' }, ticks: { color: '#7C88A5', font: { size: 9 }, callback: function(v){ return '₦'+(v/1000).toFixed(0)+'k'; } } } } }
-          });
-        } catch(e) {}
-      }
-      const deskCanvas = $('deskSalesChart');
-      if (deskCanvas) {
-        try {
-          if (deskChartInstance) { try { deskChartInstance.destroy(); } catch(e){} }
-          const ctx2 = deskCanvas.getContext('2d');
-          const gradient2 = ctx2.createLinearGradient(0, 0, deskCanvas.width || 400, 0);
-          gradient2.addColorStop(0, '#8B5CFF'); gradient2.addColorStop(1, '#2EA8FF');
-          deskChartInstance = new Chart(ctx2, {
-            type: 'line',
-            data: { labels: days, datasets: [{ data: totals, borderColor: gradient2, backgroundColor: 'rgba(139,92,255,0.1)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
-            options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { color: '#7C88A5', font: { size: 10 } } }, y: { grid: { color: 'rgba(46,168,255,0.06)' }, ticks: { color: '#7C88A5', font: { size: 10 }, callback: function(v){ return '₦'+(v/1000).toFixed(0)+'k'; } } } } }
-          });
-        } catch(e) {}
+      if (chartBusy) return;
+      chartBusy = true;
+      try {
+        const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const totals = [0,0,0,0,0,0,0];
+        (sales || []).forEach(function(s) {
+          let idx = new Date(s.created_at).getDay() - 1;
+          if (idx === -1) idx = 6;
+          totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
+        });
+        const chartKey = totals.join(',');
+        if (chartKey === lastChartKey && salesChartInstance) {
+          chartBusy = false;
+          return;
+        }
+        lastChartKey = chartKey;
+
+        const canvas = $('salesOverviewChart');
+        if (canvas) {
+          try {
+            if (salesChartInstance) { try { salesChartInstance.destroy(); } catch(e){} salesChartInstance = null; }
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
+            gradient.addColorStop(0, '#8B5CFF'); gradient.addColorStop(1, '#2EA8FF');
+            salesChartInstance = new Chart(ctx, {
+              type: 'line',
+              data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: 'rgba(139,92,255,0.12)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { grid: { display: false }, ticks: { color: '#7C88A5', font: { size: 9 } } },
+                  y: { grid: { color: 'rgba(46,168,255,0.06)' }, ticks: { color: '#7C88A5', font: { size: 9 }, callback: function(v){ return '₦'+(v/1000).toFixed(0)+'k'; } } }
+                }
+              }
+            });
+          } catch(e) {}
+        }
+        const deskCanvas = $('deskSalesChart');
+        if (deskCanvas) {
+          try {
+            if (deskChartInstance) { try { deskChartInstance.destroy(); } catch(e){} deskChartInstance = null; }
+            const ctx2 = deskCanvas.getContext('2d');
+            const gradient2 = ctx2.createLinearGradient(0, 0, deskCanvas.width || 400, 0);
+            gradient2.addColorStop(0, '#8B5CFF'); gradient2.addColorStop(1, '#2EA8FF');
+            deskChartInstance = new Chart(ctx2, {
+              type: 'line',
+              data: { labels: days, datasets: [{ data: totals, borderColor: gradient2, backgroundColor: 'rgba(139,92,255,0.1)', borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { grid: { display: false }, ticks: { color: '#7C88A5', font: { size: 10 } } },
+                  y: { grid: { color: 'rgba(46,168,255,0.06)' }, ticks: { color: '#7C88A5', font: { size: 10 }, callback: function(v){ return '₦'+(v/1000).toFixed(0)+'k'; } } }
+                }
+              }
+            });
+          } catch(e) {}
+        }
+      } finally {
+        chartBusy = false;
       }
     }
     function renderTopProducts(sales) {
