@@ -15,7 +15,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
-    /* STRICT ISOLATION */
     .mobile-only { display: block !important; }
     .desktop-only { display: none !important; }
     @media (min-width: 1024px) {
@@ -23,7 +22,7 @@
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE (SAFE AREA FIXED) ===== */
+    /* ===== MOBILE ===== */
     .iphone-frame {
       width: 100%; max-width: 100%; height: 100dvh; height: 100vh;
       background: #0B0B16; position: relative; overflow: hidden;
@@ -129,6 +128,65 @@
       background: linear-gradient(135deg, #6C5CE7, #4F46E5); color: #fff;
       font-weight: 700; font-size: 12px; cursor: pointer; margin-bottom: 10px;
     }
+    .prod-name { color: #fff; font-weight: 600; }
+    .prod-meta { color: #94a3b8; }
+
+    /* ===== DAY THEME ===== */
+    body.theme-day {
+      background: #F4F6FB !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .iphone-frame,
+    body.theme-day .desktop-shell {
+      background: #F4F6FB !important;
+    }
+    body.theme-day .top-bar,
+    body.theme-day .bottom-nav,
+    body.theme-day .desk-topbar,
+    body.theme-day .chips,
+    body.theme-day .input-bar,
+    body.theme-day .desk-sidebar {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .msg-ai,
+    body.theme-day .side-card,
+    body.theme-day .chip,
+    body.theme-day .stat-box {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .msg-user {
+      background: linear-gradient(135deg, #6C5CE7, #5B4BC4) !important;
+      color: #fff !important;
+    }
+    body.theme-day .chip.primary {
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5) !important;
+      color: #fff !important;
+    }
+    body.theme-day .input-bar input {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .nav-item { color: #64748B !important; }
+    body.theme-day .nav-item.active { color: #6C5CE7 !important; }
+    body.theme-day .prod-name { color: #0F172A !important; }
+    body.theme-day .prod-meta { color: #64748B !important; }
+    body.theme-day .rec-box {
+      background: rgba(108,92,231,0.08) !important;
+      border-color: rgba(108,92,231,0.25) !important;
+    }
+
+    /* ===== TEXT SIZE ===== */
+    body.text-small .nav-item { font-size: 8px; }
+    body.text-medium .nav-item { font-size: 9px; }
+    body.text-large .nav-item { font-size: 10px; }
+    body.text-xlarge .nav-item { font-size: 11px; }
+    body.text-small .msg-ai, body.text-small .msg-user { font-size: 11px; }
+    body.text-large .msg-ai, body.text-large .msg-user { font-size: 13px; }
+    body.text-xlarge .msg-ai, body.text-xlarge .msg-user { font-size: 14px; }
   </style>
 </head>
 <body>
@@ -143,7 +201,7 @@
               <i class="fa-solid fa-robot"></i>
             </div>
             <div>
-              <div style="font-weight:700;font-size:12px;color:#fff;">AI CEO</div>
+              <div style="font-weight:700;font-size:12px;" class="prod-name">AI CEO</div>
               <div style="font-size:9px;color:#c4b5fd;" id="ceo-status">Analyzing…</div>
             </div>
           </div>
@@ -165,9 +223,11 @@
         <button class="chip" onclick="runAction('cashflow')">💵 Cash Flow</button>
         <button class="chip" onclick="runAction('deadstock')">🧊 Dead Stock</button>
         <button class="chip" onclick="runAction('weekly')">📊 Weekly Report</button>
+        <button class="chip" onclick="runAction('inventory')">📦 Inventory</button>
+        <button class="chip" onclick="runAction('expenses')">💸 Expenses</button>
       </div>
       <div class="input-bar">
-        <input id="chat-input" type="text" placeholder="Ask your AI CEO…" onkeydown="if(event.key==='Enter') sendMessage()">
+        <input id="chat-input" type="text" placeholder="Ask anything about your business…" onkeydown="if(event.key==='Enter') sendMessage()">
         <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane" style="font-size:12px;"></i></button>
       </div>
       <nav class="bottom-nav">
@@ -187,7 +247,7 @@
           <i class="fa-solid fa-robot"></i>
         </div>
         <div>
-          <div style="font-weight:700;font-size:16px;color:#fff;">AI CEO</div>
+          <div style="font-weight:700;font-size:16px;" class="prod-name">AI CEO</div>
           <div style="font-size:12px;color:#c4b5fd;" id="desk-ceo-status">Analyzing…</div>
         </div>
       </div>
@@ -207,28 +267,30 @@
           <button class="chip" onclick="runAction('cashflow')">💵 Cash Flow</button>
           <button class="chip" onclick="runAction('deadstock')">🧊 Dead Stock</button>
           <button class="chip" onclick="runAction('weekly')">📊 Weekly Report</button>
+          <button class="chip" onclick="runAction('inventory')">📦 Inventory</button>
+          <button class="chip" onclick="runAction('expenses')">💸 Expenses</button>
         </div>
         <div class="input-bar">
-          <input id="desk-chat-input" type="text" placeholder="Ask your AI CEO…" onkeydown="if(event.key==='Enter') sendMessage()">
+          <input id="desk-chat-input" type="text" placeholder="Ask anything about your business…" onkeydown="if(event.key==='Enter') sendMessage()">
           <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
       </div>
       <div class="desk-sidebar custom-scrollbar">
         <button class="action-btn" onclick="runAction('today')">🎯 What should I do today?</button>
         <div class="side-card" id="side-cashflow">
-          <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">Cash Flow Health</div>
+          <div style="font-size:12px;color:#94a3b8;margin-bottom:8px;" class="prod-meta">Cash Flow Health</div>
           <div id="side-score-wrap" style="text-align:center;">
             <div class="score-circle" id="side-score" style="background:rgba(100,100,100,0.2);color:#94a3b8;">—</div>
             <div id="side-score-label" style="font-size:12px;color:#94a3b8;">Calculating…</div>
           </div>
         </div>
         <div class="side-card">
-          <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;">Quick Insights</div>
-          <div id="side-insights" style="font-size:12px;color:#cbd5e1;line-height:1.6;">Loading…</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:10px;" class="prod-name">Quick Insights</div>
+          <div id="side-insights" style="font-size:12px;line-height:1.6;" class="prod-meta">Loading…</div>
         </div>
         <div class="side-card">
-          <div style="font-size:12px;font-weight:600;color:#fff;margin-bottom:10px;">Top Actions</div>
-          <div id="side-actions" style="font-size:12px;color:#cbd5e1;line-height:1.6;">—</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:10px;" class="prod-name">Top Actions</div>
+          <div id="side-actions" style="font-size:12px;line-height:1.6;" class="prod-meta">—</div>
         </div>
       </div>
     </div>
@@ -244,8 +306,40 @@
     const DEAD_STOCK_DAYS = 21;
     let userCompanyId = null;
     let ownerName = 'Boss';
+    let companyName = 'your shop';
     let biz = { sales: [], products: [], debtors: [], expenses: [] };
     let ready = false;
+    let lastTopic = null;
+
+    /* ========== THEME + TEXT SIZE ========== */
+    function getSavedTheme() {
+      return localStorage.getItem('quantum_theme') || 'night';
+    }
+    function resolveTheme(pref) {
+      if (pref === 'system') {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
+      }
+      return pref;
+    }
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref);
+      document.body.classList.remove('theme-day', 'theme-night');
+      document.body.classList.add(resolved === 'day' ? 'theme-day' : 'theme-night');
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'day' ? '#F4F6FB' : '#6C5CE7');
+      } catch (e) {}
+    }
+    function getSavedTextSize() {
+      return localStorage.getItem('quantum_text_size') || 'medium';
+    }
+    function applyTextSize(size) {
+      document.body.classList.remove('text-small', 'text-medium', 'text-large', 'text-xlarge');
+      document.body.classList.add('text-' + size);
+    }
+    function applyUserPreferences() {
+      applyTheme(getSavedTheme());
+      applyTextSize(getSavedTextSize());
+    }
 
     function formatCurrency(n) {
       return '₦' + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -325,6 +419,12 @@
         })
         .reduce((a, e) => a + parseMoney(e.amount), 0);
     }
+    function monthExpenses() {
+      const prefix = getLocalDateString(new Date()).slice(0, 7);
+      return biz.expenses
+        .filter(e => getLocalDateString(e.created_at).indexOf(prefix) === 0)
+        .reduce((a, e) => a + parseMoney(e.amount), 0);
+    }
     function productStats(list) {
       const map = {};
       list.forEach(s => {
@@ -359,6 +459,10 @@
         const pack = parseFloat(p.items_per_pack || 24) || 24;
         return { name: p.name || 'Product', units: (pieces / pack).toFixed(1), pieces, id: p.id };
       });
+    }
+    function outOfStockProducts() {
+      return biz.products.filter(p => parseFloat(p.stock || 0) <= 0)
+        .map(p => ({ name: p.name || 'Product', id: p.id }));
     }
     function debtTotal() {
       return biz.debtors.reduce((a, d) => a + parseMoney(d.amount_owing), 0);
@@ -424,6 +528,14 @@
       if (score >= 40) return { text: 'At Risk', color: '#fb923c' };
       return { text: 'Critical', color: '#fb7185' };
     }
+    function findProductByName(q) {
+      const t = q.toLowerCase();
+      return biz.products.find(p => (p.name || '').toLowerCase().includes(t)) || null;
+    }
+    function findDebtorByName(q) {
+      const t = q.toLowerCase();
+      return biz.debtors.find(d => (d.customer_name || '').toLowerCase().includes(t)) || null;
+    }
 
     // ===== RESPONSES =====
     function buildBriefing() {
@@ -450,27 +562,28 @@
       if (!tx && new Date().getHours() >= 10) actions.push('No sales yet — open POS and start selling');
       if (!actions.length) actions.push('Business is stable. Keep recording every sale.');
       return `
-        <p style="font-weight:700;color:#fff;font-size:13px;margin:0 0 6px;">${greeting()}, ${ownerName} 👋</p>
-        <p style="color:#cbd5e1;margin:0 0 8px;">Here’s your live business snapshot:</p>
+        <p style="font-weight:700;font-size:13px;margin:0 0 6px;" class="prod-name">${greeting()}, ${ownerName} 👋</p>
+        <p style="margin:0 0 8px;" class="prod-meta">Here’s your live business snapshot for <b>${companyName}</b>:</p>
         <div class="stat-grid">
           <div class="stat-box"><p>Sales today</p><h4>${formatCurrency(sales)}</h4></div>
           <div class="stat-box"><p>Gross profit</p><h4 style="color:#34d399;">${formatCurrency(profit)}</h4></div>
           <div class="stat-box"><p>Expenses</p><h4 style="color:#fb7185;">${formatCurrency(exp)}</h4></div>
           <div class="stat-box"><p>Net profit</p><h4 style="color:${net >= 0 ? '#34d399' : '#fb7185'};">${formatCurrency(net)}</h4></div>
         </div>
-        <p style="font-size:11px;color:#cbd5e1;margin:8px 0;">
+        <p style="font-size:11px;margin:8px 0;" class="prod-meta">
           🧾 <b>${tx}</b> transactions · Best: <b style="color:#c4b5fd;">${best}</b><br>
           📦 <b>${low.length}</b> low stock · 👥 <b>${debtCount}</b> owe <b style="color:#fb7185;">${formatCurrency(debts)}</b><br>
           💵 Cash Flow Score: <b style="color:${sLabel.color};">${score}/100 (${sLabel.text})</b>
         </p>
         <div class="rec-box">
           <p style="margin:0 0 6px;font-size:10px;font-weight:700;color:#c4b5fd;">CEO Priority Actions</p>
-          <p style="margin:0;font-size:11px;color:#e2e8f0;">${actions.map((a, i) => (i + 1) + '. ' + a).join('<br>')}</p>
+          <p style="margin:0;font-size:11px;">${actions.map((a, i) => (i + 1) + '. ' + a).join('<br>')}</p>
         </div>
-        <p style="font-size:10px;color:#64748b;margin:8px 0 0;">Tap “What should I do today?” for deeper advice.</p>
+        <p style="font-size:10px;color:#64748b;margin:8px 0 0;">Ask me anything — sales, stock, debt, profit, expenses, or “What should I do today?”</p>
       `;
     }
     function answerToday() {
+      lastTopic = 'today';
       const today = todaySales();
       const sales = sumAmount(today);
       const profit = sumProfit(today);
@@ -481,11 +594,11 @@
       const score = cashFlowScore();
       const sLabel = scoreLabel(score);
       const topD = topDebtors(3);
-      let html = `<p style="font-weight:700;color:#fff;margin:0 0 8px;">🎯 What You Should Do Today</p>`;
-      html += `<p style="margin:0 0 8px;font-size:11px;color:#cbd5e1;">Cash Flow Score: <b style="color:${sLabel.color};">${score}/100 (${sLabel.text})</b></p>`;
+      let html = `<p style="font-weight:700;margin:0 0 8px;" class="prod-name">🎯 What You Should Do Today</p>`;
+      html += `<p style="margin:0 0 8px;font-size:11px;" class="prod-meta">Cash Flow Score: <b style="color:${sLabel.color};">${score}/100 (${sLabel.text})</b></p>`;
       const steps = [];
       if (topD.length) {
-        steps.push(`<b>1. Collect debt</b><br>Focus on: ${topD.map(d => (d.customer_name || 'Customer') + ' (' + formatCurrency(d.amount_owing) + ')').join(', ')}. Use WhatsApp/SMS reminder.`);
+        steps.push(`<b>1. Collect debt</b><br>Focus on: ${topD.map(d => (d.customer_name || 'Customer') + ' (' + formatCurrency(d.amount_owing) + ')').join(', ')}. Use WhatsApp/SMS reminder from Debtors page.`);
       }
       if (low.length) {
         steps.push(`<b>${steps.length + 1}. Restock urgently</b><br>${low.slice(0, 3).map(p => p.name + ' (' + p.units + ' units left)').join(', ')}`);
@@ -507,14 +620,20 @@
       return html;
     }
     function answerSales() {
+      lastTopic = 'sales';
       const today = todaySales();
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📈 Sales Summary</p>
+      const tops = topProducts(week, 'revenue', 3);
+      let topLines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.revenue) + ' (' + p.qty + ' sold)').join('<br>');
+      if (!topLines) topLines = 'No product sales yet.';
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">📈 Sales Summary</p>
         <p style="margin:0;">Today: <b>${formatCurrency(sumAmount(today))}</b> · ${today.length} transactions</p>
         <p style="margin:4px 0 0;">Last 7 days: <b>${formatCurrency(sumAmount(week))}</b> · ${week.length} transactions</p>
-        <p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=sales">View full sales history →</a></p>`;
+        <p style="margin:8px 0 0;font-size:11px;"><b>Top sellers this week:</b><br>${topLines}</p>
+        <p style="margin:8px 0 0;"><a class="link" href="transactions.html">View full sales history →</a></p>`;
     }
     function answerProfit() {
+      lastTopic = 'profit';
       const today = todaySales();
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
       const exp = todayExpenses();
@@ -522,40 +641,56 @@
       const tops = topProducts(week, 'profit', 3);
       let lines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.profit)).join('<br>');
       if (!lines) lines = 'No product-level profit data yet.';
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">💰 Profit Analysis</p>
+      const killers = profitKillers();
+      let killerLines = '';
+      if (killers.length) {
+        killerLines = '<p style="margin:8px 0 0;font-size:11px;color:#fb7185;"><b>Low margin products:</b><br>' +
+          killers.map(p => '• ' + p.name + ' (' + p.margin.toFixed(0) + '% margin)').join('<br>') + '</p>';
+      }
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">💰 Profit Analysis</p>
         <p style="margin:0;">Gross today: <b style="color:#34d399;">${formatCurrency(sumProfit(today))}</b></p>
         <p style="margin:4px 0 0;">Expenses today: <b style="color:#fb7185;">${formatCurrency(exp)}</b></p>
         <p style="margin:4px 0 0;">Net today: <b style="color:${net >= 0 ? '#34d399' : '#fb7185'};">${formatCurrency(net)}</b></p>
         <p style="margin:4px 0 0;">Last 7 days gross: <b style="color:#34d399;">${formatCurrency(sumProfit(week))}</b></p>
         <p style="margin:8px 0 0;font-size:11px;"><b>Top profit products:</b><br>${lines}</p>
-        <p style="margin:8px 0 0;"><a class="link" href="transactions.html?view=profit">View profit history →</a></p>`;
+        ${killerLines}
+        <p style="margin:8px 0 0;"><a class="link" href="transactions.html">View profit history →</a></p>`;
     }
     function answerRestock() {
+      lastTopic = 'restock';
       const low = lowStockProducts();
-      if (!low.length) {
-        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Advice</p><p style="margin:0;">All tracked products look healthy. No urgent restock needed.</p>`;
+      const out = outOfStockProducts();
+      if (!low.length && !out.length) {
+        return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">📦 Restock Advice</p><p style="margin:0;">All tracked products look healthy. No urgent restock needed right now.</p>`;
       }
-      const lines = low.map(p => `• <b>${p.name}</b> — ${p.units} units left (${p.pieces} pcs)`).join('<br>');
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📦 Restock Priority</p>
-        <p style="margin:0 0 6px;color:#fbbf24;font-size:11px;">${low.length} product(s) at or below ${LOW_STOCK_UNITS} units:</p>
-        <p style="margin:0;font-size:11px;">${lines}</p>
-        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Restock best sellers first before weekend.</p>
+      let html = `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">📦 Restock Priority</p>`;
+      if (out.length) {
+        html += `<p style="margin:0 0 6px;color:#fb7185;font-size:11px;"><b>${out.length} out of stock:</b><br>${out.slice(0, 5).map(p => '• ' + p.name).join('<br>')}</p>`;
+      }
+      if (low.length) {
+        html += `<p style="margin:0 0 6px;color:#fbbf24;font-size:11px;">${low.length} product(s) at or below ${LOW_STOCK_UNITS} units:</p>
+        <p style="margin:0;font-size:11px;">${low.map(p => `• <b>${p.name}</b> — ${p.units} units left (${p.pieces} pcs)`).join('<br>')}</p>`;
+      }
+      html += `<p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Restock best sellers first before weekend demand.</p>
         <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
+      return html;
     }
     function answerDebtors() {
+      lastTopic = 'debtors';
       const total = debtTotal();
       const list = topDebtors(5);
       if (!list.length) {
-        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Debtors</p><p style="margin:0;">No outstanding debts. Excellent cash discipline.</p>`;
+        return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">👥 Debtors</p><p style="margin:0;">No outstanding debts. Excellent cash discipline 👏</p>`;
       }
       const lines = list.map((d, i) => (i + 1) + '. <b>' + (d.customer_name || 'Customer') + '</b> — ' + formatCurrency(d.amount_owing)).join('<br>');
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">👥 Outstanding Debt</p>
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">👥 Outstanding Debt</p>
         <p style="margin:0;">Total: <b style="color:#fb7185;">${formatCurrency(total)}</b> from ${biz.debtors.length} customer(s)</p>
         <p style="margin:8px 0 0;font-size:11px;"><b>Collect from these first:</b><br>${lines}</p>
-        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Use WhatsApp + SMS reminder. Highest balance first.</p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Use WhatsApp + SMS reminder. Highest balance first. Don’t wait.</p>
         <p style="margin:8px 0 0;"><a class="link" href="debtors.html">Open Debtors →</a></p>`;
     }
     function answerCashflow() {
+      lastTopic = 'cashflow';
       const score = cashFlowScore();
       const sLabel = scoreLabel(score);
       const debts = debtTotal();
@@ -563,7 +698,7 @@
       const today = todaySales();
       const profit = sumProfit(today);
       const exp = todayExpenses();
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">💵 Cash Flow Health</p>
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">💵 Cash Flow Health</p>
         <p style="margin:0;">Score: <b style="color:${sLabel.color};font-size:18px;">${score}/100</b> (${sLabel.text})</p>
         <p style="margin:8px 0 0;font-size:11px;">
           • Money locked in debt: <b style="color:#fb7185;">${formatCurrency(debts)}</b><br>
@@ -571,22 +706,24 @@
           • Today profit vs expense: ${formatCurrency(profit)} vs ${formatCurrency(exp)}
         </p>
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">
-          ${score >= 70 ? 'Cash flow is under control. Keep collecting and avoid overstocking.' : 'Focus on collecting debt and clearing slow stock to free cash.'}
+          ${score >= 70 ? 'Cash flow is under control. Keep collecting and avoid overstocking.' : 'Focus on collecting debt and clearing slow stock to free cash fast.'}
         </p>`;
     }
     function answerDeadstock() {
+      lastTopic = 'deadstock';
       const dead = deadStockProducts();
       if (!dead.length) {
-        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">🧊 Dead Stock</p><p style="margin:0;">No dead stock detected. Good inventory movement.</p>`;
+        return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">🧊 Dead Stock</p><p style="margin:0;">No dead stock detected. Good inventory movement.</p>`;
       }
       const lines = dead.slice(0, 6).map(p => `• <b>${p.name}</b> — ${p.pieces} pcs`).join('<br>');
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">🧊 Dead Stock Alert</p>
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">🧊 Dead Stock Alert</p>
         <p style="margin:0 0 6px;font-size:11px;color:#fbbf24;">${dead.length} product(s) have stock but no sales in the last ${DEAD_STOCK_DAYS} days:</p>
         <p style="margin:0;font-size:11px;">${lines}</p>
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: Discount, bundle, or promote these to free your cash.</p>
         <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
     }
     function answerWeekly() {
+      lastTopic = 'weekly';
       const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
       const sales = sumAmount(week);
       const profit = sumProfit(week);
@@ -597,7 +734,7 @@
       const debts = debtTotal();
       let topLines = tops.map((p, i) => (i + 1) + '. ' + p.name + ' — ' + formatCurrency(p.revenue)).join('<br>');
       if (!topLines) topLines = 'No sales data this week.';
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">📊 Weekly CEO Report</p>
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">📊 Weekly CEO Report</p>
         <p style="margin:0;">Sales (7 days): <b>${formatCurrency(sales)}</b></p>
         <p style="margin:4px 0 0;">Gross Profit: <b style="color:#34d399;">${formatCurrency(profit)}</b></p>
         <p style="margin:4px 0 0;">Expenses: <b style="color:#fb7185;">${formatCurrency(exp)}</b></p>
@@ -607,7 +744,36 @@
         <p style="margin:8px 0 0;font-size:11px;">Low stock items: <b>${low.length}</b> · Outstanding debt: <b style="color:#fb7185;">${formatCurrency(debts)}</b></p>
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">Focus next week: collect debt + protect best-seller stock.</p>`;
     }
+    function answerInventory() {
+      lastTopic = 'inventory';
+      const total = biz.products.length;
+      const low = lowStockProducts();
+      const out = outOfStockProducts();
+      const dead = deadStockProducts();
+      const inStock = biz.products.filter(p => parseFloat(p.stock || 0) > 0).length;
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">📦 Inventory Overview</p>
+        <p style="margin:0;">Total products: <b>${total}</b></p>
+        <p style="margin:4px 0 0;">In stock: <b style="color:#34d399;">${inStock}</b></p>
+        <p style="margin:4px 0 0;">Low stock (≤${LOW_STOCK_UNITS} units): <b style="color:#fbbf24;">${low.length}</b></p>
+        <p style="margin:4px 0 0;">Out of stock: <b style="color:#fb7185;">${out.length}</b></p>
+        <p style="margin:4px 0 0;">Dead stock (no sales ${DEAD_STOCK_DAYS}+ days): <b>${dead.length}</b></p>
+        ${low.length ? '<p style="margin:8px 0 0;font-size:11px;"><b>Urgent restock:</b><br>' + low.slice(0,4).map(p => '• ' + p.name + ' (' + p.units + ' units)').join('<br>') + '</p>' : ''}
+        <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
+    }
+    function answerExpenses() {
+      lastTopic = 'expenses';
+      const today = todayExpenses();
+      const week = weekExpenses();
+      const month = monthExpenses();
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">💸 Expenses Summary</p>
+        <p style="margin:0;">Today: <b style="color:#fb7185;">${formatCurrency(today)}</b></p>
+        <p style="margin:4px 0 0;">This week: <b style="color:#fb7185;">${formatCurrency(week)}</b></p>
+        <p style="margin:4px 0 0;">This month: <b style="color:#fb7185;">${formatCurrency(month)}</b></p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">CEO tip: If expenses keep rising faster than profit, review Fuel, Transport and Staff costs first.</p>
+        <p style="margin:8px 0 0;"><a class="link" href="expenses.html">Open Expenses →</a></p>`;
+    }
     function answerRisks() {
+      lastTopic = 'risks';
       const low = lowStockProducts();
       const debts = debtTotal();
       const today = todaySales();
@@ -620,9 +786,34 @@
       if (exp > sumProfit(today) && today.length) risks.push('• Expenses higher than today’s profit');
       if (!today.length && new Date().getHours() >= 12) risks.push('• No sales recorded yet today');
       if (!risks.length) risks.push('• No major risks detected right now.');
-      return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">⚠️ Business Risks</p>
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">⚠️ Business Risks</p>
         <p style="margin:0;font-size:11px;">${risks.join('<br>')}</p>
         <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">Fix debt and stock issues first — they hurt cash flow fastest.</p>`;
+    }
+    function answerProduct(q) {
+      const p = findProductByName(q);
+      if (!p) return null;
+      const pieces = parseFloat(p.stock || 0);
+      const pack = parseFloat(p.items_per_pack || 24) || 24;
+      const units = (pieces / pack).toFixed(1);
+      const low = pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS;
+      const out = pieces <= 0;
+      let status = out ? '<span style="color:#fb7185;">Out of stock</span>' : (low ? '<span style="color:#fbbf24;">Low stock</span>' : '<span style="color:#34d399;">In stock</span>');
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">📦 ${p.name}</p>
+        <p style="margin:0;">Stock: <b>${pieces} pcs</b> ≈ <b>${units} units</b></p>
+        <p style="margin:4px 0 0;">Status: ${status}</p>
+        <p style="margin:4px 0 0;">Selling price: <b>${formatCurrency(p.selling_price)}</b></p>
+        <p style="margin:4px 0 0;">Unit cost: <b>${formatCurrency(p.unit_cost)}</b></p>
+        <p style="margin:8px 0 0;"><a class="link" href="inventory.html">Open Inventory →</a></p>`;
+    }
+    function answerDebtor(q) {
+      const d = findDebtorByName(q);
+      if (!d) return null;
+      return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">👤 ${d.customer_name || 'Customer'}</p>
+        <p style="margin:0;">Outstanding: <b style="color:#fb7185;">${formatCurrency(d.amount_owing)}</b></p>
+        <p style="margin:4px 0 0;">Status: <b>${d.status || 'unpaid'}</b></p>
+        <p style="margin:8px 0 0;font-size:11px;color:#94a3b8;">Go to Debtors page to send WhatsApp / SMS reminder or mark as paid.</p>
+        <p style="margin:8px 0 0;"><a class="link" href="debtors.html">Open Debtors →</a></p>`;
     }
     function runAction(key) {
       if (!ready) return;
@@ -635,37 +826,58 @@
         cashflow: answerCashflow,
         deadstock: answerDeadstock,
         weekly: answerWeekly,
-        risks: answerRisks
+        risks: answerRisks,
+        inventory: answerInventory,
+        expenses: answerExpenses
       };
       if (map[key]) addMessage(map[key](), false);
     }
     function handleQuestion(q) {
       const t = q.toLowerCase().trim();
-      if (/what should i do|what do i do|priority|today action/.test(t)) return answerToday();
-      if (/profit|margin|net/.test(t)) return answerProfit();
-      if (/restock|low stock|inventory|stock/.test(t)) return answerRestock();
-      if (/debt|owe|owes|debtor|collect/.test(t)) return answerDebtors();
-      if (/cash ?flow|liquidity|money locked/.test(t)) return answerCashflow();
-      if (/dead stock|slow.?moving|not selling/.test(t)) return answerDeadstock();
-      if (/week|weekly|7 day|this week/.test(t)) return answerWeekly();
-      if (/best.?sell|top.?sell|popular|most.?sold/.test(t)) {
+
+      // Product lookup
+      const prodAns = answerProduct(t);
+      if (prodAns && (t.includes('stock') || t.includes('how many') || t.includes('price') || t.includes('left') || biz.products.some(p => (p.name||'').toLowerCase().includes(t)))) {
+        return prodAns;
+      }
+      // Debtor lookup
+      const debtAns = answerDebtor(t);
+      if (debtAns && (t.includes('owe') || t.includes('debt') || t.includes('balance') || biz.debtors.some(d => (d.customer_name||'').toLowerCase().includes(t)))) {
+        return debtAns;
+      }
+
+      if (/what should i do|what do i do|priority|today action|advise me|help me today/.test(t)) return answerToday();
+      if (/profit|margin|net profit|how much.*(make|made|earn)/.test(t)) return answerProfit();
+      if (/restock|low stock|running low|almost finish|finish soon/.test(t)) return answerRestock();
+      if (/debt|owe|owes|debtor|collect|who owes|outstanding/.test(t)) return answerDebtors();
+      if (/cash ?flow|liquidity|money locked|cash health/.test(t)) return answerCashflow();
+      if (/dead stock|slow.?moving|not selling|sitting|no sale/.test(t)) return answerDeadstock();
+      if (/week|weekly|7 day|this week|last 7/.test(t)) return answerWeekly();
+      if (/inventory|stock overview|how many product|total product|catalogue/.test(t)) return answerInventory();
+      if (/expense|cost|spent|spending|overhead/.test(t)) return answerExpenses();
+      if (/best.?sell|top.?sell|popular|most.?sold|fast.?moving/.test(t)) {
         const week = salesInRange(daysAgo(6), getLocalDateString(new Date()));
         const tops = topProducts(week, 'revenue', 5);
         if (!tops.length) return '<p style="margin:0;">No sales data yet this week.</p>';
         const lines = tops.map((p, i) => (i + 1) + '. <b>' + p.name + '</b> — ' + p.qty + ' sold · ' + formatCurrency(p.revenue)).join('<br>');
-        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">🔥 Best Sellers (7 days)</p><p style="margin:0;font-size:11px;">${lines}</p>`;
+        return `<p style="font-weight:700;margin:0 0 6px;" class="prod-name">🔥 Best Sellers (7 days)</p><p style="margin:0;font-size:11px;">${lines}</p>`;
       }
-      if (/risk|problem|warning|issue/.test(t)) return answerRisks();
-      if (/expense|cost|spent/.test(t)) {
-        return `<p style="font-weight:700;color:#fff;margin:0 0 6px;">💸 Expenses</p>
-          <p style="margin:0;">Today: <b style="color:#fb7185;">${formatCurrency(todayExpenses())}</b></p>
-          <p style="margin:4px 0 0;">This week: <b style="color:#fb7185;">${formatCurrency(weekExpenses())}</b></p>
-          <p style="margin:8px 0 0;"><a class="link" href="expenses.html">Open Expenses →</a></p>`;
+      if (/risk|problem|warning|issue|danger|trouble/.test(t)) return answerRisks();
+      if (/today|sales today|how much.*(make|made)|revenue today|transaction/.test(t)) return answerSales();
+      if (/hello|hi |hey|good morning|good afternoon|good evening|briefing|summary|overview|how is my business|how am i doing/.test(t)) return buildBriefing();
+      if (/thank|thanks|ok|okay|got it|cool|nice|great/.test(t)) {
+        return `<p style="margin:0;">You're welcome, ${ownerName}. I'm always here. Ask me anything about ${companyName} anytime.</p>`;
       }
-      if (/today|sales today|how much.*(make|made)|revenue/.test(t)) return answerSales();
-      if (/hello|hi |hey|good morning|good afternoon|briefing/.test(t)) return buildBriefing();
-      return `<p style="margin:0;">I can help with sales, profit, cash flow, restock, debtors, dead stock, and weekly reports.</p>
-        <p style="margin:6px 0 0;font-size:11px;color:#94a3b8;">Try: “What should I do today?” · “Who owes me?” · “Show dead stock”</p>`;
+      if (/who are you|what can you do|help|how do you work/.test(t)) {
+        return `<p style="margin:0;">I'm your AI CEO for <b>${companyName}</b>. I read your live sales, inventory, debtors and expenses and give you clear advice.</p>
+          <p style="margin:6px 0 0;font-size:11px;">You can ask me things like:</p>
+          <p style="margin:4px 0 0;font-size:11px;">• “What should I do today?”<br>• “Who owes me money?”<br>• “Which products are low?”<br>• “Show me profit this week”<br>• “How is cash flow?”<br>• Or just type a product or customer name.</p>`;
+      }
+
+      // Fallback smarter response
+      return `<p style="margin:0;">I understand you're asking about <b>"${q}"</b>.</p>
+        <p style="margin:6px 0 0;">I can help with sales, profit, inventory, low stock, debtors, expenses, cash flow, dead stock and weekly reports.</p>
+        <p style="margin:6px 0 0;font-size:11px;color:#94a3b8;">Try: “What should I do today?” · “Who owes me?” · “Show low stock” · “Profit this week” · or type a product/customer name.</p>`;
     }
     function sendMessage() {
       if (!ready) return;
@@ -676,7 +888,7 @@
       addMessage(q, true);
       if (mobileInput) mobileInput.value = '';
       if (deskInput) deskInput.value = '';
-      setTimeout(() => addMessage(handleQuestion(q), false), 180);
+      setTimeout(() => addMessage(handleQuestion(q), false), 220);
     }
     function updateSidebar() {
       const score = cashFlowScore();
@@ -717,6 +929,7 @@
       }
     }
     async function init() {
+      applyUserPreferences();
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
@@ -727,6 +940,7 @@
         ownerName = (user.user_metadata && user.user_metadata.full_name) || (user.email || 'Boss').split('@')[0] || 'Boss';
         ownerName = String(ownerName).split(' ')[0];
         ownerName = ownerName.charAt(0).toUpperCase() + ownerName.slice(1).toLowerCase();
+
         const { data: member } = await supabaseClient
           .from('company_users')
           .select('company_id')
@@ -736,8 +950,16 @@
           userCompanyId = member.company_id;
         } else {
           const { data: owned } = await supabaseClient
-            .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
-          if (owned && owned.id) userCompanyId = owned.id;
+            .from('companies').select('id, name').eq('owner_id', user.id).maybeSingle();
+          if (owned && owned.id) {
+            userCompanyId = owned.id;
+            if (owned.name) companyName = owned.name;
+          }
+        }
+        if (userCompanyId) {
+          const { data: company } = await supabaseClient
+            .from('companies').select('name').eq('id', userCompanyId).maybeSingle();
+          if (company && company.name) companyName = company.name;
         }
         if (!userCompanyId) {
           clearChat();
@@ -785,18 +1007,9 @@
         document.getElementById('ceo-status').textContent = 'Error';
       }
     }
-    function enforceView() {
-      const isDesktop = window.innerWidth >= 1024;
-      document.querySelectorAll('.mobile-only').forEach(el => {
-        el.style.display = isDesktop ? 'none' : 'block';
-      });
-      document.querySelectorAll('.desktop-only').forEach(el => {
-        el.style.display = isDesktop ? 'flex' : 'none';
-      });
-    }
-    window.addEventListener('resize', enforceView);
+
     window.addEventListener('DOMContentLoaded', function () {
-      enforceView();
+      applyUserPreferences();
       init();
     });
   </script>
