@@ -70,7 +70,26 @@
     }
     .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; }
     .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; }
-
+@keyframes breathe-red-day {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(255,90,122,0.55), 0 0 18px rgba(255,90,122,0.35);
+    border-color: rgba(255,90,122,0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(255,90,122,0.95), 0 0 28px rgba(255,90,122,0.55);
+    border-color: rgba(255,90,122,0.95);
+ }
+}
+    @keyframes breathe-amber-day {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(255,180,0,0.5), 0 0 16px rgba(255,180,0,0.3);
+    border-color: rgba(255,180,0,0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(255,180,0,0.9), 0 0 26px rgba(255,180,0,0.5);
+    border-color: rgba(255,180,0,0.9);
+  }
+}
     .premium-badge {
       display: inline-flex; align-items: center; gap: 4px;
       background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(139,92,255,0.22));
@@ -317,17 +336,29 @@
       background: #FFFFFF !important;
       border-color: #E2E8F0 !important;
     }
-    body.theme-day .neon-card,
-    body.theme-day .neon-card-elevated,
-    body.theme-day .desk-card,
-    body.theme-day .desk-kpi,
-    body.theme-day .ai-panel,
-    body.theme-day .modal-panel,
-    body.theme-day #action-sheet-content {
-      background: #FFFFFF !important;
-      border-color: rgba(108,92,231,0.22) !important;
-      box-shadow: 0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(108,92,231,0.08) !important;
-    }
+    body.theme-day .neon-card:not(.alert-breathing-red):not(.alert-breathing-amber),
+body.theme-day .neon-card-elevated:not(.alert-breathing-red):not(.alert-breathing-amber),
+body.theme-day .desk-card,
+body.theme-day .desk-kpi,
+body.theme-day .ai-panel,
+body.theme-day .modal-panel,
+body.theme-day #action-sheet-content {
+  background: #FFFFFF !important;
+  border-color: rgba(108,92,231,0.22) !important;
+  box-shadow: 0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(108,92,231,0.08) !important;
+}
+
+/* Day mode – breathing still works */
+body.theme-day .alert-breathing-red {
+  background: #FFFFFF !important;
+  border-color: rgba(255,90,122,0.65) !important;
+  animation: breathe-red-day 1.8s ease-in-out infinite !important;
+}
+body.theme-day .alert-breathing-amber {
+  background: #FFFFFF !important;
+  border-color: rgba(255,180,0,0.65) !important;
+  animation: breathe-amber-day 1.8s ease-in-out infinite !important;
+}
     body.theme-day .text-main,
     body.theme-day .kpi-value,
     body.theme-day .desk-kpi .value {
