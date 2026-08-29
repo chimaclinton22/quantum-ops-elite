@@ -40,8 +40,6 @@
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
-
-    /* ===== BRAND CARDS (purple accent) ===== */
     .neon-card {
       background: #101326;
       border-radius: 16px;
@@ -59,7 +57,6 @@
       border: 1px solid rgba(139,92,255,0.28);
       box-shadow: 0 0 0 1px rgba(139,92,255,0.1), 0 6px 18px rgba(0,0,0,0.3);
     }
-
     @keyframes breathe-red {
       0%, 100% { box-shadow: 0 0 0 1px rgba(255,90,122,0.55), 0 0 14px rgba(255,90,122,0.35); }
       50% { box-shadow: 0 0 0 1px rgba(255,90,122,0.9), 0 0 22px rgba(255,90,122,0.55); }
@@ -70,26 +67,26 @@
     }
     .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; }
     .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; }
-@keyframes breathe-red-day {
-  0%, 100% {
-    box-shadow: 0 0 0 2px rgba(255,90,122,0.55), 0 0 18px rgba(255,90,122,0.35);
-    border-color: rgba(255,90,122,0.55);
-  }
-  50% {
-    box-shadow: 0 0 0 2px rgba(255,90,122,0.95), 0 0 28px rgba(255,90,122,0.55);
-    border-color: rgba(255,90,122,0.95);
- }
-}
+    @keyframes breathe-red-day {
+      0%, 100% {
+        box-shadow: 0 0 0 2px rgba(255,90,122,0.55), 0 0 18px rgba(255,90,122,0.35);
+        border-color: rgba(255,90,122,0.55);
+      }
+      50% {
+        box-shadow: 0 0 0 2px rgba(255,90,122,0.95), 0 0 28px rgba(255,90,122,0.55);
+        border-color: rgba(255,90,122,0.95);
+      }
+    }
     @keyframes breathe-amber-day {
-  0%, 100% {
-    box-shadow: 0 0 0 2px rgba(255,180,0,0.5), 0 0 16px rgba(255,180,0,0.3);
-    border-color: rgba(255,180,0,0.5);
-  }
-  50% {
-    box-shadow: 0 0 0 2px rgba(255,180,0,0.9), 0 0 26px rgba(255,180,0,0.5);
-    border-color: rgba(255,180,0,0.9);
-  }
-}
+      0%, 100% {
+        box-shadow: 0 0 0 2px rgba(255,180,0,0.5), 0 0 16px rgba(255,180,0,0.3);
+        border-color: rgba(255,180,0,0.5);
+      }
+      50% {
+        box-shadow: 0 0 0 2px rgba(255,180,0,0.9), 0 0 26px rgba(255,180,0,0.5);
+        border-color: rgba(255,180,0,0.9);
+      }
+    }
     .premium-badge {
       display: inline-flex; align-items: center; gap: 4px;
       background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(139,92,255,0.22));
@@ -213,8 +210,6 @@
       font-weight: 700; font-size: 12px; cursor: pointer;
     }
     a.neon-card { text-decoration: none; color: inherit; display: block; }
-
-    /* Desktop */
     .desktop-shell { width: 100%; min-height: 100vh; background: #07070F; }
     .sidebar {
       width: 240px; background: #0B0B16; border-right: 1px solid rgba(139,92,255,0.15);
@@ -319,8 +314,6 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 0; border-bottom: 1px solid rgba(139,92,255,0.08); font-size: 12px;
     }
-
-    /* ===== DAY THEME — full contrast, no invisible text ===== */
     body.theme-day {
       background: #F4F6FB !important;
       color: #0F172A !important;
@@ -337,28 +330,26 @@
       border-color: #E2E8F0 !important;
     }
     body.theme-day .neon-card:not(.alert-breathing-red):not(.alert-breathing-amber),
-body.theme-day .neon-card-elevated:not(.alert-breathing-red):not(.alert-breathing-amber),
-body.theme-day .desk-card,
-body.theme-day .desk-kpi,
-body.theme-day .ai-panel,
-body.theme-day .modal-panel,
-body.theme-day #action-sheet-content {
-  background: #FFFFFF !important;
-  border-color: rgba(108,92,231,0.22) !important;
-  box-shadow: 0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(108,92,231,0.08) !important;
-}
-
-/* Day mode – breathing still works */
-body.theme-day .alert-breathing-red {
-  background: #FFFFFF !important;
-  border-color: rgba(255,90,122,0.65) !important;
-  animation: breathe-red-day 1.8s ease-in-out infinite !important;
-}
-body.theme-day .alert-breathing-amber {
-  background: #FFFFFF !important;
-  border-color: rgba(255,180,0,0.65) !important;
-  animation: breathe-amber-day 1.8s ease-in-out infinite !important;
-}
+    body.theme-day .neon-card-elevated:not(.alert-breathing-red):not(.alert-breathing-amber),
+    body.theme-day .desk-card,
+    body.theme-day .desk-kpi,
+    body.theme-day .ai-panel,
+    body.theme-day .modal-panel,
+    body.theme-day #action-sheet-content {
+      background: #FFFFFF !important;
+      border-color: rgba(108,92,231,0.22) !important;
+      box-shadow: 0 2px 12px rgba(15,23,42,0.06), 0 0 0 1px rgba(108,92,231,0.08) !important;
+    }
+    body.theme-day .alert-breathing-red {
+      background: #FFFFFF !important;
+      border-color: rgba(255,90,122,0.65) !important;
+      animation: breathe-red-day 1.8s ease-in-out infinite !important;
+    }
+    body.theme-day .alert-breathing-amber {
+      background: #FFFFFF !important;
+      border-color: rgba(255,180,0,0.65) !important;
+      animation: breathe-amber-day 1.8s ease-in-out infinite !important;
+    }
     body.theme-day .text-main,
     body.theme-day .kpi-value,
     body.theme-day .desk-kpi .value {
@@ -370,7 +361,6 @@ body.theme-day .alert-breathing-amber {
     body.theme-day .desk-kpi .label {
       color: #64748B !important;
     }
-    /* Logo + brand name visible in day mode */
     body.theme-day .top-bar span,
     body.theme-day .top-bar .text-main {
       color: #0F172A !important;
@@ -408,8 +398,6 @@ body.theme-day .alert-breathing-amber {
     body.theme-day .sidebar-logo div {
       color: #0F172A !important;
     }
-
-    /* Text size */
     body.text-small .kpi-label { font-size: 9px; }
     body.text-small .kpi-value { font-size: 12px; }
     body.text-small .nav-item { font-size: 8px; }
@@ -876,6 +864,7 @@ body.theme-day .alert-breathing-amber {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
+    const DASH_CACHE_KEY = 'quantum_dash_cache_v1';
 
     let salesChartInstance = null;
     let deskChartInstance = null;
@@ -907,7 +896,6 @@ body.theme-day .alert-breathing-amber {
       try {
         document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'day' ? '#F4F6FB' : '#05060B');
       } catch(e) {}
-      // Force brand title colour in day mode
       document.querySelectorAll('.brand-title').forEach(function(el) {
         el.style.color = resolved === 'day' ? '#0F172A' : '#FFFFFF';
       });
@@ -939,6 +927,101 @@ body.theme-day .alert-breathing-amber {
       const d = new Date(dateObj);
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
+
+    /* ========== INSTANT CACHE ========== */
+    function saveDashboardCache(payload) {
+      try {
+        if (!userCompanyId) return;
+        const data = Object.assign({ companyId: userCompanyId, ts: Date.now() }, payload);
+        localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(data));
+      } catch (e) {}
+    }
+    function loadDashboardCache() {
+      try {
+        const raw = localStorage.getItem(DASH_CACHE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) { return null; }
+    }
+    function paintFromCache() {
+      const cache = loadDashboardCache();
+      if (!cache) return;
+      if (cache.todaySales != null) {
+        setText('val-today-sales', formatCurrency(cache.todaySales));
+        setText('desk-today-sales', formatCurrency(cache.todaySales));
+        setText('desk-sum-sales', formatCurrency(cache.todaySales));
+        todaySalesAmount = cache.todaySales;
+      }
+      if (cache.todayProfit != null) {
+        setText('val-today-profit', formatCurrency(cache.todayProfit));
+        setText('desk-today-profit', formatCurrency(cache.todayProfit));
+        setText('desk-sum-profit', formatCurrency(cache.todayProfit));
+        todayGrossProfit = cache.todayProfit;
+      }
+      if (cache.todayCount != null) {
+        setText('val-transactions', String(cache.todayCount));
+        setText('desk-transactions', String(cache.todayCount));
+      }
+      if (cache.todayExpenses != null) {
+        setText('val-today-expenses', formatCurrency(cache.todayExpenses));
+        setText('desk-today-expenses', formatCurrency(cache.todayExpenses));
+        setText('desk-sum-expenses', formatCurrency(cache.todayExpenses));
+      }
+      if (cache.netProfit != null) {
+        const netEl = $('val-net-profit');
+        if (netEl) {
+          netEl.textContent = formatCurrency(cache.netProfit);
+          netEl.className = 'kpi-value ' + (cache.netProfit >= 0 ? 'text-success' : 'text-loss');
+        }
+        setText('desk-net-profit', formatCurrency(cache.netProfit));
+        setText('desk-sum-net', formatCurrency(cache.netProfit));
+      }
+      if (cache.outstandingDebt != null) {
+        setText('val-outstanding-debt', formatCurrency(cache.outstandingDebt));
+        setText('desk-outstanding-debt', formatCurrency(cache.outstandingDebt));
+      }
+      if (cache.debtCustomers != null) {
+        setText('val-debt-customers', cache.debtCustomers + ' Customers');
+        setText('desk-debt-customers', cache.debtCustomers + ' Customers');
+      }
+      if (cache.lowStock != null) {
+        setText('val-low-stock', cache.lowStock + ' Items');
+        setText('desk-low-stock', cache.lowStock + ' Items');
+      }
+      if (cache.businessHealth != null) {
+        setText('val-business-health', cache.businessHealth);
+        setText('desk-business-health', cache.businessHealth);
+      }
+      if (cache.weeklyTotal != null) {
+        setText('val-weekly-total', formatCurrency(cache.weeklyTotal));
+        setText('desk-weekly-total', formatCurrency(cache.weeklyTotal));
+      }
+      // Restore breathing alerts from cache
+      var debtCard = $('card-outstanding-debt');
+      if (debtCard) {
+        if (cache.outstandingDebt > 0) debtCard.classList.add('alert-breathing-red');
+        else debtCard.classList.remove('alert-breathing-red');
+      }
+      var lowCard = $('card-low-stock');
+      if (lowCard) {
+        if (cache.lowStock > 0) lowCard.classList.add('alert-breathing-amber');
+        else lowCard.classList.remove('alert-breathing-amber');
+      }
+      var expCard = $('card-expenses');
+      if (expCard && cache.todayExpenses != null) {
+        var tooHigh = cache.todayExpenses > 0 && (
+          cache.todayExpenses >= (cache.todayProfit || 0) ||
+          ((cache.todaySales || 0) > 0 && cache.todayExpenses > (cache.todaySales || 0) * 0.35)
+        );
+        if (tooHigh) expCard.classList.add('alert-breathing-red');
+        else expCard.classList.remove('alert-breathing-red');
+      }
+      // Chart from cache
+      if (cache.chartTotals && Array.isArray(cache.chartTotals) && cache.chartTotals.length === 7) {
+        renderSalesChart(null, cache.chartTotals);
+      }
+    }
+
     function enforceView() {
       const isDesktop = window.innerWidth >= 1024;
       const mobile = document.getElementById('mobile-view');
@@ -1211,6 +1294,7 @@ body.theme-day .alert-breathing-amber {
           }
         }
 
+        // If cache belongs to another company, still fine — fresh fetch will overwrite
         appReady = true;
         updateClock();
         setInterval(updateClock, 1000);
@@ -1218,7 +1302,7 @@ body.theme-day .alert-breathing-amber {
         setTimeout(function() {
           fetchAllLiveMetrics();
           loadUnreadBadge();
-        }, 60);
+        }, 40);
 
         if (userCompanyId) {
           if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch(e){} }
@@ -1250,14 +1334,53 @@ body.theme-day .alert-breathing-amber {
           supabaseClient.from('debtors').select('id, customer_name, amount_owing, status').eq('company_id', userCompanyId).limit(100),
           supabaseClient.from('expenses').select('id, amount, created_at').eq('company_id', userCompanyId).order('created_at', { ascending: false }).limit(60)
         ]);
-        processSalesMetrics(salesRes.data || []);
-        processInventoryMetrics(productsRes.data || []);
-        processDebtorsMetrics(debtorsRes.data || []);
-        processExpensesMetrics(expensesRes.data || []);
-        renderSalesChart(salesRes.data || []);
-        renderTopProducts(salesRes.data || []);
-        renderRecentActivities(salesRes.data || []);
-        updateAIInsights(salesRes.data || [], productsRes.data || [], debtorsRes.data || []);
+        const sales = salesRes.data || [];
+        const products = productsRes.data || [];
+        const debtors = debtorsRes.data || [];
+        const expenses = expensesRes.data || [];
+
+        processSalesMetrics(sales);
+        processInventoryMetrics(products);
+        processDebtorsMetrics(debtors);
+        processExpensesMetrics(expenses);
+        const chartTotals = renderSalesChart(sales);
+        renderTopProducts(sales);
+        renderRecentActivities(sales);
+        updateAIInsights(sales, products, debtors);
+
+        // Save instant cache for next open
+        const todayStr = getLocalDateString(new Date());
+        let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
+        sales.forEach(function(s) {
+          const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+          const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
+          weeklyTotal += amount;
+          if (getLocalDateString(new Date(s.created_at)) === todayStr) {
+            todaySales += amount; todayProfit += profit; todayCount++;
+          }
+        });
+        expenses.forEach(function(e) {
+          if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
+        });
+        debtors.forEach(function(d) { debtTotal += parseMoney(d.amount_owing); });
+        products.forEach(function(p) {
+          const pieces = parseFloat(p.stock || 0);
+          const pack = parseFloat(p.items_per_pack || 24) || 24;
+          if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
+        });
+        saveDashboardCache({
+          todaySales: todaySales,
+          todayProfit: todayProfit,
+          todayCount: todayCount,
+          todayExpenses: todayExp,
+          netProfit: todayProfit - todayExp,
+          outstandingDebt: debtTotal,
+          debtCustomers: debtors.length,
+          lowStock: low,
+          businessHealth: Math.max(100 - low * 5, 40) + '%',
+          weeklyTotal: weeklyTotal,
+          chartTotals: chartTotals || [0,0,0,0,0,0,0]
+        });
       } catch (err) {
         console.error('metrics', err);
       } finally {
@@ -1403,21 +1526,24 @@ body.theme-day .alert-breathing-amber {
       (debtors || []).forEach(function(d) { debtTotal += parseMoney(d.amount_owing); });
       setText('ai-insight-debt', debtTotal > 0 ? formatCurrency(debtTotal) + ' is still outstanding from customers.' : 'No outstanding debts. Great job!');
     }
-    function renderSalesChart(sales) {
-      if (chartBusy) return;
+    function renderSalesChart(sales, forcedTotals) {
+      if (chartBusy) return null;
       chartBusy = true;
+      let totals = forcedTotals;
       try {
         const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-        const totals = [0,0,0,0,0,0,0];
-        (sales || []).forEach(function(s) {
-          let idx = new Date(s.created_at).getDay() - 1;
-          if (idx === -1) idx = 6;
-          totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
-        });
+        if (!totals) {
+          totals = [0,0,0,0,0,0,0];
+          (sales || []).forEach(function(s) {
+            let idx = new Date(s.created_at).getDay() - 1;
+            if (idx === -1) idx = 6;
+            totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
+          });
+        }
         const chartKey = totals.join(',');
         if (chartKey === lastChartKey && salesChartInstance) {
           chartBusy = false;
-          return;
+          return totals;
         }
         lastChartKey = chartKey;
 
@@ -1467,6 +1593,7 @@ body.theme-day .alert-breathing-amber {
             });
           } catch(e) {}
         }
+        return totals;
       } finally {
         chartBusy = false;
       }
@@ -1642,6 +1769,9 @@ body.theme-day .alert-breathing-amber {
     }
     window.addEventListener('DOMContentLoaded', function() {
       applyUserPreferences();
+      enforceView();
+      // INSTANT: paint last known numbers + chart before any network
+      paintFromCache();
       initializeApp();
     });
   </script>
