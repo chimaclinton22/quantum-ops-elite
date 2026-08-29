@@ -507,6 +507,7 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
+    const POS_CACHE_KEY = 'quantum_pos_cache_v1';
 
     let userCompanyId = null;
     let currentUserProfile = null;
@@ -550,6 +551,36 @@
     function applyUserPreferences() {
       applyTheme(getSavedTheme());
       applyTextSize(getSavedTextSize());
+    }
+
+    /* ========== INSTANT CACHE ========== */
+    function savePosCache(products, company) {
+      try {
+        if (!userCompanyId) return;
+        localStorage.setItem(POS_CACHE_KEY, JSON.stringify({
+          companyId: userCompanyId,
+          ts: Date.now(),
+          products: products || [],
+          company: company || null
+        }));
+      } catch (e) {}
+    }
+    function loadPosCache() {
+      try {
+        const raw = localStorage.getItem(POS_CACHE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (e) { return null; }
+    }
+    function paintFromCache() {
+      const cache = loadPosCache();
+      if (!cache || !Array.isArray(cache.products) || !cache.products.length) return;
+      inventoryCatalog = cache.products;
+      if (cache.company) {
+        userCompanyDetails = cache.company;
+        try { applyCompanyToReceiptHeader(); } catch (e) {}
+      }
+      renderInventoryCatalog(inventoryCatalog);
     }
 
     function formatCurrency(amount) {
@@ -620,6 +651,7 @@
         if (error) throw error;
         inventoryCatalog = data || [];
         renderInventoryCatalog(inventoryCatalog);
+        savePosCache(inventoryCatalog, userCompanyDetails);
       } catch (e) {
         console.error(e);
       }
@@ -1194,6 +1226,8 @@
 
     window.addEventListener('DOMContentLoaded', function () {
       applyUserPreferences();
+      // INSTANT: show last known products immediately
+      paintFromCache();
       initializePOS();
     });
   </script>
