@@ -3,20 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QUANTUM OPS — AI BUSINESS OS</title>
-  
+  <meta name="theme-color" content="#050812">
+  <title>QUANTUM OPS — Desktop Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -24,7 +19,7 @@
         extend: {
           fontFamily: {
             sans: ['Plus Jakarta Sans', 'sans-serif'],
-            mono: ['Orbitron', 'monospace'],
+            mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
             canvas: '#050812',
@@ -52,410 +47,801 @@
             purpleGlow: '0 0 15px rgba(124, 77, 255, 0.2)',
             purpleGlowStrong: '0 0 25px rgba(124, 77, 255, 0.4)',
             cardGlow: '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
-            ledGlow: '0 0 10px rgba(76, 154, 255, 0.5)',
           }
         }
       }
     }
   </script>
-
   <style>
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #050812; }
     ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #7C4DFF; }
-    
-    .glass-panel {
-      background: rgba(11, 16, 32, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid #1A2035;
+    .led-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      color: #E0D4FF;
+      background: linear-gradient(180deg, rgba(124,77,255,0.28), rgba(84,38,199,0.18));
+      border: 1px solid rgba(139,92,255,0.5);
+      box-shadow: 0 0 20px rgba(124,77,255,0.4), inset 0 0 14px rgba(124,77,255,0.15);
+      border-radius: 10px;
+      padding: 7px 14px;
+      white-space: nowrap;
+      text-shadow: 0 0 12px rgba(196,181,253,0.9);
+    }
+    .nav-link.active {
+      background: rgba(124, 77, 255, 0.18);
+      color: #fff;
+      border-left: 2px solid #7C4DFF;
+      box-shadow: 0 0 15px rgba(124, 77, 255, 0.25);
+    }
+    .ai-avatar-wrap {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(124,77,255,0.35);
+      background: #080B17;
+    }
+    .ai-avatar-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .ai-avatar-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(11,16,32,0.95) 0%, transparent 55%);
     }
   </style>
 </head>
 <body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-primaryPurple selection:text-white">
 
   <div class="flex flex-1 min-h-screen">
-    
-    <aside class="w-[200px] bg-sidebar border-r border-borderSubtle flex flex-col justify-between p-3.5 shrink-0 select-none z-30">
-      <div class="space-y-6">
-        <div class="flex items-center gap-2.5 px-1 pt-1">
+    <!-- SIDEBAR -->
+    <aside class="w-[200px] bg-sidebar border-r border-borderSubtle flex flex-col justify-between p-3 shrink-0 select-none z-30">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2 px-1 pt-1">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-deepPurple via-primaryPurple to-cyanAccent p-0.5 flex items-center justify-center shadow-purpleGlow">
             <div class="w-full h-full bg-sidebar rounded-[6px] flex items-center justify-center">
               <i class="ph-bold ph-atom text-primaryPurple text-lg"></i>
             </div>
           </div>
           <div>
-            <div class="font-extrabold text-sm tracking-wide text-white leading-none flex items-center gap-1">
-              QUANTUM <span class="text-primaryPurple">OPS</span>
-            </div>
-            <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">
-              AI BUSINESS OS
-            </div>
+            <div class="font-extrabold text-sm tracking-wide text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+            <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">AI BUSINESS OS</div>
           </div>
         </div>
-
-        <nav class="space-y-1">
-          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-lg bg-primaryPurple/15 text-white font-medium text-xs border-l-2 border-primaryPurple shadow-purpleGlow transition-all">
-            <div class="flex items-center gap-2.5">
-              <i class="ph-fill ph-squares-four text-primaryPurple text-base"></i>
-              <span>Dashboard</span>
-            </div>
-          </a>
-          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated text-xs transition-all group">
-            <div class="flex items-center gap-2.5">
-              <i class="ph-bold ph-robot text-textMuted group-hover:text-primaryPurple text-base transition-colors"></i>
-              <span>AI CEO Command</span>
-            </div>
+        <nav class="space-y-0.5 text-xs">
+          <a href="desktop.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-fill ph-squares-four text-primaryPurple text-base"></i><span>Dashboard</span></a>
+          <a href="ai-ceo.html" class="nav-link flex items-center justify-between px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group">
+            <div class="flex items-center gap-2.5"><i class="ph-bold ph-robot text-textMuted group-hover:text-primaryPurple text-base"></i><span>AI CEO Command</span></div>
             <span class="px-1.5 py-0.5 text-[9px] font-bold bg-primaryPurple/30 text-brightPurple rounded-md">New</span>
           </a>
-          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated text-xs transition-all group">
-            <div class="flex items-center gap-2.5">
-              <i class="ph-bold ph-camera text-textMuted group-hover:text-primaryPurple text-base transition-colors"></i>
-              <span>Smart Camera</span>
-            </div>
-            <span class="px-1.5 py-0.5 text-[8px] font-extrabold bg-positiveGreen/20 text-brightGreen rounded-md">AI</span>
-          </a>
-          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated text-xs transition-all group">
-            <i class="ph-bold ph-shopping-cart text-textMuted group-hover:text-primaryPurple text-base transition-colors"></i>
-            <span>POS / Sales</span>
-          </a>
-          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated text-xs transition-all group">
-            <i class="ph-bold ph-package text-textMuted group-hover:text-primaryPurple text-base transition-colors"></i>
-            <span>Inventory</span>
-          </a>
-          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated text-xs transition-all group">
-            <i class="ph-bold ph-users text-textMuted group-hover:text-primaryPurple text-base transition-colors"></i>
-            <span>Customers (CRM)</span>
-          </a>
-          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated text-xs transition-all group">
-            <i class="ph-bold ph-gear text-textMuted group-hover:text-primaryPurple text-base transition-colors"></i>
-            <span>Settings</span>
-          </a>
+          <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-camera text-textMuted group-hover:text-primaryPurple text-base"></i><span>Smart Camera</span></a>
+          <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-shopping-cart text-textMuted group-hover:text-primaryPurple text-base"></i><span>POS / Sales</span></a>
+          <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-package text-textMuted group-hover:text-primaryPurple text-base"></i><span>Inventory</span></a>
+          <a href="purchases.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-bag-simple text-textMuted group-hover:text-primaryPurple text-base"></i><span>Purchases</span></a>
+          <a href="customers.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-users text-textMuted group-hover:text-primaryPurple text-base"></i><span>Customers (CRM)</span></a>
+          <a href="debtors.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-hand-coins text-textMuted group-hover:text-primaryPurple text-base"></i><span>Debtors</span></a>
+          <a href="transactions.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-chart-line-up text-textMuted group-hover:text-primaryPurple text-base"></i><span>Analytics</span></a>
+          <a href="staff.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-identification-card text-textMuted group-hover:text-primaryPurple text-base"></i><span>Staff & Payroll</span></a>
+          <a href="expenses.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-receipt text-textMuted group-hover:text-primaryPurple text-base"></i><span>Expenses</span></a>
+          <a href="tasks.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-check-square text-textMuted group-hover:text-primaryPurple text-base"></i><span>Tasks & Projects</span></a>
+          <a href="documents.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-file-text text-textMuted group-hover:text-primaryPurple text-base"></i><span>Documents</span></a>
+          <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-gear text-textMuted group-hover:text-primaryPurple text-base"></i><span>Settings</span></a>
         </nav>
       </div>
-
-      <div class="mt-4 p-3 rounded-xl bg-cardElevated border border-borderSubtle relative overflow-hidden">
-        <div class="flex items-center gap-2 text-white font-semibold text-xs mb-1">
-          <i class="ph-fill ph-cloud text-primaryPurple text-sm"></i>
-          <span>Quantum Cloud</span>
-        </div>
-        <p class="text-[10px] text-textMuted mb-2">Secure, Reliable, Synced</p>
+      <div class="mt-3 p-3 rounded-xl bg-cardElevated border border-borderSubtle relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-16 h-16 bg-primaryPurple/10 rounded-full blur-xl"></div>
+        <div class="flex items-center gap-2 text-white font-semibold text-xs mb-1"><i class="ph-fill ph-cloud text-primaryPurple text-sm"></i><span>Quantum Cloud</span></div>
+        <p class="text-[10px] text-textMuted mb-2">Secure · Synced · Live</p>
         <div class="w-full bg-borderSubtle h-1.5 rounded-full overflow-hidden mb-1">
           <div class="bg-gradient-to-r from-primaryPurple to-electricBlue h-full w-[48%] rounded-full"></div>
         </div>
-        <div class="flex justify-between text-[9px] text-textMuted font-mono mb-2.5">
-          <span>0.0 GB</span>
-          <span>100 GB</span>
-        </div>
-        <button class="w-full py-1.5 text-[11px] font-bold text-white bg-gradient-to-r from-primaryPurple to-deepPurple rounded-lg shadow-purpleGlow hover:opacity-90 transition-opacity">
-          Upgrade Plan
-        </button>
+        <div class="flex justify-between text-[9px] text-textMuted font-mono mb-2"><span>Live</span><span>Elite</span></div>
+        <a href="upgrade.html" class="block w-full py-1.5 text-center text-[11px] font-bold text-white bg-gradient-to-r from-primaryPurple to-deepPurple rounded-lg shadow-purpleGlow hover:opacity-90">Upgrade Plan</a>
       </div>
     </aside>
 
+    <!-- MAIN -->
     <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
-      
-      <header class="h-14 border-b border-borderSubtle px-6 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
-        
-        <div class="relative w-80">
+      <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20 gap-3">
+        <div class="relative flex-1 max-w-sm">
           <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-textMuted text-sm"></i>
-          <input 
-            type="text" 
-            placeholder="Search anything... (Products, Customers, Invoices)" 
-            class="w-full pl-9 pr-12 py-1.5 bg-card border border-borderSubtle rounded-lg text-xs text-textPrimary placeholder:text-textMuted focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple transition-all"
-          >
-          <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-textMuted px-1.5 py-0.5 bg-cardElevated rounded border border-borderSubtle">⌘ K</span>
+          <input type="text" placeholder="Search anything… (Products, Customers, Invoices)"
+            class="w-full pl-9 pr-3 py-1.5 bg-card border border-borderSubtle rounded-lg text-xs text-textPrimary placeholder:text-textMuted focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple">
         </div>
-
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg bg-card border border-cyanAccent/30 shadow-ledGlow">
-          <i class="ph-bold ph-clock text-cyanAccent text-sm animate-pulse"></i>
-          <span id="ledClock" class="font-mono text-xs font-bold text-cyanAccent tracking-widest">00:00:00 AM</span>
+        <div class="led-clock" title="Live Lagos time">
+          <span id="clock-date">—</span>
+          <span class="mx-1.5 opacity-40">|</span>
+          <span id="clock-time">00:00:00</span>
         </div>
-
-        <div class="flex items-center gap-3">
-          <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-borderSubtle text-xs text-textSecondary hover:text-white transition-colors">
+        <div class="flex items-center gap-2 shrink-0">
+          <a href="ai-ceo.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-borderSubtle text-xs hover:text-white transition-colors">
             <span class="w-2 h-2 rounded-full bg-brightGreen shadow-[0_0_8px_#31D17C]"></span>
             <span class="font-medium text-white">AI CEO</span>
-            <i class="ph-bold ph-caret-down text-[10px] text-textMuted"></i>
-          </button>
-          
-          <button class="relative w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary hover:text-white transition-colors">
+          </a>
+          <a href="notifications.html" class="relative w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary hover:text-white">
             <i class="ph-bold ph-bell text-sm"></i>
-            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-dangerRed rounded-full"></span>
-          </button>
-
-          <div class="h-4 w-[1px] bg-borderSubtle mx-1"></div>
-
-          <div class="flex items-center gap-2.5 pl-1 cursor-pointer">
-            <div class="w-8 h-8 rounded-full border border-primaryPurple/50 overflow-hidden bg-card">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Chima Eze" class="w-full h-full object-cover">
-            </div>
-            <div class="text-left">
-              <div class="text-xs font-bold text-white leading-tight">Chima Eze</div>
+            <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 bg-dangerRed rounded-full hidden"></span>
+          </a>
+          <a href="upgrade.html" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-warningYellow hover:text-white" title="Upgrade">
+            <i class="ph-bold ph-crown text-sm"></i>
+          </a>
+          <a href="profile.html" class="flex items-center gap-2 pl-1">
+            <div class="w-8 h-8 rounded-full border border-primaryPurple/50 bg-card flex items-center justify-center text-xs font-bold text-brightPurple" id="avatar-initials">Q</div>
+            <div class="text-left hidden lg:block">
+              <div class="text-xs font-bold text-white leading-tight" id="header-user-name">Owner</div>
               <div class="text-[10px] text-textMuted">Owner</div>
             </div>
-          </div>
+          </a>
         </div>
       </header>
 
-      <div class="p-6 space-y-5">
-        
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="p-5 space-y-4">
+        <!-- Greeting + pills -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
-            <h1 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
-              Good evening, Chima <span class="animate-bounce">👋</span>
+            <h1 class="text-xl font-extrabold text-white tracking-tight">
+              <span id="greeting-text">Good day</span>, <span id="greet-name">Owner</span> 👋
             </h1>
-            <p class="text-xs text-textMuted mt-0.5">Here's what's happening with De Great Mart today.</p>
+            <p class="text-xs text-textMuted mt-0.5">Here's what's happening with <span id="greet-company" class="text-textSecondary font-medium">your business</span> today.</p>
           </div>
-
           <div class="flex flex-wrap items-center gap-2">
             <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
               <i class="ph-bold ph-heartbeat text-brightGreen"></i>
               <span class="text-textMuted">Business Health</span>
-              <span id="healthPercent" class="font-bold text-brightGreen">00%</span>
+              <span class="font-bold text-brightGreen" id="pill-health">—%</span>
             </div>
             <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
               <i class="ph-bold ph-storefront text-primaryPurple"></i>
-              <span class="text-textMuted">Active Branch</span>
-              <span class="font-bold text-white">Main Branch</span>
+              <span class="text-textMuted">Branch</span>
+              <span class="font-bold text-white">Main</span>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
+              <i class="ph-bold ph-crown text-warningYellow"></i>
+              <span class="text-textMuted">Plan</span>
+              <span class="font-bold text-warningYellow" id="pill-plan">Trial</span>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
+              <i class="ph-bold ph-calendar text-cyanAccent"></i>
+              <span class="text-textMuted">Renewal</span>
+              <span class="font-bold text-white" id="pill-renew">—</span>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
-          
-          <div class="xl:col-span-9 space-y-5">
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              
-              <div class="p-4 rounded-xl bg-card border border-borderSubtle hover:border-borderHover transition-all shadow-cardGlow">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Total Sales (Today)</span>
-                  <div class="w-7 h-7 rounded-lg bg-primaryPurple/15 flex items-center justify-center text-primaryPurple">
-                    <i class="ph-bold ph-shopping-cart text-sm"></i>
-                  </div>
+        <!-- 5 KPIs + AI panel -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+          <div class="xl:col-span-9 space-y-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <a href="transactions.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Total Sales (Today)</span>
+                  <div class="w-6 h-6 rounded-lg bg-primaryPurple/15 flex items-center justify-center text-primaryPurple"><i class="ph-bold ph-shopping-cart text-xs"></i></div>
                 </div>
-                <div class="flex items-baseline justify-between mb-2">
-                  <span id="kpiTotalSales" class="text-2xl font-extrabold text-white tracking-tight">₦00</span>
+                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-sales">₦0</div>
+                <div class="text-[10px] text-brightGreen mt-0.5">Live</div>
+                <div class="h-7 mt-1.5"><canvas id="kpiSalesChart"></canvas></div>
+              </a>
+              <div class="p-3.5 rounded-xl bg-card border border-borderSubtle shadow-cardGlow">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Total Profit (Today)</span>
+                  <div class="w-6 h-6 rounded-lg bg-positiveGreen/15 flex items-center justify-center text-positiveGreen"><i class="ph-bold ph-wallet text-xs"></i></div>
                 </div>
-                <div class="h-8 mt-2">
-                  <canvas id="kpiSalesChart"></canvas>
-                </div>
+                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-profit">₦0</div>
+                <div class="text-[10px] text-brightGreen mt-0.5">Live</div>
+                <div class="h-7 mt-1.5"><canvas id="kpiProfitChart"></canvas></div>
               </div>
-
-              <div class="p-4 rounded-xl bg-card border border-borderSubtle hover:border-borderHover transition-all shadow-cardGlow">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Total Profit (Today)</span>
-                  <div class="w-7 h-7 rounded-lg bg-positiveGreen/15 flex items-center justify-center text-positiveGreen">
-                    <i class="ph-bold ph-wallet text-sm"></i>
-                  </div>
+              <a href="transactions.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Transactions</span>
+                  <div class="w-6 h-6 rounded-lg bg-electricBlue/15 flex items-center justify-center text-electricBlue"><i class="ph-bold ph-receipt text-xs"></i></div>
                 </div>
-                <div class="flex items-baseline justify-between mb-2">
-                  <span id="kpiTotalProfit" class="text-2xl font-extrabold text-white tracking-tight">₦00</span>
+                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-trx">0</div>
+                <div class="text-[10px] text-textMuted mt-0.5">Today</div>
+                <div class="h-7 mt-1.5"><canvas id="kpiTransactionsChart"></canvas></div>
+              </a>
+              <a href="debtors.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Outstanding Debt</span>
+                  <div class="w-6 h-6 rounded-lg bg-dangerRed/15 flex items-center justify-center text-dangerRed"><i class="ph-bold ph-warning-circle text-xs"></i></div>
                 </div>
-                <div class="h-8 mt-2">
-                  <canvas id="kpiProfitChart"></canvas>
+                <div class="text-xl font-extrabold text-dangerRed tracking-tight" id="kpi-debt">₦0</div>
+                <div class="text-[10px] text-textMuted mt-0.5" id="kpi-debt-count">0 Customers</div>
+                <div class="h-7 mt-1.5"><canvas id="kpiDebtChart"></canvas></div>
+              </a>
+              <a href="inventory.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Low Stock Alerts</span>
+                  <div class="w-6 h-6 rounded-lg bg-warningYellow/15 flex items-center justify-center text-warningYellow"><i class="ph-bold ph-package text-xs"></i></div>
                 </div>
-              </div>
-
-              <div class="p-4 rounded-xl bg-card border border-borderSubtle hover:border-borderHover transition-all shadow-cardGlow">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Transactions</span>
-                  <div class="w-7 h-7 rounded-lg bg-electricBlue/15 flex items-center justify-center text-electricBlue">
-                    <i class="ph-bold ph-receipt text-sm"></i>
-                  </div>
-                </div>
-                <div class="flex items-baseline justify-between mb-2">
-                  <span id="kpiTransactions" class="text-2xl font-extrabold text-white tracking-tight">00</span>
-                </div>
-                <div class="h-8 mt-2">
-                  <canvas id="kpiTransactionsChart"></canvas>
-                </div>
-              </div>
-
-              <div class="p-4 rounded-xl bg-card border border-borderSubtle hover:border-borderHover transition-all shadow-cardGlow">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Outstanding Debt</span>
-                  <div class="w-7 h-7 rounded-lg bg-dangerRed/15 flex items-center justify-center text-dangerRed">
-                    <i class="ph-bold ph-warning-circle text-sm"></i>
-                  </div>
-                </div>
-                <div class="flex items-baseline justify-between mb-2">
-                  <span id="kpiOutstandingDebt" class="text-2xl font-extrabold text-dangerRed tracking-tight">₦00</span>
-                </div>
-                <div class="h-8 mt-2">
-                  <canvas id="kpiDebtChart"></canvas>
-                </div>
-              </div>
-
+                <div class="text-xl font-extrabold text-warningYellow tracking-tight" id="kpi-low">0 Items</div>
+                <div class="text-[10px] text-textMuted mt-0.5">Need attention</div>
+                <div class="h-7 mt-1.5"><canvas id="kpiLowChart"></canvas></div>
+              </a>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-              <div class="lg:col-span-7 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-3">
+            <!-- Charts row -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div class="lg:col-span-7 p-4 rounded-xl bg-card border border-borderSubtle">
+                <div class="flex items-center justify-between mb-2">
                   <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Sales Overview</h3>
-                    <div class="flex items-baseline gap-2 mt-1">
-                      <span id="overviewSalesTotal" class="text-2xl font-extrabold text-white tracking-tight">₦00</span>
+                    <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Sales Overview</h3>
+                    <div class="flex items-baseline gap-2 mt-0.5">
+                      <span class="text-xl font-extrabold text-white" id="week-sales-total">₦0</span>
+                      <span class="text-[10px] font-bold text-brightGreen">This week</span>
                     </div>
                   </div>
                 </div>
-                <div class="h-48 w-full mt-2">
-                  <canvas id="salesOverviewChart"></canvas>
-                </div>
+                <div class="h-44 w-full"><canvas id="salesOverviewChart"></canvas></div>
               </div>
-
-              <div class="lg:col-span-5 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col justify-between">
+              <div class="lg:col-span-5 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
                 <div class="flex items-center justify-between mb-2">
-                  <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Sales By Category</h3>
+                  <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Sales By Category</h3>
+                  <span class="text-[10px] text-primaryPurple font-medium">This week</span>
                 </div>
-                <div class="flex items-center gap-4 my-auto py-2">
-                  <div class="w-32 h-32 relative shrink-0">
-                    <canvas id="salesCategoryChart"></canvas>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                      <span id="categorySalesTotal" class="text-xs font-extrabold text-white">₦00</span>
-                      <span class="text-[9px] text-textMuted">Total Sales</span>
+                <div class="flex items-center gap-3 flex-1">
+                  <div class="w-28 h-28 relative shrink-0">
+                    <canvas id="categoryChart"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span class="text-xs font-extrabold text-white" id="cat-center">₦0</span>
+                      <span class="text-[8px] text-textMuted">Total</span>
                     </div>
                   </div>
-                  <div class="flex-1 space-y-1.5 text-xs">
-                    <div class="flex items-center justify-between">
-                      <span class="text-textSecondary text-[11px]">Food & Drinks</span>
-                      <span id="catPercent1" class="text-textMuted font-mono text-[11px]">0%</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                      <span class="text-textSecondary text-[11px]">Beverages</span>
-                      <span id="catPercent2" class="text-textMuted font-mono text-[11px]">0%</span>
-                    </div>
+                  <div class="flex-1 space-y-1.5 text-[11px]" id="cat-legend">
+                    <div class="flex justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primaryPurple"></span>Products</span><span class="text-textMuted font-mono" id="cat-p1">—</span></div>
+                    <div class="flex justify-between"><span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-positiveGreen"></span>Other</span><span class="text-textMuted font-mono" id="cat-p2">—</span></div>
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
 
+          <!-- AI CEO PANEL — exact robot image -->
           <div class="xl:col-span-3">
-            <div class="p-4 rounded-xl bg-card border border-primaryPurple/30 shadow-purpleGlow flex flex-col justify-between h-full relative overflow-hidden">
+            <div class="p-4 rounded-xl bg-card border border-primaryPurple/35 shadow-purpleGlow flex flex-col h-full relative overflow-hidden">
               <div class="absolute -right-10 -top-10 w-32 h-32 bg-primaryPurple/20 rounded-full blur-2xl"></div>
-
-              <div>
-                <div class="flex items-center justify-between mb-3 border-b border-borderSubtle pb-2.5">
-                  <div class="flex items-center gap-2">
-                    <i class="ph-bold ph-robot text-primaryPurple text-base"></i>
-                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-white">AI CEO Assistant</h3>
-                  </div>
-                  <span class="flex items-center gap-1 text-[10px] text-brightGreen font-bold bg-positiveGreen/10 px-2 py-0.5 rounded-full border border-positiveGreen/20">
-                    <span class="w-1.5 h-1.5 rounded-full bg-brightGreen animate-pulse"></span> Online
-                  </span>
+              <div class="flex items-center justify-between mb-3 border-b border-borderSubtle pb-2 relative z-10">
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-robot text-primaryPurple text-base"></i>
+                  <h3 class="text-xs font-extrabold uppercase tracking-wider text-white">AI CEO Assistant</h3>
                 </div>
-
-                <div class="relative w-full h-44 rounded-xl overflow-hidden mb-3 border border-borderSubtle bg-sidebar flex items-center justify-center group">
-                  <img 
-                    src="https://i.imgur.com/EQVRlAw_d.webp?maxwidth=760&fidelity=grand" 
-                    alt="AI CEO Avatar" 
-                    class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                  >
-                  <div class="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent"></div>
-                  <div class="absolute bottom-2 left-3 right-3">
-                    <div class="text-sm font-extrabold text-white">Hello Chima! 👋</div>
-                    <div class="text-[10px] text-textMuted">I have analyzed your business today.</div>
-                  </div>
-                </div>
-
-                <div class="space-y-2 mb-4">
-                  <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5">
-                    <div class="p-1.5 rounded-md bg-positiveGreen/15 text-brightGreen shrink-0 mt-0.5">
-                      <i class="ph-bold ph-trend-up text-xs"></i>
-                    </div>
-                    <div>
-                      <div id="aiSalesInsight" class="text-xs font-bold text-white">Sales increased by 0%</div>
-                      <div class="text-[10px] text-textMuted">Keep it up! You're doing great.</div>
-                    </div>
-                  </div>
-                  <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5">
-                    <div class="p-1.5 rounded-md bg-warningYellow/15 text-warningYellow shrink-0 mt-0.5">
-                      <i class="ph-bold ph-package text-xs"></i>
-                    </div>
-                    <div>
-                      <div id="aiStockInsight" class="text-xs font-bold text-white">0 products low</div>
-                      <div class="text-[10px] text-textMuted">Restock attention needed.</div>
-                    </div>
-                  </div>
+                <span class="flex items-center gap-1 text-[10px] text-brightGreen font-bold bg-positiveGreen/10 px-2 py-0.5 rounded-full border border-positiveGreen/20">
+                  <span class="w-1.5 h-1.5 rounded-full bg-brightGreen animate-pulse"></span> Online
+                </span>
+              </div>
+              <div class="ai-avatar-wrap relative z-10 mb-3">
+                <img src="https://i.imgur.com/EQVRlAw_d.webp?maxwidth=760&fidelity=grand" alt="AI CEO" loading="eager">
+                <div class="absolute bottom-2 left-3 right-3 z-10">
+                  <div class="text-sm font-extrabold text-white" id="ai-hello">Hello!</div>
+                  <div class="text-[10px] text-textMuted">I have analyzed your business today.</div>
                 </div>
               </div>
-
-              <button class="w-full py-2.5 px-4 bg-gradient-to-r from-primaryPurple via-brightPurple to-electricBlue text-white font-bold text-xs rounded-xl shadow-purpleGlow flex items-center justify-center gap-2">
-                <i class="ph-bold ph-chat-teardrop-dots text-sm"></i>
-                <span>Chat with AI CEO</span>
-              </button>
+              <div class="space-y-2 mb-3 relative z-10 flex-1" id="ai-insights">
+                <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textMuted">Loading insights…</div>
+              </div>
+              <a href="ai-ceo.html" class="relative z-10 w-full py-2.5 px-4 bg-gradient-to-r from-primaryPurple via-brightPurple to-electricBlue text-white font-bold text-xs rounded-xl shadow-purpleGlow flex items-center justify-center gap-2 hover:opacity-95">
+                <i class="ph-bold ph-chat-teardrop-dots text-sm"></i><span>Chat with AI CEO</span>
+              </a>
             </div>
           </div>
-
         </div>
 
+        <!-- Live activities -->
+        <div class="p-4 rounded-xl bg-card border border-borderSubtle">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Live Business Activities</h3>
+              <span class="w-2 h-2 rounded-full bg-dangerRed animate-ping"></span>
+            </div>
+            <span class="px-2 py-0.5 text-[9px] font-extrabold bg-dangerRed/20 text-dangerRed rounded uppercase">Live</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5" id="live-activities">
+            <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textMuted col-span-full text-center py-3">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Lower grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Top Selling Products</h3>
+              <a href="inventory.html" class="text-[10px] text-primaryPurple">View</a>
+            </div>
+            <div class="space-y-2" id="top-products"><div class="text-xs text-textMuted text-center py-3">No sales data yet</div></div>
+          </div>
+          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Low Stock Items</h3>
+              <a href="inventory.html" class="text-[10px] text-primaryPurple">View All</a>
+            </div>
+            <div class="space-y-2" id="low-stock-list"><div class="text-xs text-textMuted text-center py-3">All stock healthy</div></div>
+          </div>
+          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Top Debtors</h3>
+              <a href="debtors.html" class="text-[10px] text-primaryPurple">View All</a>
+            </div>
+            <div class="space-y-2" id="top-debtors"><div class="text-xs text-textMuted text-center py-3">No outstanding debt</div></div>
+          </div>
+          <div class="space-y-3">
+            <div class="p-4 rounded-xl bg-card border border-borderSubtle">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted mb-2">Quick Actions</h3>
+              <div class="grid grid-cols-4 gap-2">
+                <a href="pos.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-shopping-cart text-sm"></i>Sale</a>
+                <a href="inventory.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-plus-circle text-sm"></i>Product</a>
+                <a href="debtors.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-hand-coins text-sm"></i>Debt</a>
+                <a href="expenses.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-receipt text-sm"></i>Expense</a>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-card border border-borderSubtle space-y-1.5">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted mb-1">Today's Summary</h3>
+              <div class="flex justify-between text-xs"><span class="text-textMuted">Sales</span><span class="font-mono font-bold text-brightGreen" id="sum-sales">₦0</span></div>
+              <div class="flex justify-between text-xs"><span class="text-textMuted">Expenses</span><span class="font-mono font-bold text-dangerRed" id="sum-exp">₦0</span></div>
+              <div class="flex justify-between text-xs pt-1 border-t border-borderSubtle"><span class="text-white font-bold">Net Profit</span><span class="font-mono font-extrabold text-brightGreen" id="sum-net">₦0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom: Branch + Prediction + Recent + Notifs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 pb-4">
+          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-borderSubtle space-y-3">
+            <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Branch Performance</h3>
+            <div>
+              <div class="flex justify-between text-xs mb-1"><span class="text-white font-medium">Main Branch</span><span class="font-mono text-textMuted" id="branch-main">—</span></div>
+              <div class="w-full bg-borderSubtle h-2 rounded-full overflow-hidden"><div id="branch-bar" class="bg-gradient-to-r from-primaryPurple to-cyanAccent h-full rounded-full" style="width:100%"></div></div>
+            </div>
+            <p class="text-[10px] text-textMuted">Single-branch mode. Multi-branch coming with Elite plan.</p>
+          </div>
+          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-primaryPurple/30 flex flex-col justify-between relative overflow-hidden">
+            <div>
+              <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-brightPurple mb-1"><i class="ph-bold ph-trend-up"></i>AI Prediction</div>
+              <p class="text-xs text-textMuted">Your sales trend this week</p>
+              <div class="text-2xl font-extrabold text-white my-1" id="ai-pred">—</div>
+              <p class="text-[10px] text-textMuted" id="ai-pred-sub">Based on live data</p>
+            </div>
+            <div class="h-12 w-full my-2"><canvas id="aiPredictionChart"></canvas></div>
+            <a href="ai-ceo.html" class="block text-center w-full py-1.5 bg-primaryPurple/20 hover:bg-primaryPurple/30 border border-primaryPurple/40 text-brightPurple text-xs font-bold rounded-lg">View Full Analysis</a>
+          </div>
+          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Recent Transactions</h3>
+              <a href="transactions.html" class="text-[10px] text-primaryPurple">View All</a>
+            </div>
+            <div class="space-y-2 flex-1" id="recent-trx"><div class="text-xs text-textMuted text-center py-3">No transactions yet</div></div>
+          </div>
+          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Notifications</h3>
+              <a href="notifications.html" class="text-[10px] text-primaryPurple">View All</a>
+            </div>
+            <div class="space-y-2 flex-1 text-xs" id="notif-list">
+              <div class="flex items-start gap-2 p-2 rounded-lg bg-cardElevated border border-borderSubtle">
+                <i class="ph-bold ph-check-circle text-brightGreen mt-0.5"></i>
+                <div><div class="font-medium text-white">Cloud Backup Synced</div><div class="text-[10px] text-textMuted">Connected to Supabase</div></div>
+              </div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-borderSubtle text-[10px] text-textMuted flex justify-between">
+              <span class="flex items-center gap-1"><i class="ph-bold ph-check-circle text-brightGreen"></i> Live</span>
+              <span id="last-sync">Just now</span>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
-
   </div>
 
   <script>
-    // 1. DIGITAL LED CLOCK FUNCTIONALITY
-    function updateClock() {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      document.getElementById('ledClock').textContent = timeString;
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    const LOW_STOCK_UNITS = 3;
+    const CACHE_KEY = "quantum_desktop_cache_v1";
+
+    let userCompanyId = null;
+    let companyDetails = null;
+    let salesChart = null;
+    let categoryChart = null;
+    let predChart = null;
+    let sparkCharts = {};
+
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    function startOfToday() {
+      const d = new Date(); d.setHours(0,0,0,0); return d.toISOString();
+    }
+    function startOfWeek() {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diff));
+      monday.setHours(0,0,0,0);
+      return monday.toISOString();
+    }
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+    function greetingWord() {
+      const h = new Date().getHours();
+      if (h < 12) return "Good morning";
+      if (h < 17) return "Good afternoon";
+      return "Good evening";
+    }
 
-    // 2. SUPABASE REAL-TIME BINDING CONFIGURATION
-    const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    function tickClock() {
+      const now = new Date();
+      const lagos = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
+      const dateStr = lagos.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
+      let h = lagos.getHours();
+      const m = String(lagos.getMinutes()).padStart(2, "0");
+      const s = String(lagos.getSeconds()).padStart(2, "0");
+      const ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12 || 12;
+      setText("clock-date", dateStr);
+      setText("clock-time", String(h).padStart(2, "0") + ":" + m + ":" + s + " " + ampm);
+    }
+    setInterval(tickClock, 1000);
+    tickClock();
 
-    // Initial Chart setups
-    Chart.defaults.color = '#68718A';
-    Chart.defaults.font.family = 'Plus Jakarta Sans';
+    Chart.defaults.color = "#68718A";
+    Chart.defaults.font.family = "Plus Jakarta Sans";
 
-    function createSparkline(canvasId, lineColor) {
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      return new Chart(ctx, {
-        type: 'line',
-        data: { labels: ['1','2','3','4','5','6','7'], datasets: [{ data: [0,0,0,0,0,0,0], borderColor: lineColor, borderWidth: 2, pointRadius: 0, tension: 0.4 }] },
+    function createSparkline(id, color, data) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (sparkCharts[id]) { try { sparkCharts[id].destroy(); } catch (e) {} }
+      sparkCharts[id] = new Chart(el.getContext("2d"), {
+        type: "line",
+        data: { labels: data.map((_, i) => i), datasets: [{ data: data, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.4, fill: false }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+      });
+    }
+
+    function renderSalesChart(labels, values) {
+      const el = document.getElementById("salesOverviewChart");
+      if (!el) return;
+      if (salesChart) { try { salesChart.destroy(); } catch (e) {} }
+      const ctx = el.getContext("2d");
+      const grad = ctx.createLinearGradient(0, 0, 0, 180);
+      grad.addColorStop(0, "rgba(124,77,255,0.35)");
+      grad.addColorStop(1, "rgba(124,77,255,0)");
+      salesChart = new Chart(ctx, {
+        type: "line",
+        data: { labels: labels, datasets: [{ data: values, borderColor: "#8B5CFF", borderWidth: 3, backgroundColor: grad, fill: true, tension: 0.4, pointBackgroundColor: "#8B5CFF", pointBorderColor: "#fff", pointRadius: 3 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: "#68718A", font: { size: 10 } } },
+            y: { grid: { color: "#1A2035" }, ticks: { color: "#68718A", font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderCategoryChart(total, parts) {
+      const el = document.getElementById("categoryChart");
+      if (!el) return;
+      if (categoryChart) { try { categoryChart.destroy(); } catch (e) {} }
+      const a = parts[0] || 0, b = parts[1] || 0;
+      const rest = Math.max(0, total - a - b);
+      categoryChart = new Chart(el.getContext("2d"), {
+        type: "doughnut",
+        data: {
+          labels: ["Top products", "Rest", "Other"],
+          datasets: [{ data: total > 0 ? [a || 1, b || 0, rest || 0.01] : [1, 1, 1], backgroundColor: ["#7C4DFF", "#31D17C", "#536DFF"], borderWidth: 0 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: "72%", plugins: { legend: { display: false } } }
+      });
+      setText("cat-center", formatCurrency(total));
+      setText("cat-p1", total ? Math.round((a / total) * 100) + "%" : "—");
+      setText("cat-p2", total ? Math.round(((b + rest) / total) * 100) + "%" : "—");
+    }
+
+    function renderPredChart(values) {
+      const el = document.getElementById("aiPredictionChart");
+      if (!el) return;
+      if (predChart) { try { predChart.destroy(); } catch (e) {} }
+      predChart = new Chart(el.getContext("2d"), {
+        type: "line",
+        data: { labels: values.map((_, i) => i), datasets: [{ data: values, borderColor: "#4C9AFF", borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
       });
     }
 
-    const kpiSalesChart = createSparkline('kpiSalesChart', '#8B5CFF');
-    const kpiProfitChart = createSparkline('kpiProfitChart', '#31D17C');
-    const kpiTransactionsChart = createSparkline('kpiTransactionsChart', '#536DFF');
-    const kpiDebtChart = createSparkline('kpiDebtChart', '#FF4F67');
-
-    // Supabase Live Data Subscriptions
-    async function loadDashboardData() {
-      const { data: sales } = await supabase.from('sales').select('amount, profit');
-      if (sales) {
-        const totalSales = sales.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-        const totalProfit = sales.reduce((acc, curr) => acc + (curr.profit || 0), 0);
-        
-        document.getElementById('kpiTotalSales').innerText = `₦${totalSales.toLocaleString()}`;
-        document.getElementById('kpiTotalProfit').innerText = `₦${totalProfit.toLocaleString()}`;
-        document.getElementById('kpiTransactions').innerText = sales.length;
-        document.getElementById('overviewSalesTotal').innerText = `₦${totalSales.toLocaleString()}`;
-      }
+    function saveCache(p) {
+      try { if (userCompanyId) localStorage.setItem(CACHE_KEY, JSON.stringify(Object.assign({ companyId: userCompanyId, ts: Date.now() }, p))); } catch (e) {}
+    }
+    function loadCache() {
+      try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; }
+    }
+    function paintCache() {
+      const c = loadCache();
+      if (!c) return;
+      if (c.sales != null) setText("kpi-sales", formatCurrency(c.sales));
+      if (c.profit != null) setText("kpi-profit", formatCurrency(c.profit));
+      if (c.trx != null) setText("kpi-trx", String(c.trx));
+      if (c.debt != null) setText("kpi-debt", formatCurrency(c.debt));
+      if (c.debtCount != null) setText("kpi-debt-count", c.debtCount + " Customers");
+      if (c.low != null) setText("kpi-low", c.low + " Items");
+      if (c.weekTotal != null) setText("week-sales-total", formatCurrency(c.weekTotal));
+      if (c.chartLabels && c.chartValues) renderSalesChart(c.chartLabels, c.chartValues);
     }
 
-    // Subscribe to Realtime Postgres Changes
-    supabase
-      .channel('schema-db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sales' }, payload => {
-        loadDashboardData();
-      })
-      .subscribe();
+    async function init() {
+      paintCache();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) { window.location.replace("index.html"); return; }
+        const user = session.user;
+        const metaName = (user.user_metadata && user.user_metadata.full_name) || (user.email || "").split("@")[0] || "Owner";
+        setText("header-user-name", metaName);
+        setText("greet-name", metaName.split(" ")[0]);
+        setText("greeting-text", greetingWord());
+        setText("ai-hello", "Hello " + metaName.split(" ")[0] + "!");
+        setText("avatar-initials", metaName.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase() || "Q");
 
-    // Initial Data Fetch
-    loadDashboardData();
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id, companies(id, company_name, subscription_status, trial_ends_at, plan)")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (member && member.company_id) {
+          userCompanyId = member.company_id;
+          companyDetails = member.companies || {};
+        } else {
+          const { data: owned } = await supabaseClient
+            .from("companies")
+            .select("id, company_name, subscription_status, trial_ends_at, plan")
+            .eq("owner_id", user.id)
+            .maybeSingle();
+          if (owned) { userCompanyId = owned.id; companyDetails = owned; }
+        }
+
+        if (!userCompanyId) { setText("greet-company", "your business"); return; }
+
+        setText("greet-company", companyDetails.company_name || "your business");
+        const status = (companyDetails.subscription_status || "trial").toLowerCase();
+        setText("pill-plan", status === "trial" ? "Trial" : (companyDetails.plan || status || "Elite"));
+        if (companyDetails.trial_ends_at) {
+          setText("pill-renew", new Date(companyDetails.trial_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }));
+        }
+
+        await refreshAll();
+        subscribeRealtime();
+      } catch (err) { console.error(err); }
+    }
+
+    async function refreshAll() {
+      if (!userCompanyId) return;
+      const todayIso = startOfToday();
+      const weekIso = startOfWeek();
+
+      const [salesRes, productsRes, debtorsRes, expensesRes, notifRes] = await Promise.all([
+        supabaseClient.from("sales").select("id, total, profit, total_profit, payment_method, customer_name, items, created_at").eq("company_id", userCompanyId).gte("created_at", weekIso).order("created_at", { ascending: false }).limit(500),
+        supabaseClient.from("products").select("id, name, stock, items_per_pack, selling_price").eq("company_id", userCompanyId).limit(400),
+        supabaseClient.from("debtors").select("id, customer_name, amount_owing, status, due_date, created_at").eq("company_id", userCompanyId).limit(200),
+        supabaseClient.from("expenses").select("id, amount, category, created_at").eq("company_id", userCompanyId).gte("created_at", todayIso).limit(100),
+        supabaseClient.from("notifications").select("id, title, message, created_at, is_read").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(5)
+      ]);
+
+      const weekSales = salesRes.data || [];
+      const products = productsRes.data || [];
+      const debtors = debtorsRes.data || [];
+      const expenses = expensesRes.data || [];
+      const notifs = notifRes.data || [];
+
+      const todaySales = weekSales.filter(function (s) { return s.created_at >= todayIso; });
+      const salesToday = todaySales.reduce(function (a, s) { return a + Number(s.total || 0); }, 0);
+      const profitToday = todaySales.reduce(function (a, s) { return a + Number(s.profit || s.total_profit || 0); }, 0);
+      const trxToday = todaySales.length;
+      const expToday = expenses.reduce(function (a, e) { return a + Number(e.amount || 0); }, 0);
+      const netToday = profitToday - expToday;
+
+      const unpaid = debtors.filter(function (d) {
+        const st = (d.status || "unpaid").toLowerCase();
+        return st === "unpaid" || st === "partial" || !st;
+      });
+      const debtTotal = unpaid.reduce(function (a, d) { return a + Number(d.amount_owing || 0); }, 0);
+
+      const lowStock = products.filter(function (p) {
+        const pieces = Number(p.stock || 0);
+        const pack = Number(p.items_per_pack || 24) || 24;
+        return pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS;
+      });
+
+      let health = 100;
+      if (debtTotal > salesToday * 2 && salesToday > 0) health -= 25;
+      if (lowStock.length > 5) health -= 20;
+      else if (lowStock.length > 0) health -= 10;
+      if (expToday > profitToday && profitToday > 0) health -= 15;
+      health = Math.max(20, Math.min(100, health));
+
+      setText("kpi-sales", formatCurrency(salesToday));
+      setText("kpi-profit", formatCurrency(profitToday));
+      setText("kpi-trx", String(trxToday));
+      setText("kpi-debt", formatCurrency(debtTotal));
+      setText("kpi-debt-count", unpaid.length + " Customers");
+      setText("kpi-low", lowStock.length + " Items");
+      setText("sum-sales", formatCurrency(salesToday));
+      setText("sum-exp", formatCurrency(expToday));
+      setText("sum-net", formatCurrency(netToday));
+      setText("pill-health", health + "%");
+      setText("branch-main", formatCurrency(salesToday) + " today");
+
+      const dayMap = {};
+      const labels = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        d.setHours(0, 0, 0, 0);
+        const key = d.toISOString().slice(0, 10);
+        labels.push(d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }));
+        dayMap[key] = 0;
+      }
+      weekSales.forEach(function (s) {
+        const key = String(s.created_at).slice(0, 10);
+        if (dayMap[key] != null) dayMap[key] += Number(s.total || 0);
+      });
+      const values = Object.keys(dayMap).sort().map(function (k) { return dayMap[k]; });
+      const weekTotal = values.reduce(function (a, b) { return a + b; }, 0);
+      setText("week-sales-total", formatCurrency(weekTotal));
+      renderSalesChart(labels, values);
+
+      createSparkline("kpiSalesChart", "#8B5CFF", values.length ? values : [0,0,0,0,0,0,0]);
+      createSparkline("kpiProfitChart", "#31D17C", values.map(function (v) { return v * 0.25; }));
+      createSparkline("kpiTransactionsChart", "#536DFF", values.map(function (v) { return Math.min(v / 500, 30); }));
+      createSparkline("kpiDebtChart", "#FF4F67", [debtTotal * 0.3, debtTotal * 0.4, debtTotal * 0.35, debtTotal * 0.5, debtTotal * 0.45, debtTotal * 0.6, debtTotal]);
+      createSparkline("kpiLowChart", "#F5C451", [lowStock.length, lowStock.length + 1, lowStock.length, lowStock.length + 2, lowStock.length, lowStock.length + 1, lowStock.length]);
+
+      // Top products + category
+      const prodMap = {};
+      weekSales.forEach(function (s) {
+        let items = s.items;
+        if (typeof items === "string") { try { items = JSON.parse(items); } catch (e) { items = []; } }
+        if (!Array.isArray(items)) return;
+        items.forEach(function (it) {
+          const name = it.name || "Product";
+          if (!prodMap[name]) prodMap[name] = { name: name, qty: 0, revenue: 0 };
+          prodMap[name].qty += Number(it.qty || 1);
+          prodMap[name].revenue += Number(it.price || 0) * Number(it.qty || 1);
+        });
+      });
+      const topProds = Object.values(prodMap).sort(function (a, b) { return b.revenue - a.revenue; }).slice(0, 5);
+      const topEl = document.getElementById("top-products");
+      if (topEl) {
+        if (!topProds.length) topEl.innerHTML = '<div class="text-xs text-textMuted text-center py-3">No sales data yet</div>';
+        else topEl.innerHTML = topProds.slice(0, 3).map(function (p, i) {
+          return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2 min-w-0"><span class="w-5 h-5 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + (i + 1) + '</span><div class="truncate"><div class="text-xs font-bold text-white truncate">' + p.name + '</div><div class="text-[10px] text-textMuted">' + p.qty + ' sold</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(p.revenue) + '</span></div>';
+        }).join("");
+      }
+      const topRev = topProds[0] ? topProds[0].revenue : 0;
+      const secondRev = topProds[1] ? topProds[1].revenue : 0;
+      renderCategoryChart(weekTotal, [topRev, secondRev]);
+
+      // Low stock
+      const lowEl = document.getElementById("low-stock-list");
+      if (lowEl) {
+        if (!lowStock.length) lowEl.innerHTML = '<div class="text-xs text-textMuted text-center py-3">All stock healthy</div>';
+        else lowEl.innerHTML = lowStock.slice(0, 3).map(function (p) {
+          const pieces = Number(p.stock || 0);
+          const pack = Number(p.items_per_pack || 24) || 24;
+          const critical = pieces / pack <= 1;
+          return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="text-xs font-bold text-white truncate">' + (p.name || "Item") + '</div><div class="text-[10px] text-textMuted">' + (pieces / pack).toFixed(1) + ' units left</div></div><span class="px-2 py-0.5 text-[9px] font-bold rounded ' + (critical ? "bg-dangerRed/20 text-dangerRed" : "bg-warningYellow/20 text-warningYellow") + '">' + (critical ? "Critical" : "Low") + "</span></div>";
+        }).join("");
+      }
+
+      // Debtors
+      const debtEl = document.getElementById("top-debtors");
+      if (debtEl) {
+        const sorted = unpaid.slice().sort(function (a, b) { return Number(b.amount_owing || 0) - Number(a.amount_owing || 0); }).slice(0, 3);
+        if (!sorted.length) debtEl.innerHTML = '<div class="text-xs text-textMuted text-center py-3">No outstanding debt</div>';
+        else debtEl.innerHTML = sorted.map(function (d) {
+          const nm = d.customer_name || "Customer";
+          const ini = nm.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+          return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + ini + '</div><div><div class="text-xs font-bold text-white">' + nm + '</div><div class="text-[10px] text-dangerRed">Outstanding</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(d.amount_owing) + "</span></div>";
+        }).join("");
+      }
+
+      // Recent trx
+      const recentEl = document.getElementById("recent-trx");
+      if (recentEl) {
+        if (!todaySales.length) recentEl.innerHTML = '<div class="text-xs text-textMuted text-center py-3">No transactions yet</div>';
+        else recentEl.innerHTML = todaySales.slice(0, 4).map(function (s) {
+          return '<div class="flex items-center justify-between text-xs p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="font-mono text-textMuted text-[10px]">#' + String(s.id || "").slice(0, 8) + '</div><div class="font-bold text-white truncate">' + (s.customer_name || "Walk-in") + '</div></div><div class="text-right"><div class="font-extrabold text-white">' + formatCurrency(s.total) + '</div><div class="text-[9px] text-brightGreen font-bold">' + (s.payment_method || "Cash") + "</div></div></div>";
+        }).join("");
+      }
+
+      // Live activities
+      const actEl = document.getElementById("live-activities");
+      if (actEl) {
+        const cards = [];
+        if (todaySales[0]) cards.push({ icon: "ph-shopping-bag", c: "positiveGreen", t: "New Sale", v: formatCurrency(todaySales[0].total), s: todaySales[0].customer_name || "Walk-in" });
+        cards.push({ icon: "ph-warning", c: "warningYellow", t: "Low Stock", v: lowStock.length + " Items", s: "Need attention" });
+        cards.push({ icon: "ph-hand-coins", c: "dangerRed", t: "Outstanding Debt", v: formatCurrency(debtTotal), s: unpaid.length + " customers" });
+        if (expenses[0]) cards.push({ icon: "ph-receipt", c: "accentPink", t: "Expense", v: formatCurrency(expenses[0].amount), s: expenses[0].category || "Ops" });
+        cards.push({ icon: "ph-trend-up", c: "primaryPurple", t: "Net Profit", v: formatCurrency(netToday), s: "After expenses" });
+        actEl.innerHTML = cards.map(function (c) {
+          const tc = c.c === "positiveGreen" ? "brightGreen" : c.c === "warningYellow" ? "warningYellow" : c.c === "dangerRed" ? "dangerRed" : c.c === "accentPink" ? "accentPink" : "brightPurple";
+          return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg bg-' + c.c + '/15 text-' + tc + ' flex items-center justify-center shrink-0"><i class="ph-bold ' + c.icon + ' text-sm"></i></div><div class="min-w-0 flex-1"><div class="text-[10px] text-textMuted font-medium uppercase">' + c.t + '</div><div class="text-xs font-bold text-white truncate">' + c.v + '</div><div class="text-[9px] text-textMuted truncate">' + c.s + "</div></div></div>";
+        }).join("");
+      }
+
+      // AI insights (like screenshot)
+      const insights = [];
+      if (salesToday > 0) insights.push({ icon: "ph-trend-up", c: "positiveGreen", t: "Sales today " + formatCurrency(salesToday), s: trxToday + " transactions · keep it up!" });
+      else insights.push({ icon: "ph-trend-up", c: "primaryPurple", t: "No sales yet today", s: "Open POS to record your first sale" });
+      if (lowStock.length) {
+        const n = lowStock[0].name || "A product";
+        insights.push({ icon: "ph-package", c: "warningYellow", t: n + " is running low", s: lowStock.length + " product(s) need restock" });
+      }
+      if (unpaid.length) {
+        const top = unpaid.slice().sort(function (a, b) { return Number(b.amount_owing) - Number(a.amount_owing); })[0];
+        insights.push({ icon: "ph-warning", c: "dangerRed", t: (top.customer_name || "Customer") + " owes " + formatCurrency(top.amount_owing), s: unpaid.length + " customers outstanding" });
+      }
+      if (expToday > 0) insights.push({ icon: "ph-receipt", c: "accentPink", t: "Expenses " + formatCurrency(expToday), s: "Watch costs vs profit today" });
+      const aiEl = document.getElementById("ai-insights");
+      if (aiEl) {
+        aiEl.innerHTML = insights.slice(0, 4).map(function (ins) {
+          const tc = ins.c === "positiveGreen" ? "brightGreen" : ins.c === "warningYellow" ? "warningYellow" : ins.c === "dangerRed" ? "dangerRed" : ins.c === "accentPink" ? "accentPink" : "brightPurple";
+          return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5"><div class="p-1.5 rounded-md bg-' + ins.c + '/15 text-' + tc + ' shrink-0 mt-0.5"><i class="ph-bold ' + ins.icon + ' text-xs"></i></div><div><div class="text-xs font-bold text-white">' + ins.t + '</div><div class="text-[10px] text-textMuted">' + ins.s + "</div></div></div>";
+        }).join("");
+      }
+
+      // Prediction
+      let predPct = 0;
+      if (values.length >= 2) {
+        const last = values[values.length - 1];
+        const prev = values[values.length - 2] || last;
+        if (prev > 0) predPct = ((last - prev) / prev) * 100;
+      }
+      setText("ai-pred", (predPct >= 0 ? "+" : "") + predPct.toFixed(1) + "%");
+      setText("ai-pred-sub", predPct >= 0 ? "Up vs previous day trend" : "Down vs previous day — push sales");
+      renderPredChart(values.length ? values : [5, 8, 12, 15, 18, 22, 28]);
+
+      // Notifications
+      const nList = document.getElementById("notif-list");
+      if (nList && notifs.length) {
+        nList.innerHTML = notifs.slice(0, 3).map(function (n) {
+          return '<div class="flex items-start gap-2 p-2 rounded-lg bg-cardElevated border border-borderSubtle"><i class="ph-bold ph-bell text-primaryPurple mt-0.5"></i><div><div class="font-medium text-white text-xs">' + (n.title || "Alert") + '</div><div class="text-[10px] text-textMuted">' + (n.message || "").slice(0, 60) + "</div></div></div>";
+        }).join("");
+      }
+      const unread = notifs.filter(function (n) { return !n.is_read; }).length;
+      const dot = document.getElementById("notif-dot");
+      if (dot) { if (unread) dot.classList.remove("hidden"); else dot.classList.add("hidden"); }
+
+      setText("last-sync", "Updated " + new Date().toLocaleTimeString());
+      saveCache({
+        sales: salesToday, profit: profitToday, trx: trxToday, debt: debtTotal,
+        debtCount: unpaid.length, low: lowStock.length, weekTotal: weekTotal,
+        chartLabels: labels, chartValues: values
+      });
+    }
+
+    function subscribeRealtime() {
+      if (!userCompanyId) return;
+      try {
+        supabaseClient.channel("desktop-v2-" + userCompanyId)
+          .on("postgres_changes", { event: "*", schema: "public", table: "sales", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .on("postgres_changes", { event: "*", schema: "public", table: "products", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .on("postgres_changes", { event: "*", schema: "public", table: "debtors", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .on("postgres_changes", { event: "*", schema: "public", table: "expenses", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .subscribe();
+      } catch (e) {}
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
 </html>
-
