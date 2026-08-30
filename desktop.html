@@ -98,14 +98,84 @@
       inset: 0;
       background: linear-gradient(to top, rgba(11,16,32,0.95) 0%, transparent 55%);
     }
+
+    /* ===== DAY / LIGHT THEME (readable) ===== */
+    body.theme-day {
+      background: #F4F6FB !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .bg-canvas,
+    body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar,
+    body.theme-day aside {
+      background: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .bg-card,
+    body.theme-day [class*="bg-card"],
+    body.theme-day .rounded-xl.bg-card {
+      background: #FFFFFF !important;
+      border-color: rgba(108,92,231,0.2) !important;
+      box-shadow: 0 2px 12px rgba(15,23,42,0.06) !important;
+    }
+    body.theme-day .bg-cardElevated,
+    body.theme-day [class*="cardElevated"] {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day .text-white,
+    body.theme-day .text-textPrimary,
+    body.theme-day h1, body.theme-day h3 {
+      color: #0F172A !important;
+    }
+    body.theme-day .text-textMuted,
+    body.theme-day .text-textSecondary {
+      color: #64748B !important;
+    }
+    body.theme-day .border-borderSubtle {
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day header {
+      background: rgba(255,255,255,0.95) !important;
+      border-color: #E2E8F0 !important;
+    }
+    body.theme-day input {
+      background: #F1F5F9 !important;
+      border-color: #E2E8F0 !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link:hover {
+      background: rgba(108,92,231,0.08) !important;
+      color: #0F172A !important;
+    }
+    body.theme-day .nav-link.active {
+      background: rgba(108,92,231,0.12) !important;
+      color: #5B3DFF !important;
+      border-left-color: #7C4DFF !important;
+    }
+    body.theme-day .led-clock {
+      color: #4C1D95;
+      background: linear-gradient(180deg, rgba(124,77,255,0.12), rgba(124,77,255,0.06));
+      border-color: rgba(124,77,255,0.35);
+      text-shadow: none;
+      box-shadow: 0 0 12px rgba(124,77,255,0.15);
+    }
+    body.theme-day .ai-avatar-wrap::after {
+      background: linear-gradient(to top, rgba(255,255,255,0.92) 0%, transparent 55%);
+    }
+    body.theme-day .ai-avatar-wrap .text-white { color: #0F172A !important; }
+    body.theme-day #ai-hello { color: #0F172A !important; }
+    body.theme-day ::-webkit-scrollbar-track { background: #F1F5F9; }
+    body.theme-day ::-webkit-scrollbar-thumb { background: #CBD5E1; }
   </style>
 </head>
 <body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-primaryPurple selection:text-white">
 
   <div class="flex flex-1 min-h-screen">
-    <!-- SIDEBAR -->
-    <aside class="w-[200px] bg-sidebar border-r border-borderSubtle flex flex-col justify-between p-3 shrink-0 select-none z-30">
-      <div class="space-y-4">
+    <!-- SIDEBAR — complete menu -->
+    <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col justify-between p-3 shrink-0 select-none z-30">
+      <div class="space-y-3">
         <div class="flex items-center gap-2 px-1 pt-1">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-deepPurple via-primaryPurple to-cyanAccent p-0.5 flex items-center justify-center shadow-purpleGlow">
             <div class="w-full h-full bg-sidebar rounded-[6px] flex items-center justify-center">
@@ -117,7 +187,7 @@
             <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">AI BUSINESS OS</div>
           </div>
         </div>
-        <nav class="space-y-0.5 text-xs">
+        <nav class="space-y-0.5 text-xs overflow-y-auto max-h-[calc(100vh-180px)]">
           <a href="desktop.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-fill ph-squares-four text-primaryPurple text-base"></i><span>Dashboard</span></a>
           <a href="ai-ceo.html" class="nav-link flex items-center justify-between px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group">
             <div class="flex items-center gap-2.5"><i class="ph-bold ph-robot text-textMuted group-hover:text-primaryPurple text-base"></i><span>AI CEO Command</span></div>
@@ -129,11 +199,17 @@
           <a href="purchases.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-bag-simple text-textMuted group-hover:text-primaryPurple text-base"></i><span>Purchases</span></a>
           <a href="customers.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-users text-textMuted group-hover:text-primaryPurple text-base"></i><span>Customers (CRM)</span></a>
           <a href="debtors.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-hand-coins text-textMuted group-hover:text-primaryPurple text-base"></i><span>Debtors</span></a>
+          <a href="invoice.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-file-text text-textMuted group-hover:text-primaryPurple text-base"></i><span>Generate Invoice</span></a>
+          <a href="inventory.html#price-list" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-list-numbers text-textMuted group-hover:text-primaryPurple text-base"></i><span>Price List</span></a>
           <a href="transactions.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-chart-line-up text-textMuted group-hover:text-primaryPurple text-base"></i><span>Analytics</span></a>
-          <a href="staff.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-identification-card text-textMuted group-hover:text-primaryPurple text-base"></i><span>Staff & Payroll</span></a>
+          <a href="accounting.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-calculator text-textMuted group-hover:text-primaryPurple text-base"></i><span>Accounting</span></a>
           <a href="expenses.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-receipt text-textMuted group-hover:text-primaryPurple text-base"></i><span>Expenses</span></a>
+          <a href="marketing.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-megaphone text-textMuted group-hover:text-primaryPurple text-base"></i><span>Marketing</span></a>
+          <a href="staff.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-identification-card text-textMuted group-hover:text-primaryPurple text-base"></i><span>Staff & Payroll</span></a>
+          <a href="branches.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-git-fork text-textMuted group-hover:text-primaryPurple text-base"></i><span>Multi-Branch</span></a>
           <a href="tasks.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-check-square text-textMuted group-hover:text-primaryPurple text-base"></i><span>Tasks & Projects</span></a>
-          <a href="documents.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-file-text text-textMuted group-hover:text-primaryPurple text-base"></i><span>Documents</span></a>
+          <a href="calendar.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-calendar-blank text-textMuted group-hover:text-primaryPurple text-base"></i><span>Calendar</span></a>
+          <a href="documents.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-folder text-textMuted group-hover:text-primaryPurple text-base"></i><span>Documents</span></a>
           <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated group"><i class="ph-bold ph-gear text-textMuted group-hover:text-primaryPurple text-base"></i><span>Settings</span></a>
         </nav>
       </div>
@@ -149,7 +225,7 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- MAIN (unchanged structure + working data) -->
     <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
       <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20 gap-3">
         <div class="relative flex-1 max-w-sm">
@@ -163,6 +239,9 @@
           <span id="clock-time">00:00:00</span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
+          <button type="button" id="theme-toggle-btn" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary hover:text-white" title="Day / Night">
+            <i class="ph-bold ph-moon text-sm" id="theme-toggle-icon"></i>
+          </button>
           <a href="ai-ceo.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-borderSubtle text-xs hover:text-white transition-colors">
             <span class="w-2 h-2 rounded-full bg-brightGreen shadow-[0_0_8px_#31D17C]"></span>
             <span class="font-medium text-white">AI CEO</span>
@@ -185,7 +264,6 @@
       </header>
 
       <div class="p-5 space-y-4">
-        <!-- Greeting + pills -->
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
             <h1 class="text-xl font-extrabold text-white tracking-tight">
@@ -217,7 +295,6 @@
           </div>
         </div>
 
-        <!-- 5 KPIs + AI panel -->
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
           <div class="xl:col-span-9 space-y-4">
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -268,7 +345,6 @@
               </a>
             </div>
 
-            <!-- Charts row -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
               <div class="lg:col-span-7 p-4 rounded-xl bg-card border border-borderSubtle">
                 <div class="flex items-center justify-between mb-2">
@@ -304,7 +380,6 @@
             </div>
           </div>
 
-          <!-- AI CEO PANEL — exact robot image -->
           <div class="xl:col-span-3">
             <div class="p-4 rounded-xl bg-card border border-primaryPurple/35 shadow-purpleGlow flex flex-col h-full relative overflow-hidden">
               <div class="absolute -right-10 -top-10 w-32 h-32 bg-primaryPurple/20 rounded-full blur-2xl"></div>
@@ -334,7 +409,6 @@
           </div>
         </div>
 
-        <!-- Live activities -->
         <div class="p-4 rounded-xl bg-card border border-borderSubtle">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
@@ -348,7 +422,6 @@
           </div>
         </div>
 
-        <!-- Lower grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-2">
             <div class="flex items-center justify-between">
@@ -372,13 +445,18 @@
             <div class="space-y-2" id="top-debtors"><div class="text-xs text-textMuted text-center py-3">No outstanding debt</div></div>
           </div>
           <div class="space-y-3">
+            <!-- QUICK ACTIONS — expanded -->
             <div class="p-4 rounded-xl bg-card border border-borderSubtle">
               <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted mb-2">Quick Actions</h3>
               <div class="grid grid-cols-4 gap-2">
                 <a href="pos.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-shopping-cart text-sm"></i>Sale</a>
                 <a href="inventory.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-plus-circle text-sm"></i>Product</a>
+                <a href="invoice.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-file-text text-sm"></i>Invoice</a>
+                <a href="inventory.html#price-list" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-list-numbers text-sm"></i>Price List</a>
                 <a href="debtors.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-hand-coins text-sm"></i>Debt</a>
                 <a href="expenses.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-receipt text-sm"></i>Expense</a>
+                <a href="marketing.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-whatsapp-logo text-sm"></i>WhatsApp</a>
+                <a href="accounting.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-calculator text-sm"></i>Accounts</a>
               </div>
             </div>
             <div class="p-3.5 rounded-xl bg-card border border-borderSubtle space-y-1.5">
@@ -390,7 +468,6 @@
           </div>
         </div>
 
-        <!-- Bottom: Branch + Prediction + Recent + Notifs -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 pb-4">
           <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-borderSubtle space-y-3">
             <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Branch Performance</h3>
@@ -398,7 +475,7 @@
               <div class="flex justify-between text-xs mb-1"><span class="text-white font-medium">Main Branch</span><span class="font-mono text-textMuted" id="branch-main">—</span></div>
               <div class="w-full bg-borderSubtle h-2 rounded-full overflow-hidden"><div id="branch-bar" class="bg-gradient-to-r from-primaryPurple to-cyanAccent h-full rounded-full" style="width:100%"></div></div>
             </div>
-            <p class="text-[10px] text-textMuted">Single-branch mode. Multi-branch coming with Elite plan.</p>
+            <p class="text-[10px] text-textMuted">Single-branch mode. Use Multi-Branch when ready.</p>
           </div>
           <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-primaryPurple/30 flex flex-col justify-between relative overflow-hidden">
             <div>
@@ -453,6 +530,36 @@
     let categoryChart = null;
     let predChart = null;
     let sparkCharts = {};
+
+    /* Theme — same key as mobile/profile */
+    function getSavedTheme() {
+      return localStorage.getItem("quantum_theme") || "night";
+    }
+    function resolveTheme(pref) {
+      if (pref === "system") {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night";
+      }
+      return pref === "day" ? "day" : "night";
+    }
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref || getSavedTheme());
+      document.body.classList.remove("theme-day", "theme-night");
+      document.body.classList.add(resolved === "day" ? "theme-day" : "theme-night");
+      document.documentElement.classList.toggle("dark", resolved !== "day");
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", resolved === "day" ? "#F4F6FB" : "#050812");
+      } catch (e) {}
+      const icon = document.getElementById("theme-toggle-icon");
+      if (icon) {
+        icon.className = resolved === "day" ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      }
+    }
+    function toggleTheme() {
+      const cur = resolveTheme(getSavedTheme());
+      const next = cur === "day" ? "night" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme(next);
+    }
 
     function formatCurrency(n) {
       return "₦" + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
@@ -579,6 +686,7 @@
     }
 
     async function init() {
+      applyTheme(getSavedTheme());
       paintCache();
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -705,7 +813,6 @@
       createSparkline("kpiDebtChart", "#FF4F67", [debtTotal * 0.3, debtTotal * 0.4, debtTotal * 0.35, debtTotal * 0.5, debtTotal * 0.45, debtTotal * 0.6, debtTotal]);
       createSparkline("kpiLowChart", "#F5C451", [lowStock.length, lowStock.length + 1, lowStock.length, lowStock.length + 2, lowStock.length, lowStock.length + 1, lowStock.length]);
 
-      // Top products + category
       const prodMap = {};
       weekSales.forEach(function (s) {
         let items = s.items;
@@ -730,7 +837,6 @@
       const secondRev = topProds[1] ? topProds[1].revenue : 0;
       renderCategoryChart(weekTotal, [topRev, secondRev]);
 
-      // Low stock
       const lowEl = document.getElementById("low-stock-list");
       if (lowEl) {
         if (!lowStock.length) lowEl.innerHTML = '<div class="text-xs text-textMuted text-center py-3">All stock healthy</div>';
@@ -742,7 +848,6 @@
         }).join("");
       }
 
-      // Debtors
       const debtEl = document.getElementById("top-debtors");
       if (debtEl) {
         const sorted = unpaid.slice().sort(function (a, b) { return Number(b.amount_owing || 0) - Number(a.amount_owing || 0); }).slice(0, 3);
@@ -754,7 +859,6 @@
         }).join("");
       }
 
-      // Recent trx
       const recentEl = document.getElementById("recent-trx");
       if (recentEl) {
         if (!todaySales.length) recentEl.innerHTML = '<div class="text-xs text-textMuted text-center py-3">No transactions yet</div>';
@@ -763,7 +867,6 @@
         }).join("");
       }
 
-      // Live activities
       const actEl = document.getElementById("live-activities");
       if (actEl) {
         const cards = [];
@@ -778,7 +881,6 @@
         }).join("");
       }
 
-      // AI insights (like screenshot)
       const insights = [];
       if (salesToday > 0) insights.push({ icon: "ph-trend-up", c: "positiveGreen", t: "Sales today " + formatCurrency(salesToday), s: trxToday + " transactions · keep it up!" });
       else insights.push({ icon: "ph-trend-up", c: "primaryPurple", t: "No sales yet today", s: "Open POS to record your first sale" });
@@ -799,7 +901,6 @@
         }).join("");
       }
 
-      // Prediction
       let predPct = 0;
       if (values.length >= 2) {
         const last = values[values.length - 1];
@@ -810,7 +911,6 @@
       setText("ai-pred-sub", predPct >= 0 ? "Up vs previous day trend" : "Down vs previous day — push sales");
       renderPredChart(values.length ? values : [5, 8, 12, 15, 18, 22, 28]);
 
-      // Notifications
       const nList = document.getElementById("notif-list");
       if (nList && notifs.length) {
         nList.innerHTML = notifs.slice(0, 3).map(function (n) {
