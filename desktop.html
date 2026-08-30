@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>QUANTUM OPS — Desktop Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            canvas: '#050812',
+            sidebar: '#080B17',
+            card: '#0B1020',
+            cardElevated: '#0E1326',
+            borderSubtle: '#1A2035',
+            borderHover: '#202844',
+            primaryPurple: '#7C4DFF',
+            brightPurple: '#8B5CFF',
+            deepPurple: '#5426C7',
+            electricBlue: '#536DFF',
+            cyanAccent: '#4C9AFF',
+            positiveGreen: '#31D17C',
+            brightGreen: '#45E18A',
+            warningYellow: '#F5C451',
+            accentOrange: '#FF9B45',
+            dangerRed: '#FF4F67',
+            accentPink: '#FF4DA6',
+            textPrimary: '#F4F6FF',
+            textSecondary: '#A0A7BB',
+            textMuted: '#68718A',
+          },
+          boxShadow: {
+            purpleGlow: '0 0 15px rgba(124, 77, 255, 0.2)',
+            purpleGlowStrong: '0 0 25px rgba(124, 77, 255, 0.4)',
+            cardGlow: '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #7C4DFF; }
+    .led-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      color: #E0D4FF;
+      background: linear-gradient(180deg, rgba(124,77,255,0.25), rgba(84,38,199,0.15));
+      border: 1px solid rgba(139,92,255,0.45);
+      box-shadow: 0 0 18px rgba(124,77,255,0.35), inset 0 0 12px rgba(124,77,255,0.12);
+      border-radius: 10px;
+      padding: 6px 14px;
+      white-space: nowrap;
+      text-shadow: 0 0 10px rgba(196,181,253,0.8);
+    }
+    .led-clock .sec { color: #A78BFA; }
+    .nav-link.active {
+      background: rgba(124, 77, 255, 0.15);
+      color: #fff;
+      border-left: 2px solid #7C4DFF;
+      box-shadow: 0 0 15px rgba(124, 77, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-primaryPurple selection:text-white">
+
+  <div class="flex flex-1 min-h-screen">
+    <!-- SIDEBAR -->
+    <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col justify-between p-3.5 shrink-0 select-none z-30">
+      <div class="space-y-5">
+        <div class="flex items-center gap-2.5 px-1 pt-1">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-deepPurple via-primaryPurple to-cyanAccent p-0.5 flex items-center justify-center shadow-purpleGlow">
+            <div class="w-full h-full bg-sidebar rounded-[6px] flex items-center justify-center">
+              <i class="ph-bold ph-atom text-primaryPurple text-lg"></i>
+            </div>
+          </div>
+          <div>
+            <div class="font-extrabold text-sm tracking-wide text-white leading-none flex items-center gap-1">
+              QUANTUM <span class="text-primaryPurple">OPS</span>
+            </div>
+            <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">AI BUSINESS OS</div>
+          </div>
+        </div>
+
+        <nav class="space-y-0.5 text-xs">
+          <a href="desktop.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition-all">
+            <i class="ph-fill ph-squares-four text-primaryPurple text-base"></i><span>Dashboard</span>
+          </a>
+          <a href="ai-ceo.html" class="nav-link flex items-center justify-between px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <div class="flex items-center gap-2.5">
+              <i class="ph-bold ph-robot text-textMuted group-hover:text-primaryPurple text-base"></i><span>AI CEO Command</span>
+            </div>
+            <span class="px-1.5 py-0.5 text-[9px] font-bold bg-primaryPurple/30 text-brightPurple rounded-md">New</span>
+          </a>
+          <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-camera text-textMuted group-hover:text-primaryPurple text-base"></i><span>Smart Camera</span>
+          </a>
+          <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-shopping-cart text-textMuted group-hover:text-primaryPurple text-base"></i><span>POS / Sales</span>
+          </a>
+          <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-package text-textMuted group-hover:text-primaryPurple text-base"></i><span>Inventory</span>
+          </a>
+          <a href="purchases.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-bag-simple text-textMuted group-hover:text-primaryPurple text-base"></i><span>Purchases</span>
+          </a>
+          <a href="customers.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-users text-textMuted group-hover:text-primaryPurple text-base"></i><span>Customers (CRM)</span>
+          </a>
+          <a href="debtors.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-hand-coins text-textMuted group-hover:text-primaryPurple text-base"></i><span>Debtors</span>
+          </a>
+          <a href="transactions.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-chart-line-up text-textMuted group-hover:text-primaryPurple text-base"></i><span>Analytics</span>
+          </a>
+          <a href="staff.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-identification-card text-textMuted group-hover:text-primaryPurple text-base"></i><span>Staff & Payroll</span>
+          </a>
+          <a href="expenses.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-receipt text-textMuted group-hover:text-primaryPurple text-base"></i><span>Expenses</span>
+          </a>
+          <a href="tasks.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-check-square text-textMuted group-hover:text-primaryPurple text-base"></i><span>Tasks & Projects</span>
+          </a>
+          <a href="documents.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-file-text text-textMuted group-hover:text-primaryPurple text-base"></i><span>Documents</span>
+          </a>
+          <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated transition-all group">
+            <i class="ph-bold ph-gear text-textMuted group-hover:text-primaryPurple text-base"></i><span>Settings</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="mt-4 p-3 rounded-xl bg-cardElevated border border-borderSubtle relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-16 h-16 bg-primaryPurple/10 rounded-full blur-xl"></div>
+        <div class="flex items-center gap-2 text-white font-semibold text-xs mb-1">
+          <i class="ph-fill ph-cloud text-primaryPurple text-sm"></i><span>Quantum Cloud</span>
+        </div>
+        <p class="text-[10px] text-textMuted mb-2">Secure · Synced · Live</p>
+        <div class="w-full bg-borderSubtle h-1.5 rounded-full overflow-hidden mb-1">
+          <div id="cloud-bar" class="bg-gradient-to-r from-primaryPurple to-electricBlue h-full w-[42%] rounded-full"></div>
+        </div>
+        <div class="flex justify-between text-[9px] text-textMuted font-mono mb-2.5">
+          <span id="cloud-used">Live</span><span>Elite</span>
+        </div>
+        <a href="upgrade.html" class="block w-full py-1.5 text-center text-[11px] font-bold text-white bg-gradient-to-r from-primaryPurple to-deepPurple rounded-lg shadow-purpleGlow hover:opacity-90 transition-opacity">
+          Upgrade Plan
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+      <!-- TOP BAR -->
+      <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20 gap-4">
+        <div class="relative flex-1 max-w-md">
+          <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-textMuted text-sm"></i>
+          <input type="text" id="global-search" placeholder="Search products, customers, invoices…"
+            class="w-full pl-9 pr-4 py-1.5 bg-card border border-borderSubtle rounded-lg text-xs text-textPrimary placeholder:text-textMuted focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple transition-all">
+        </div>
+
+        <!-- BOLD LED CLOCK -->
+        <div class="led-clock" id="led-clock" title="Live clock">
+          <span id="clock-date">—</span>
+          <span class="mx-2 opacity-40">|</span>
+          <span id="clock-time">00:00:00</span>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+          <a href="ai-ceo.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-borderSubtle text-xs text-textSecondary hover:text-white transition-colors">
+            <span class="w-2 h-2 rounded-full bg-brightGreen shadow-[0_0_8px_#31D17C]"></span>
+            <span class="font-medium text-white">AI CEO</span>
+          </a>
+          <a href="notifications.html" class="relative w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary hover:text-white transition-colors">
+            <i class="ph-bold ph-bell text-sm"></i>
+            <span id="notif-dot" class="absolute top-1.5 right-1.5 w-2 h-2 bg-dangerRed rounded-full hidden"></span>
+          </a>
+          <a href="upgrade.html" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-warningYellow hover:text-white transition-colors" title="Upgrade">
+            <i class="ph-bold ph-crown text-sm"></i>
+          </a>
+          <a href="profile.html" class="flex items-center gap-2.5 pl-1 cursor-pointer">
+            <div class="w-8 h-8 rounded-full border border-primaryPurple/50 overflow-hidden bg-card flex items-center justify-center text-xs font-bold text-brightPurple" id="avatar-initials">Q</div>
+            <div class="text-left hidden sm:block">
+              <div class="text-xs font-bold text-white leading-tight" id="header-user-name">Owner</div>
+              <div class="text-[10px] text-textMuted" id="header-user-role">Owner</div>
+            </div>
+          </a>
+        </div>
+      </header>
+
+      <div class="p-6 space-y-5">
+        <!-- GREETING -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              <span id="greeting-text">Good day</span>, <span id="greet-name">Owner</span> <span>👋</span>
+            </h1>
+            <p class="text-xs text-textMuted mt-0.5">Here's what's happening with <span id="greet-company" class="text-textSecondary font-medium">your business</span> today.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
+              <i class="ph-bold ph-heartbeat text-brightGreen"></i>
+              <span class="text-textMuted">Business Health</span>
+              <span class="font-bold text-brightGreen" id="pill-health">—%</span>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
+              <i class="ph-bold ph-storefront text-primaryPurple"></i>
+              <span class="text-textMuted">Branch</span>
+              <span class="font-bold text-white">Main</span>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
+              <i class="ph-bold ph-crown text-warningYellow"></i>
+              <span class="text-textMuted">Plan</span>
+              <span class="font-bold text-warningYellow" id="pill-plan">Trial</span>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
+              <i class="ph-bold ph-calendar text-cyanAccent"></i>
+              <span class="text-textMuted">Trial / Renew</span>
+              <span class="font-bold text-white" id="pill-renew">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI + AI -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-5">
+          <div class="xl:col-span-9 space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <a href="transactions.html" class="block p-4 rounded-xl bg-card border border-borderSubtle hover:border-borderHover transition-all shadow-cardGlow">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Total Sales (Today)</span>
+                  <div class="w-7 h-7 rounded-lg bg-primaryPurple/15 flex items-center justify-center text-primaryPurple"><i class="ph-bold ph-shopping-cart text-sm"></i></div>
+                </div>
+                <div class="text-2xl font-extrabold text-white tracking-tight" id="kpi-sales">₦0</div>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-[11px] font-bold text-brightGreen" id="kpi-sales-chg">Live</span>
+                  <span class="text-[10px] text-textMuted">today</span>
+                </div>
+                <div class="h-8 mt-2"><canvas id="kpiSalesChart"></canvas></div>
+              </a>
+              <div class="p-4 rounded-xl bg-card border border-borderSubtle shadow-cardGlow">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Total Profit (Today)</span>
+                  <div class="w-7 h-7 rounded-lg bg-positiveGreen/15 flex items-center justify-center text-positiveGreen"><i class="ph-bold ph-wallet text-sm"></i></div>
+                </div>
+                <div class="text-2xl font-extrabold text-white tracking-tight" id="kpi-profit">₦0</div>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-[11px] font-bold text-brightGreen" id="kpi-profit-chg">Live</span>
+                  <span class="text-[10px] text-textMuted">today</span>
+                </div>
+                <div class="h-8 mt-2"><canvas id="kpiProfitChart"></canvas></div>
+              </div>
+              <a href="transactions.html" class="block p-4 rounded-xl bg-card border border-borderSubtle hover:border-borderHover transition-all shadow-cardGlow">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Transactions</span>
+                  <div class="w-7 h-7 rounded-lg bg-electricBlue/15 flex items-center justify-center text-electricBlue"><i class="ph-bold ph-receipt text-sm"></i></div>
+                </div>
+                <div class="text-2xl font-extrabold text-white tracking-tight" id="kpi-trx">0</div>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-[11px] font-bold text-brightGreen">Live</span>
+                  <span class="text-[10px] text-textMuted">today</span>
+                </div>
+                <div class="h-8 mt-2"><canvas id="kpiTransactionsChart"></canvas></div>
+              </a>
+              <a href="debtors.html" class="block p-4 rounded-xl bg-card border border-borderSubtle hover:border-borderHover transition-all shadow-cardGlow">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[11px] font-semibold text-textMuted uppercase tracking-wider">Outstanding Debt</span>
+                  <div class="w-7 h-7 rounded-lg bg-dangerRed/15 flex items-center justify-center text-dangerRed"><i class="ph-bold ph-warning-circle text-sm"></i></div>
+                </div>
+                <div class="text-2xl font-extrabold text-dangerRed tracking-tight" id="kpi-debt">₦0</div>
+                <div class="flex items-center justify-between mt-1">
+                  <span class="text-[11px] font-bold text-textMuted" id="kpi-debt-count">0 Customers</span>
+                  <span class="text-[10px] text-textMuted">need attention</span>
+                </div>
+                <div class="h-8 mt-2"><canvas id="kpiDebtChart"></canvas></div>
+              </a>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+              <div class="lg:col-span-7 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Sales Overview</h3>
+                    <div class="flex items-baseline gap-2 mt-1">
+                      <span class="text-2xl font-extrabold text-white tracking-tight" id="week-sales-total">₦0</span>
+                      <span class="text-xs font-bold text-brightGreen">This week</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="h-48 w-full mt-2"><canvas id="salesOverviewChart"></canvas></div>
+              </div>
+              <div class="lg:col-span-5 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Today Snapshot</h3>
+                  <a href="expenses.html" class="text-xs text-primaryPurple hover:text-brightPurple font-medium">Expenses</a>
+                </div>
+                <div class="space-y-3 py-2">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-textMuted">Sales today</span>
+                    <span class="font-bold text-white" id="snap-sales">₦0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-textMuted">Gross profit</span>
+                    <span class="font-bold text-brightGreen" id="snap-profit">₦0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-textMuted">Expenses today</span>
+                    <span class="font-bold text-dangerRed" id="snap-expenses">₦0</span>
+                  </div>
+                  <div class="flex justify-between text-sm pt-2 border-t border-borderSubtle">
+                    <span class="text-white font-bold">Net profit</span>
+                    <span class="font-extrabold text-brightGreen" id="snap-net">₦0</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-textMuted">Low stock items</span>
+                    <span class="font-bold text-warningYellow" id="snap-low">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI PANEL -->
+          <div class="xl:col-span-3">
+            <div class="p-4 rounded-xl bg-card border border-primaryPurple/30 shadow-purpleGlow flex flex-col h-full relative overflow-hidden">
+              <div class="absolute -right-10 -top-10 w-32 h-32 bg-primaryPurple/20 rounded-full blur-2xl"></div>
+              <div class="flex items-center justify-between mb-3 border-b border-borderSubtle pb-2.5 relative z-10">
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-robot text-primaryPurple text-base"></i>
+                  <h3 class="text-xs font-extrabold uppercase tracking-wider text-white">AI CEO Assistant</h3>
+                </div>
+                <span class="flex items-center gap-1 text-[10px] text-brightGreen font-bold bg-positiveGreen/10 px-2 py-0.5 rounded-full border border-positiveGreen/20">
+                  <span class="w-1.5 h-1.5 rounded-full bg-brightGreen animate-pulse"></span> Online
+                </span>
+              </div>
+              <div class="relative z-10 mb-3">
+                <div class="text-sm font-extrabold text-white" id="ai-hello">Hello!</div>
+                <div class="text-[10px] text-textMuted mt-0.5">Live analysis of your business today.</div>
+              </div>
+              <div class="space-y-2 mb-4 relative z-10 flex-1" id="ai-insights">
+                <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textMuted">Loading insights…</div>
+              </div>
+              <a href="ai-ceo.html" class="relative z-10 w-full py-2.5 px-4 bg-gradient-to-r from-primaryPurple via-brightPurple to-electricBlue text-white font-bold text-xs rounded-xl shadow-purpleGlow flex items-center justify-center gap-2 hover:opacity-95 transition-opacity">
+                <i class="ph-bold ph-chat-teardrop-dots text-sm"></i><span>Chat with AI CEO</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIVE ACTIVITIES -->
+        <div class="p-4 rounded-xl bg-card border border-borderSubtle">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Live Business Activities</h3>
+              <span class="w-2 h-2 rounded-full bg-dangerRed animate-ping"></span>
+            </div>
+            <span class="px-2 py-0.5 text-[9px] font-extrabold bg-dangerRed/20 text-dangerRed rounded uppercase tracking-wider">Live</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3" id="live-activities">
+            <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textMuted col-span-full text-center py-4">Loading activity…</div>
+          </div>
+        </div>
+
+        <!-- LOWER GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Top Selling Products</h3>
+              <a href="inventory.html" class="text-[10px] text-primaryPurple">View</a>
+            </div>
+            <div class="space-y-2" id="top-products">
+              <div class="text-xs text-textMuted text-center py-4">No sales data yet</div>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Low Stock Items</h3>
+              <a href="inventory.html" class="text-xs text-primaryPurple">View All</a>
+            </div>
+            <div class="space-y-2" id="low-stock-list">
+              <div class="text-xs text-textMuted text-center py-4">All stock healthy</div>
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Top Debtors</h3>
+              <a href="debtors.html" class="text-xs text-primaryPurple">View All</a>
+            </div>
+            <div class="space-y-2" id="top-debtors">
+              <div class="text-xs text-textMuted text-center py-4">No outstanding debt</div>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div class="p-4 rounded-xl bg-card border border-borderSubtle">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted mb-2.5">Quick Actions</h3>
+              <div class="grid grid-cols-4 gap-2">
+                <a href="pos.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple hover:text-brightPurple transition-all flex flex-col items-center gap-1 text-[10px] text-textSecondary">
+                  <i class="ph-bold ph-shopping-cart text-sm"></i><span>Sale</span>
+                </a>
+                <a href="inventory.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple hover:text-brightPurple transition-all flex flex-col items-center gap-1 text-[10px] text-textSecondary">
+                  <i class="ph-bold ph-plus-circle text-sm"></i><span>Product</span>
+                </a>
+                <a href="debtors.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple hover:text-brightPurple transition-all flex flex-col items-center gap-1 text-[10px] text-textSecondary">
+                  <i class="ph-bold ph-hand-coins text-sm"></i><span>Debt</span>
+                </a>
+                <a href="expenses.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple hover:text-brightPurple transition-all flex flex-col items-center gap-1 text-[10px] text-textSecondary">
+                  <i class="ph-bold ph-receipt text-sm"></i><span>Expense</span>
+                </a>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-card border border-borderSubtle space-y-1.5">
+              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted mb-1">Today's Summary</h3>
+              <div class="flex justify-between text-xs"><span class="text-textMuted">Sales:</span><span class="font-mono font-bold text-brightGreen" id="sum-sales">₦0</span></div>
+              <div class="flex justify-between text-xs"><span class="text-textMuted">Expenses:</span><span class="font-mono font-bold text-dangerRed" id="sum-exp">₦0</span></div>
+              <div class="flex justify-between text-xs pt-1 border-t border-borderSubtle"><span class="text-white font-bold">Net Profit:</span><span class="font-mono font-extrabold text-brightGreen" id="sum-net">₦0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECENT TRANSACTIONS -->
+        <div class="p-4 rounded-xl bg-card border border-borderSubtle">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-textMuted">Recent Transactions</h3>
+            <a href="transactions.html" class="text-xs text-primaryPurple hover:text-brightPurple">View All</a>
+          </div>
+          <div class="space-y-2" id="recent-trx">
+            <div class="text-xs text-textMuted text-center py-4">No transactions yet</div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-borderSubtle flex items-center justify-between text-[10px] text-textMuted">
+            <span class="flex items-center gap-1"><i class="ph-bold ph-check-circle text-brightGreen"></i> Connected to Supabase</span>
+            <span id="last-sync">Just now</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    const LOW_STOCK_UNITS = 3;
+    const CACHE_KEY = "quantum_desktop_cache_v1";
+
+    let userCompanyId = null;
+    let companyDetails = null;
+    let currentUser = null;
+    let salesChart = null;
+    let sparkCharts = {};
+
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+    function startOfToday() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      return d.toISOString();
+    }
+    function startOfWeek() {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diff));
+      monday.setHours(0, 0, 0, 0);
+      return monday.toISOString();
+    }
+
+    /* ===== LIVE CLOCK (BOLD) ===== */
+    function tickClock() {
+      const now = new Date();
+      const optsDate = { weekday: "short", day: "2-digit", month: "short", year: "numeric" };
+      const dateStr = now.toLocaleDateString("en-GB", optsDate);
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const s = String(now.getSeconds()).padStart(2, "0");
+      const ampm = h >= 12 ? "PM" : "AM";
+      h = h % 12;
+      h = h ? h : 12;
+      const timeStr = String(h).padStart(2, "0") + ":" + m + ":" + s + " " + ampm;
+      document.getElementById("clock-date").textContent = dateStr;
+      document.getElementById("clock-time").textContent = timeStr;
+    }
+    setInterval(tickClock, 1000);
+    tickClock();
+
+    function greetingWord() {
+      const h = new Date().getHours();
+      if (h < 12) return "Good morning";
+      if (h < 17) return "Good afternoon";
+      return "Good evening";
+    }
+
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    Chart.defaults.color = "#68718A";
+    Chart.defaults.font.family = "Plus Jakarta Sans";
+
+    function createSparkline(canvasId, color, data) {
+      const el = document.getElementById(canvasId);
+      if (!el) return null;
+      if (sparkCharts[canvasId]) {
+        try { sparkCharts[canvasId].destroy(); } catch (e) {}
+      }
+      const ctx = el.getContext("2d");
+      sparkCharts[canvasId] = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: data.map((_, i) => i),
+          datasets: [{ data: data, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.4, fill: false }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          scales: { x: { display: false }, y: { display: false } }
+        }
+      });
+      return sparkCharts[canvasId];
+    }
+
+    function renderSalesChart(labels, values) {
+      const el = document.getElementById("salesOverviewChart");
+      if (!el) return;
+      if (salesChart) {
+        try { salesChart.destroy(); } catch (e) {}
+      }
+      const ctx = el.getContext("2d");
+      const grad = ctx.createLinearGradient(0, 0, 0, 200);
+      grad.addColorStop(0, "rgba(124, 77, 255, 0.35)");
+      grad.addColorStop(1, "rgba(124, 77, 255, 0.0)");
+      salesChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Sales",
+            data: values,
+            borderColor: "#8B5CFF",
+            borderWidth: 3,
+            backgroundColor: grad,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: "#8B5CFF",
+            pointBorderColor: "#fff",
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: "#68718A", font: { size: 10 } } },
+            y: { grid: { color: "#1A2035" }, ticks: { color: "#68718A", font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function saveCache(payload) {
+      try {
+        if (!userCompanyId) return;
+        localStorage.setItem(CACHE_KEY, JSON.stringify(Object.assign({ companyId: userCompanyId, ts: Date.now() }, payload)));
+      } catch (e) {}
+    }
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) { return null; }
+    }
+    function paintCache() {
+      const c = loadCache();
+      if (!c) return;
+      if (c.sales != null) setText("kpi-sales", formatCurrency(c.sales));
+      if (c.profit != null) setText("kpi-profit", formatCurrency(c.profit));
+      if (c.trx != null) setText("kpi-trx", String(c.trx));
+      if (c.debt != null) setText("kpi-debt", formatCurrency(c.debt));
+      if (c.debtCount != null) setText("kpi-debt-count", c.debtCount + " Customers");
+      if (c.weekTotal != null) setText("week-sales-total", formatCurrency(c.weekTotal));
+      if (c.chartLabels && c.chartValues) renderSalesChart(c.chartLabels, c.chartValues);
+    }
+
+    async function init() {
+      paintCache();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        currentUser = session.user;
+        const metaName = (currentUser.user_metadata && currentUser.user_metadata.full_name) || (currentUser.email || "").split("@")[0] || "Owner";
+        setText("header-user-name", metaName);
+        setText("greet-name", metaName.split(" ")[0]);
+        setText("greeting-text", greetingWord());
+        setText("ai-hello", "Hello " + metaName.split(" ")[0] + "!");
+        const initials = metaName.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+        setText("avatar-initials", initials || "Q");
+
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id, companies(id, company_name, subscription_status, trial_ends_at, plan)")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+
+        if (member && member.company_id) {
+          userCompanyId = member.company_id;
+          companyDetails = member.companies || {};
+        } else {
+          const { data: owned } = await supabaseClient
+            .from("companies")
+            .select("id, company_name, subscription_status, trial_ends_at, plan")
+            .eq("owner_id", currentUser.id)
+            .maybeSingle();
+          if (owned) {
+            userCompanyId = owned.id;
+            companyDetails = owned;
+          }
+        }
+
+        if (!userCompanyId) {
+          setText("greet-company", "your business");
+          return;
+        }
+
+        const cname = companyDetails.company_name || "your business";
+        setText("greet-company", cname);
+        const status = (companyDetails.subscription_status || "trial").toLowerCase();
+        setText("pill-plan", status === "trial" ? "Trial" : (companyDetails.plan || status || "Elite"));
+        if (companyDetails.trial_ends_at) {
+          const end = new Date(companyDetails.trial_ends_at);
+          setText("pill-renew", end.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }));
+        } else {
+          setText("pill-renew", "—");
+        }
+
+        await refreshAll();
+        subscribeRealtime();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function refreshAll() {
+      if (!userCompanyId) return;
+      const todayIso = startOfToday();
+      const weekIso = startOfWeek();
+
+      const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
+        supabaseClient.from("sales").select("id, total, profit, total_profit, payment_method, customer_name, items, created_at").eq("company_id", userCompanyId).gte("created_at", weekIso).order("created_at", { ascending: false }).limit(500),
+        supabaseClient.from("products").select("id, name, stock, items_per_pack, selling_price").eq("company_id", userCompanyId).limit(400),
+        supabaseClient.from("debtors").select("id, customer_name, amount_owing, status, due_date, created_at").eq("company_id", userCompanyId).limit(200),
+        supabaseClient.from("expenses").select("id, amount, category, created_at").eq("company_id", userCompanyId).gte("created_at", todayIso).limit(100)
+      ]);
+
+      const weekSales = salesRes.data || [];
+      const products = productsRes.data || [];
+      const debtors = debtorsRes.data || [];
+      const expenses = expensesRes.data || [];
+
+      const todaySales = weekSales.filter(function (s) { return s.created_at >= todayIso; });
+      const salesToday = todaySales.reduce(function (a, s) { return a + Number(s.total || 0); }, 0);
+      const profitToday = todaySales.reduce(function (a, s) { return a + Number(s.profit || s.total_profit || 0); }, 0);
+      const trxToday = todaySales.length;
+      const expToday = expenses.reduce(function (a, e) { return a + Number(e.amount || 0); }, 0);
+      const netToday = profitToday - expToday;
+
+      const unpaid = debtors.filter(function (d) {
+        const st = (d.status || "unpaid").toLowerCase();
+        return st === "unpaid" || st === "partial" || !st;
+      });
+      const debtTotal = unpaid.reduce(function (a, d) { return a + Number(d.amount_owing || 0); }, 0);
+
+      const lowStock = products.filter(function (p) {
+        const pieces = Number(p.stock || 0);
+        const pack = Number(p.items_per_pack || 24) || 24;
+        return pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS;
+      });
+
+      // Health score simple
+      let health = 100;
+      if (debtTotal > salesToday * 2 && salesToday > 0) health -= 25;
+      if (lowStock.length > 5) health -= 20;
+      else if (lowStock.length > 0) health -= 10;
+      if (expToday > profitToday && profitToday > 0) health -= 15;
+      health = Math.max(20, Math.min(100, health));
+
+      setText("kpi-sales", formatCurrency(salesToday));
+      setText("kpi-profit", formatCurrency(profitToday));
+      setText("kpi-trx", String(trxToday));
+      setText("kpi-debt", formatCurrency(debtTotal));
+      setText("kpi-debt-count", unpaid.length + " Customers");
+      setText("snap-sales", formatCurrency(salesToday));
+      setText("snap-profit", formatCurrency(profitToday));
+      setText("snap-expenses", formatCurrency(expToday));
+      setText("snap-net", formatCurrency(netToday));
+      setText("snap-low", String(lowStock.length));
+      setText("sum-sales", formatCurrency(salesToday));
+      setText("sum-exp", formatCurrency(expToday));
+      setText("sum-net", formatCurrency(netToday));
+      setText("pill-health", health + "%");
+
+      // Week chart
+      const dayMap = {};
+      const labels = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        d.setHours(0, 0, 0, 0);
+        const key = d.toISOString().slice(0, 10);
+        labels.push(d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }));
+        dayMap[key] = 0;
+      }
+      weekSales.forEach(function (s) {
+        const key = String(s.created_at).slice(0, 10);
+        if (dayMap[key] != null) dayMap[key] += Number(s.total || 0);
+      });
+      const values = Object.keys(dayMap).sort().map(function (k) { return dayMap[k]; });
+      const weekTotal = values.reduce(function (a, b) { return a + b; }, 0);
+      setText("week-sales-total", formatCurrency(weekTotal));
+      renderSalesChart(labels, values);
+
+      createSparkline("kpiSalesChart", "#8B5CFF", values.length ? values : [0, 0, 0, 0, 0, 0, 0]);
+      createSparkline("kpiProfitChart", "#31D17C", values.map(function (v, i) { return v * 0.3; }));
+      createSparkline("kpiTransactionsChart", "#536DFF", values.map(function (v) { return Math.min(v / 1000, 40); }));
+      createSparkline("kpiDebtChart", "#FF4F67", [debtTotal * 0.2, debtTotal * 0.3, debtTotal * 0.25, debtTotal * 0.4, debtTotal * 0.35, debtTotal * 0.5, debtTotal]);
+
+      // Top products from items jsonb
+      const prodMap = {};
+      weekSales.forEach(function (s) {
+        let items = s.items;
+        if (typeof items === "string") {
+          try { items = JSON.parse(items); } catch (e) { items = []; }
+        }
+        if (!Array.isArray(items)) return;
+        items.forEach(function (it) {
+          const name = it.name || "Product";
+          if (!prodMap[name]) prodMap[name] = { name: name, qty: 0, revenue: 0 };
+          prodMap[name].qty += Number(it.qty || 1);
+          prodMap[name].revenue += Number(it.price || 0) * Number(it.qty || 1);
+        });
+      });
+      const topProds = Object.values(prodMap).sort(function (a, b) { return b.revenue - a.revenue; }).slice(0, 3);
+      const topEl = document.getElementById("top-products");
+      if (topEl) {
+        if (!topProds.length) {
+          topEl.innerHTML = '<div class="text-xs text-textMuted text-center py-4">No sales data yet</div>';
+        } else {
+          topEl.innerHTML = topProds.map(function (p, i) {
+            return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+              '<div class="flex items-center gap-2.5 min-w-0">' +
+              '<span class="w-5 h-5 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + (i + 1) + '</span>' +
+              '<div class="truncate"><div class="text-xs font-bold text-white truncate">' + p.name + '</div>' +
+              '<div class="text-[10px] text-textMuted">' + p.qty + ' sold</div></div></div>' +
+              '<span class="text-xs font-extrabold text-white">' + formatCurrency(p.revenue) + '</span></div>';
+          }).join("");
+        }
+      }
+
+      // Low stock
+      const lowEl = document.getElementById("low-stock-list");
+      if (lowEl) {
+        if (!lowStock.length) {
+          lowEl.innerHTML = '<div class="text-xs text-textMuted text-center py-4">All stock healthy</div>';
+        } else {
+          lowEl.innerHTML = lowStock.slice(0, 3).map(function (p) {
+            const pieces = Number(p.stock || 0);
+            const pack = Number(p.items_per_pack || 24) || 24;
+            const units = (pieces / pack).toFixed(1);
+            const critical = pieces / pack <= 1;
+            return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+              '<div class="min-w-0"><div class="text-xs font-bold text-white truncate">' + (p.name || "Item") + '</div>' +
+              '<div class="text-[10px] text-textMuted">' + units + ' units left</div></div>' +
+              '<span class="px-2 py-0.5 text-[9px] font-bold rounded ' + (critical ? 'bg-dangerRed/20 text-dangerRed' : 'bg-warningYellow/20 text-warningYellow') + '">' + (critical ? 'Critical' : 'Low') + '</span></div>';
+          }).join("");
+        }
+      }
+
+      // Top debtors
+      const debtEl = document.getElementById("top-debtors");
+      if (debtEl) {
+        const sorted = unpaid.slice().sort(function (a, b) { return Number(b.amount_owing || 0) - Number(a.amount_owing || 0); }).slice(0, 3);
+        if (!sorted.length) {
+          debtEl.innerHTML = '<div class="text-xs text-textMuted text-center py-4">No outstanding debt</div>';
+        } else {
+          debtEl.innerHTML = sorted.map(function (d) {
+            const nm = d.customer_name || "Customer";
+            const ini = nm.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+            return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+              '<div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + ini + '</div>' +
+              '<div><div class="text-xs font-bold text-white">' + nm + '</div><div class="text-[10px] text-dangerRed">Outstanding</div></div></div>' +
+              '<span class="text-xs font-extrabold text-white">' + formatCurrency(d.amount_owing) + '</span></div>';
+          }).join("");
+        }
+      }
+
+      // Recent transactions
+      const recent = todaySales.slice(0, 5);
+      const recentEl = document.getElementById("recent-trx");
+      if (recentEl) {
+        if (!recent.length) {
+          recentEl.innerHTML = '<div class="text-xs text-textMuted text-center py-4">No transactions yet today</div>';
+        } else {
+          recentEl.innerHTML = recent.map(function (s) {
+            return '<div class="flex items-center justify-between text-xs p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+              '<div class="min-w-0"><div class="font-mono text-textMuted text-[10px]">#' + (s.id || "").toString().slice(0, 8) + '</div>' +
+              '<div class="font-bold text-white truncate">' + (s.customer_name || "Walk-in") + '</div></div>' +
+              '<div class="text-right"><div class="font-extrabold text-white">' + formatCurrency(s.total) + '</div>' +
+              '<div class="text-[9px] text-brightGreen font-bold">' + (s.payment_method || "Cash") + '</div></div></div>';
+          }).join("");
+        }
+      }
+
+      // Live activities strip
+      const actEl = document.getElementById("live-activities");
+      if (actEl) {
+        const cards = [];
+        if (todaySales[0]) {
+          cards.push({ icon: "ph-shopping-bag", color: "positiveGreen", title: "New Sale", val: formatCurrency(todaySales[0].total), sub: (todaySales[0].customer_name || "Walk-in") });
+        }
+        cards.push({ icon: "ph-warning", color: "warningYellow", title: "Low Stock Alert", val: lowStock.length + " Items", sub: "Action required" });
+        cards.push({ icon: "ph-hand-coins", color: "dangerRed", title: "Outstanding Debt", val: formatCurrency(debtTotal), sub: unpaid.length + " customers" });
+        if (expenses[0]) {
+          cards.push({ icon: "ph-receipt", color: "accentPink", title: "Expense", val: formatCurrency(expenses[0].amount), sub: expenses[0].category || "Operational" });
+        }
+        cards.push({ icon: "ph-trend-up", color: "primaryPurple", title: "Net Profit Today", val: formatCurrency(netToday), sub: "After expenses" });
+        actEl.innerHTML = cards.map(function (c) {
+          return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-center gap-2.5">' +
+            '<div class="w-8 h-8 rounded-lg bg-' + c.color + '/15 text-' + (c.color === "positiveGreen" ? "brightGreen" : c.color === "warningYellow" ? "warningYellow" : c.color === "dangerRed" ? "dangerRed" : c.color === "accentPink" ? "accentPink" : "brightPurple") + ' flex items-center justify-center shrink-0">' +
+            '<i class="ph-bold ' + c.icon + ' text-sm"></i></div>' +
+            '<div class="min-w-0 flex-1"><div class="text-[10px] text-textMuted font-medium uppercase">' + c.title + '</div>' +
+            '<div class="text-xs font-bold text-white truncate">' + c.val + '</div>' +
+            '<div class="text-[9px] text-textMuted truncate">' + c.sub + '</div></div></div>';
+        }).join("");
+      }
+
+      // AI insights
+      const insights = [];
+      if (salesToday > 0) insights.push({ icon: "ph-trend-up", color: "positiveGreen", title: "Sales today " + formatCurrency(salesToday), sub: trxToday + " transactions recorded" });
+      else insights.push({ icon: "ph-trend-up", color: "primaryPurple", title: "No sales yet today", sub: "Open POS to record your first sale" });
+      if (lowStock.length) insights.push({ icon: "ph-package", color: "warningYellow", title: "Low stock warning", sub: lowStock.length + " products need restock" });
+      if (unpaid.length) insights.push({ icon: "ph-warning", color: "dangerRed", title: "Debts outstanding", sub: unpaid.length + " customers · " + formatCurrency(debtTotal) });
+      if (expToday > 0) insights.push({ icon: "ph-receipt", color: "accentPink", title: "Expenses today", sub: formatCurrency(expToday) + " recorded" });
+      const aiEl = document.getElementById("ai-insights");
+      if (aiEl) {
+        aiEl.innerHTML = insights.slice(0, 3).map(function (ins) {
+          return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5">' +
+            '<div class="p-1.5 rounded-md bg-' + ins.color + '/15 text-' + (ins.color === "positiveGreen" ? "brightGreen" : ins.color === "warningYellow" ? "warningYellow" : ins.color === "dangerRed" ? "dangerRed" : "brightPurple") + ' shrink-0 mt-0.5">' +
+            '<i class="ph-bold ' + ins.icon + ' text-xs"></i></div>' +
+            '<div><div class="text-xs font-bold text-white">' + ins.title + '</div>' +
+            '<div class="text-[10px] text-textMuted">' + ins.sub + '</div></div></div>';
+        }).join("");
+      }
+
+      setText("last-sync", "Updated " + new Date().toLocaleTimeString());
+      saveCache({
+        sales: salesToday,
+        profit: profitToday,
+        trx: trxToday,
+        debt: debtTotal,
+        debtCount: unpaid.length,
+        weekTotal: weekTotal,
+        chartLabels: labels,
+        chartValues: values
+      });
+    }
+
+    function subscribeRealtime() {
+      if (!userCompanyId) return;
+      try {
+        supabaseClient.channel("desktop-live-" + userCompanyId)
+          .on("postgres_changes", { event: "*", schema: "public", table: "sales", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .on("postgres_changes", { event: "*", schema: "public", table: "products", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .on("postgres_changes", { event: "*", schema: "public", table: "debtors", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .on("postgres_changes", { event: "*", schema: "public", table: "expenses", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
+          .subscribe();
+      } catch (e) {}
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
