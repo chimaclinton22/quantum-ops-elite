@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#050812">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Generate Invoice — Quantum OPS Elite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+          colors: {
+            canvas: '#050812', card: '#0B1020', elevated: '#0E1326',
+            border: '#1A2035', purple: '#7C4DFF', bright: '#8B5CFF',
+            green: '#31D17C', red: '#FF4F67', muted: '#68718A', soft: '#A0A7BB'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #050812; color: #F4F6FF; min-height: 100dvh; margin: 0; }
+    .scroll-thin::-webkit-scrollbar { width: 5px; }
+    .scroll-thin::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day .shell { background: #F4F6FB !important; }
+    body.theme-day .panel, body.theme-day .inv-paper { background: #FFFFFF !important; border-color: #E2E8F0 !important; color: #0F172A !important; }
+    body.theme-day .text-white, body.theme-day h1, body.theme-day h2, body.theme-day h3 { color: #0F172A !important; }
+    body.theme-day .text-soft, body.theme-day .text-muted { color: #64748B !important; }
+    body.theme-day input, body.theme-day select, body.theme-day textarea {
+      background: #F8FAFC !important; border-color: #E2E8F0 !important; color: #0F172A !important;
+    }
+    body.theme-day .topbar { background: #FFFFFF !important; border-color: #E2E8F0 !important; }
+    .inv-paper {
+      background: #fff; color: #0f172a;
+      width: 100%; max-width: 420px; margin: 0 auto;
+      border-radius: 12px; padding: 28px 24px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    }
+    body.theme-day .inv-paper { box-shadow: 0 4px 24px rgba(15,23,42,0.08); }
+    @media print {
+      body * { visibility: hidden; }
+      #invoice-preview, #invoice-preview * { visibility: visible; }
+      #invoice-preview { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body class="bg-canvas">
+  <div class="shell min-h-screen flex flex-col">
+    <!-- Top bar -->
+    <header class="topbar sticky top-0 z-30 border-b border-border bg-[#080B17]/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="desktop.html" class="w-9 h-9 rounded-xl bg-elevated border border-border flex items-center justify-center text-soft hover:text-white shrink-0" title="Back">
+          <i class="ph-bold ph-arrow-left"></i>
+        </a>
+        <div class="min-w-0">
+          <h1 class="text-sm font-extrabold text-white truncate">Generate Invoice</h1>
+          <p class="text-[10px] text-muted truncate">Professional invoice · PDF · WhatsApp · Email</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" onclick="toggleTheme()" class="w-9 h-9 rounded-xl bg-elevated border border-border flex items-center justify-center text-soft hover:text-white" title="Theme">
+          <i class="ph-bold ph-moon" id="theme-icon"></i>
+        </button>
+        <a href="mobile.html" class="text-[10px] text-muted hover:text-white hidden sm:inline">Mobile</a>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 md:p-6 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <!-- LEFT: Form -->
+      <section class="panel rounded-2xl border border-border bg-card p-4 md:p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-muted">Invoice details</h2>
+          <span class="text-[10px] font-mono text-bright" id="preview-number">INV-••••</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-semibold text-muted mb-1">Customer name *</label>
+            <input id="cust-name" type="text" placeholder="e.g. John Okafor" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-muted mb-1">Phone (WhatsApp)</label>
+            <input id="cust-phone" type="tel" placeholder="08012345678" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-muted mb-1">Email</label>
+            <input id="cust-email" type="email" placeholder="customer@email.com" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-muted mb-1">Due date</label>
+            <input id="due-date" type="date" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-semibold text-muted mb-1">Address (optional)</label>
+          <input id="cust-address" type="text" placeholder="Shop / delivery address" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple">
+        </div>
+
+        <!-- Line items -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-[10px] font-semibold text-muted">Line items</label>
+            <button type="button" onclick="addEmptyLine()" class="text-[10px] font-bold text-bright hover:underline">+ Add line</button>
+          </div>
+          <div class="mb-2">
+            <select id="product-picker" class="w-full rounded-xl bg-elevated border border-border px-3 py-2 text-sm text-white outline-none focus:border-purple">
+              <option value="">Add from inventory…</option>
+            </select>
+          </div>
+          <div id="lines" class="space-y-2 max-h-56 overflow-y-auto scroll-thin"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-semibold text-muted mb-1">Discount (₦)</label>
+            <input id="discount" type="number" min="0" step="1" value="0" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple">
+          </div>
+          <div>
+            <label class="block text-[10px] font-semibold text-muted mb-1">Tax (₦) — default 0</label>
+            <input id="tax" type="number" min="0" step="1" value="0" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-semibold text-muted mb-1">Notes</label>
+          <textarea id="notes" rows="2" placeholder="Thank you for your business…" class="w-full rounded-xl bg-elevated border border-border px-3 py-2.5 text-sm text-white outline-none focus:border-purple resize-none"></textarea>
+        </div>
+
+        <div class="rounded-xl bg-elevated border border-border p-3 space-y-1.5 text-sm">
+          <div class="flex justify-between text-soft"><span>Subtotal</span><span class="font-mono" id="ui-subtotal">₦0</span></div>
+          <div class="flex justify-between text-soft"><span>Discount</span><span class="font-mono text-red" id="ui-discount">−₦0</span></div>
+          <div class="flex justify-between text-soft"><span>Tax</span><span class="font-mono" id="ui-tax">₦0</span></div>
+          <div class="flex justify-between pt-2 border-t border-border font-extrabold text-white"><span>Total</span><span class="font-mono text-green text-lg" id="ui-total">₦0</span></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" id="btn-save" onclick="saveInvoice()" class="py-3 rounded-xl bg-gradient-to-r from-purple to-[#5426C7] text-white text-sm font-bold shadow-[0_0_20px_rgba(124,77,255,0.35)] hover:opacity-95">
+            Save invoice
+          </button>
+          <button type="button" onclick="resetForm()" class="py-3 rounded-xl border border-border bg-elevated text-soft text-sm font-semibold hover:text-white">
+            Clear
+          </button>
+        </div>
+        <p id="form-status" class="text-[11px] text-muted text-center min-h-[16px]"></p>
+      </section>
+
+      <!-- RIGHT: Preview + share -->
+      <section class="space-y-4">
+        <div class="panel rounded-2xl border border-border bg-card p-4 md:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-muted">Live preview</h2>
+            <span class="text-[10px] text-muted" id="company-badge">Your business</span>
+          </div>
+          <div id="invoice-preview" class="inv-paper">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <div class="panel rounded-2xl border border-border bg-card p-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button type="button" onclick="downloadPDF()" class="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-elevated border border-border hover:border-purple text-xs font-semibold text-soft hover:text-white">
+            <i class="ph-bold ph-file-pdf text-lg text-red"></i> PDF
+          </button>
+          <button type="button" onclick="shareWhatsApp()" class="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-elevated border border-border hover:border-green text-xs font-semibold text-soft hover:text-white">
+            <i class="ph-bold ph-whatsapp-logo text-lg text-green"></i> WhatsApp
+          </button>
+          <button type="button" onclick="shareEmail()" class="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-elevated border border-border hover:border-purple text-xs font-semibold text-soft hover:text-white">
+            <i class="ph-bold ph-envelope-simple text-lg text-bright"></i> Email
+          </button>
+          <button type="button" onclick="window.print()" class="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-elevated border border-border hover:border-soft text-xs font-semibold text-soft hover:text-white">
+            <i class="ph-bold ph-printer text-lg"></i> Print
+          </button>
+        </div>
+
+        <div class="panel rounded-2xl border border-border bg-card p-4">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-muted mb-3">Recent invoices</h2>
+          <div id="recent-list" class="space-y-2 max-h-48 overflow-y-auto scroll-thin text-sm">
+            <div class="text-xs text-muted text-center py-4">No invoices yet</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let company = null;
+    let products = [];
+    let lines = [];
+    let lastInvoiceNumber = null;
+    let lastSavedId = null;
+
+    function $(id) { return document.getElementById(id); }
+    function money(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    /* Theme */
+    function getTheme() { return localStorage.getItem("quantum_theme") || "night"; }
+    function resolveTheme(p) {
+      if (p === "system") {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night";
+      }
+      return p === "day" ? "day" : "night";
+    }
+    function applyTheme() {
+      const r = resolveTheme(getTheme());
+      document.body.classList.toggle("theme-day", r === "day");
+      const icon = $("theme-icon");
+      if (icon) icon.className = r === "day" ? "ph-bold ph-sun" : "ph-bold ph-moon";
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", r === "day" ? "#F4F6FB" : "#050812");
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const next = resolveTheme(getTheme()) === "day" ? "night" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function calc() {
+      const sub = lines.reduce(function (a, l) {
+        return a + (Number(l.qty) || 0) * (Number(l.price) || 0);
+      }, 0);
+      const disc = Math.max(0, Number($("discount").value) || 0);
+      const tax = Math.max(0, Number($("tax").value) || 0);
+      const total = Math.max(0, sub - disc + tax);
+      $("ui-subtotal").textContent = money(sub);
+      $("ui-discount").textContent = "−" + money(disc);
+      $("ui-tax").textContent = money(tax);
+      $("ui-total").textContent = money(total);
+      return { subtotal: sub, discount: disc, tax: tax, total: total };
+    }
+
+    function generateInvoiceNumber() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const rand = String(Math.floor(1000 + Math.random() * 9000));
+      return "INV-" + y + m + day + "-" + rand;
+    }
+
+    function renderLines() {
+      const box = $("lines");
+      if (!lines.length) {
+        box.innerHTML = '<div class="text-[11px] text-muted text-center py-3 border border-dashed border-border rounded-xl">No items yet — pick from inventory or add a line</div>';
+        calc();
+        renderPreview();
+        return;
+      }
+      box.innerHTML = lines.map(function (l, i) {
+        return (
+          '<div class="flex gap-2 items-start p-2 rounded-xl bg-elevated border border-border">' +
+          '<div class="flex-1 min-w-0 space-y-1">' +
+          '<input data-i="' + i + '" data-f="name" value="' + esc(l.name) + '" placeholder="Item name" class="w-full bg-transparent text-sm font-semibold text-white outline-none border-b border-transparent focus:border-purple">' +
+          '<div class="flex gap-2">' +
+          '<input data-i="' + i + '" data-f="qty" type="number" min="1" value="' + (l.qty || 1) + '" class="w-16 rounded-lg bg-canvas border border-border px-2 py-1 text-xs text-white">' +
+          '<input data-i="' + i + '" data-f="price" type="number" min="0" value="' + (l.price || 0) + '" class="flex-1 rounded-lg bg-canvas border border-border px-2 py-1 text-xs text-white" placeholder="Price">' +
+          '<span class="text-xs text-muted self-center font-mono">' + money((l.qty || 0) * (l.price || 0)) + '</span>' +
+          "</div></div>" +
+          '<button type="button" data-del="' + i + '" class="text-red p-1 shrink-0"><i class="ph-bold ph-trash text-sm"></i></button>' +
+          "</div>"
+        );
+      }).join("");
+
+      box.querySelectorAll("input[data-i]").forEach(function (inp) {
+        inp.addEventListener("input", function () {
+          const i = Number(inp.getAttribute("data-i"));
+          const f = inp.getAttribute("data-f");
+          if (f === "name") lines[i].name = inp.value;
+          if (f === "qty") lines[i].qty = Math.max(1, Number(inp.value) || 1);
+          if (f === "price") lines[i].price = Math.max(0, Number(inp.value) || 0);
+          calc();
+          renderPreview();
+        });
+      });
+      box.querySelectorAll("button[data-del]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          lines.splice(Number(btn.getAttribute("data-del")), 1);
+          renderLines();
+        });
+      });
+      calc();
+      renderPreview();
+    }
+
+    function addEmptyLine() {
+      lines.push({ name: "", qty: 1, price: 0 });
+      renderLines();
+    }
+
+    function addProductFromPicker() {
+      const sel = $("product-picker");
+      const id = sel.value;
+      if (!id) return;
+      const p = products.find(function (x) { return x.id === id; });
+      if (!p) return;
+      lines.push({
+        name: p.name || "Product",
+        qty: 1,
+        price: Number(p.selling_price || p.unit_selling_price || 0),
+        product_id: p.id
+      });
+      sel.value = "";
+      renderLines();
+    }
+
+    function renderPreview() {
+      const c = company || {};
+      const t = calc();
+      const invNo = lastInvoiceNumber || $("preview-number").textContent || "INV-DRAFT";
+      const cust = ($("cust-name").value || "Walk-in Customer").trim();
+      const phone = ($("cust-phone").value || "").trim();
+      const email = ($("cust-email").value || "").trim();
+      const addr = ($("cust-address").value || "").trim();
+      const due = $("due-date").value || "";
+      const notes = ($("notes").value || "").trim();
+      const today = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+
+      const rows = lines.length
+        ? lines.map(function (l, i) {
+            return (
+              '<tr style="border-bottom:1px solid #e2e8f0;">' +
+              '<td style="padding:8px 4px;font-size:11px;color:#64748b;">' + (i + 1) + "</td>" +
+              '<td style="padding:8px 4px;font-size:12px;font-weight:600;">' + esc(l.name || "Item") + "</td>" +
+              '<td style="padding:8px 4px;font-size:11px;text-align:center;">' + (l.qty || 0) + "</td>" +
+              '<td style="padding:8px 4px;font-size:11px;text-align:right;">' + money(l.price) + "</td>" +
+              '<td style="padding:8px 4px;font-size:12px;font-weight:700;text-align:right;">' + money((l.qty || 0) * (l.price || 0)) + "</td>" +
+              "</tr>"
+            );
+          }).join("")
+        : '<tr><td colspan="5" style="padding:16px;text-align:center;color:#94a3b8;font-size:12px;">No items</td></tr>';
+
+      const bankBlock =
+        (c.bank_name || c.account_number)
+          ? '<div style="margin-top:14px;padding:10px 12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;font-size:11px;">' +
+            '<div style="font-weight:700;margin-bottom:4px;color:#0f172a;">Payment details</div>' +
+            (c.bank_name ? "<div>Bank: " + esc(c.bank_name) + "</div>" : "") +
+            (c.account_name ? "<div>Account name: " + esc(c.account_name) + "</div>" : "") +
+            (c.account_number ? "<div>Account number: " + esc(c.account_number) + "</div>" : "") +
+            "<div style=\"margin-top:4px;font-weight:700;\">Amount due: " + money(t.total) + "</div>" +
+            "</div>"
+          : "";
+
+      $("invoice-preview").innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
+        '<div>' +
+        (c.logo ? '<img src="' + esc(c.logo) + '" alt="" style="height:36px;object-fit:contain;margin-bottom:6px;">' : "") +
+        '<div style="font-size:15px;font-weight:800;color:#5b3dff;letter-spacing:0.02em;">' + esc(c.company_name || "Your Business") + "</div>" +
+        '<div style="font-size:10px;color:#64748b;margin-top:2px;line-height:1.4;">' +
+        esc(c.address || "") + (c.phone ? "<br>" + esc(c.phone) : "") + (c.email ? "<br>" + esc(c.email) : "") +
+        "</div></div>" +
+        '<div style="text-align:right;">' +
+        '<div style="font-size:18px;font-weight:800;color:#0f172a;">INVOICE</div>' +
+        '<div style="font-size:11px;font-family:monospace;color:#5b3dff;font-weight:700;">' + esc(invNo) + "</div>" +
+        '<div style="font-size:10px;color:#64748b;margin-top:4px;">Date: ' + today + "</div>" +
+        (due ? '<div style="font-size:10px;color:#64748b;">Due: ' + esc(due) + "</div>" : "") +
+        "</div></div>" +
+        '<div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:14px;padding:10px;background:#f8fafc;border-radius:8px;">' +
+        '<div style="font-size:11px;"><div style="color:#64748b;font-size:9px;text-transform:uppercase;font-weight:700;">Bill to</div>' +
+        '<div style="font-weight:700;color:#0f172a;">' + esc(cust) + "</div>" +
+        (phone ? "<div style=\"color:#64748b;\">" + esc(phone) + "</div>" : "") +
+        (email ? "<div style=\"color:#64748b;\">" + esc(email) + "</div>" : "") +
+        (addr ? "<div style=\"color:#64748b;\">" + esc(addr) + "</div>" : "") +
+        "</div></div>" +
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">' +
+        '<thead><tr style="background:#f1f5f9;">' +
+        '<th style="padding:8px 4px;text-align:left;font-size:9px;color:#64748b;">#</th>' +
+        '<th style="padding:8px 4px;text-align:left;font-size:9px;color:#64748b;">Item</th>' +
+        '<th style="padding:8px 4px;text-align:center;font-size:9px;color:#64748b;">Qty</th>' +
+        '<th style="padding:8px 4px;text-align:right;font-size:9px;color:#64748b;">Price</th>' +
+        '<th style="padding:8px 4px;text-align:right;font-size:9px;color:#64748b;">Amount</th>' +
+        "</tr></thead><tbody>" + rows + "</tbody></table>" +
+        '<div style="margin-left:auto;width:55%;font-size:12px;">' +
+        '<div style="display:flex;justify-content:space-between;padding:3px 0;color:#64748b;"><span>Subtotal</span><span>' + money(t.subtotal) + "</span></div>" +
+        (t.discount > 0 ? '<div style="display:flex;justify-content:space-between;padding:3px 0;color:#ef4444;"><span>Discount</span><span>−' + money(t.discount) + "</span></div>" : "") +
+        (t.tax > 0 ? '<div style="display:flex;justify-content:space-between;padding:3px 0;color:#64748b;"><span>Tax</span><span>' + money(t.tax) + "</span></div>" : "") +
+        '<div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:4px;border-top:2px solid #0f172a;font-weight:800;font-size:15px;color:#0f172a;"><span>Total</span><span>' + money(t.total) + "</span></div>" +
+        "</div>" +
+        bankBlock +
+        (notes ? '<div style="margin-top:12px;font-size:11px;color:#64748b;"><strong style="color:#0f172a;">Notes:</strong> ' + esc(notes) + "</div>" : "") +
+        '<div style="margin-top:18px;text-align:center;font-size:10px;color:#94a3b8;">Thank you for your business.<br><span style="color:#5b3dff;font-weight:600;">Powered by Quantum OPS Elite</span></div>';
+    }
+
+    async function init() {
+      applyTheme();
+      ["cust-name", "cust-phone", "cust-email", "cust-address", "due-date", "discount", "tax", "notes"].forEach(function (id) {
+        const el = $(id);
+        if (el) el.addEventListener("input", function () { calc(); renderPreview(); });
+      });
+      $("product-picker").addEventListener("change", addProductFromPicker);
+
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const user = session.user;
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id, companies(*)")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (member && member.company_id) {
+          userCompanyId = member.company_id;
+          company = member.companies || {};
+        } else {
+          const { data: owned } = await supabaseClient
+            .from("companies")
+            .select("*")
+            .eq("owner_id", user.id)
+            .maybeSingle();
+          if (owned) {
+            userCompanyId = owned.id;
+            company = owned;
+          }
+        }
+        if (!userCompanyId) {
+          $("form-status").textContent = "No business linked. Complete profile first.";
+          return;
+        }
+
+        $("company-badge").textContent = company.company_name || "Your business";
+        lastInvoiceNumber = generateInvoiceNumber();
+        $("preview-number").textContent = lastInvoiceNumber;
+
+        const { data: prods } = await supabaseClient
+          .from("products")
+          .select("id, name, selling_price, unit_selling_price, stock, sku")
+          .eq("company_id", userCompanyId)
+          .order("name")
+          .limit(300);
+        products = prods || [];
+        const sel = $("product-picker");
+        sel.innerHTML = '<option value="">Add from inventory…</option>' + products.map(function (p) {
+          const price = Number(p.selling_price || p.unit_selling_price || 0);
+          return '<option value="' + p.id + '">' + esc(p.name) + " — " + money(price) + "</option>";
+        }).join("");
+
+        lines = [];
+        renderLines();
+        loadRecent();
+      } catch (err) {
+        console.error(err);
+        $("form-status").textContent = "Could not load. Check connection.";
+      }
+    }
+
+    async function loadRecent() {
+      if (!userCompanyId) return;
+      try {
+        const { data } = await supabaseClient
+          .from("invoices")
+          .select("id, invoice_number, customer_name, total, created_at, status")
+          .eq("company_id", userCompanyId)
+          .order("created_at", { ascending: false })
+          .limit(8);
+        const list = $("recent-list");
+        if (!data || !data.length) {
+          list.innerHTML = '<div class="text-xs text-muted text-center py-4">No invoices yet</div>';
+          return;
+        }
+        list.innerHTML = data.map(function (inv) {
+          return (
+            '<div class="flex justify-between items-center p-2 rounded-xl bg-elevated border border-border">' +
+            '<div class="min-w-0"><div class="text-xs font-bold text-white truncate">' + esc(inv.customer_name) + "</div>" +
+            '<div class="text-[10px] text-muted font-mono">' + esc(inv.invoice_number) + "</div></div>" +
+            '<div class="text-right"><div class="text-xs font-extrabold text-green">' + money(inv.total) + "</div>" +
+            '<div class="text-[9px] text-muted">' + (inv.status || "unpaid") + "</div></div></div>"
+          );
+        }).join("");
+      } catch (e) {
+        $("recent-list").innerHTML = '<div class="text-xs text-muted text-center py-2">Invoices table not ready — run SQL once</div>';
+      }
+    }
+
+    async function saveInvoice() {
+      const name = ($("cust-name").value || "").trim();
+      if (!name) {
+        alert("Enter customer name");
+        return;
+      }
+      if (!lines.length || lines.every(function (l) { return !l.name; })) {
+        alert("Add at least one line item");
+        return;
+      }
+      if (!userCompanyId) {
+        alert("Business not loaded");
+        return;
+      }
+      const t = calc();
+      const invNo = lastInvoiceNumber || generateInvoiceNumber();
+      lastInvoiceNumber = invNo;
+      $("preview-number").textContent = invNo;
+      renderPreview();
+
+      const btn = $("btn-save");
+      btn.disabled = true;
+      btn.textContent = "Saving…";
+      $("form-status").textContent = "";
+
+      const payload = {
+        company_id: userCompanyId,
+        invoice_number: invNo,
+        customer_name: name,
+        customer_phone: ($("cust-phone").value || "").trim() || null,
+        customer_email: ($("cust-email").value || "").trim() || null,
+        customer_address: ($("cust-address").value || "").trim() || null,
+        items: lines.map(function (l) {
+          return { name: l.name, qty: Number(l.qty) || 1, price: Number(l.price) || 0, product_id: l.product_id || null };
+        }),
+        subtotal: t.subtotal,
+        discount: t.discount,
+        tax: t.tax,
+        total: t.total,
+        notes: ($("notes").value || "").trim() || null,
+        status: "unpaid",
+        due_date: $("due-date").value || null
+      };
+
+      try {
+        const { data, error } = await supabaseClient.from("invoices").insert([payload]).select("id").maybeSingle();
+        if (error) throw error;
+        lastSavedId = data && data.id;
+        $("form-status").textContent = "Invoice saved · " + invNo;
+        $("form-status").style.color = "#31D17C";
+        loadRecent();
+        lastInvoiceNumber = generateInvoiceNumber();
+        $("preview-number").textContent = lastInvoiceNumber;
+      } catch (err) {
+        console.error(err);
+        $("form-status").textContent = err.message || "Save failed. Create invoices table (SQL above).";
+        $("form-status").style.color = "#FF4F67";
+      }
+      btn.disabled = false;
+      btn.textContent = "Save invoice";
+    }
+
+    function downloadPDF() {
+      const el = $("invoice-preview");
+      if (!el) return;
+      const name = lastInvoiceNumber || "invoice";
+      html2pdf()
+        .from(el)
+        .set({
+          margin: 8,
+          filename: name + ".pdf",
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        })
+        .save();
+    }
+
+    function buildMessage() {
+      const t = calc();
+      const c = company || {};
+      const cust = ($("cust-name").value || "Customer").trim();
+      const invNo = lastInvoiceNumber || $("preview-number").textContent;
+      let msg = "Hello " + cust + ",\n\n";
+      msg += "Invoice *" + invNo + "* from *" + (c.company_name || "our shop") + "*\n\n";
+      lines.forEach(function (l) {
+        if (!l.name) return;
+        msg += "• " + l.name + " × " + l.qty + " — " + money((l.qty || 0) * (l.price || 0)) + "\n";
+      });
+      msg += "\n*Total: " + money(t.total) + "*\n";
+      if (c.bank_name || c.account_number) {
+        msg += "\nPayment details:\n";
+        if (c.bank_name) msg += "Bank: " + c.bank_name + "\n";
+        if (c.account_name) msg += "Name: " + c.account_name + "\n";
+        if (c.account_number) msg += "Account: " + c.account_number + "\n";
+      }
+      msg += "\nThank you for your business.\n— " + (c.company_name || "Quantum OPS Elite");
+      return msg;
+    }
+
+    function shareWhatsApp() {
+      const phone = ($("cust-phone").value || "").replace(/\D/g, "");
+      let wa = phone;
+      if (wa.startsWith("0")) wa = "234" + wa.slice(1);
+      else if (wa.length === 10) wa = "234" + wa;
+      const text = encodeURIComponent(buildMessage());
+      const url = wa.length >= 11
+        ? "https://wa.me/" + wa + "?text=" + text
+        : "https://wa.me/?text=" + text;
+      window.open(url, "_blank");
+    }
+
+    function shareEmail() {
+      const email = ($("cust-email").value || "").trim();
+      const invNo = lastInvoiceNumber || "Invoice";
+      const c = company || {};
+      const subject = encodeURIComponent("Invoice " + invNo + " — " + (c.company_name || "Quantum OPS"));
+      const body = encodeURIComponent(buildMessage());
+      window.location.href = "mailto:" + (email || "") + "?subject=" + subject + "&body=" + body;
+    }
+
+    function resetForm() {
+      lines = [];
+      ["cust-name", "cust-phone", "cust-email", "cust-address", "notes"].forEach(function (id) {
+        if ($(id)) $(id).value = "";
+      });
+      $("discount").value = "0";
+      $("tax").value = "0";
+      $("due-date").value = "";
+      lastInvoiceNumber = generateInvoiceNumber();
+      $("preview-number").textContent = lastInvoiceNumber;
+      $("form-status").textContent = "";
+      renderLines();
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
