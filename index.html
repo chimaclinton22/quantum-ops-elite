@@ -8,35 +8,55 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Quantum OPS">
 
-  <!-- PWA Manifest + Icons -->
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
 
-  <title>Quantum OPS Elite - Login</title>
+  <title>Quantum OPS Elite — Sign In</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #05060B;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #F8FAFF;
       min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #05060B;
+      color: #F8FAFF;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px 16px;
+      padding: 24px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(108,92,231,0.22), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 10%, rgba(79,70,229,0.12), transparent 50%),
+        radial-gradient(ellipse 50% 30% at 50% 100%, rgba(108,92,231,0.08), transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .auth-shell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
     }
     .auth-card {
-      width: 100%;
-      max-width: 420px;
-      background: #101326;
-      border: 1px solid rgba(139,92,255,0.25);
+      background: rgba(16,19,38,0.92);
+      border: 1px solid rgba(139,92,255,0.22);
       border-radius: 24px;
-      padding: 32px 28px;
-      box-shadow: 0 0 40px rgba(108,92,231,0.12);
+      padding: 36px 32px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03) inset,
+        0 24px 60px rgba(0,0,0,0.45),
+        0 0 40px rgba(108,92,231,0.1);
+      backdrop-filter: blur(16px);
     }
     .logo-area {
       display: flex;
@@ -45,57 +65,58 @@
       margin-bottom: 28px;
     }
     .logo-box {
-      width: 56px;
-      height: 56px;
+      width: 58px;
+      height: 58px;
       background: linear-gradient(135deg, #6C5CE7, #4F46E5);
       border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 24px;
+      font-size: 26px;
       color: #fff;
-      margin-bottom: 12px;
-      box-shadow: 0 8px 20px rgba(108,92,231,0.35);
+      margin-bottom: 14px;
+      box-shadow: 0 10px 28px rgba(108,92,231,0.4);
+      letter-spacing: -0.5px;
     }
     .logo-area h1 {
       font-size: 20px;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
+      color: #fff;
     }
     .logo-area p {
       font-size: 11px;
       color: #A78BFA;
       font-weight: 600;
-      letter-spacing: 1.5px;
-      margin-top: 2px;
+      letter-spacing: 2px;
+      margin-top: 4px;
+      text-transform: uppercase;
     }
     .form-title {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 26px;
     }
     .form-title h2 {
       font-size: 18px;
       font-weight: 700;
       margin-bottom: 6px;
+      color: #fff;
     }
     .form-title p {
       font-size: 13px;
       color: #94A3B8;
+      line-height: 1.45;
     }
-    .field {
-      margin-bottom: 16px;
-    }
+    .field { margin-bottom: 16px; }
     .field label {
       display: block;
       font-size: 12px;
       color: #A8B3CF;
-      margin-bottom: 6px;
+      margin-bottom: 7px;
       font-weight: 500;
     }
-    .input-wrap {
-      position: relative;
-    }
+    .input-wrap { position: relative; }
     .input-wrap i.left-icon {
       position: absolute;
       left: 14px;
@@ -103,6 +124,7 @@
       transform: translateY(-50%);
       color: #64748B;
       font-size: 13px;
+      pointer-events: none;
     }
     .input-wrap input {
       width: 100%;
@@ -113,17 +135,16 @@
       font-size: 14px;
       color: #fff;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .input-wrap input:focus {
       border-color: #8B5CFF;
+      box-shadow: 0 0 0 3px rgba(139,92,255,0.15);
     }
-    .input-wrap input::placeholder {
-      color: #475569;
-    }
+    .input-wrap input::placeholder { color: #475569; }
     .toggle-password {
       position: absolute;
-      right: 14px;
+      right: 12px;
       top: 50%;
       transform: translateY(-50%);
       background: none;
@@ -131,14 +152,13 @@
       color: #64748B;
       cursor: pointer;
       font-size: 14px;
-      padding: 4px;
+      padding: 6px;
+      border-radius: 6px;
     }
-    .toggle-password:hover {
-      color: #A78BFA;
-    }
+    .toggle-password:hover { color: #A78BFA; }
     .btn-primary {
       width: 100%;
-      padding: 14px;
+      padding: 14px 16px;
       border: none;
       border-radius: 12px;
       background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
@@ -150,25 +170,23 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin-top: 8px;
-      transition: opacity 0.2s;
+      margin-top: 10px;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 8px 24px rgba(108,92,231,0.35);
     }
-    .btn-primary:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
+    .btn-primary:hover:not(:disabled) { opacity: 0.95; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
     .alert {
       display: none;
       padding: 12px 14px;
       border-radius: 12px;
       font-size: 13px;
       margin-bottom: 18px;
-      align-items: center;
-      gap: 8px;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
     }
-    .alert.show {
-      display: flex;
-    }
+    .alert.show { display: flex; }
     .alert.error {
       background: rgba(255,90,122,0.12);
       border: 1px solid rgba(255,90,122,0.3);
@@ -179,6 +197,7 @@
       border: 1px solid rgba(34,245,160,0.3);
       color: #22F5A0;
     }
+    .alert i { margin-top: 2px; flex-shrink: 0; }
     .toggle-mode {
       text-align: center;
       margin-top: 24px;
@@ -193,102 +212,150 @@
       text-decoration: none;
       margin-left: 4px;
     }
-    .toggle-mode a:hover {
-      text-decoration: underline;
+    .toggle-mode a:hover { text-decoration: underline; }
+    .trial-badge {
+      display: none;
+      text-align: center;
+      margin-bottom: 18px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(108,92,231,0.12);
+      border: 1px solid rgba(139,92,255,0.25);
+      font-size: 12px;
+      color: #C4B5FD;
+      font-weight: 500;
     }
-    .hidden {
-      display: none !important;
+    .trial-badge.show { display: block; }
+    .hidden { display: none !important; }
+    .footer-note {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 11px;
+      color: #64748B;
     }
     @media (min-width: 640px) {
-      .auth-card {
-        padding: 40px 36px;
-      }
+      .auth-card { padding: 42px 40px; }
     }
   </style>
 </head>
 <body>
-  <div class="auth-card">
-    <div class="logo-area">
-      <div class="logo-box">Q</div>
-      <h1>QUANTUM OPS</h1>
-      <p>AI BUSINESS OS</p>
-    </div>
-    <div class="form-title">
-      <h2 id="form-title">Sign in to your account</h2>
-      <p id="form-subtitle">Enter your email and password to continue</p>
-    </div>
-    <div id="alert" class="alert">
-      <i id="alert-icon" class="fa-solid fa-circle-info"></i>
-      <span id="alert-text"></span>
-    </div>
-    <form id="auth-form">
-      <div id="name-field" class="field hidden">
-        <label>Full Name / Shop Name</label>
-        <div class="input-wrap">
-          <i class="fa-regular fa-user left-icon"></i>
-          <input type="text" id="full_name" placeholder="e.g. Rise Beyond">
-        </div>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="logo-area">
+        <div class="logo-box">Q</div>
+        <h1>QUANTUM OPS</h1>
+        <p>AI Business OS</p>
       </div>
-      <div class="field">
-        <label>Email Address</label>
-        <div class="input-wrap">
-          <i class="fa-regular fa-envelope left-icon"></i>
-          <input type="email" id="email" required placeholder="owner@company.com">
-        </div>
+
+      <div class="form-title">
+        <h2 id="form-title">Sign in to your account</h2>
+        <p id="form-subtitle">Enter your email and password to continue</p>
       </div>
-      <div id="password-field" class="field">
-        <label>Password</label>
-        <div class="input-wrap">
-          <i class="fa-solid fa-lock left-icon"></i>
-          <input type="password" id="password" placeholder="••••••••">
-          <button type="button" class="toggle-password" onclick="togglePassword('password', this)">
-            <i class="fa-regular fa-eye"></i>
-          </button>
-        </div>
+
+      <div id="trial-badge" class="trial-badge">
+        <i class="fa-solid fa-gift" style="margin-right:6px;"></i>
+        14-day free trial · No card required
       </div>
-      <div id="confirm-field" class="field hidden">
-        <label>Confirm Password</label>
-        <div class="input-wrap">
-          <i class="fa-solid fa-lock left-icon"></i>
-          <input type="password" id="confirm_password" placeholder="••••••••">
-          <button type="button" class="toggle-password" onclick="togglePassword('confirm_password', this)">
-            <i class="fa-regular fa-eye"></i>
-          </button>
-        </div>
+
+      <div id="alert" class="alert">
+        <i id="alert-icon" class="fa-solid fa-circle-info"></i>
+        <span id="alert-text"></span>
       </div>
-      <button type="submit" id="submit-btn" class="btn-primary">
-        <span>Sign In</span>
-        <i class="fa-solid fa-arrow-right" style="font-size:12px;"></i>
-      </button>
-    </form>
-    <div class="toggle-mode">
-      <p id="toggle-signup">
-        Don't have an account?
-        <a href="#" onclick="showSignUp(); return false;">Create Account</a>
-      </p>
-      <p id="toggle-login" class="hidden">
-        Already have an account?
-        <a href="#" onclick="showLogin(); return false;">Sign In</a>
-      </p>
+
+      <form id="auth-form" autocomplete="on">
+        <div id="name-field" class="field hidden">
+          <label for="full_name">Full Name / Shop Name</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-user left-icon"></i>
+            <input type="text" id="full_name" name="name" placeholder="e.g. Rise Beyond" autocomplete="organization">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email Address</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-envelope left-icon"></i>
+            <input type="email" id="email" name="email" required placeholder="owner@company.com" autocomplete="email">
+          </div>
+        </div>
+
+        <div id="password-field" class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock left-icon"></i>
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" class="toggle-password" onclick="togglePassword('password', this)" aria-label="Show password">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="confirm-field" class="field hidden">
+          <label for="confirm_password">Confirm Password</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock left-icon"></i>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" autocomplete="new-password">
+            <button type="button" class="toggle-password" onclick="togglePassword('confirm_password', this)" aria-label="Show password">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn-primary">
+          <span>Sign In</span>
+          <i class="fa-solid fa-arrow-right" style="font-size:12px;"></i>
+        </button>
+      </form>
+
+      <div class="toggle-mode">
+        <p id="toggle-signup">
+          Don't have an account?
+          <a href="#" onclick="showSignUp(); return false;">Create Account</a>
+        </p>
+        <p id="toggle-login" class="hidden">
+          Already have an account?
+          <a href="#" onclick="showLogin(); return false;">Sign In</a>
+        </p>
+      </div>
     </div>
+
+    <p class="footer-note">Secure login · Powered by Quantum OPS Elite</p>
   </div>
+
   <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
+
     let currentMode = "login";
     let isBusy = false;
+
+    /* Detect phone vs desktop and send user to the right dashboard */
+    function getDashboardTarget() {
+      const ua = navigator.userAgent || "";
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      const isSmallScreen = window.innerWidth < 1024;
+      // Prefer phone layout for real phones and small screens
+      if (isMobileUA || isSmallScreen) return "mobile.html";
+      return "desktop.html";
+    }
+
+    function goToApp() {
+      window.location.replace(getDashboardTarget());
+    }
+
     async function checkExistingSession() {
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session?.user) {
-          window.location.replace("dashboard.html");
+        if (session && session.user) {
+          goToApp();
         }
       } catch (e) {}
     }
     checkExistingSession();
+
     function togglePassword(inputId, btn) {
       const input = document.getElementById(inputId);
       const icon = btn.querySelector("i");
@@ -302,7 +369,8 @@
         icon.classList.add("fa-eye");
       }
     }
-    function showAlert(msg, isError = true) {
+
+    function showAlert(msg, isError) {
       const alertBox = document.getElementById("alert");
       const alertText = document.getElementById("alert-text");
       const alertIcon = document.getElementById("alert-icon");
@@ -310,130 +378,169 @@
       alertBox.className = "alert show " + (isError ? "error" : "success");
       alertIcon.className = isError ? "fa-solid fa-circle-exclamation" : "fa-solid fa-circle-check";
     }
+
     function setBusy(busy) {
       isBusy = busy;
       const btn = document.getElementById("submit-btn");
       btn.disabled = busy;
-      btn.style.opacity = busy ? "0.7" : "1";
+      const span = btn.querySelector("span");
+      if (span) {
+        if (busy) {
+          span.setAttribute("data-old", span.textContent);
+          span.textContent = currentMode === "signup" ? "Creating account…" : "Signing in…";
+        } else if (span.getAttribute("data-old")) {
+          span.textContent = span.getAttribute("data-old");
+          span.removeAttribute("data-old");
+        }
+      }
     }
+
     function showSignUp() {
       currentMode = "signup";
-      document.getElementById("form-title").textContent = "Create an Elite Account";
-      document.getElementById("form-subtitle").textContent = "Start your 14-day free trial";
+      document.getElementById("form-title").textContent = "Create your Elite account";
+      document.getElementById("form-subtitle").textContent = "Start managing your business in minutes";
       document.getElementById("name-field").classList.remove("hidden");
       document.getElementById("confirm-field").classList.remove("hidden");
+      document.getElementById("trial-badge").classList.add("show");
       document.getElementById("submit-btn").querySelector("span").textContent = "Create Account";
+      document.getElementById("password").setAttribute("autocomplete", "new-password");
       document.getElementById("toggle-signup").classList.add("hidden");
       document.getElementById("toggle-login").classList.remove("hidden");
       document.getElementById("alert").classList.remove("show");
     }
+
     function showLogin() {
       currentMode = "login";
       document.getElementById("form-title").textContent = "Sign in to your account";
       document.getElementById("form-subtitle").textContent = "Enter your email and password to continue";
       document.getElementById("name-field").classList.add("hidden");
       document.getElementById("confirm-field").classList.add("hidden");
+      document.getElementById("trial-badge").classList.remove("show");
       document.getElementById("submit-btn").querySelector("span").textContent = "Sign In";
+      document.getElementById("password").setAttribute("autocomplete", "current-password");
       document.getElementById("toggle-signup").classList.remove("hidden");
       document.getElementById("toggle-login").classList.add("hidden");
       document.getElementById("alert").classList.remove("show");
     }
+
     async function createCompanyForUser(user, shopName) {
-      const name = (shopName && shopName.trim()) ? shopName.trim() : (user.email?.split('@')[0] || 'My Business');
+      const name = (shopName && shopName.trim())
+        ? shopName.trim()
+        : (user.email ? user.email.split("@")[0] : "My Business");
+
       const { data: existing } = await supabaseClient
-        .from('companies')
-        .select('id')
-        .eq('owner_id', user.id)
+        .from("companies")
+        .select("id")
+        .eq("owner_id", user.id)
         .maybeSingle();
-      if (existing?.id) {
+
+      if (existing && existing.id) {
         const { data: link } = await supabaseClient
-          .from('company_users')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('company_id', existing.id)
+          .from("company_users")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("company_id", existing.id)
           .maybeSingle();
         if (!link) {
-          await supabaseClient.from('company_users').insert([{
+          await supabaseClient.from("company_users").insert([{
             company_id: existing.id,
             user_id: user.id,
-            role: 'owner'
+            role: "owner"
           }]);
         }
         return existing;
       }
+
       const trialEnds = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
       const { data: company, error: companyError } = await supabaseClient
-        .from('companies')
+        .from("companies")
         .insert([{
           owner_id: user.id,
           company_name: name,
-          currency: 'NGN',
-          subscription_status: 'trial',
+          currency: "NGN",
+          subscription_status: "trial",
           trial_ends_at: trialEnds
         }])
         .select()
         .single();
-      if (companyError) throw new Error('Could not create business: ' + companyError.message);
+
+      if (companyError) throw new Error("Could not create business: " + companyError.message);
+
       const { error: linkError } = await supabaseClient
-        .from('company_users')
+        .from("company_users")
         .insert([{
           company_id: company.id,
           user_id: user.id,
-          role: 'owner'
+          role: "owner"
         }]);
-      if (linkError) throw new Error('Could not link account: ' + linkError.message);
+
+      if (linkError) throw new Error("Could not link account: " + linkError.message);
       return company;
     }
-    document.getElementById("auth-form").addEventListener("submit", async (e) => {
+
+    document.getElementById("auth-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       if (isBusy) return;
+
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const fullName = document.getElementById("full_name").value.trim();
       const confirmPassword = document.getElementById("confirm_password").value;
+
       setBusy(true);
       document.getElementById("alert").classList.remove("show");
+
       try {
         if (currentMode === "signup") {
           if (!fullName) throw new Error("Please enter your Full Name or Shop Name");
           if (!password || password.length < 6) throw new Error("Password must be at least 6 characters");
           if (password !== confirmPassword) throw new Error("Passwords do not match");
+
           const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
+            email: email,
+            password: password,
             options: { data: { full_name: fullName } }
           });
           if (error) throw error;
           if (!data.user) throw new Error("Account created but something went wrong. Please try again.");
+
           try {
             await createCompanyForUser(data.user, fullName);
           } catch (ce) {
             console.error(ce);
           }
+
           showAlert("Account created successfully! Please sign in.", false);
-          setTimeout(() => {
+          setTimeout(function () {
             showLogin();
             document.getElementById("email").value = email;
             document.getElementById("password").value = "";
-          }, 1500);
-        } else if (currentMode === "login") {
+          }, 1400);
+
+        } else {
           if (!password) throw new Error("Please enter your password");
-          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
           if (error) throw error;
           if (!data.user) throw new Error("Login failed. Please try again.");
+
           const { data: link } = await supabaseClient
-            .from('company_users')
-            .select('id')
-            .eq('user_id', data.user.id)
+            .from("company_users")
+            .select("id")
+            .eq("user_id", data.user.id)
             .maybeSingle();
+
           if (!link) {
-            const name = data.user.user_metadata?.full_name || data.user.email.split('@')[0];
+            const name = (data.user.user_metadata && data.user.user_metadata.full_name)
+              || (data.user.email ? data.user.email.split("@")[0] : "My Business");
             await createCompanyForUser(data.user, name);
           }
-          showAlert("Login successful! Redirecting...", false);
-          setTimeout(() => {
-            window.location.replace("dashboard.html");
-          }, 600);
+
+          showAlert("Login successful! Redirecting…", false);
+          setTimeout(goToApp, 500);
         }
       } catch (err) {
         showAlert(err.message || "Something went wrong. Please try again.", true);
@@ -441,12 +548,12 @@
         setBusy(false);
       }
     });
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then((reg) => console.log('Service Worker registered:', reg.scope))
-          .catch((err) => console.log('Service Worker registration failed:', err));
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/sw.js")
+          .then(function (reg) { console.log("SW registered:", reg.scope); })
+          .catch(function (err) { console.log("SW failed:", err); });
       });
     }
   </script>
