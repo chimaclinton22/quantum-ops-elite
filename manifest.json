@@ -2,9 +2,9 @@
   "name": "Quantum OPS Elite",
   "short_name": "Quantum OPS",
   "description": "AI-Powered Business Operating System",
-  "start_url": "/dashboard.html",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#05060B",
   "theme_color": "#05060B",
   "orientation": "portrait-primary",
   "icons": [
