@@ -334,16 +334,12 @@
 
     /* Phone → mobile.html | Desktop → desktop.html | NEVER dashboard.html */
     function getDashboardTarget() {
-      try {
-        const ua = navigator.userAgent || "";
-        const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-        const isSmallScreen = window.innerWidth < 1024;
-        if (isMobileUA || isSmallScreen) return "mobile.html";
-        return "desktop.html";
-      } catch (e) {
-        return "mobile.html";
-      }
-    }
+  const ua = navigator.userAgent || "";
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isSmallScreen = window.innerWidth < 1024;
+  if (isMobileUA || isSmallScreen) return "dashboard.html";  // was mobile.html
+  return "desktop.html";
+}
 
     function goToApp() {
       const target = getDashboardTarget();
