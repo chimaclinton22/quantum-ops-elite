@@ -3,135 +3,311 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#6C5CE7">
+  <meta name="theme-color" content="#05060B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quantum OPS">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <title>Notifications - Quantum OPS Elite</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { bg: '#07070F', card: '#121224', purple: '#6C5CE7' }
-          }
-        }
-      }
-    }
-  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    html, body {
+      background: #07070F;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #E2E8F0;
+      min-height: 100%; height: 100%;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
-    #mobile-view { display: block !important; }
-    #desktop-view { display: none !important; }
+    .mobile-only { display: block !important; }
+    .desktop-only { display: none !important; }
     @media (min-width: 1024px) {
-      #mobile-view { display: none !important; }
-      #desktop-view { display: flex !important; }
+      .mobile-only { display: none !important; }
+      .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE SAFE AREA (STRONG FIX) ===== */
+    /* ===== MOBILE ===== */
     .iphone-frame {
       width: 100%; max-width: 100%;
-      height: 100dvh; height: 100vh;
+      min-height: 100%; min-height: 100dvh;
       background: #0B0B16;
-      position: relative; overflow: hidden;
+      position: relative;
       display: flex; flex-direction: column;
       padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
     }
     .mobile-top {
-      padding: 14px 16px;
-      padding-top: calc(14px + env(safe-area-inset-top, 0px));
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(11,11,22,0.97);
+      position: sticky; top: 0; z-index: 30; flex-shrink: 0;
+      padding: 12px 14px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: rgba(11,11,22,0.98);
       border-bottom: 1px solid rgba(139,92,246,0.12);
-      flex-shrink: 0; z-index: 30;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
+    .mobile-top h1 { font-size: 15px; font-weight: 800; color: #fff; margin: 0; }
+    .mobile-top p { font-size: 10px; color: #94a3b8; margin: 2px 0 0; }
     .mobile-list {
       flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding: 12px 16px;
-      padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+      overscroll-behavior-y: contain; padding: 12px 14px 16px; min-height: 0;
     }
-    .mobile-bottom {
-      position: absolute; bottom: 0; left: 0; right: 0;
+    .bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
       height: calc(64px + env(safe-area-inset-bottom, 0px));
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      background: rgba(14,14,28,0.97);
-      border-top: 1px solid rgba(139,92,246,0.15);
+      padding: 0 16px env(safe-area-inset-bottom, 0px);
+      background: rgba(14,14,28,0.98);
+      border-top: 1px solid rgba(139,92,246,0.18);
       display: flex; align-items: center; justify-content: space-between;
-      padding-left: 24px; padding-right: 24px; z-index: 40;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      transform: translateZ(0);
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center; gap: 2px;
-      color: #94a3b8; text-decoration: none; font-size: 9px;
+      color: #94a3b8; text-decoration: none; font-size: 9px; min-width: 48px; padding: 6px 4px;
     }
+    .nav-item.active { color: #a78bfa; }
     .nav-item i { font-size: 14px; }
+
+    .enable-card {
+      background: #121224; border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 16px; padding: 14px; margin-bottom: 12px;
+    }
+    .enable-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
+      color: #fff; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .enable-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .status-ok { color: #34d399; font-size: 11px; text-align: center; margin-top: 8px; }
+    .status-warn { color: #fbbf24; font-size: 11px; text-align: center; margin-top: 8px; }
+
+    .filters {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .filter-chip {
+      padding: 7px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+      background: #121224; color: #94a3b8; border: 1px solid rgba(139,92,246,0.15);
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    }
+    .filter-chip.active { background: #6C5CE7; color: #fff; border-color: transparent; }
+
+    .date-label {
+      font-size: 10px; font-weight: 700; color: #a78bfa;
+      margin: 14px 0 8px; letter-spacing: 0.04em;
+    }
+    .notif-card {
+      background: #121224; border: 1px solid rgba(139,92,246,0.12);
+      border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .notif-card.unread {
+      border-color: rgba(139,92,246,0.4);
+      box-shadow: 0 0 0 1px rgba(108,92,231,0.2);
+    }
+    .notif-card.low_stock { border-left: 3px solid #fbbf24; }
+    .notif-card.debt { border-left: 3px solid #fb7185; }
+    .notif-card.sale { border-left: 3px solid #34d399; }
+    .notif-card.ai { border-left: 3px solid #a78bfa; }
+    .notif-card.summary { border-left: 3px solid #60a5fa; }
+    .notif-title { font-size: 13px; font-weight: 700; color: #fff; margin: 0; }
+    .notif-msg { font-size: 12px; color: #94a3b8; margin: 4px 0 0; line-height: 1.4; }
+    .notif-time { font-size: 10px; color: #64748b; flex-shrink: 0; }
+    .notif-unread-tag { font-size: 9px; color: #a78bfa; margin-top: 4px; font-weight: 600; }
 
     /* ===== DESKTOP ===== */
     .desktop-shell {
-      width: 100%; min-height: 100vh; background: #07070F;
-      flex-direction: column;
+      width: 100%; min-height: 100vh;
+      background:
+        radial-gradient(ellipse 90% 60% at 10% -10%, rgba(108,92,231,0.10), transparent 50%),
+        #F8FAFC;
+      flex-direction: row;
     }
+    body:not(.theme-day) .desktop-shell {
+      background:
+        radial-gradient(ellipse 90% 60% at 10% -10%, rgba(108,92,231,0.14), transparent 50%),
+        #07070F;
+    }
+    .desk-layout {
+      width: 100%; min-height: 100vh;
+      display: grid; grid-template-columns: 220px 1fr;
+    }
+    .desk-sidebar {
+      position: sticky; top: 0; height: 100vh;
+      background: #FFFFFF; border-right: 1px solid #E2E8F0;
+      padding: 18px 12px; display: flex; flex-direction: column; overflow-y: auto;
+    }
+    body:not(.theme-day) .desk-sidebar {
+      background: rgba(18,18,36,0.97); border-right-color: rgba(139,92,246,0.14);
+    }
+    .desk-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 10px 18px; border-bottom: 1px solid #E2E8F0; margin-bottom: 12px;
+    }
+    body:not(.theme-day) .desk-logo { border-bottom-color: rgba(139,92,246,0.12); }
+    .desk-logo-mark {
+      width: 36px; height: 36px; border-radius: 12px;
+      background: linear-gradient(135deg,#6C5CE7,#8B5CFF);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 14px;
+    }
+    .desk-logo-text { font-weight: 800; font-size: 13px; color: #0F172A; }
+    body:not(.theme-day) .desk-logo-text { color: #fff; }
+    .desk-logo-sub { font-size: 9px; color: #64748B; font-weight: 600; }
+    .desk-sidebar .nav-item {
+      flex-direction: row; justify-content: flex-start; gap: 12px;
+      font-size: 13.5px; font-weight: 500; padding: 11px 14px; border-radius: 12px;
+      margin-bottom: 3px; color: #64748B;
+    }
+    body:not(.theme-day) .desk-sidebar .nav-item { color: #94a3b8; }
+    .desk-sidebar .nav-item i { font-size: 15px; width: 22px; text-align: center; }
+    .desk-sidebar .nav-item:hover { color: #6C5CE7; background: rgba(108,92,231,0.08); }
+    .desk-sidebar .nav-item.active {
+      background: linear-gradient(135deg, rgba(108,92,231,0.18), rgba(124,108,240,0.08));
+      color: #6C5CE7; border: 1px solid rgba(139,92,246,0.22);
+    }
+    body:not(.theme-day) .desk-sidebar .nav-item.active {
+      background: linear-gradient(135deg, rgba(108,92,231,0.28), rgba(124,108,240,0.12));
+      color: #c4b5fd;
+    }
+    .desk-sidebar-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid #E2E8F0; }
+    body:not(.theme-day) .desk-sidebar-foot { border-top-color: rgba(139,92,246,0.12); }
+    .theme-toggle {
+      display: flex; gap: 6px; background: #F1F5F9; border-radius: 12px; padding: 4px; margin-bottom: 12px;
+    }
+    body:not(.theme-day) .theme-toggle { background: rgba(0,0,0,0.25); }
+    .theme-toggle button {
+      flex: 1; border: none; border-radius: 9px; padding: 8px; font-size: 11px; font-weight: 600;
+      cursor: pointer; background: transparent; color: #64748B;
+    }
+    .theme-toggle button.active { background: #6C5CE7; color: #fff; }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px;
+      background: #F8FAFC; border: 1px solid #E2E8F0; text-decoration: none; color: inherit;
+    }
+    body:not(.theme-day) .user-chip {
+      background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.15);
+    }
+    .user-chip .avatar {
+      width: 36px; height: 36px; border-radius: 999px; background: #6C5CE7;
+      display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px;
+    }
+    .user-chip .name { font-size: 12px; font-weight: 700; color: #0F172A; }
+    body:not(.theme-day) .user-chip .name { color: #fff; }
+    .user-chip .role { font-size: 10px; color: #64748B; }
+
+    .desk-main { display: flex; flex-direction: column; min-width: 0; min-height: 100vh; }
     .desk-topbar {
-      height: 64px; background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.15);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 28px; flex-shrink: 0;
+      padding: 16px 28px; border-bottom: 1px solid #E2E8F0; background: #FFFFFF;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    body:not(.theme-day) .desk-topbar {
+      background: rgba(14,14,28,0.9); border-bottom-color: rgba(139,92,246,0.12);
+    }
+    .desk-topbar h1 { font-size: 20px; font-weight: 800; color: #0F172A; margin: 0; }
+    body:not(.theme-day) .desk-topbar h1 { color: #fff; }
+    .desk-topbar p { font-size: 12px; color: #64748B; margin: 3px 0 0; }
+    .desk-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .desk-btn {
+      padding: 10px 16px; border-radius: 11px; font-size: 13px; font-weight: 600; cursor: pointer;
+      border: 1px solid #E2E8F0; background: #F8FAFC; color: #475569;
+    }
+    body:not(.theme-day) .desk-btn {
+      background: #121224; border-color: rgba(139,92,246,0.25); color: #c4b5fd;
+    }
+    .desk-btn.primary {
+      background: linear-gradient(135deg,#6C5CE7,#4F46E5); border: none; color: #fff;
     }
     .desk-content {
-      flex: 1; max-width: 720px; margin: 0 auto; width: 100%;
-      padding: 28px 24px; overflow-y: auto;
+      flex: 1; overflow-y: auto; padding: 24px 28px; max-width: 800px;
     }
     .desk-notif {
-      background: #121224; border: 1px solid rgba(139,92,246,0.15);
-      border-radius: 16px; padding: 16px 18px; margin-bottom: 10px;
-      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+      background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px;
+      padding: 16px 18px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s;
     }
-    .desk-notif:hover { border-color: rgba(139,92,246,0.35); background: #16162a; }
-    .desk-notif.unread { border-color: rgba(139,92,246,0.45); box-shadow: 0 0 0 1px rgba(108,92,231,0.25); }
+    body:not(.theme-day) .desk-notif {
+      background: #121224; border-color: rgba(139,92,246,0.15);
+    }
+    .desk-notif:hover { border-color: rgba(108,92,231,0.4); }
+    .desk-notif.unread {
+      border-color: rgba(108,92,231,0.45);
+      box-shadow: 0 0 0 1px rgba(108,92,231,0.15);
+    }
+    body:not(.theme-day) .desk-notif.unread {
+      box-shadow: 0 0 0 1px rgba(108,92,231,0.25);
+    }
+    .desk-notif.low_stock { border-left: 4px solid #fbbf24; }
+    .desk-notif.debt { border-left: 4px solid #fb7185; }
+    .desk-notif.sale { border-left: 4px solid #34d399; }
+    .desk-notif.ai { border-left: 4px solid #a78bfa; }
 
-    .enable-btn {
-      width: 100%; padding: 14px; border: none; border-radius: 14px;
-      background: linear-gradient(135deg, #6C5CE7, #4F46E5);
-      color: #fff; font-weight: 700; font-size: 13px; cursor: pointer;
-      margin-bottom: 10px;
+    /* ===== DAY THEME MOBILE ===== */
+    body.theme-day {
+      background: #F4F6FB !important; color: #0F172A !important;
     }
-    .enable-btn:disabled { opacity: 0.65; cursor: not-allowed; }
-    .status-ok { color: #34d399; font-size: 12px; text-align: center; margin-bottom: 12px; }
-    .status-warn { color: #fbbf24; font-size: 12px; text-align: center; margin-bottom: 12px; }
+    body.theme-day .iphone-frame { background: #F4F6FB !important; }
+    body.theme-day .mobile-top,
+    body.theme-day .bottom-nav {
+      background: #FFFFFF !important; border-color: #E2E8F0 !important;
+    }
+    body.theme-day .mobile-top h1 { color: #0F172A !important; }
+    body.theme-day .mobile-top p,
+    body.theme-day .nav-item { color: #64748B !important; }
+    body.theme-day .nav-item.active { color: #6C5CE7 !important; }
+    body.theme-day .enable-card,
+    body.theme-day .notif-card,
+    body.theme-day .filter-chip {
+      background: #FFFFFF !important; border-color: #E2E8F0 !important;
+    }
+    body.theme-day .filter-chip { color: #64748B !important; }
+    body.theme-day .filter-chip.active { background: #6C5CE7 !important; color: #fff !important; }
+    body.theme-day .notif-title { color: #0F172A !important; }
+    body.theme-day .notif-msg { color: #64748B !important; }
+    body.theme-day .date-label { color: #6C5CE7 !important; }
   </style>
 </head>
 <body>
+
   <!-- ==================== MOBILE ==================== -->
-  <div id="mobile-view">
+  <div class="mobile-only">
     <div class="iphone-frame">
       <div class="mobile-top">
         <div style="display:flex;align-items:center;gap:12px;">
-          <a href="moblie.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
+          <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;font-size:16px;"><i class="fa-solid fa-arrow-left"></i></a>
           <div>
-            <div style="font-weight:700;font-size:12px;color:#fff;letter-spacing:0.05em;">NOTIFICATIONS</div>
-            <div style="font-size:9px;color:#94a3b8;">What needs your attention</div>
+            <h1>Notifications</h1>
+            <p>What needs your attention</p>
           </div>
         </div>
-        <button onclick="markAllRead()" style="background:none;border:none;color:#c4b5fd;font-size:10px;font-weight:600;cursor:pointer;">
+        <button type="button" onclick="markAllRead()" style="background:none;border:none;color:#a78bfa;font-size:11px;font-weight:700;cursor:pointer;">
           Mark all read
         </button>
       </div>
 
       <div class="mobile-list custom-scrollbar" id="notif-list">
-        <div style="margin-bottom:12px;">
-          <button id="enable-btn" class="enable-btn" onclick="enableNotifications()">
+        <div class="enable-card">
+          <button type="button" id="enable-btn" class="enable-btn" onclick="enableNotifications()">
             <i class="fa-solid fa-bell"></i> Enable Notification Sound
           </button>
-          <div id="notif-status" class="status-warn">Tap the button above to allow sound</div>
+          <div id="notif-status" class="status-warn">Tap above to allow alerts on this device</div>
+        </div>
+        <div class="filters" id="mobile-filters">
+          <button type="button" class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">All</button>
+          <button type="button" class="filter-chip" data-filter="unread" onclick="setFilter('unread', this)">Unread</button>
+          <button type="button" class="filter-chip" data-filter="debt" onclick="setFilter('debt', this)">Debt</button>
+          <button type="button" class="filter-chip" data-filter="low_stock" onclick="setFilter('low_stock', this)">Low Stock</button>
+          <button type="button" class="filter-chip" data-filter="sale" onclick="setFilter('sale', this)">Sales</button>
         </div>
         <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">Loading…</div>
       </div>
 
-      <nav class="mobile-bottom">
+      <nav class="bottom-nav">
         <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
         <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
         <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS</a>
@@ -141,56 +317,140 @@
   </div>
 
   <!-- ==================== DESKTOP ==================== -->
-  <div id="desktop-view" class="desktop-shell">
-    <div class="desk-topbar">
-      <div style="display:flex;align-items:center;gap:16px;">
-        <a href="dashboard.html" style="color:#94a3b8;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
-        <div>
-          <div style="font-weight:700;font-size:18px;color:#fff;">Notifications</div>
-          <div style="font-size:12px;color:#94a3b8;">What needs your attention</div>
+  <div class="desktop-only desktop-shell">
+    <div class="desk-layout">
+      <nav class="desk-sidebar">
+        <div class="desk-logo">
+          <div class="desk-logo-mark">Q</div>
+          <div>
+            <div class="desk-logo-text">QUANTUM OPS</div>
+            <div class="desk-logo-sub">AI BUSINESS OS</div>
+          </div>
+        </div>
+        <a href="desktop.html" class="nav-item"><i class="fa-solid fa-house"></i>Dashboard</a>
+        <a href="pos.html" class="nav-item"><i class="fa-solid fa-cart-shopping"></i>POS / Sales</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="debtors.html" class="nav-item"><i class="fa-solid fa-users"></i>Customers</a>
+        <a href="expenses.html" class="nav-item"><i class="fa-solid fa-money-bill-wave"></i>Expenses</a>
+        <a href="transactions.html" class="nav-item"><i class="fa-solid fa-chart-column"></i>Reports</a>
+        <a href="ai-ceo.html" class="nav-item"><i class="fa-solid fa-robot"></i>AI CEO</a>
+        <a href="notifications.html" class="nav-item active"><i class="fa-solid fa-bell"></i>Notifications</a>
+        <a href="profile.html" class="nav-item"><i class="fa-solid fa-gear"></i>Settings</a>
+
+        <div class="desk-sidebar-foot">
+          <div class="theme-toggle">
+            <button type="button" id="btn-theme-day" onclick="setThemePref('day')"><i class="fa-solid fa-sun"></i> Light</button>
+            <button type="button" id="btn-theme-night" onclick="setThemePref('night')"><i class="fa-solid fa-moon"></i> Dark</button>
+          </div>
+          <a href="profile.html" class="user-chip">
+            <div class="avatar" id="desk-user-avatar">C</div>
+            <div style="min-width:0;">
+              <div class="name" id="desk-user-name">Owner</div>
+              <div class="role">Business Owner</div>
+            </div>
+          </a>
+        </div>
+      </nav>
+
+      <div class="desk-main">
+        <div class="desk-topbar">
+          <div>
+            <h1>Notifications</h1>
+            <p>Debts, stock alerts, sales and system messages</p>
+          </div>
+          <div class="desk-actions">
+            <button type="button" class="desk-btn primary" onclick="enableNotifications()">
+              <i class="fa-solid fa-bell"></i> Enable Sound
+            </button>
+            <button type="button" class="desk-btn" onclick="markAllRead()">Mark all read</button>
+          </div>
+        </div>
+
+        <div class="desk-content custom-scrollbar">
+          <div id="desk-notif-status" class="status-warn" style="margin-bottom:14px;text-align:left;">Tap Enable Sound to allow notifications on this device</div>
+          <div class="filters" id="desk-filters" style="margin-bottom:16px;">
+            <button type="button" class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">All</button>
+            <button type="button" class="filter-chip" data-filter="unread" onclick="setFilter('unread', this)">Unread</button>
+            <button type="button" class="filter-chip" data-filter="debt" onclick="setFilter('debt', this)">Debt</button>
+            <button type="button" class="filter-chip" data-filter="low_stock" onclick="setFilter('low_stock', this)">Low Stock</button>
+            <button type="button" class="filter-chip" data-filter="sale" onclick="setFilter('sale', this)">Sales</button>
+            <button type="button" class="filter-chip" data-filter="summary" onclick="setFilter('summary', this)">Daily Summary</button>
+          </div>
+          <div id="desk-notif-list">
+            <div style="text-align:center;padding:48px 0;color:#64748b;">Loading…</div>
+          </div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button onclick="enableNotifications()" style="padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,#6C5CE7,#4F46E5);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">
-          <i class="fa-solid fa-bell"></i> Enable Sound
-        </button>
-        <button onclick="markAllRead()" style="padding:8px 16px;border-radius:10px;background:rgba(108,92,231,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;font-size:13px;font-weight:600;cursor:pointer;">
-          Mark all read
-        </button>
-      </div>
-    </div>
-    <div class="desk-content custom-scrollbar" id="desk-notif-list">
-      <div id="desk-notif-status" class="status-warn" style="margin-bottom:16px;">Tap Enable Sound to allow notifications</div>
-      <div style="text-align:center;padding:48px 0;color:#64748b;">Loading…</div>
     </div>
   </div>
-
-  <script>
-    (function() {
-      function applyView() {
-        var isDesktop = window.innerWidth >= 1024;
-        var mobile = document.getElementById('mobile-view');
-        var desktop = document.getElementById('desktop-view');
-        if (mobile) mobile.style.setProperty('display', isDesktop ? 'none' : 'block', 'important');
-        if (desktop) desktop.style.setProperty('display', isDesktop ? 'flex' : 'none', 'important');
-      }
-      applyView();
-      window.addEventListener('resize', applyView);
-      document.addEventListener('DOMContentLoaded', applyView);
-    })();
-
+ <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const VAPID_PUBLIC_KEY = "BGz7w7rQE8ah-bfjhTDXYiorWegqvomnB27oOQcwOLYOYXEUwflSACTcF58A-P8XDJf014BNpuh9dLuV4iQWW5U";
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
     let userCompanyId = null;
     let allNotifs = [];
-    let lastNotifiedId = localStorage.getItem('lastNotifiedId') || null;
+    let currentFilter = "all";
+    let lastNotifiedId = localStorage.getItem("lastNotifiedId") || null;
+    const NOTIF_CACHE_KEY = "quantum_notif_cache_v1";
+
+    /* ========== THEME ========== */
+    function getSavedTheme() { return localStorage.getItem("quantum_theme") || "night"; }
+    function resolveTheme(pref) {
+      if (pref === "system") {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night";
+      }
+      return pref === "day" ? "day" : "night";
+    }
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref || getSavedTheme());
+      document.body.classList.remove("theme-day", "theme-night");
+      document.body.classList.add(resolved === "day" ? "theme-day" : "theme-night");
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", resolved === "day" ? "#F4F6FB" : "#05060B");
+      } catch (e) {}
+      const dayBtn = document.getElementById("btn-theme-day");
+      const nightBtn = document.getElementById("btn-theme-night");
+      if (dayBtn) dayBtn.classList.toggle("active", resolved === "day");
+      if (nightBtn) nightBtn.classList.toggle("active", resolved === "night");
+    }
+    function setThemePref(pref) {
+      localStorage.setItem("quantum_theme", pref);
+      applyTheme(pref);
+    }
+    function applyUserPreferences() {
+      applyTheme(getSavedTheme());
+    }
+
+    /* ========== CACHE ========== */
+    function saveNotifCache(list) {
+      try {
+        if (!userCompanyId) return;
+        localStorage.setItem(NOTIF_CACHE_KEY, JSON.stringify({
+          companyId: userCompanyId, ts: Date.now(), notifs: list || []
+        }));
+      } catch (e) {}
+    }
+    function loadNotifCache() {
+      try {
+        const raw = localStorage.getItem(NOTIF_CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) { return null; }
+    }
+    function paintFromCache() {
+      const cache = loadNotifCache();
+      if (!cache || !Array.isArray(cache.notifs) || !cache.notifs.length) return;
+      allNotifs = cache.notifs;
+      renderList();
+    }
 
     function urlBase64ToUint8Array(base64String) {
-      const padding = '='.repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const padding = "=".repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
       const rawData = window.atob(base64);
       const outputArray = new Uint8Array(rawData.length);
       for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
@@ -198,43 +458,44 @@
     }
 
     function updateStatus(msg, ok) {
-      const el1 = document.getElementById('notif-status');
-      const el2 = document.getElementById('desk-notif-status');
-      const cls = ok ? 'status-ok' : 'status-warn';
+      const el1 = document.getElementById("notif-status");
+      const el2 = document.getElementById("desk-notif-status");
+      const cls = ok ? "status-ok" : "status-warn";
       if (el1) { el1.className = cls; el1.textContent = msg; }
-      if (el2) { el2.className = cls; el2.textContent = msg; }
+      if (el2) { el2.className = cls; el2.style.textAlign = "left"; el2.textContent = msg; }
+    }
+
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
     }
 
     async function enableNotifications() {
-      const btn = document.getElementById('enable-btn');
-      if (btn) { 
-        btn.disabled = true; 
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enabling…'; 
+      const btn = document.getElementById("enable-btn");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enabling…';
       }
-
       try {
-        if (!('Notification' in window)) {
-          updateStatus('This browser does not support notifications', false);
+        if (!("Notification" in window)) {
+          updateStatus("This browser does not support notifications", false);
           return;
         }
-
         let permission = Notification.permission;
-        if (permission === 'default') {
-          permission = await Notification.requestPermission();
-        }
-        if (permission !== 'granted') {
-          updateStatus('Permission denied. Allow notifications in phone Settings.', false);
-          if (btn) { 
-            btn.disabled = false; 
-            btn.innerHTML = '<i class="fa-solid fa-bell"></i> Enable Notification Sound'; 
+        if (permission === "default") permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          updateStatus("Permission denied. Allow notifications in phone Settings.", false);
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-bell"></i> Enable Notification Sound';
           }
           return;
         }
 
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.register('/sw.js');
+        if ("serviceWorker" in navigator) {
+          const reg = await navigator.serviceWorker.register("/sw.js");
           await navigator.serviceWorker.ready;
-
           let subscription = await reg.pushManager.getSubscription();
           if (!subscription) {
             subscription = await reg.pushManager.subscribe({
@@ -242,45 +503,41 @@
               applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
             });
           }
-
-          // ========== SAVE SUBSCRIPTION TO SUPABASE ==========
           if (userCompanyId && subscription) {
             try {
-              await supabaseClient.from('push_subscriptions').upsert({
+              const { data: { user } } = await supabaseClient.auth.getUser();
+              await supabaseClient.from("push_subscriptions").upsert({
+                user_id: user ? user.id : null,
                 company_id: userCompanyId,
                 endpoint: subscription.endpoint,
                 subscription: subscription.toJSON(),
                 updated_at: new Date().toISOString()
-              }, { onConflict: 'endpoint' });
+              }, { onConflict: "endpoint" });
             } catch (e) {
-              console.log('Subscription save error:', e.message);
+              console.log("Subscription save:", e.message);
             }
           }
-
-          // Show test notification WITH SOUND
-          await reg.showNotification('Quantum OPS Elite', {
-            body: 'Sound is working! You will now hear alerts.',
-            icon: '/icons/icon-192.png',
-            badge: '/icons/icon-192.png',
+          await reg.showNotification("Quantum OPS Elite", {
+            body: "Sound is working! You will now hear important alerts.",
+            icon: "/icons/icon-192.png",
+            badge: "/icons/icon-192.png",
             vibrate: [160, 80, 160],
             silent: false,
-            tag: 'test-sound',
-            data: { url: '/notifications.html' }
+            tag: "test-sound",
+            data: { url: "/notifications.html" }
           });
         } else {
-          new Notification('Quantum OPS Elite', {
-            body: 'Sound is working! You will now hear alerts.',
-            icon: '/icons/icon-192.png',
+          new Notification("Quantum OPS Elite", {
+            body: "Sound is working!",
+            icon: "/icons/icon-192.png",
             silent: false
           });
         }
-
-        updateStatus('Notifications + sound enabled successfully', true);
+        updateStatus("Notifications + sound enabled successfully", true);
         if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> Sound Enabled';
-
       } catch (err) {
         console.error(err);
-        updateStatus('Error: ' + (err.message || 'Could not enable'), false);
+        updateStatus("Error: " + (err.message || "Could not enable"), false);
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-bell"></i> Enable Notification Sound';
@@ -288,245 +545,301 @@
       }
     }
 
-    // Show system notification + sound for newest unread item
     async function maybePlaySoundForNew(notifs) {
-      if (Notification.permission !== 'granted') return;
+      if (Notification.permission !== "granted") return;
       if (!notifs.length) return;
-
       const newest = notifs[0];
       if (!newest || newest.is_read) return;
       if (newest.id === lastNotifiedId) return;
-
+      // Skip repeated low_stock spam for sound (still show in list)
+      if (newest.type === "low_stock") {
+        lastNotifiedId = newest.id;
+        localStorage.setItem("lastNotifiedId", newest.id);
+        return;
+      }
       try {
         let reg = null;
-        if ('serviceWorker' in navigator) {
-          reg = await navigator.serviceWorker.ready;
-        }
-
-        const title = newest.title || 'Quantum OPS Elite';
-        const body = newest.message || 'You have a new alert';
-
+        if ("serviceWorker" in navigator) reg = await navigator.serviceWorker.ready;
+        const title = newest.title || "Quantum OPS Elite";
+        const body = newest.message || "You have a new alert";
         if (reg) {
           await reg.showNotification(title, {
             body: body,
-            icon: '/icons/icon-192.png',
-            badge: '/icons/icon-192.png',
+            icon: "/icons/icon-192.png",
+            badge: "/icons/icon-192.png",
             vibrate: [160, 80, 160],
             silent: false,
             tag: newest.id,
-            data: { url: '/notifications.html' }
+            data: { url: "/notifications.html" }
           });
         } else {
-          new Notification(title, { body: body, icon: '/icons/icon-192.png', silent: false });
+          new Notification(title, { body: body, icon: "/icons/icon-192.png", silent: false });
         }
-
         lastNotifiedId = newest.id;
-        localStorage.setItem('lastNotifiedId', newest.id);
+        localStorage.setItem("lastNotifiedId", newest.id);
       } catch (e) {
-        console.log('Could not show system notification:', e.message);
+        console.log("Could not show system notification:", e.message);
       }
     }
 
     function getLocalDateString(d) {
       const x = new Date(d);
-      return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+      return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0");
     }
     function formatDateLabel(dateStr) {
       const today = getLocalDateString(new Date());
       const yesterday = getLocalDateString(new Date(Date.now() - 86400000));
-      if (dateStr === today) return 'Today';
-      if (dateStr === yesterday) return 'Yesterday';
-      const d = new Date(dateStr + 'T12:00:00');
-      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      if (dateStr === today) return "Today";
+      if (dateStr === yesterday) return "Yesterday";
+      const d = new Date(dateStr + "T12:00:00");
+      return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     }
     function formatTime(iso) {
-      return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
     function typeIcon(type) {
-      const map = { low_stock: '⚠️', debt: '💰', ai: '🤖', sale: '✅', summary: '📊', system: '🔔' };
-      return map[type] || '🔔';
+      const map = { low_stock: "⚠️", debt: "💰", ai: "🤖", sale: "✅", summary: "📊", system: "🔔" };
+      return map[type] || "🔔";
     }
-    function typeColor(type) {
-      const map = {
-        low_stock: 'border-amber-500/30 bg-amber-500/10',
-        debt: 'border-rose-500/30 bg-rose-500/10',
-        ai: 'border-purple-500/30 bg-purple-500/10',
-        sale: 'border-emerald-500/30 bg-emerald-500/10',
-        summary: 'border-blue-500/30 bg-blue-500/10',
-        system: 'border-slate-500/30 bg-slate-500/10'
-      };
-      return map[type] || 'border-purple-500/20 bg-[#121224]';
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll(".filter-chip").forEach(function (b) {
+        if (b.getAttribute("data-filter") === filter) b.classList.add("active");
+        else b.classList.remove("active");
+      });
+      renderList();
+    }
+
+    function getFiltered() {
+      if (currentFilter === "all") return allNotifs;
+      if (currentFilter === "unread") return allNotifs.filter(function (n) { return !n.is_read; });
+      return allNotifs.filter(function (n) { return n.type === currentFilter; });
     }
 
     function renderList() {
-      const container = document.getElementById('notif-list');
-      const deskContainer = document.getElementById('desk-notif-list');
+      const filtered = getFiltered();
+      const container = document.getElementById("notif-list");
+      const deskContainer = document.getElementById("desk-notif-list");
 
-      const enableBlock = `
-        <div style="margin-bottom:12px;">
-          <button id="enable-btn" class="enable-btn" onclick="enableNotifications()">
-            <i class="fa-solid fa-bell"></i> Enable Notification Sound
-          </button>
-          <div id="notif-status" class="status-warn">Tap the button above to allow sound</div>
-        </div>`;
+      const enableBlock =
+        '<div class="enable-card">' +
+          '<button type="button" id="enable-btn" class="enable-btn" onclick="enableNotifications()">' +
+            '<i class="fa-solid fa-bell"></i> Enable Notification Sound' +
+          "</button>" +
+          '<div id="notif-status" class="status-warn">Tap above to allow alerts on this device</div>' +
+        "</div>" +
+        '<div class="filters" id="mobile-filters">' +
+          '<button type="button" class="filter-chip' + (currentFilter === "all" ? " active" : "") + '" data-filter="all" onclick="setFilter(\'all\', this)">All</button>' +
+          '<button type="button" class="filter-chip' + (currentFilter === "unread" ? " active" : "") + '" data-filter="unread" onclick="setFilter(\'unread\', this)">Unread</button>' +
+          '<button type="button" class="filter-chip' + (currentFilter === "debt" ? " active" : "") + '" data-filter="debt" onclick="setFilter(\'debt\', this)">Debt</button>' +
+          '<button type="button" class="filter-chip' + (currentFilter === "low_stock" ? " active" : "") + '" data-filter="low_stock" onclick="setFilter(\'low_stock\', this)">Low Stock</button>' +
+          '<button type="button" class="filter-chip' + (currentFilter === "sale" ? " active" : "") + '" data-filter="sale" onclick="setFilter(\'sale\', this)">Sales</button>' +
+        "</div>";
 
-      if (!allNotifs.length) {
+      if (!filtered.length) {
+        const emptyMsg = allNotifs.length
+          ? "No notifications in this filter."
+          : "No notifications yet.<br><span style=\"font-size:10px;\">Debts, stock alerts and daily summaries will appear here.</span>";
         if (container) {
-          container.innerHTML = enableBlock + `
-            <div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">
-              No notifications yet.<br>
-              <span style="font-size:10px;">Low stock and new debts will appear here.</span>
-            </div>`;
+          container.innerHTML = enableBlock +
+            '<div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">' + emptyMsg + "</div>";
         }
         if (deskContainer) {
-          deskContainer.innerHTML = `
-            <div id="desk-notif-status" class="status-warn" style="margin-bottom:16px;">Tap Enable Sound to allow notifications</div>
-            <div style="text-align:center;padding:48px 0;color:#64748b;">No notifications yet.</div>`;
+          deskContainer.innerHTML =
+            '<div style="text-align:center;padding:48px 0;color:#64748b;">' + emptyMsg + "</div>";
         }
+        if (Notification.permission === "granted") updateStatus("Notifications + sound are enabled", true);
         return;
       }
 
+      // Group by date
       const groups = {};
-      allNotifs.forEach(n => {
+      filtered.forEach(function (n) {
         const d = getLocalDateString(n.created_at);
         if (!groups[d]) groups[d] = [];
         groups[d].push(n);
       });
 
       let html = enableBlock;
-      Object.keys(groups).forEach(dateStr => {
-        html += `<p style="font-size:10px;font-weight:700;color:#a78bfa;margin:14px 0 8px;">${formatDateLabel(dateStr)}</p>`;
-        groups[dateStr].forEach(n => {
+      Object.keys(groups).forEach(function (dateStr) {
+        html += '<p class="date-label">' + formatDateLabel(dateStr) + "</p>";
+        groups[dateStr].forEach(function (n) {
           const unread = !n.is_read;
-          html += `
-            <div onclick="markRead('${n.id}')" class="mb-2 p-3 rounded-2xl border ${typeColor(n.type)} ${unread ? 'ring-1 ring-purple-500/40' : 'opacity-80'}" style="cursor:pointer;">
-              <div style="display:flex;align-items:flex-start;gap:8px;">
-                <span style="font-size:16px;line-height:1;margin-top:2px;">${typeIcon(n.type)}</span>
-                <div style="flex:1;min-width:0;">
-                  <div style="display:flex;justify-content:space-between;gap:8px;">
-                    <p style="font-size:12px;font-weight:600;color:#fff;margin:0;">${n.title || 'Notification'}</p>
-                    <span style="font-size:9px;color:#64748b;flex-shrink:0;">${formatTime(n.created_at)}</span>
-                  </div>
-                  <p style="font-size:11px;color:#cbd5e1;margin:4px 0 0;line-height:1.4;">${n.message || ''}</p>
-                  ${unread ? '<p style="font-size:9px;color:#a78bfa;margin:4px 0 0;">Unread</p>' : ''}
-                </div>
-              </div>
-            </div>`;
+          const type = n.type || "system";
+          html +=
+            '<div onclick="markRead(\'' + n.id + '\')" class="notif-card ' + type + (unread ? " unread" : "") + '">' +
+              '<div style="display:flex;align-items:flex-start;gap:10px;">' +
+                '<span style="font-size:18px;line-height:1;margin-top:1px;">' + typeIcon(type) + "</span>" +
+                '<div style="flex:1;min-width:0;">' +
+                  '<div style="display:flex;justify-content:space-between;gap:8px;">' +
+                    '<p class="notif-title">' + esc(n.title || "Notification") + "</p>" +
+                    '<span class="notif-time">' + formatTime(n.created_at) + "</span>" +
+                  "</div>" +
+                  '<p class="notif-msg">' + esc(n.message || "") + "</p>" +
+                  (unread ? '<p class="notif-unread-tag">Unread</p>' : "") +
+                "</div>" +
+              "</div>" +
+            "</div>";
         });
       });
       if (container) container.innerHTML = html;
 
-      let deskHtml = `<div id="desk-notif-status" class="status-warn" style="margin-bottom:16px;">Tap Enable Sound to allow notifications</div>`;
-      Object.keys(groups).forEach(dateStr => {
-        deskHtml += `<p style="font-size:11px;font-weight:700;color:#a78bfa;margin:20px 0 10px;">${formatDateLabel(dateStr)}</p>`;
-        groups[dateStr].forEach(n => {
+      let deskHtml = "";
+      Object.keys(groups).forEach(function (dateStr) {
+        deskHtml += '<p class="date-label" style="font-size:11px;margin:20px 0 10px;">' + formatDateLabel(dateStr) + "</p>";
+        groups[dateStr].forEach(function (n) {
           const unread = !n.is_read;
-          deskHtml += `
-            <div onclick="markRead('${n.id}')" class="desk-notif ${unread ? 'unread' : ''}">
-              <div style="display:flex;align-items:flex-start;gap:14px;">
-                <span style="font-size:20px;line-height:1;margin-top:2px;">${typeIcon(n.type)}</span>
-                <div style="flex:1;min-width:0;">
-                  <div style="display:flex;justify-content:space-between;gap:12px;">
-                    <p style="font-size:14px;font-weight:600;color:#fff;margin:0;">${n.title || 'Notification'}</p>
-                    <span style="font-size:11px;color:#64748b;">${formatTime(n.created_at)}</span>
-                  </div>
-                  <p style="font-size:13px;color:#94a3b8;margin:4px 0 0;line-height:1.45;">${n.message || ''}</p>
-                  ${unread ? '<p style="font-size:11px;color:#a78bfa;margin:6px 0 0;">Unread</p>' : ''}
-                </div>
-              </div>
-            </div>`;
+          const type = n.type || "system";
+          deskHtml +=
+            '<div onclick="markRead(\'' + n.id + '\')" class="desk-notif ' + type + (unread ? " unread" : "") + '">' +
+              '<div style="display:flex;align-items:flex-start;gap:14px;">' +
+                '<span style="font-size:22px;line-height:1;">' + typeIcon(type) + "</span>" +
+                '<div style="flex:1;min-width:0;">' +
+                  '<div style="display:flex;justify-content:space-between;gap:12px;">' +
+                    '<p class="notif-title" style="font-size:14px;">' + esc(n.title || "Notification") + "</p>" +
+                    '<span class="notif-time" style="font-size:11px;">' + formatTime(n.created_at) + "</span>" +
+                  "</div>" +
+                  '<p class="notif-msg" style="font-size:13px;margin-top:4px;">' + esc(n.message || "") + "</p>" +
+                  (unread ? '<p class="notif-unread-tag" style="font-size:11px;">Unread</p>' : "") +
+                "</div>" +
+              "</div>" +
+            "</div>";
         });
       });
       if (deskContainer) deskContainer.innerHTML = deskHtml;
 
-      if (Notification.permission === 'granted') {
-        updateStatus('Notifications + sound are enabled', true);
-        const btn = document.getElementById('enable-btn');
+      if (Notification.permission === "granted") {
+        updateStatus("Notifications + sound are enabled", true);
+        const btn = document.getElementById("enable-btn");
         if (btn) btn.innerHTML = '<i class="fa-solid fa-check"></i> Sound Enabled';
       }
     }
 
     async function loadNotifications() {
       if (!userCompanyId) return;
-      const { data, error } = await supabaseClient
-        .from('notifications')
-        .select('*')
-        .eq('company_id', userCompanyId)
-        .order('created_at', { ascending: false })
-        .limit(100);
+      try {
+        const { data, error } = await supabaseClient
+          .from("notifications")
+          .select("*")
+          .eq("company_id", userCompanyId)
+          .order("created_at", { ascending: false })
+          .limit(80);
 
-      if (error) {
-        const msg = `<div style="text-align:center;padding:40px 0;color:#fb7185;font-size:12px;">${error.message}</div>`;
-        const el = document.getElementById('notif-list');
-        const del = document.getElementById('desk-notif-list');
-        if (el) el.innerHTML = msg;
-        if (del) del.innerHTML = msg;
-        return;
+        if (error) {
+          const msg = '<div style="text-align:center;padding:40px 0;color:#fb7185;font-size:12px;">' + esc(error.message) + "</div>";
+          const el = document.getElementById("notif-list");
+          const del = document.getElementById("desk-notif-list");
+          if (el) el.innerHTML = msg;
+          if (del) del.innerHTML = msg;
+          return;
+        }
+
+        // Deduplicate noisy low_stock: keep only latest low_stock per day
+        const raw = data || [];
+        const seenLowStockDays = {};
+        const cleaned = [];
+        raw.forEach(function (n) {
+          if (n.type === "low_stock") {
+            const day = getLocalDateString(n.created_at);
+            if (seenLowStockDays[day]) return;
+            seenLowStockDays[day] = true;
+          }
+          cleaned.push(n);
+        });
+
+        allNotifs = cleaned;
+        saveNotifCache(allNotifs);
+        renderList();
+        await maybePlaySoundForNew(allNotifs);
+      } catch (e) {
+        console.error(e);
       }
-
-      allNotifs = data || [];
-      renderList();
-
-      // Play sound for newest unread notification
-      await maybePlaySoundForNew(allNotifs);
     }
 
     async function markRead(id) {
-      const n = allNotifs.find(x => x.id === id);
+      const n = allNotifs.find(function (x) { return x.id === id; });
       if (!n || n.is_read) return;
-      await supabaseClient.from('notifications').update({ is_read: true }).eq('id', id);
+      try {
+        await supabaseClient.from("notifications").update({ is_read: true }).eq("id", id);
+      } catch (e) {}
       n.is_read = true;
+      saveNotifCache(allNotifs);
       renderList();
     }
 
     async function markAllRead() {
       if (!userCompanyId) return;
-      await supabaseClient
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('company_id', userCompanyId)
-        .eq('is_read', false);
-      allNotifs.forEach(n => { n.is_read = true; });
+      try {
+        await supabaseClient
+          .from("notifications")
+          .update({ is_read: true })
+          .eq("company_id", userCompanyId)
+          .eq("is_read", false);
+      } catch (e) {}
+      allNotifs.forEach(function (n) { n.is_read = true; });
+      saveNotifCache(allNotifs);
       renderList();
     }
 
     async function init() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user) { window.location.href = 'index.html'; return; }
+      applyUserPreferences();
+      paintFromCache();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const user = session.user;
+        const rawName = (user.user_metadata && user.user_metadata.full_name) || (user.email || "Owner").split("@")[0];
+        const first = String(rawName).split(" ")[0] || "Owner";
+        const cap = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+        const nameEl = document.getElementById("desk-user-name");
+        const avEl = document.getElementById("desk-user-avatar");
+        if (nameEl) nameEl.textContent = cap;
+        if (avEl) avEl.textContent = cap.charAt(0);
 
-      const { data: member } = await supabaseClient
-        .from('company_users')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-      if (member?.company_id) {
-        userCompanyId = member.company_id;
-      } else {
-        const { data: owned } = await supabaseClient
-          .from('companies').select('id').eq('owner_id', user.id).maybeSingle();
-        if (owned?.id) userCompanyId = owned.id;
+        if (member && member.company_id) {
+          userCompanyId = member.company_id;
+        } else {
+          const { data: owned } = await supabaseClient
+            .from("companies").select("id").eq("owner_id", user.id).maybeSingle();
+          if (owned && owned.id) userCompanyId = owned.id;
+        }
+
+        if (!userCompanyId) {
+          const msg = '<div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">No business found.</div>';
+          const el = document.getElementById("notif-list");
+          const del = document.getElementById("desk-notif-list");
+          if (el) el.innerHTML = msg;
+          if (del) del.innerHTML = msg;
+          return;
+        }
+
+        if (Notification.permission === "granted") {
+          updateStatus("Notifications + sound are enabled", true);
+        } else if (Notification.permission === "denied") {
+          updateStatus("Notifications blocked. Enable them in phone Settings.", false);
+        }
+
+        await loadNotifications();
+      } catch (err) {
+        console.error(err);
       }
-
-      if (!userCompanyId) {
-        const msg = '<div style="text-align:center;padding:40px 0;color:#64748b;font-size:12px;">No business found.</div>';
-        const el = document.getElementById('notif-list');
-        const del = document.getElementById('desk-notif-list');
-        if (el) el.innerHTML = msg;
-        if (del) del.innerHTML = msg;
-        return;
-      }
-
-      if (Notification.permission === 'granted') {
-        updateStatus('Notifications + sound are enabled', true);
-      } else if (Notification.permission === 'denied') {
-        updateStatus('Notifications blocked. Enable them in phone Settings.', false);
-      }
-
-      await loadNotifications();
     }
 
-    window.addEventListener('DOMContentLoaded', init);
+    window.addEventListener("DOMContentLoaded", init);
+    window.addEventListener("pageshow", function () {
+      applyUserPreferences();
+      paintFromCache();
+    });
   </script>
 </body>
 </html>
