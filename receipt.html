@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6b21a8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Sales Receipt - Quantum OPS Elite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0d1117;
+      color: #111827;
+      min-height: 100vh;
+      padding: 16px 10px 100px;
+    }
+    @media (min-width: 900px) {
+      body {
+        background: #f3f4f6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px 20px 120px;
+      }
+    }
+
+    .mobile-only { display: block; }
+    .desktop-only { display: none; }
+    @media (min-width: 900px) {
+      .mobile-only { display: none !important; }
+      .desktop-only { display: block !important; }
+    }
+
+    /* ===== ACTION BAR ===== */
+    .action-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+      background: rgba(15, 23, 42, 0.96);
+      border-top: 1px solid rgba(139,92,246,0.25);
+      display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+      backdrop-filter: blur(12px);
+    }
+    .action-bar button, .action-bar a {
+      flex: 1; min-width: 110px; max-width: 180px;
+      padding: 12px 10px; border-radius: 12px; border: none;
+      font-size: 12px; font-weight: 700; cursor: pointer; text-align: center;
+      text-decoration: none; color: #fff;
+    }
+    .btn-back { background: #334155; }
+    .btn-wa { background: #059669; }
+    .btn-pdf { background: linear-gradient(135deg, #6b21a8, #7e22ce); }
+    .btn-share { background: #4f46e5; }
+    .status-msg {
+      text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px;
+    }
+
+    /* ========== MOBILE RECEIPT ========== */
+    .mobile-receipt {
+      width: 100%; max-width: 420px; margin: 0 auto;
+      background: #ffffff; border-radius: 28px; overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    .brand-header { text-align: center; padding: 28px 20px 12px; }
+    .logo-container { display: flex; justify-content: center; margin-bottom: 12px; }
+    .logo-hexagon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #6b21a8, #7e22ce);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-inner {
+      width: 38px; height: 38px; background: #fff;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-core {
+      width: 22px; height: 22px; background: #6b21a8;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 11px;
+    }
+    .brand-logo-img {
+      width: 56px; height: 56px; object-fit: cover; border-radius: 12px;
+    }
+    .brand-title { font-size: 20px; font-weight: 800; color: #111827; letter-spacing: 0.3px; }
+    .brand-subtitle { font-size: 16px; font-weight: 700; color: #6b21a8; letter-spacing: 3px; margin-top: 2px; }
+    .brand-tagline { font-size: 10px; font-weight: 600; color: #6b7280; letter-spacing: 1.5px; margin-top: 4px; }
+    .shop-address {
+      font-size: 11px; color: #4b5563; margin-top: 10px; line-height: 1.4; padding: 0 16px;
+    }
+    .divider-diamond {
+      display: flex; align-items: center; justify-content: center;
+      margin: 14px auto 18px; width: 80%;
+    }
+    .divider-diamond::before, .divider-diamond::after {
+      content: ''; flex: 1; height: 1px; background: #e5e7eb;
+    }
+    .diamond {
+      width: 8px; height: 8px; background: #6b21a8; transform: rotate(45deg); margin: 0 10px;
+    }
+    .receipt-title-container { text-align: center; margin-bottom: 18px; }
+    .receipt-title { font-size: 22px; font-weight: 800; color: #111827; }
+    .receipt-subtitle { font-size: 12px; color: #4b5563; margin-top: 4px; }
+
+    .meta-info { padding: 0 20px; display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; }
+    .meta-row { display: grid; grid-template-columns: 22px 100px 10px 1fr; align-items: center; }
+    .meta-icon { color: #7e22ce; display: flex; align-items: center; }
+    .meta-label { color: #111827; font-weight: 500; }
+    .meta-colon { color: #111827; }
+    .meta-value { color: #111827; font-weight: 600; word-break: break-word; }
+
+    .dashed-divider { border-top: 1px dashed #d1d5db; margin: 16px 20px; }
+    .customer-section { padding: 0 20px; }
+    .customer-header {
+      display: flex; align-items: center; gap: 8px; color: #6b21a8;
+      font-weight: 700; font-size: 11px; letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    .customer-name { font-size: 14px; font-weight: 700; color: #111827; }
+    .customer-note { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+    .m-items-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .m-items-table th {
+      background: #6b21a8; color: #fff; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; padding: 10px 6px; letter-spacing: 0.4px;
+    }
+    .m-items-table th:first-child { padding-left: 14px; text-align: center; }
+    .m-items-table th:last-child { padding-right: 14px; text-align: right; }
+    .m-items-table td {
+      padding: 10px 6px; font-size: 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle;
+    }
+    .m-items-table td:first-child { padding-left: 14px; text-align: center; font-weight: 700; }
+    .m-items-table td:last-child { padding-right: 14px; text-align: right; font-weight: 700; }
+    .item-flex { display: flex; align-items: center; gap: 8px; }
+    .product-img {
+      width: 34px; height: 34px; object-fit: cover; border-radius: 6px;
+      background: #f3f4f6; flex-shrink: 0;
+    }
+    .item-title { font-weight: 700; color: #111827; font-size: 12px; line-height: 1.2; }
+    .item-category { font-size: 10px; color: #6b7280; margin-top: 1px; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+
+    .summary-section { padding: 14px 20px 0; }
+    .summary-row {
+      display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; color: #111827;
+    }
+    .summary-row .label { font-weight: 500; }
+    .summary-row .value { font-weight: 700; }
+    .summary-divider { border-top: 1px solid #e5e7eb; margin: 10px 0; }
+    .total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 15px; font-weight: 800; padding: 4px 0 10px;
+    }
+    .total-row .total-value { color: #6b21a8; font-size: 18px; }
+    .amount-paid-card {
+      background: #f5f3ff; border-radius: 8px; padding: 10px 12px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; font-weight: 700; margin-bottom: 6px;
+    }
+    .amount-paid-card .label { color: #374151; font-size: 11px; letter-spacing: 0.4px; }
+    .change-row {
+      display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; padding: 4px 0 14px;
+    }
+    .change-row .value { color: #16a34a; font-weight: 800; }
+
+    .footer-info-card {
+      margin: 0 16px 16px; display: flex; align-items: flex-start; gap: 12px;
+    }
+    .qr-box {
+      border: 1.5px solid #d8b4fe; border-radius: 10px; padding: 6px;
+      background: #fff; flex-shrink: 0;
+    }
+    .qr-svg { width: 72px; height: 72px; display: block; }
+    .footer-details { display: flex; flex-direction: column; gap: 12px; }
+    .info-block { display: flex; gap: 8px; align-items: flex-start; }
+    .info-icon { color: #7e22ce; flex-shrink: 0; margin-top: 1px; }
+    .info-text h4 { font-size: 10px; font-weight: 800; color: #111827; letter-spacing: 0.4px; margin-bottom: 2px; }
+    .info-text p { font-size: 10px; color: #4b5563; line-height: 1.35; }
+
+    .m-bottom-bar {
+      background: #fff; border-top: 1px solid #f3f4f6; padding: 12px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    .bottom-powered { font-size: 11px; color: #111827; }
+    .bottom-powered span { color: #6b21a8; font-weight: 700; }
+    .bottom-sub { font-size: 10px; color: #4b5563; margin-top: 2px; }
+    .bottom-accent {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 70px;
+      background: #6b21a8;
+      clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);
+      display: flex; align-items: center; justify-content: center; padding-left: 12px;
+    }
+    .mini-badge {
+      width: 22px; height: 22px; border: 2px solid #fff; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 10px; transform: rotate(45deg);
+    }
+    .mini-badge span { transform: rotate(-45deg); }
+
+    /* ========== DESKTOP RECEIPT ========== */
+    .receipt-card {
+      width: 100%; max-width: 1000px;
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+      overflow: hidden; border-top: 5px solid #6b21a8;
+    }
+    .receipt-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 28px 36px 16px;
+    }
+    .brand-section { display: flex; align-items: center; gap: 12px; }
+    .d-logo-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #6b21a8, #a855f7);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .d-logo-inner {
+      width: 36px; height: 36px; background: #fff;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .d-logo-core {
+      width: 22px; height: 22px; background: #6b21a8;
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: bold; font-size: 11px;
+    }
+    .d-brand-logo {
+      width: 52px; height: 52px; object-fit: cover; border-radius: 10px;
+    }
+    .brand-text h1 {
+      font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.3px; line-height: 1.1;
+    }
+    .brand-text h1 span {
+      color: #6b21a8; font-weight: 700; display: block; font-size: 16px; letter-spacing: 2px;
+    }
+    .brand-text p {
+      font-size: 10px; color: #6b7280; letter-spacing: 1.2px; font-weight: 600; margin-top: 2px;
+    }
+    .header-title-right { text-align: right; }
+    .header-title-right h2 {
+      font-size: 26px; font-weight: 800; color: #111827; letter-spacing: -0.4px;
+    }
+    .header-title-right p { font-size: 13px; color: #4b5563; margin-top: 2px; }
+
+    .info-grid {
+      display: grid; grid-template-columns: 1.2fr 1.3fr 1.1fr;
+      gap: 18px; padding: 8px 36px 20px; align-items: stretch;
+    }
+    .company-details {
+      font-size: 13px; color: #374151;
+      display: flex; flex-direction: column; gap: 10px; justify-content: center;
+    }
+    .info-row { display: flex; align-items: flex-start; gap: 10px; }
+    .info-row i, .info-row svg { width: 16px; height: 16px; color: #4b5563; margin-top: 2px; flex-shrink: 0; }
+    .receipt-meta-box {
+      background: #f9fafb; border-radius: 10px; padding: 14px 16px;
+      position: relative; border: 1px solid #f3f4f6;
+    }
+    .receipt-icon-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      width: 30px; height: 30px; background: #f3e8ff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; color: #6b21a8;
+      border: 2px solid #fff;
+    }
+    .meta-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 4px; }
+    .meta-table td { padding: 3px 0; }
+    .meta-table td:first-child { color: #4b5563; }
+    .meta-table td:last-child { text-align: right; font-weight: 600; color: #111827; }
+    .customer-box {
+      background: #f9fafb; border-radius: 10px; padding: 14px 16px; border: 1px solid #f3f4f6;
+    }
+    .d-customer-header {
+      display: flex; align-items: center; gap: 8px; color: #6b21a8;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.4px; margin-bottom: 10px;
+    }
+    .d-customer-name { font-weight: 700; font-size: 14px; color: #111827; margin-bottom: 3px; }
+    .d-customer-desc { font-size: 12px; color: #6b7280; }
+
+    .table-container { padding: 0 36px; }
+    .d-items-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .d-items-table th {
+      background: #6b21a8; color: #fff; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.4px; padding: 11px 12px;
+    }
+    .d-items-table th:first-child { border-top-left-radius: 6px; text-align: center; }
+    .d-items-table th:last-child { border-top-right-radius: 6px; text-align: right; }
+    .d-items-table th.center { text-align: center; }
+    .d-items-table th.right { text-align: right; }
+    .d-items-table td {
+      padding: 11px 12px; font-size: 12.5px; border-bottom: 1px solid #f3f4f6; vertical-align: middle;
+    }
+    .d-items-table tr:nth-child(even) td { background: #fafafa; }
+    .d-items-table td.center { text-align: center; }
+    .d-items-table td.right { text-align: right; }
+    .item-cell { display: flex; align-items: center; gap: 12px; }
+    .d-product-img {
+      width: 38px; height: 38px; object-fit: cover; border-radius: 6px; background: #f3f4f6; flex-shrink: 0;
+    }
+    .item-details .item-name { font-weight: 700; color: #111827; font-size: 13px; }
+    .item-details .item-cat { font-size: 11px; color: #6b7280; margin-top: 1px; }
+    .sku-text { font-family: ui-monospace, monospace; font-size: 11px; color: #374151; }
+
+    .bottom-section {
+      display: flex; justify-content: space-between; padding: 22px 36px; gap: 32px;
+    }
+    .thank-you-card {
+      background: #f5f3ff; border-radius: 8px; padding: 14px 18px; width: 42%; align-self: flex-start;
+    }
+    .thank-you-header {
+      display: flex; align-items: center; gap: 8px; font-weight: 700;
+      color: #111827; font-size: 13px; margin-bottom: 6px;
+    }
+    .thank-you-header i, .thank-you-header svg { color: #6b21a8; width: 16px; height: 16px; }
+    .thank-you-card p { font-size: 12px; color: #4b5563; line-height: 1.4; }
+    .summary-container { width: 48%; }
+    .d-summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .d-summary-table td { padding: 4px 0; }
+    .d-summary-table tr.total-row td { padding-top: 10px; padding-bottom: 10px; }
+    .summary-label { color: #4b5563; text-align: right; padding-right: 20px; }
+    .summary-value { text-align: right; font-weight: 600; color: #111827; }
+    .total-banner { color: #6b21a8; font-size: 18px; font-weight: 800; }
+    .paid-banner { background: #f5f3ff; border-radius: 6px; }
+    .paid-banner td { padding: 8px 12px !important; }
+    .change-row td { padding-top: 8px !important; }
+    .change-value { color: #16a34a !important; font-weight: 700; }
+
+    .receipt-footer {
+      margin: 0 36px; padding: 18px 0; border-top: 1px dashed #e5e7eb;
+      display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 18px; align-items: center;
+    }
+    .qr-section { display: flex; align-items: center; gap: 12px; }
+    .d-qr-code {
+      width: 64px; height: 64px; background: #fff; border: 1px solid #e5e7eb;
+      padding: 4px; border-radius: 4px;
+    }
+    .qr-text h4 {
+      font-size: 10px; font-weight: 700; color: #111827; text-transform: uppercase;
+      letter-spacing: 0.4px; margin-bottom: 3px;
+    }
+    .qr-text p { font-size: 11px; color: #6b7280; line-height: 1.3; }
+    .security-section {
+      display: flex; align-items: center; gap: 10px;
+      border-left: 1px solid #f3f4f6; padding-left: 16px;
+    }
+    .shield-icon {
+      width: 28px; height: 28px; border-radius: 50%; background: #f3f4f6;
+      display: flex; align-items: center; justify-content: center; color: #374151; flex-shrink: 0;
+    }
+    .security-text h4 {
+      font-size: 10px; font-weight: 700; color: #111827; text-transform: uppercase;
+      letter-spacing: 0.4px; margin-bottom: 2px;
+    }
+    .security-text p { font-size: 10px; color: #6b7280; line-height: 1.3; }
+    .signature-section {
+      text-align: center; border-left: 1px solid #f3f4f6; padding-left: 16px;
+    }
+    .signature-font {
+      font-family: 'Dancing Script', cursive; font-size: 24px; color: #1f2937;
+      line-height: 1; margin-bottom: 4px;
+    }
+    .signature-line {
+      border-top: 1px dashed #d1d5db; width: 80%; margin: 0 auto 4px;
+    }
+    .signature-label { font-size: 11px; color: #6b7280; }
+
+    .d-bottom-bar {
+      background: #0f172a; color: #fff; padding: 10px 36px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; position: relative; overflow: hidden;
+    }
+    .d-bottom-bar-left span { font-weight: 700; color: #a855f7; }
+    .d-bottom-bar-center { color: #94a3b8; font-size: 11px; }
+    .d-bottom-bar-right {
+      position: absolute; right: 0; top: 0; bottom: 0; width: 110px;
+      background: #6b21a8;
+      clip-path: polygon(25% 0, 100% 0, 100% 100%, 0% 100%);
+      display: flex; align-items: center; justify-content: center; padding-left: 18px;
+    }
+    .mini-logo {
+      width: 22px; height: 22px; border: 2px solid #fff; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 11px; color: #fff; transform: rotate(45deg);
+    }
+    .mini-logo span { transform: rotate(-45deg); }
+
+    @media print {
+      body { background: #fff !important; padding: 0 !important; }
+      .action-bar { display: none !important; }
+      .mobile-only { display: none !important; }
+      .desktop-only { display: block !important; }
+      .receipt-card { box-shadow: none; border-radius: 0; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-state" class="status-msg">Loading receipt…</div>
+  <div id="error-state" class="status-msg" style="display:none;color:#fb7185;"></div>
+
+ <!-- ==================== MOBILE RECEIPT ==================== -->
+  <div id="mobile-wrap" class="mobile-only" style="display:none;">
+    <div class="mobile-receipt" id="mobile-receipt-paper">
+      <header class="brand-header">
+        <div class="logo-container" id="m-logo-wrap">
+          <div class="logo-hexagon" id="m-logo-hex">
+            <div class="logo-inner"><div class="logo-core">Q</div></div>
+          </div>
+          <img id="m-logo-img" class="brand-logo-img" src="" alt="Logo" style="display:none;">
+        </div>
+        <div class="brand-title" id="m-biz-name">YOUR SHOP</div>
+        <div class="brand-subtitle">ELITE</div>
+        <div class="brand-tagline">AI BUSINESS OS</div>
+        <div class="shop-address" id="m-shop-address"></div>
+        <div class="divider-diamond"><div class="diamond"></div></div>
+      </header>
+
+      <div class="receipt-title-container">
+        <h2 class="receipt-title">SALES RECEIPT</h2>
+        <p class="receipt-subtitle" id="m-thank-short">Thank you for your purchase!</p>
+      </div>
+
+      <section class="meta-info">
+        <div class="meta-row">
+          <div class="meta-icon"><i data-lucide="receipt" style="width:15px;height:15px;"></i></div>
+          <div class="meta-label">Receipt No.</div>
+          <div class="meta-colon">:</div>
+          <div class="meta-value" id="m-receipt-no">—</div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-icon"><i data-lucide="calendar" style="width:15px;height:15px;"></i></div>
+          <div class="meta-label">Date</div>
+          <div class="meta-colon">:</div>
+          <div class="meta-value" id="m-date">—</div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-icon"><i data-lucide="clock" style="width:15px;height:15px;"></i></div>
+          <div class="meta-label">Time</div>
+          <div class="meta-colon">:</div>
+          <div class="meta-value" id="m-time">—</div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-icon"><i data-lucide="user" style="width:15px;height:15px;"></i></div>
+          <div class="meta-label">Cashier</div>
+          <div class="meta-colon">:</div>
+          <div class="meta-value" id="m-cashier">Staff</div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-icon"><i data-lucide="monitor" style="width:15px;height:15px;"></i></div>
+          <div class="meta-label">Terminal</div>
+          <div class="meta-colon">:</div>
+          <div class="meta-value">POS-01</div>
+        </div>
+        <div class="meta-row">
+          <div class="meta-icon"><i data-lucide="credit-card" style="width:15px;height:15px;"></i></div>
+          <div class="meta-label">Payment Type</div>
+          <div class="meta-colon">:</div>
+          <div class="meta-value" id="m-payment">Cash</div>
+        </div>
+      </section>
+
+      <div class="dashed-divider"></div>
+
+      <section class="customer-section">
+        <div class="customer-header">
+          <i data-lucide="user" style="width:15px;height:15px;"></i>
+          <span>CUSTOMER</span>
+        </div>
+        <div class="customer-name" id="m-customer">Walk-in Customer</div>
+        <div class="customer-note" id="m-customer-note">No customer information provided</div>
+      </section>
+
+      <section class="table-container">
+        <table class="m-items-table">
+          <thead>
+            <tr>
+              <th style="width:8%;">#</th>
+              <th style="width:42%;text-align:left;">ITEM</th>
+              <th class="text-center" style="width:12%;">QTY</th>
+              <th class="text-right" style="width:18%;">UNIT</th>
+              <th class="text-right" style="width:20%;">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody id="m-items-body"></tbody>
+        </table>
+      </section>
+
+      <section class="summary-section">
+        <div class="summary-row"><span class="label">Subtotal</span><span class="value" id="m-subtotal">₦0</span></div>
+        <div class="summary-row"><span class="label">Discount</span><span class="value" id="m-discount">₦0</span></div>
+        <div class="summary-row"><span class="label">Tax (0.00%)</span><span class="value" id="m-tax">₦0</span></div>
+        <div class="summary-divider"></div>
+        <div class="total-row"><span>TOTAL</span><span class="total-value" id="m-total">₦0</span></div>
+        <div class="amount-paid-card">
+          <span class="label">AMOUNT PAID</span>
+          <span class="value" id="m-paid">₦0</span>
+        </div>
+        <div class="change-row">
+          <span class="label">CHANGE</span>
+          <span class="value" id="m-change">₦0</span>
+        </div>
+      </section>
+
+      <div class="dashed-divider" style="margin-top:0;"></div>
+
+      <section class="footer-info-card">
+        <div class="qr-box">
+          <svg class="qr-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0h35v35H0zM4 4h27v27H4zM10 10h15v15H10zM65 0h35v35H65zM69 4h27v27H69zM75 10h15v15H75zM0 65h35v35H0zM4 69h27v27H4zM10 75h15v15H10z" fill="#111827"/>
+            <path d="M45 10h10v10H45zM45 25h10v10H45zM45 45h10v10H45zM10 45h10v10H10zM25 45h10v10H25zM65 45h10v10H65zM85 45h10v10H85zM45 65h10v10H45zM55 75h10v10H55zM45 85h10v10H45zM65 85h10v10H65zM85 75h10v25H85zM75 65h10v10H75z" fill="#111827"/>
+          </svg>
+        </div>
+        <div class="footer-details">
+          <div class="info-block">
+            <div class="info-icon"><i data-lucide="shield-check" style="width:16px;height:16px;"></i></div>
+            <div class="info-text">
+              <h4>SECURE TRANSACTION</h4>
+              <p>Computer generated receipt. No signature required.</p>
+            </div>
+          </div>
+          <div class="info-block">
+            <div class="info-icon"><i data-lucide="map-pin" style="width:16px;height:16px;"></i></div>
+            <div class="info-text">
+              <h4>SHOP LOCATION</h4>
+              <p id="m-footer-address">—</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="m-bottom-bar">
+        <div>
+          <div class="bottom-powered">Powered by <span>Quantum OPS Elite</span></div>
+          <div class="bottom-sub">Smart. Secure. Scalable.</div>
+        </div>
+        <div class="bottom-accent"><div class="mini-badge"><span>Q</span></div></div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ==================== DESKTOP RECEIPT ==================== -->
+  <div id="desktop-wrap" class="desktop-only" style="display:none;">
+    <div class="receipt-card" id="desktop-receipt-paper">
+      <header class="receipt-header">
+        <div class="brand-section">
+          <div id="d-logo-hex" class="d-logo-icon">
+            <div class="d-logo-inner"><div class="d-logo-core">Q</div></div>
+          </div>
+          <img id="d-logo-img" class="d-brand-logo" src="" alt="Logo" style="display:none;">
+          <div class="brand-text">
+            <h1 id="d-brand-title">QUANTUM OPS<span>ELITE</span></h1>
+            <p>AI BUSINESS OS</p>
+          </div>
+        </div>
+        <div class="header-title-right">
+          <h2>SALES RECEIPT</h2>
+          <p id="d-thank-short">Thank you for your purchase!</p>
+        </div>
+      </header>
+
+      <section class="info-grid">
+        <div class="company-details">
+          <div class="info-row">
+            <i data-lucide="map-pin"></i>
+            <div>
+              <strong id="d-company-name">Your Shop</strong><br>
+              <span id="d-company-address">Shop address will appear here</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <i data-lucide="phone"></i>
+            <div id="d-company-phone">—</div>
+          </div>
+          <div class="info-row">
+            <i data-lucide="mail"></i>
+            <div id="d-company-email">—</div>
+          </div>
+          <div class="info-row">
+            <i data-lucide="globe"></i>
+            <div id="d-company-website">—</div>
+          </div>
+        </div>
+
+        <div class="receipt-meta-box">
+          <div class="receipt-icon-badge">
+            <i data-lucide="file-text" style="width:14px;height:14px;"></i>
+          </div>
+          <table class="meta-table">
+            <tr><td>Receipt No.</td><td id="d-receipt-no">—</td></tr>
+            <tr><td>Date</td><td id="d-date">—</td></tr>
+            <tr><td>Time</td><td id="d-time">—</td></tr>
+            <tr><td>Cashier</td><td id="d-cashier">Staff</td></tr>
+            <tr><td>Terminal</td><td>POS-01</td></tr>
+            <tr><td>Payment Type</td><td id="d-payment">Cash</td></tr>
+          </table>
+        </div>
+
+        <div class="customer-box">
+          <div class="d-customer-header">
+            <i data-lucide="user" style="width:15px;height:15px;"></i>
+            <span>CUSTOMER</span>
+          </div>
+          <div class="d-customer-name" id="d-customer">Walk-in Customer</div>
+          <div class="d-customer-desc" id="d-customer-note">No customer information provided</div>
+        </div>
+      </section>
+
+      <section class="table-container">
+        <table class="d-items-table">
+          <thead>
+            <tr>
+              <th style="width:5%;">#</th>
+              <th style="width:32%;">ITEM</th>
+              <th style="width:18%;">SKU / BARCODE</th>
+              <th class="center" style="width:8%;">UNIT</th>
+              <th class="center" style="width:7%;">QTY</th>
+              <th class="right" style="width:12%;">UNIT PRICE</th>
+              <th class="right" style="width:8%;">DISC.</th>
+              <th class="right" style="width:10%;">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody id="d-items-body"></tbody>
+        </table>
+      </section>
+
+      <section class="bottom-section">
+        <div class="thank-you-card">
+          <div class="thank-you-header">
+            <i data-lucide="gift"></i>
+            <span>Thank you for shopping with us!</span>
+          </div>
+          <p id="d-thank-you">We appreciate your business and look forward to serving you again.</p>
+        </div>
+        <div class="summary-container">
+          <table class="d-summary-table">
+            <tr>
+              <td class="summary-label">Subtotal</td>
+              <td class="summary-value" id="d-subtotal">₦0.00</td>
+            </tr>
+            <tr>
+              <td class="summary-label">Discount</td>
+              <td class="summary-value" id="d-discount">₦0.00</td>
+            </tr>
+            <tr>
+              <td class="summary-label">Tax (0.00%)</td>
+              <td class="summary-value" id="d-tax">₦0.00</td>
+            </tr>
+            <tr class="total-row">
+              <td class="summary-label" style="font-size:14px;font-weight:700;color:#111827;">TOTAL</td>
+              <td class="summary-value total-banner" id="d-total">₦0.00</td>
+            </tr>
+            <tr class="paid-banner">
+              <td class="summary-label" style="font-weight:700;color:#374151;">AMOUNT PAID</td>
+              <td class="summary-value" style="font-weight:700;font-size:14px;" id="d-paid">₦0.00</td>
+            </tr>
+            <tr class="change-row">
+              <td class="summary-label" style="font-weight:600;color:#4b5563;">CHANGE</td>
+              <td class="summary-value change-value" id="d-change">₦0.00</td>
+            </tr>
+          </table>
+        </div>
+      </section>
+
+      <footer class="receipt-footer">
+        <div class="qr-section">
+          <svg class="d-qr-code" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0h35v35H0zM4 4h27v27H4zM10 10h15v15H10zM65 0h35v35H65zM69 4h27v27H69zM75 10h15v15H75zM0 65h35v35H0zM4 69h27v27H4zM10 75h15v15H10z" fill="#111827"/>
+            <path d="M45 10h10v10H45zM45 25h10v10H45zM45 45h10v10H45zM10 45h10v10H10zM25 45h10v10H25zM65 45h10v10H65zM85 45h10v10H85zM45 65h10v10H45zM55 75h10v10H55zM45 85h10v10H45zM65 85h10v10H65zM85 75h10v25H85zM75 65h10v10H75z" fill="#111827"/>
+          </svg>
+          <div class="qr-text">
+            <h4>SCAN TO REVIEW</h4>
+            <p>Scan to view this transaction digitally.</p>
+          </div>
+        </div>
+        <div class="security-section">
+          <div class="shield-icon">
+            <i data-lucide="check" style="width:14px;height:14px;"></i>
+          </div>
+          <div class="security-text">
+            <h4>SECURE TRANSACTION</h4>
+            <p>Computer generated receipt. No signature required.</p>
+          </div>
+        </div>
+        <div class="signature-section">
+          <div class="signature-font" id="d-signature">Staff</div>
+          <div class="signature-line"></div>
+          <div class="signature-label">Authorized Signature</div>
+        </div>
+      </footer>
+
+      <div class="d-bottom-bar">
+        <div class="d-bottom-bar-left">Powered by <span>Quantum OPS Elite</span></div>
+        <div class="d-bottom-bar-center">Smart. Secure. Scalable.</div>
+        <div class="d-bottom-bar-right"><div class="mini-logo"><span>Q</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar">
+    <button type="button" class="btn-back" onclick="goBack()"><i data-lucide="arrow-left" style="width:14px;height:14px;vertical-align:-2px;"></i> Back</button>
+    <button type="button" class="btn-wa" onclick="sendWhatsApp()"><i data-lucide="message-circle" style="width:14px;height:14px;vertical-align:-2px;"></i> WhatsApp</button>
+    <button type="button" class="btn-pdf" onclick="downloadPDF()"><i data-lucide="download" style="width:14px;height:14px;vertical-align:-2px;"></i> PDF</button>
+    <button type="button" class="btn-share" onclick="sharePDF()"><i data-lucide="share-2" style="width:14px;height:14px;vertical-align:-2px;"></i> Share</button>
+  </div>
+ <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let sale = null;
+    let company = null;
+
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function parseMoney(v) {
+      if (v == null || v === "") return 0;
+      if (typeof v === "number") return isNaN(v) ? 0 : v;
+      const n = parseFloat(String(v).replace(/[₦$,\s]/g, ""));
+      return isNaN(n) ? 0 : n;
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+    function getQueryId() {
+      try {
+        return new URLSearchParams(window.location.search).get("id") || "";
+      } catch (e) { return ""; }
+    }
+
+    function goBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+      const isDesktop = window.innerWidth >= 900;
+      window.location.href = isDesktop ? "desktop.html" : "dashboard.html";
+    }
+
+    function showError(msg) {
+      document.getElementById("loading-state").style.display = "none";
+      const el = document.getElementById("error-state");
+      el.style.display = "block";
+      el.textContent = msg || "Could not load receipt.";
+    }
+
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val == null || val === "" ? "—" : val;
+    }
+
+    function applyCompany() {
+      const c = company || {};
+      const name = c.company_name || "Your Shop";
+      const address = c.address || "";
+      const phone = c.phone || "";
+      const email = c.email || "";
+      const website = c.website || "";
+      const thank = c.thank_you_message || "Thank you for your patronage!";
+      const logo = c.logo || "";
+
+      // Mobile
+      setText("m-biz-name", name);
+      const addrBlock = [address, phone ? ("Tel: " + phone) : "", email].filter(Boolean).join(" · ");
+      setText("m-shop-address", addrBlock || "Update shop address in Profile");
+      setText("m-footer-address", address || "Update address in Profile");
+      setText("m-thank-short", thank.length > 40 ? thank.slice(0, 38) + "…" : thank);
+
+      if (logo) {
+        const mImg = document.getElementById("m-logo-img");
+        const mHex = document.getElementById("m-logo-hex");
+        if (mImg) { mImg.src = logo; mImg.style.display = "block"; }
+        if (mHex) mHex.style.display = "none";
+      }
+
+      // Desktop
+      setText("d-company-name", name);
+      setText("d-company-address", address || "Shop address not set — update in Profile");
+      setText("d-company-phone", phone || "—");
+      setText("d-company-email", email || "—");
+      setText("d-company-website", website || "—");
+      setText("d-thank-you", thank);
+      setText("d-thank-short", "Thank you for your purchase!");
+
+      const brandTitle = document.getElementById("d-brand-title");
+      if (brandTitle) {
+        brandTitle.innerHTML = esc(name) + "<span>RECEIPT</span>";
+      }
+
+      if (logo) {
+        const dImg = document.getElementById("d-logo-img");
+        const dHex = document.getElementById("d-logo-hex");
+        if (dImg) { dImg.src = logo; dImg.style.display = "block"; }
+        if (dHex) dHex.style.display = "none";
+      }
+    }
+
+    function applySale() {
+      const s = sale;
+      if (!s) return;
+
+      const receiptNo = s.sale_number || s.transaction_id || String(s.id || "").slice(0, 8);
+      const dt = new Date(s.created_at);
+      const dateStr = dt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+      const timeStr = dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      const customer = s.customer_name || "Walk-in Customer";
+      const cashier = s.cashier_name || "Staff";
+      const payment = s.payment_method || "Cash";
+      const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+      const subtotal = parseMoney(s.subtotal != null ? s.subtotal : amount);
+      const discount = parseMoney(s.discount);
+      const tax = parseMoney(s.tax);
+      const paid = parseMoney(s.paid_amount != null ? s.paid_amount : amount);
+      const change = s.balance != null ? parseMoney(s.balance) : (paid - amount);
+
+      // Mobile meta
+      setText("m-receipt-no", receiptNo);
+      setText("m-date", dateStr);
+      setText("m-time", timeStr);
+      setText("m-cashier", cashier);
+      setText("m-payment", payment);
+      setText("m-customer", customer);
+      setText("m-customer-note", customer === "Walk-in Customer" ? "No customer information provided" : "");
+      setText("m-subtotal", formatCurrency(subtotal));
+      setText("m-discount", formatCurrency(discount));
+      setText("m-tax", formatCurrency(tax));
+      setText("m-total", formatCurrency(amount));
+      setText("m-paid", formatCurrency(paid));
+      setText("m-change", formatCurrency(change));
+
+      // Desktop meta
+      setText("d-receipt-no", receiptNo);
+      setText("d-date", dateStr);
+      setText("d-time", timeStr);
+      setText("d-cashier", cashier);
+      setText("d-payment", payment);
+      setText("d-customer", customer);
+      setText("d-customer-note", customer === "Walk-in Customer" ? "No customer information provided" : "");
+      setText("d-subtotal", formatCurrency(subtotal));
+      setText("d-discount", formatCurrency(discount));
+      setText("d-tax", formatCurrency(tax));
+      setText("d-total", formatCurrency(amount));
+      setText("d-paid", formatCurrency(paid));
+      setText("d-change", formatCurrency(change));
+      setText("d-signature", cashier);
+
+      // Items
+      const items = Array.isArray(s.items) ? s.items : [];
+      let mRows = "";
+      let dRows = "";
+
+      if (!items.length) {
+        mRows = '<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:16px;">No line items</td></tr>';
+        dRows = '<tr><td colspan="8" style="text-align:center;color:#6b7280;padding:16px;">No line items</td></tr>';
+      } else {
+        items.forEach(function (item, idx) {
+          const name = item.name || item.product_name || "Item";
+          const qty = parseInt(item.qty || item.quantity || 1, 10);
+          const price = parseMoney(item.price);
+          const lineTotal = price * qty;
+          const sku = item.sku || item.barcode || "—";
+          const unit = item.unit || "pcs";
+          const cat = item.category || item.cat || "";
+          const img = item.image_url || item.image || item.photo || "";
+          const imgHtml = img
+            ? '<img src="' + esc(img) + '" class="product-img" alt="" onerror="this.style.display=\'none\'">'
+            : '<div class="product-img" style="display:flex;align-items:center;justify-content:center;background:#f3f4f6;color:#9ca3af;font-size:10px;">—</div>';
+          const dImgHtml = img
+            ? '<img src="' + esc(img) + '" class="d-product-img" alt="" onerror="this.style.display=\'none\'">'
+            : '<div class="d-product-img" style="display:flex;align-items:center;justify-content:center;background:#f3f4f6;color:#9ca3af;font-size:10px;">—</div>';
+
+          mRows +=
+            "<tr>" +
+              "<td>" + (idx + 1) + "</td>" +
+              "<td><div class=\"item-flex\">" + imgHtml +
+                "<div><div class=\"item-title\">" + esc(name) + "</div>" +
+                (cat ? "<div class=\"item-category\">" + esc(cat) + "</div>" : "") +
+                "</div></div></td>" +
+              "<td class=\"text-center\">" + qty + "</td>" +
+              "<td class=\"text-right\">" + formatCurrency(price) + "</td>" +
+              "<td class=\"text-right\">" + formatCurrency(lineTotal) + "</td>" +
+            "</tr>";
+
+          dRows +=
+            "<tr>" +
+              "<td class=\"center\"><strong>" + (idx + 1) + "</strong></td>" +
+              "<td><div class=\"item-cell\">" + dImgHtml +
+                "<div class=\"item-details\"><div class=\"item-name\">" + esc(name) + "</div>" +
+                (cat ? "<div class=\"item-cat\">" + esc(cat) + "</div>" : "") +
+                "</div></div></td>" +
+              "<td class=\"sku-text\">" + esc(sku) + "</td>" +
+              "<td class=\"center\">" + esc(unit) + "</td>" +
+              "<td class=\"center\">" + qty + "</td>" +
+              "<td class=\"right\">" + formatCurrency(price) + "</td>" +
+              "<td class=\"right\">₦0.00</td>" +
+              "<td class=\"right\"><strong>" + formatCurrency(lineTotal) + "</strong></td>" +
+            "</tr>";
+        });
+      }
+
+      document.getElementById("m-items-body").innerHTML = mRows;
+      document.getElementById("d-items-body").innerHTML = dRows;
+    }
+
+    function revealReceipt() {
+      document.getElementById("loading-state").style.display = "none";
+      document.getElementById("error-state").style.display = "none";
+      document.getElementById("mobile-wrap").style.display = "";
+      document.getElementById("desktop-wrap").style.display = "";
+      try { lucide.createIcons(); } catch (e) {}
+    }
+
+    function buildWhatsAppText() {
+      if (!sale) return "";
+      const c = company || {};
+      const s = sale;
+      const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+      const lines = [
+        "*SALES RECEIPT*",
+        "*" + (c.company_name || "My Shop") + "*"
+      ];
+      if (c.address) lines.push(c.address);
+      if (c.phone) lines.push("Tel: " + c.phone);
+      lines.push("-------------------");
+      lines.push("Receipt: " + (s.sale_number || s.transaction_id || String(s.id).slice(0, 8)));
+      lines.push("Date: " + new Date(s.created_at).toLocaleString());
+      lines.push("Customer: " + (s.customer_name || "Walk-in"));
+      lines.push("Cashier: " + (s.cashier_name || "Staff"));
+      lines.push("-------------------");
+      if (Array.isArray(s.items)) {
+        s.items.forEach(function (i) {
+          const q = i.qty || i.quantity || 1;
+          lines.push((i.name || "Item") + " ×" + q + "  " + formatCurrency(parseMoney(i.price) * q));
+        });
+      }
+      lines.push("-------------------");
+      lines.push("*TOTAL: " + formatCurrency(amount) + "*");
+      lines.push("Paid (" + (s.payment_method || "Cash") + "): " + formatCurrency(s.paid_amount != null ? s.paid_amount : amount));
+      lines.push("-------------------");
+      lines.push(c.thank_you_message || "Thank you for your patronage!");
+      return lines.join("\n");
+    }
+
+    function sendWhatsApp() {
+      if (!sale) return;
+      window.open("https://wa.me/?text=" + encodeURIComponent(buildWhatsAppText()), "_blank");
+    }
+
+    function getPaperElement() {
+      return window.innerWidth >= 900
+        ? document.getElementById("desktop-receipt-paper")
+        : document.getElementById("mobile-receipt-paper");
+    }
+
+    async function ensureHtml2Pdf() {
+      if (window.html2pdf) return;
+      await new Promise(function (resolve, reject) {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    async function downloadPDF() {
+      if (!sale) return;
+      try {
+        await ensureHtml2Pdf();
+        const el = getPaperElement();
+        const name = (sale.sale_number || sale.transaction_id || "receipt") + ".pdf";
+        const isDesktop = window.innerWidth >= 900;
+        await html2pdf().from(el).set({
+          margin: isDesktop ? 8 : 4,
+          filename: name,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          jsPDF: isDesktop
+            ? { unit: "mm", format: "a4", orientation: "portrait" }
+            : { unit: "mm", format: [80, 220], orientation: "portrait" }
+        }).save();
+      } catch (e) {
+        console.error(e);
+        alert("Could not create PDF. Try again.");
+      }
+    }
+
+    async function sharePDF() {
+      if (!sale) return;
+      try {
+        await ensureHtml2Pdf();
+        const el = getPaperElement();
+        const isDesktop = window.innerWidth >= 900;
+        const blob = await html2pdf().from(el).set({
+          margin: isDesktop ? 8 : 4,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+          jsPDF: isDesktop
+            ? { unit: "mm", format: "a4", orientation: "portrait" }
+            : { unit: "mm", format: [80, 220], orientation: "portrait" }
+        }).outputPdf("blob");
+
+        const fileName = (sale.sale_number || sale.transaction_id || "Receipt") + ".pdf";
+        const file = new File([blob], fileName, { type: "application/pdf" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Receipt - " + fileName,
+            text: "Receipt from " + ((company && company.company_name) || "our shop")
+          });
+          return;
+        }
+        await downloadPDF();
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        await downloadPDF();
+      }
+    }
+
+    async function init() {
+      const saleId = getQueryId();
+      if (!saleId) {
+        showError("Missing receipt id. Open this page from POS or Transaction History.");
+        return;
+      }
+
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+
+        const { data: saleData, error: saleErr } = await supabaseClient
+          .from("sales")
+          .select("*")
+          .eq("id", saleId)
+          .maybeSingle();
+
+        if (saleErr) throw saleErr;
+        if (!saleData) {
+          showError("Receipt not found.");
+          return;
+        }
+        sale = saleData;
+
+        // Load company (by sale.company_id first, then user's company)
+        if (sale.company_id) {
+          const { data: c } = await supabaseClient
+            .from("companies")
+            .select("company_name, address, phone, email, website, tax_id, thank_you_message, logo")
+            .eq("id", sale.company_id)
+            .maybeSingle();
+          company = c || null;
+        }
+
+        if (!company) {
+          const { data: member } = await supabaseClient
+            .from("company_users")
+            .select("company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo)")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+          if (member && member.companies) company = member.companies;
+        }
+
+        applyCompany();
+        applySale();
+        revealReceipt();
+      } catch (err) {
+        console.error(err);
+        showError(err.message || "Failed to load receipt.");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
+
