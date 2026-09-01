@@ -3,45 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#6C5CE7">
+  <meta name="theme-color" content="#05060B">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quantum OPS">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <title>POS Sales - Quantum OPS Elite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #07070F; font-family: system-ui, -apple-system, sans-serif; color: #E2E8F0; min-height: 100vh; }
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    html, body {
+      background: #07070F;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #E2E8F0;
+      min-height: 100%; height: 100%;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
     .mobile-only { display: block !important; }
     .desktop-only { display: none !important; }
-
     @media (min-width: 1024px) {
       .mobile-only { display: none !important; }
       .desktop-only { display: flex !important; }
     }
 
-    /* ===== MOBILE (SAFE AREA FIXED) ===== */
+    /* ===== MOBILE ===== */
     .iphone-frame {
-      width: 100%; max-width: 100%; height: 100dvh; height: 100vh;
-      background: #0B0B16; position: relative; overflow: hidden;
+      width: 100%; max-width: 100%;
+      min-height: 100%; min-height: 100dvh;
+      background: #0B0B16;
+      position: relative;
       display: flex; flex-direction: column;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
     }
     .top-bar {
-      padding: 12px 16px;
-      padding-top: calc(12px + env(safe-area-inset-top));
+      position: sticky; top: 0; z-index: 30; flex-shrink: 0;
+      padding: 12px 14px;
       display: flex; align-items: center; justify-content: space-between;
-      background: rgba(11,11,22,0.95); border-bottom: 1px solid rgba(139,92,246,0.1);
-      flex-shrink: 0; z-index: 20;
+      background: rgba(11,11,22,0.98);
+      border-bottom: 1px solid rgba(139,92,246,0.12);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     }
     .main-scroll {
       flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding: 16px; padding-bottom: 110px;
+      overscroll-behavior-y: contain; padding: 12px 14px 20px; min-height: 0;
     }
     .card {
       background: #121224; border: 1px solid rgba(139,92,246,0.15);
@@ -54,20 +67,22 @@
     .btn-primary {
       width: 100%; padding: 14px; border: none; border-radius: 16px;
       background: linear-gradient(to right, #6C5CE7, #4F46E5); color: #fff;
-      font-weight: 700; font-size: 12px; cursor: pointer;
+      font-weight: 700; font-size: 13px; cursor: pointer;
     }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
     .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      height: calc(64px + env(safe-area-inset-bottom));
-      padding-bottom: env(safe-area-inset-bottom);
-      background: rgba(14,14,28,0.95); border-top: 1px solid rgba(139,92,246,0.15);
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+      height: calc(64px + env(safe-area-inset-bottom, 0px));
+      padding: 0 16px env(safe-area-inset-bottom, 0px);
+      background: rgba(14,14,28,0.98);
+      border-top: 1px solid rgba(139,92,246,0.18);
       display: flex; align-items: center; justify-content: space-between;
-      padding-left: 24px; padding-right: 24px; z-index: 40;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      transform: translateZ(0);
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center; gap: 2px;
-      color: #94a3b8; text-decoration: none; font-size: 9px;
+      color: #94a3b8; text-decoration: none; font-size: 9px; min-width: 48px; padding: 6px 4px;
     }
     .nav-item.active { color: #a78bfa; }
     .nav-item i { font-size: 14px; }
@@ -81,7 +96,7 @@
       width: 48px; height: 48px; border-radius: 8px; object-fit: cover;
       background: rgba(88,28,135,0.3); flex-shrink: 0;
     }
-    .prod-name { font-weight: 700; color: #fff; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prod-name { font-weight: 700; color: #fff; font-size: 12px; }
     .prod-sku { font-size: 9px; color: #94a3b8; }
     .prod-meta { font-size: 9px; color: #cbd5e1; }
     .prod-price { font-size: 12px; font-weight: 700; color: #c4b5fd; }
@@ -106,72 +121,282 @@
     .pay-btn.active { background: rgba(108,92,231,0.2); border-color: #6C5CE7; color: #fff; }
     .hidden { display: none !important; }
 
-    /* ===== DESKTOP ===== */
-    .desktop-shell { width: 100%; min-height: 100vh; background: #07070F; flex-direction: column; }
+    /* ===== DESKTOP PREMIUM (matches screenshot style) ===== */
+    .desktop-shell {
+      width: 100%; min-height: 100vh;
+      background:
+        radial-gradient(ellipse 90% 60% at 10% -10%, rgba(108,92,231,0.10), transparent 50%),
+        #F8FAFC;
+      flex-direction: row;
+    }
+    body:not(.theme-day) .desktop-shell {
+      background:
+        radial-gradient(ellipse 90% 60% at 10% -10%, rgba(108,92,231,0.14), transparent 50%),
+        #07070F;
+    }
+    .desk-layout {
+      width: 100%; min-height: 100vh;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+    }
+    .desk-sidebar {
+      position: sticky; top: 0; height: 100vh;
+      background: #FFFFFF;
+      border-right: 1px solid #E2E8F0;
+      padding: 18px 12px;
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    body:not(.theme-day) .desk-sidebar {
+      background: rgba(18,18,36,0.97);
+      border-right-color: rgba(139,92,246,0.14);
+    }
+    .desk-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 4px 10px 18px; border-bottom: 1px solid #E2E8F0; margin-bottom: 12px;
+    }
+    body:not(.theme-day) .desk-logo { border-bottom-color: rgba(139,92,246,0.12); }
+    .desk-logo-mark {
+      width: 36px; height: 36px; border-radius: 12px;
+      background: linear-gradient(135deg,#6C5CE7,#8B5CFF);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 14px;
+    }
+    .desk-logo-text { font-weight: 800; font-size: 13px; color: #0F172A; line-height: 1.2; }
+    body:not(.theme-day) .desk-logo-text { color: #fff; }
+    .desk-logo-sub { font-size: 9px; color: #64748B; font-weight: 600; letter-spacing: 0.04em; }
+    .desk-sidebar .nav-item {
+      flex-direction: row; justify-content: flex-start; gap: 12px;
+      font-size: 13.5px; font-weight: 500; padding: 11px 14px; border-radius: 12px;
+      margin-bottom: 3px; transition: all 0.15s; color: #64748B;
+    }
+    body:not(.theme-day) .desk-sidebar .nav-item { color: #94a3b8; }
+    .desk-sidebar .nav-item i { font-size: 15px; width: 22px; text-align: center; }
+    .desk-sidebar .nav-item:hover { color: #6C5CE7; background: rgba(108,92,231,0.08); }
+    .desk-sidebar .nav-item.active {
+      background: linear-gradient(135deg, rgba(108,92,231,0.18), rgba(124,108,240,0.08));
+      color: #6C5CE7; border: 1px solid rgba(139,92,246,0.22);
+    }
+    body:not(.theme-day) .desk-sidebar .nav-item.active {
+      background: linear-gradient(135deg, rgba(108,92,231,0.28), rgba(124,108,240,0.12));
+      color: #c4b5fd;
+    }
+    .desk-sidebar-foot {
+      margin-top: auto; padding-top: 14px; border-top: 1px solid #E2E8F0;
+    }
+    body:not(.theme-day) .desk-sidebar-foot { border-top-color: rgba(139,92,246,0.12); }
+    .theme-toggle {
+      display: flex; gap: 6px; background: #F1F5F9; border-radius: 12px; padding: 4px; margin-bottom: 12px;
+    }
+    body:not(.theme-day) .theme-toggle { background: rgba(0,0,0,0.25); }
+    .theme-toggle button {
+      flex: 1; border: none; border-radius: 9px; padding: 8px; font-size: 11px; font-weight: 600;
+      cursor: pointer; background: transparent; color: #64748B;
+    }
+    .theme-toggle button.active { background: #6C5CE7; color: #fff; }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px;
+      background: #F8FAFC; border: 1px solid #E2E8F0;
+      text-decoration: none; color: inherit;
+    }
+    body:not(.theme-day) .user-chip {
+      background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.15);
+    }
+    .user-chip .avatar {
+      width: 36px; height: 36px; border-radius: 999px;
+      background: #6C5CE7; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+    .user-chip .name { font-size: 12px; font-weight: 700; color: #0F172A; }
+    body:not(.theme-day) .user-chip .name { color: #fff; }
+    .user-chip .role { font-size: 10px; color: #64748B; }
+
+    .desk-main { display: flex; flex-direction: column; min-width: 0; min-height: 100vh; }
     .desk-topbar {
-      height: 64px; background: #0B0B16; border-bottom: 1px solid rgba(139,92,246,0.15);
-      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0;
+      padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      border-bottom: 1px solid #E2E8F0; background: #FFFFFF; flex-wrap: wrap;
     }
-    .desk-content { flex: 1; display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; overflow: hidden; }
-    .desk-left { border-right: 1px solid rgba(139,92,246,0.12); display: flex; flex-direction: column; overflow: hidden; }
-    .desk-right { display: flex; flex-direction: column; overflow: hidden; background: #0B0B16; }
-    .desk-section { padding: 20px; overflow-y: auto; }
-    .desk-product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    body:not(.theme-day) .desk-topbar {
+      background: rgba(14,14,28,0.9); border-bottom-color: rgba(139,92,246,0.12);
+    }
+    .desk-search {
+      flex: 1; max-width: 420px; position: relative;
+    }
+    .desk-search i {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 13px;
+    }
+    .desk-search input {
+      width: 100%; background: #F8FAFC; border: 1px solid #E2E8F0;
+      border-radius: 12px; padding: 11px 14px 11px 40px; font-size: 13px; color: #0F172A; outline: none;
+    }
+    body:not(.theme-day) .desk-search input {
+      background: #121224; border-color: rgba(139,92,246,0.2); color: #fff;
+    }
+    .desk-search input:focus { border-color: #6C5CE7; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+    .desk-top-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .top-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 600;
+      background: #F8FAFC; border: 1px solid #E2E8F0; color: #475569; cursor: pointer;
+    }
+    body:not(.theme-day) .top-chip {
+      background: #121224; border-color: rgba(139,92,246,0.2); color: #cbd5e1;
+    }
+    .top-chip.online { color: #059669; }
+    body:not(.theme-day) .top-chip.online { color: #34d399; }
+    .desk-clock {
+      font-size: 13px; font-weight: 700; color: #0F172A;
+      padding: 8px 12px; border-radius: 10px; background: #F1F5F9; border: 1px solid #E2E8F0;
+    }
+    body:not(.theme-day) .desk-clock {
+      color: #E2E8F0; background: #121224; border-color: rgba(139,92,246,0.2);
+    }
+
+    .desk-pos-grid {
+      flex: 1; display: grid;
+      grid-template-columns: 1.35fr 0.95fr 0.85fr;
+      min-height: 0; overflow: hidden;
+    }
+    .pos-col {
+      display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+      border-right: 1px solid #E2E8F0; background: #FFFFFF;
+    }
+    body:not(.theme-day) .pos-col {
+      border-right-color: rgba(139,92,246,0.12); background: #0B0B16;
+    }
+    .pos-col:last-child { border-right: none; }
+    .pos-col-head {
+      padding: 14px 16px; border-bottom: 1px solid #E2E8F0;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;
+    }
+    body:not(.theme-day) .pos-col-head { border-bottom-color: rgba(139,92,246,0.12); }
+    .pos-col-head h2 { font-size: 15px; font-weight: 800; color: #0F172A; margin: 0; }
+    body:not(.theme-day) .pos-col-head h2 { color: #fff; }
+    .pos-col-body { flex: 1; overflow-y: auto; padding: 14px 16px; min-height: 0; }
+    .pos-col-foot {
+      padding: 14px 16px; border-top: 1px solid #E2E8F0; flex-shrink: 0;
+      background: #FAFBFF;
+    }
+    body:not(.theme-day) .pos-col-foot {
+      border-top-color: rgba(139,92,246,0.12); background: #0B0B16;
+    }
+
+    .cat-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .cat-tab {
+      padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+      background: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; cursor: pointer;
+    }
+    body:not(.theme-day) .cat-tab {
+      background: #121224; color: #94a3b8; border-color: rgba(139,92,246,0.15);
+    }
+    .cat-tab.active { background: #6C5CE7; color: #fff; border-color: transparent; }
+
+    .desk-product-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+    }
     .desk-product-card {
-      background: #121224; border: 1px solid rgba(139,92,246,0.15); border-radius: 14px;
-      padding: 14px; cursor: pointer; transition: all 0.15s;
+      background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px;
+      padding: 12px; cursor: pointer; transition: all 0.15s;
     }
-    .desk-product-card:hover { border-color: #8B5CFF; transform: translateY(-2px); }
+    body:not(.theme-day) .desk-product-card {
+      background: #121224; border-color: rgba(139,92,246,0.15);
+    }
+    .desk-product-card:hover { border-color: #6C5CE7; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(108,92,231,0.12); }
     .desk-product-card.disabled { opacity: 0.5; pointer-events: none; }
-    .desk-product-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; background: #191932; }
-    .desk-cart-item {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #121224; border: 1px solid rgba(139,92,246,0.12); border-radius: 12px; padding: 12px; margin-bottom: 8px;
+    .desk-product-card img {
+      width: 100%; height: 90px; object-fit: cover; border-radius: 10px;
+      margin-bottom: 8px; background: #F1F5F9;
     }
+    body:not(.theme-day) .desk-product-card img { background: #191932; }
+
+    .desk-cart-item {
+      display: flex; align-items: center; gap: 10px;
+      background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px;
+      padding: 10px; margin-bottom: 8px;
+    }
+    body:not(.theme-day) .desk-cart-item {
+      background: #121224; border-color: rgba(139,92,246,0.12);
+    }
+    .qty-box {
+      display: flex; align-items: center; background: #FFFFFF; border: 1px solid #E2E8F0;
+      border-radius: 8px; overflow: hidden;
+    }
+    body:not(.theme-day) .qty-box {
+      background: #0B0B16; border-color: rgba(139,92,246,0.2);
+    }
+    .qty-box button {
+      padding: 6px 10px; background: none; border: none; color: #64748B; cursor: pointer;
+    }
+    body:not(.theme-day) .qty-box button { color: #cbd5e1; }
+    .qty-box span { padding: 0 8px; font-size: 13px; font-weight: 700; color: #0F172A; }
+    body:not(.theme-day) .qty-box span { color: #fff; }
+
+    .pay-total {
+      font-size: 28px; font-weight: 800; color: #6C5CE7; margin: 4px 0 14px;
+    }
+    .pay-methods {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px;
+    }
+    .pay-method {
+      padding: 12px 8px; border-radius: 12px; background: #F8FAFC;
+      border: 1px solid #E2E8F0; color: #64748B; text-align: center;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    body:not(.theme-day) .pay-method {
+      background: #191932; border-color: rgba(139,92,246,0.2); color: #94a3b8;
+    }
+    .pay-method.active {
+      background: rgba(108,92,231,0.12); border-color: #6C5CE7; color: #6C5CE7;
+    }
+    body:not(.theme-day) .pay-method.active {
+      background: rgba(108,92,231,0.2); color: #c4b5fd;
+    }
+    .pay-method i { font-size: 16px; }
+    .quick-cash { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .quick-cash button {
+      padding: 10px; border-radius: 10px; border: 1px solid #E2E8F0;
+      background: #FFFFFF; color: #0F172A; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    body:not(.theme-day) .quick-cash button {
+      background: #121224; border-color: rgba(139,92,246,0.2); color: #E2E8F0;
+    }
+    .recent-tx {
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid #E2E8F0;
+    }
+    body:not(.theme-day) .recent-tx { border-top-color: rgba(139,92,246,0.12); }
+    .recent-tx h4 { font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 10px; }
+    .tx-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-size: 12px;
+    }
+    body:not(.theme-day) .tx-row { border-bottom-color: rgba(139,92,246,0.08); }
+    .tx-row .id { font-weight: 600; color: #0F172A; }
+    body:not(.theme-day) .tx-row .id { color: #E2E8F0; }
+    .tx-row .amt { font-weight: 700; color: #6C5CE7; }
 
     #receipt-modal, #scanner-modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.94); z-index: 60;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 80;
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
-    #scanner-reader { width: 100%; min-height: 300px; background: #000; border-radius: 12px; overflow: hidden; }
+    #scanner-reader { width: 100%; min-height: 280px; background: #000; border-radius: 12px; overflow: hidden; }
 
-    /* ===== DAY THEME ===== */
+    /* Day theme mobile extras */
     body.theme-day {
-      background: #F4F6FB !important;
-      color: #0F172A !important;
+      background: #F4F6FB !important; color: #0F172A !important;
     }
-    body.theme-day .iphone-frame,
-    body.theme-day .desktop-shell {
-      background: #F4F6FB !important;
+    body.theme-day .iphone-frame { background: #F4F6FB !important; }
+    body.theme-day .top-bar, body.theme-day .bottom-nav {
+      background: #FFFFFF !important; border-color: #E2E8F0 !important;
     }
-    body.theme-day .top-bar,
-    body.theme-day .bottom-nav,
-    body.theme-day .desk-topbar,
-    body.theme-day .desk-right {
-      background: #FFFFFF !important;
-      border-color: #E2E8F0 !important;
-    }
-    body.theme-day .card,
-    body.theme-day .tool,
-    body.theme-day .product-row,
-    body.theme-day .desk-product-card,
-    body.theme-day .desk-cart-item,
-    body.theme-day .pay-btn {
-      background: #FFFFFF !important;
-      border-color: #E2E8F0 !important;
-      color: #0F172A !important;
+    body.theme-day .card, body.theme-day .tool, body.theme-day .product-row, body.theme-day .pay-btn {
+      background: #FFFFFF !important; border-color: #E2E8F0 !important; color: #0F172A !important;
     }
     body.theme-day .pay-btn.active {
-      background: rgba(108,92,231,0.15) !important;
-      border-color: #6C5CE7 !important;
-      color: #0F172A !important;
+      background: rgba(108,92,231,0.12) !important; border-color: #6C5CE7 !important; color: #0F172A !important;
     }
-    body.theme-day .input,
-    body.theme-day input[type="number"],
-    body.theme-day input[type="text"] {
-      background: #F8FAFC !important;
-      border-color: #E2E8F0 !important;
-      color: #0F172A !important;
+    body.theme-day .input, body.theme-day input[type="number"], body.theme-day input[type="text"] {
+      background: #F8FAFC !important; border-color: #E2E8F0 !important; color: #0F172A !important;
     }
     body.theme-day .nav-item { color: #64748B !important; }
     body.theme-day .nav-item.active { color: #6C5CE7 !important; }
@@ -179,33 +404,21 @@
     body.theme-day .prod-sku { color: #64748B !important; }
     body.theme-day .prod-meta { color: #475569 !important; }
     body.theme-day .prod-price { color: #6C5CE7 !important; }
-    body.theme-day .desk-product-card:hover { border-color: #6C5CE7 !important; }
-
-    /* ===== TEXT SIZE ===== */
-    body.text-small .prod-name { font-size: 10px; }
-    body.text-small .nav-item { font-size: 8px; }
-    body.text-medium .prod-name { font-size: 11px; }
-    body.text-medium .nav-item { font-size: 9px; }
-    body.text-large .prod-name { font-size: 13px; }
-    body.text-large .nav-item { font-size: 10px; }
-    body.text-xlarge .prod-name { font-size: 14px; }
-    body.text-xlarge .nav-item { font-size: 11px; }
   </style>
 </head>
 <body>
-
-  <!-- MOBILE VIEW -->
+ <!-- ==================== MOBILE ==================== -->
   <div class="mobile-only">
     <div class="iphone-frame">
       <div class="top-bar">
         <div style="display:flex;align-items:center;gap:12px;">
-          <a href="moblie.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
+          <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
           <div>
-            <div style="font-weight:700;font-size:12px;color:#fff;" class="prod-name">POS Sales</div>
+            <div style="font-weight:700;font-size:13px;color:#fff;" class="prod-name">POS Sales</div>
             <div style="font-size:9px;color:#94a3b8;">Create new sale</div>
           </div>
         </div>
-        <button onclick="clearCart()" style="padding:8px;border-radius:12px;background:#121224;border:1px solid rgba(139,92,246,0.2);color:#cbd5e1;cursor:pointer;">
+        <button type="button" onclick="clearCart()" style="padding:8px;border-radius:12px;background:#121224;border:1px solid rgba(139,92,246,0.2);color:#cbd5e1;cursor:pointer;">
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>
@@ -244,7 +457,7 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
             <h3 style="margin:0;font-size:12px;font-weight:700;color:#fff;" id="cart-title-count">Cart (0 items)</h3>
-            <button onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:10px;cursor:pointer;">Clear Cart</button>
+            <button type="button" onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:10px;cursor:pointer;">Clear Cart</button>
           </div>
           <div id="cart-items-container">
             <div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>
@@ -284,7 +497,7 @@
           </div>
         </div>
 
-        <button id="complete-sale-btn" onclick="completeSale()" class="btn-primary">
+        <button type="button" id="complete-sale-btn" onclick="completeSale()" class="btn-primary">
           <i class="fa-solid fa-circle-check"></i> <span id="complete-sale-label">Complete Sale & Generate Receipt</span>
         </button>
       </div>
@@ -298,121 +511,179 @@
     </div>
   </div>
 
-  <!-- DESKTOP VIEW -->
+  <!-- ==================== DESKTOP ==================== -->
   <div class="desktop-only desktop-shell">
-    <div class="desk-topbar">
-      <div style="display:flex;align-items:center;gap:16px;">
-        <a href="dashboard.html" style="color:#94a3b8;text-decoration:none;font-size:18px;"><i class="fa-solid fa-arrow-left"></i></a>
-        <div>
-          <div style="font-weight:700;font-size:16px;color:#fff;" class="prod-name">POS Sales</div>
-          <div style="font-size:12px;color:#94a3b8;">Create new sale • Live Inventory</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button onclick="startBarcodeScanner()" style="padding:8px 16px;border-radius:10px;background:#121224;border:1px solid rgba(139,92,246,0.25);color:#a78bfa;font-size:13px;cursor:pointer;">
-          <i class="fa-solid fa-barcode"></i> Scan Barcode
-        </button>
-        <button onclick="promptCustomer()" style="padding:8px 16px;border-radius:10px;background:#121224;border:1px solid rgba(139,92,246,0.25);color:#34d399;font-size:13px;cursor:pointer;">
-          <i class="fa-solid fa-user"></i> <span id="desk-customer-label">Customer</span>
-        </button>
-        <button onclick="clearCart()" style="padding:8px 14px;border-radius:10px;background:#121224;border:1px solid rgba(251,113,133,0.3);color:#fb7185;font-size:13px;cursor:pointer;">
-          <i class="fa-solid fa-trash"></i> Clear
-        </button>
-      </div>
-    </div>
-
-    <div class="desk-content">
-      <div class="desk-left">
-        <div style="padding:16px 20px;border-bottom:1px solid rgba(139,92,246,0.1);">
-          <div style="position:relative;">
-            <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:14px;top:13px;color:#64748b;"></i>
-            <input type="text" id="desk-product-search" oninput="filterProducts()" placeholder="Search product by name or SKU..."
-              style="width:100%;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:12px 16px 12px 42px;font-size:14px;color:#fff;outline:none;">
+    <div class="desk-layout">
+      <!-- SIDEBAR -->
+      <nav class="desk-sidebar">
+        <div class="desk-logo">
+          <div class="desk-logo-mark">Q</div>
+          <div>
+            <div class="desk-logo-text">QUANTUM OPS</div>
+            <div class="desk-logo-sub">AI BUSINESS OS</div>
           </div>
         </div>
-        <div class="desk-section custom-scrollbar" style="flex:1;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
-            <span style="font-size:14px;font-weight:600;color:#cbd5e1;">Available Products</span>
-            <span style="font-size:12px;color:#a78bfa;">Live Inventory</span>
+        <a href="desktop.html" class="nav-item"><i class="fa-solid fa-house"></i>Dashboard</a>
+        <a href="pos.html" class="nav-item active"><i class="fa-solid fa-cart-shopping"></i>POS / Sales</a>
+        <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+        <a href="debtors.html" class="nav-item"><i class="fa-solid fa-users"></i>Customers</a>
+        <a href="expenses.html" class="nav-item"><i class="fa-solid fa-money-bill-wave"></i>Expenses</a>
+        <a href="transactions.html" class="nav-item"><i class="fa-solid fa-chart-column"></i>Reports</a>
+        <a href="ai-ceo.html" class="nav-item"><i class="fa-solid fa-robot"></i>AI CEO</a>
+        <a href="profile.html" class="nav-item"><i class="fa-solid fa-gear"></i>Settings</a>
+
+        <div class="desk-sidebar-foot">
+          <div class="theme-toggle">
+            <button type="button" id="btn-theme-day" onclick="setThemePref('day')"><i class="fa-solid fa-sun"></i> Light</button>
+            <button type="button" id="btn-theme-night" onclick="setThemePref('night')"><i class="fa-solid fa-moon"></i> Dark</button>
           </div>
-          <div id="desk-product-catalog" class="desk-product-grid">
-            <div style="grid-column:1/-1;text-align:center;color:#64748b;padding:40px 0;">Loading inventory...</div>
+          <a href="profile.html" class="user-chip">
+            <div class="avatar" id="desk-user-avatar">C</div>
+            <div style="min-width:0;">
+              <div class="name" id="desk-user-name">Owner</div>
+              <div class="role">Business Owner</div>
+            </div>
+          </a>
+        </div>
+      </nav>
+
+      <!-- MAIN -->
+      <div class="desk-main">
+        <!-- TOP BAR -->
+        <div class="desk-topbar">
+          <div class="desk-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="desk-product-search" oninput="filterProducts()" placeholder="Search product by name, SKU or scan barcode...">
+          </div>
+          <div class="desk-top-actions">
+            <button type="button" class="top-chip" onclick="startBarcodeScanner()"><i class="fa-solid fa-barcode"></i> Scan</button>
+            <button type="button" class="top-chip" onclick="promptCustomer()"><i class="fa-solid fa-user"></i> <span id="desk-customer-label">Customer</span></button>
+            <div class="top-chip online"><i class="fa-solid fa-circle" style="font-size:8px;"></i> Online</div>
+            <div class="desk-clock" id="desk-live-clock">--:--</div>
+            <button type="button" class="top-chip" onclick="clearCart()" style="color:#fb7185;"><i class="fa-solid fa-trash"></i> Clear</button>
           </div>
         </div>
-      </div>
 
-      <div class="desk-right">
-        <div class="desk-section custom-scrollbar" style="flex:1;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
-            <h3 style="font-size:15px;font-weight:700;color:#fff;" id="desk-cart-title">Cart (0 items)</h3>
-            <button onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:13px;cursor:pointer;">Clear Cart</button>
-          </div>
-          <div id="desk-cart-items">
-            <div style="text-align:center;padding:40px 0;color:#64748b;font-size:14px;">Your cart is empty.<br>Select products to add.</div>
-          </div>
-        </div>
-
-        <div style="padding:20px;border-top:1px solid rgba(139,92,246,0.12);background:#0B0B16;">
-          <div style="font-size:13px;margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;">
-              <span>Subtotal</span><span style="color:#fff;font-weight:600;" id="desk-val-subtotal">₦0</span>
+        <!-- 3 COLUMNS -->
+        <div class="desk-pos-grid">
+          <!-- PRODUCTS -->
+          <div class="pos-col">
+            <div class="pos-col-head">
+              <h2>Products</h2>
+              <span style="font-size:11px;color:#6C5CE7;font-weight:600;">Live Inventory</span>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;margin-bottom:6px;">
-              <span>Discount (₦)</span>
-              <input type="number" id="desk-input-discount" value="0" oninput="syncDiscount(this.value)" style="width:100px;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:6px 10px;text-align:right;color:#fff;font-size:13px;">
-            </div>
-            <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;">
-              <span>Tax</span><span style="color:#fff;font-weight:600;">₦0</span>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(139,92,246,0.15);padding-top:10px;margin-top:6px;">
-              <span style="font-weight:700;color:#fff;font-size:16px;">TOTAL</span>
-              <span style="font-weight:800;color:#a78bfa;font-size:22px;" id="desk-val-grand-total">₦0</span>
+            <div class="pos-col-body custom-scrollbar">
+              <div class="cat-tabs">
+                <button type="button" class="cat-tab active" onclick="setCategory('all', this)">All</button>
+                <button type="button" class="cat-tab" onclick="setCategory('all', this)">Beverages</button>
+                <button type="button" class="cat-tab" onclick="setCategory('all', this)">Snacks</button>
+                <button type="button" class="cat-tab" onclick="setCategory('all', this)">Household</button>
+              </div>
+              <div id="desk-product-catalog" class="desk-product-grid">
+                <div style="grid-column:1/-1;text-align:center;color:#64748b;padding:40px 0;">Loading inventory...</div>
+              </div>
             </div>
           </div>
 
-          <div style="margin-bottom:14px;">
-            <div style="font-size:13px;font-weight:600;color:#cbd5e1;margin-bottom:8px;">Payment Method</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
-              <button type="button" onclick="setPaymentMethod('Cash')" id="desk-pm-Cash" class="pay-btn active"><i class="fa-solid fa-money-bill-wave"></i>Cash</button>
-              <button type="button" onclick="setPaymentMethod('Transfer')" id="desk-pm-Transfer" class="pay-btn"><i class="fa-solid fa-building-columns"></i>Transfer</button>
-              <button type="button" onclick="setPaymentMethod('POS')" id="desk-pm-POS" class="pay-btn"><i class="fa-solid fa-credit-card"></i>POS</button>
-              <button type="button" onclick="setPaymentMethod('Online')" id="desk-pm-Online" class="pay-btn"><i class="fa-solid fa-globe"></i>Online</button>
+          <!-- CART -->
+          <div class="pos-col">
+            <div class="pos-col-head">
+              <h2 id="desk-cart-title">Cart (0 Items)</h2>
+              <button type="button" onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:12px;cursor:pointer;font-weight:600;">Clear Cart</button>
+            </div>
+            <div class="pos-col-body custom-scrollbar" id="desk-cart-items">
+              <div style="text-align:center;padding:48px 12px;color:#64748b;font-size:13px;">Your cart is empty.<br>Tap products to add.</div>
+            </div>
+            <div class="pos-col-foot">
+              <div style="font-size:13px;margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;color:#64748B;margin-bottom:6px;">
+                  <span>Subtotal</span><span style="font-weight:700;color:#0F172A;" id="desk-val-subtotal">₦0</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;color:#64748B;margin-bottom:6px;">
+                  <span>Discount (₦)</span>
+                  <input type="number" id="desk-input-discount" value="0" oninput="syncDiscount(this.value)" style="width:90px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:6px 8px;text-align:right;color:#0F172A;font-size:13px;">
+                </div>
+                <div style="display:flex;justify-content:space-between;color:#64748B;margin-bottom:6px;">
+                  <span>Tax (0%)</span><span style="font-weight:600;">₦0.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #E2E8F0;padding-top:10px;margin-top:6px;">
+                  <span style="font-weight:800;font-size:15px;color:#0F172A;">Total</span>
+                  <span style="font-weight:800;font-size:18px;color:#6C5CE7;" id="desk-val-grand-total">₦0</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div style="margin-bottom:14px;">
-            <label style="font-size:12px;color:#94a3b8;">Paid Amount (₦)</label>
-            <input type="number" id="desk-input-paid-amount" oninput="syncPaid(this.value)" placeholder="Enter amount paid"
-              style="width:100%;margin-top:6px;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:12px;padding:12px;font-size:14px;color:#fff;">
-            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px;">
-              <span style="color:#94a3b8;">Balance / Change:</span>
-              <span style="font-weight:700;color:#34d399;" id="desk-val-balance">₦0</span>
+          <!-- PAYMENT -->
+          <div class="pos-col">
+            <div class="pos-col-head">
+              <h2>Payment</h2>
+            </div>
+            <div class="pos-col-body custom-scrollbar">
+              <div style="font-size:12px;color:#64748B;font-weight:600;">Total Amount</div>
+              <div class="pay-total" id="desk-pay-total-display">₦0.00</div>
+
+              <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:8px;">Payment Method</div>
+              <div class="pay-methods">
+                <button type="button" class="pay-method active" id="desk-pm-Cash" onclick="setPaymentMethod('Cash')"><i class="fa-solid fa-money-bill-wave"></i>Cash</button>
+                <button type="button" class="pay-method" id="desk-pm-POS" onclick="setPaymentMethod('POS')"><i class="fa-solid fa-credit-card"></i>Card</button>
+                <button type="button" class="pay-method" id="desk-pm-Transfer" onclick="setPaymentMethod('Transfer')"><i class="fa-solid fa-building-columns"></i>Transfer</button>
+                <button type="button" class="pay-method" id="desk-pm-Online" onclick="setPaymentMethod('Online')"><i class="fa-solid fa-globe"></i>Online</button>
+                <button type="button" class="pay-method" onclick="setPaymentMethod('Cash')"><i class="fa-solid fa-mobile-screen"></i>USSD</button>
+                <button type="button" class="pay-method" onclick="setPaymentMethod('Cash')"><i class="fa-solid fa-wallet"></i>Mobile Money</button>
+              </div>
+
+              <label style="font-size:12px;color:#64748B;font-weight:600;">Cash Received</label>
+              <input type="number" id="desk-input-paid-amount" oninput="syncPaid(this.value)" placeholder="0.00"
+                style="width:100%;margin:6px 0 8px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:12px;font-size:16px;font-weight:700;color:#0F172A;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+                <span style="color:#64748B;">Change</span>
+                <span style="font-weight:800;color:#059669;font-size:16px;" id="desk-val-balance">₦0.00</span>
+              </div>
+
+              <div style="font-size:12px;font-weight:700;color:#64748B;margin:12px 0 6px;">Quick Cash</div>
+              <div class="quick-cash">
+                <button type="button" onclick="setQuickCash(3000)">₦3,000</button>
+                <button type="button" onclick="setQuickCash(5000)">₦5,000</button>
+                <button type="button" onclick="setQuickCash(10000)">₦10,000</button>
+                <button type="button" onclick="setQuickCash(20000)">₦20,000</button>
+              </div>
+
+              <div class="recent-tx">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <h4 style="margin:0;">Recent Transactions</h4>
+                  <a href="transactions.html" style="font-size:11px;color:#6C5CE7;text-decoration:none;font-weight:600;">View All</a>
+                </div>
+                <div id="desk-recent-tx">
+                  <div style="text-align:center;color:#94A3B8;font-size:12px;padding:12px 0;">No recent sales yet</div>
+                </div>
+              </div>
+            </div>
+            <div class="pos-col-foot">
+              <button type="button" id="desk-complete-sale-btn" onclick="completeSale()" class="btn-primary" style="font-size:14px;padding:16px;">
+                <i class="fa-solid fa-circle-check"></i> <span id="desk-complete-sale-label">Pay · Complete Sale</span>
+              </button>
             </div>
           </div>
-
-          <button id="desk-complete-sale-btn" onclick="completeSale()" class="btn-primary" style="font-size:14px;padding:16px;">
-            <i class="fa-solid fa-circle-check"></i> <span id="desk-complete-sale-label">Complete Sale & Generate Receipt</span>
-          </button>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- SCANNER MODAL -->
+ <!-- SCANNER MODAL -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div style="font-weight:700;font-size:13px;color:#fff;">
           <i class="fa-solid fa-barcode" style="color:#a78bfa;margin-right:8px;"></i>Scan Barcode
         </div>
-        <button onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
+        <button type="button" onclick="stopBarcodeScanner()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:16px;">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
       <div id="scanner-reader"></div>
       <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light · 10–20 cm away</p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
-      <button onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
+      <button type="button" onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
         Close & search by name instead
       </button>
     </div>
@@ -420,10 +691,10 @@
 
   <!-- RECEIPT MODAL -->
   <div id="receipt-modal" class="hidden">
-    <div style="width:100%;max-width:400px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:92vh;overflow-y:auto;">
+    <div style="width:100%;max-width:420px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:94vh;overflow-y:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:12px;">
         <div style="color:#34d399;font-size:13px;font-weight:700;"><i class="fa-solid fa-circle-check"></i> Sale Completed Successfully!</div>
-        <button onclick="closeReceiptModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+        <button type="button" onclick="closeReceiptModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
       <div id="receipt-paper" style="background:#fff;color:#0f172a;padding:22px 18px;font-family:system-ui,-apple-system,sans-serif;width:100%;box-sizing:border-box;border-radius:8px;">
@@ -486,16 +757,19 @@
       <div style="margin-top:16px;">
         <p style="text-align:center;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:10px;">Send or Download Receipt</p>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <button onclick="sendReceiptWhatsApp()" style="padding:12px 8px;background:rgba(5,150,105,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.35);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
+          <button type="button" onclick="sendReceiptWhatsApp()" style="padding:12px 8px;background:rgba(5,150,105,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.35);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
             <i class="fa-brands fa-whatsapp" style="display:block;font-size:16px;margin-bottom:4px;"></i>WhatsApp
           </button>
-          <button onclick="sendReceiptSMS()" style="padding:12px 8px;background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
+          <button type="button" onclick="sendReceiptSMS()" style="padding:12px 8px;background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
             <i class="fa-solid fa-sms" style="display:block;font-size:16px;margin-bottom:4px;"></i>SMS
           </button>
-          <button onclick="downloadReceiptPDF()" style="padding:12px 8px;background:rgba(108,92,231,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.35);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
+          <button type="button" onclick="downloadReceiptPDF()" style="padding:12px 8px;background:rgba(108,92,231,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.35);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
             <i class="fa-solid fa-download" style="display:block;font-size:16px;margin-bottom:4px;"></i>Download
           </button>
         </div>
+        <button type="button" onclick="shareReceiptNative()" style="width:100%;margin-top:8px;padding:12px;background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;">
+          <i class="fa-solid fa-share-nodes" style="margin-right:6px;"></i>Share (WhatsApp, Gmail, Files…)
+        </button>
       </div>
     </div>
   </div>
@@ -507,69 +781,71 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
-    const POS_CACHE_KEY = 'quantum_pos_cache_v1';
+    const POS_CACHE_KEY = "quantum_pos_cache_v2";
 
     let userCompanyId = null;
     let currentUserProfile = null;
     let userCompanyDetails = null;
     let inventoryCatalog = [];
     let cart = [];
-    let selectedPaymentMethod = 'Cash';
-    let selectedCustomer = 'Walk-in Customer';
-    let selectedCustomerPhone = '';
+    let selectedPaymentMethod = "Cash";
+    let selectedCustomer = "Walk-in Customer";
+    let selectedCustomerPhone = "";
     let lastCompletedTransaction = null;
     let isSavingSale = false;
     let html5QrCode = null;
     let lastScanTime = 0;
     let scannerStarting = false;
+    let recentSales = [];
 
-    /* ========== THEME + TEXT SIZE ========== */
-    function getSavedTheme() {
-      return localStorage.getItem('quantum_theme') || 'night';
-    }
+    function getSavedTheme() { return localStorage.getItem("quantum_theme") || "night"; }
     function resolveTheme(pref) {
-      if (pref === 'system') {
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
+      if (pref === "system") {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night";
       }
-      return pref;
+      return pref === "day" ? "day" : "night";
     }
     function applyTheme(pref) {
-      const resolved = resolveTheme(pref);
-      document.body.classList.remove('theme-day', 'theme-night');
-      document.body.classList.add(resolved === 'day' ? 'theme-day' : 'theme-night');
+      const resolved = resolveTheme(pref || getSavedTheme());
+      document.body.classList.remove("theme-day", "theme-night");
+      document.body.classList.add(resolved === "day" ? "theme-day" : "theme-night");
       try {
-        document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'day' ? '#F4F6FB' : '#6C5CE7');
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", resolved === "day" ? "#F4F6FB" : "#05060B");
       } catch (e) {}
+      const dayBtn = document.getElementById("btn-theme-day");
+      const nightBtn = document.getElementById("btn-theme-night");
+      if (dayBtn && nightBtn) {
+        dayBtn.classList.toggle("active", resolved === "day");
+        nightBtn.classList.toggle("active", resolved === "night");
+      }
     }
-    function getSavedTextSize() {
-      return localStorage.getItem('quantum_text_size') || 'medium';
+    function setThemePref(pref) {
+      localStorage.setItem("quantum_theme", pref);
+      applyTheme(pref);
     }
+    function getSavedTextSize() { return localStorage.getItem("quantum_text_size") || "medium"; }
     function applyTextSize(size) {
-      document.body.classList.remove('text-small', 'text-medium', 'text-large', 'text-xlarge');
-      document.body.classList.add('text-' + size);
+      document.body.classList.remove("text-small", "text-medium", "text-large", "text-xlarge");
+      document.body.classList.add("text-" + (size || "medium"));
     }
     function applyUserPreferences() {
       applyTheme(getSavedTheme());
       applyTextSize(getSavedTextSize());
     }
 
-    /* ========== INSTANT CACHE ========== */
     function savePosCache(products, company) {
       try {
         if (!userCompanyId) return;
         localStorage.setItem(POS_CACHE_KEY, JSON.stringify({
-          companyId: userCompanyId,
-          ts: Date.now(),
-          products: products || [],
-          company: company || null
+          companyId: userCompanyId, ts: Date.now(),
+          products: products || [], company: company || null
         }));
       } catch (e) {}
     }
     function loadPosCache() {
       try {
         const raw = localStorage.getItem(POS_CACHE_KEY);
-        if (!raw) return null;
-        return JSON.parse(raw);
+        return raw ? JSON.parse(raw) : null;
       } catch (e) { return null; }
     }
     function paintFromCache() {
@@ -584,42 +860,70 @@
     }
 
     function formatCurrency(amount) {
-      return '₦' + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+      return "₦" + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
     function formatUnits(value) {
       const num = Number(value);
       if (isNaN(num)) return 0;
       return Number.isInteger(num) ? num : parseFloat(num.toFixed(2));
     }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function updateLiveClock() {
+      const el = document.getElementById("desk-live-clock");
+      if (!el) return;
+      const now = new Date();
+      const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const ampm = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 || 12;
+      el.textContent = days[now.getDay()] + ", " + now.getDate() + " " + months[now.getMonth()] + " · " + h12 + ":" + m + " " + ampm;
+    }
 
     function applyCompanyToReceiptHeader() {
       const c = userCompanyDetails || {};
-      const bizName = c.company_name || 'MY STORE';
-      document.getElementById('receipt-biz-name').textContent = bizName;
-      document.getElementById('receipt-footer-biz').textContent = bizName;
-      document.getElementById('receipt-biz-address').textContent = c.address || '';
-      document.getElementById('receipt-biz-phone').textContent = c.phone ? ('Tel: ' + c.phone) : '';
-      document.getElementById('receipt-biz-email').textContent = c.email || '';
-      document.getElementById('receipt-biz-tax').textContent = c.tax_id ? ('Tax/RC: ' + c.tax_id) : '';
-      document.getElementById('receipt-thank-you').textContent = c.thank_you_message || 'Thank you for your patronage!';
-      const logoWrap = document.getElementById('receipt-logo-wrap');
-      const logoImg = document.getElementById('receipt-logo');
-      if (c.logo) { logoImg.src = c.logo; logoWrap.style.display = 'block'; }
-      else { logoWrap.style.display = 'none'; logoImg.src = ''; }
+      const bizName = c.company_name || "MY STORE";
+      document.getElementById("receipt-biz-name").textContent = bizName;
+      document.getElementById("receipt-footer-biz").textContent = bizName;
+      document.getElementById("receipt-biz-address").textContent = c.address || "";
+      document.getElementById("receipt-biz-phone").textContent = c.phone ? ("Tel: " + c.phone) : "";
+      document.getElementById("receipt-biz-email").textContent = c.email || "";
+      document.getElementById("receipt-biz-tax").textContent = c.tax_id ? ("Tax/RC: " + c.tax_id) : "";
+      document.getElementById("receipt-thank-you").textContent = c.thank_you_message || "Thank you for your patronage!";
+      const logoWrap = document.getElementById("receipt-logo-wrap");
+      const logoImg = document.getElementById("receipt-logo");
+      if (c.logo) { logoImg.src = c.logo; logoWrap.style.display = "block"; }
+      else { logoWrap.style.display = "none"; logoImg.src = ""; }
     }
 
     async function initializePOS() {
       applyUserPreferences();
+      updateLiveClock();
+      setInterval(updateLiveClock, 30000);
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session || !session.user) { window.location.replace('index.html'); return; }
+        if (!session || !session.user) { window.location.replace("index.html"); return; }
         currentUserProfile = session.user;
-        userCompanyId = null;
 
+        const rawName = (session.user.user_metadata && session.user.user_metadata.full_name) || (session.user.email || "Owner").split("@")[0];
+        const first = String(rawName).split(" ")[0] || "Owner";
+        const cap = first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+        const nameEl = document.getElementById("desk-user-name");
+        const avEl = document.getElementById("desk-user-avatar");
+        if (nameEl) nameEl.textContent = cap;
+        if (avEl) avEl.textContent = cap.charAt(0);
+
+        userCompanyId = null;
         const { data: member } = await supabaseClient
-          .from('company_users')
-          .select('company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo)')
-          .eq('user_id', session.user.id)
+          .from("company_users")
+          .select("company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo)")
+          .eq("user_id", session.user.id)
           .maybeSingle();
 
         if (member && member.company_id) {
@@ -627,15 +931,16 @@
           if (member.companies) { userCompanyDetails = member.companies; applyCompanyToReceiptHeader(); }
         } else {
           const { data: owned } = await supabaseClient
-            .from('companies')
-            .select('id, company_name, address, phone, email, website, tax_id, thank_you_message, logo')
-            .eq('owner_id', session.user.id)
+            .from("companies")
+            .select("id, company_name, address, phone, email, website, tax_id, thank_you_message, logo")
+            .eq("owner_id", session.user.id)
             .maybeSingle();
           if (owned && owned.id) { userCompanyId = owned.id; userCompanyDetails = owned; applyCompanyToReceiptHeader(); }
         }
         await fetchInventory();
+        await fetchRecentSales();
       } catch (err) {
-        console.error('POS init error:', err);
+        console.error("POS init error:", err);
       }
     }
 
@@ -643,11 +948,11 @@
       if (!userCompanyId) return;
       try {
         const { data, error } = await supabaseClient
-          .from('products')
-          .select('id, name, sku, stock, items_per_pack, selling_price, unit_cost, image_url')
-          .eq('company_id', userCompanyId)
-          .order('name')
-          .limit(200);
+          .from("products")
+          .select("id, name, sku, stock, items_per_pack, selling_price, unit_cost, image_url")
+          .eq("company_id", userCompanyId)
+          .order("name")
+          .limit(300);
         if (error) throw error;
         inventoryCatalog = data || [];
         renderInventoryCatalog(inventoryCatalog);
@@ -657,16 +962,45 @@
       }
     }
 
+    async function fetchRecentSales() {
+      if (!userCompanyId) return;
+      try {
+        const { data } = await supabaseClient
+          .from("sales")
+          .select("sale_number, customer_name, total_amount, total, created_at")
+          .eq("company_id", userCompanyId)
+          .order("created_at", { ascending: false })
+          .limit(5);
+        recentSales = data || [];
+        renderRecentSales();
+      } catch (e) {}
+    }
+
+    function renderRecentSales() {
+      const el = document.getElementById("desk-recent-tx");
+      if (!el) return;
+      if (!recentSales.length) {
+        el.innerHTML = '<div style="text-align:center;color:#94A3B8;font-size:12px;padding:12px 0;">No recent sales yet</div>';
+        return;
+      }
+      el.innerHTML = recentSales.map(function (s) {
+        const amt = s.total_amount != null ? s.total_amount : (s.total || 0);
+        const t = s.created_at ? new Date(s.created_at) : null;
+        const time = t ? (String(t.getHours()).padStart(2,"0") + ":" + String(t.getMinutes()).padStart(2,"0")) : "";
+        return '<div class="tx-row"><div><div class="id">' + esc(s.sale_number || "—") + '</div><div style="font-size:10px;color:#94A3B8;">' + esc(s.customer_name || "Walk-in") + '</div></div><div style="text-align:right;"><div class="amt">' + formatCurrency(amt) + '</div><div style="font-size:10px;color:#94A3B8;">' + time + '</div></div></div>';
+      }).join("");
+    }
+
     function getStockStatus(totalPieces, piecesPerUnit) {
       const remainingUnits = totalPieces / (piecesPerUnit || 1);
-      if (totalPieces === 0) return { cls: 'badge-out', text: 'Out of Stock' };
-      if (remainingUnits <= LOW_STOCK_UNITS) return { cls: 'badge-low', text: 'Low Stock' };
-      return { cls: 'badge-ok', text: 'In Stock' };
+      if (totalPieces === 0) return { cls: "badge-out", text: "Out of Stock" };
+      if (remainingUnits <= LOW_STOCK_UNITS) return { cls: "badge-low", text: "Low Stock" };
+      return { cls: "badge-ok", text: "In Stock" };
     }
 
     function renderInventoryCatalog(items) {
-      const mobileContainer = document.getElementById('product-catalog-list');
-      const deskContainer = document.getElementById('desk-product-catalog');
+      const mobileContainer = document.getElementById("product-catalog-list");
+      const deskContainer = document.getElementById("desk-product-catalog");
 
       if (!items.length) {
         if (mobileContainer) mobileContainer.innerHTML = '<div style="text-align:center;color:#64748b;font-size:11px;padding:12px;">No products. Add items in Inventory first.</div>';
@@ -681,14 +1015,14 @@
           const displayUnits = formatUnits(totalPieces / piecesPerUnit);
           const status = getStockStatus(totalPieces, piecesPerUnit);
           const price = parseFloat(item.selling_price || 0);
-          const imgUrl = item.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100';
-          const disabled = totalPieces <= 0 ? 'disabled' : '';
-          return ''
+          const imgUrl = item.image_url || "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100";
+          const disabled = totalPieces <= 0 ? "disabled" : "";
+          return ""
             + '<div onclick="addToCart(\'' + item.id + '\')" class="product-row ' + disabled + '">'
             + '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
             + '<div style="flex:1;min-width:0;">'
-            + '<div class="prod-name">' + (item.name || 'Product') + '</div>'
-            + '<div class="prod-sku">SKU: ' + (item.sku || 'N/A') + '</div>'
+            + '<div class="prod-name">' + esc(item.name || "Product") + '</div>'
+            + '<div class="prod-sku">SKU: ' + esc(item.sku || "N/A") + '</div>'
             + '<div style="margin-top:4px;"><span class="badge ' + status.cls + '">' + status.text + '</span>'
             + '<span class="prod-meta" style="margin-left:6px;">' + displayUnits + ' units = <b>' + totalPieces + ' pcs</b></span></div>'
             + '</div>'
@@ -696,7 +1030,7 @@
             + '<div class="prod-price">' + formatCurrency(price) + '</div>'
             + '<div style="font-size:8px;color:#34d399;margin-top:2px;"><i class="fa-solid fa-plus"></i> Add</div>'
             + '</div></div>';
-        }).join('');
+        }).join("");
       }
 
       if (deskContainer) {
@@ -706,134 +1040,55 @@
           const displayUnits = formatUnits(totalPieces / piecesPerUnit);
           const status = getStockStatus(totalPieces, piecesPerUnit);
           const price = parseFloat(item.selling_price || 0);
-          const imgUrl = item.image_url || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100';
-          const disabled = totalPieces <= 0 ? 'disabled' : '';
-          return ''
+          const imgUrl = item.image_url || "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100";
+          const disabled = totalPieces <= 0 ? "disabled" : "";
+          return ""
             + '<div onclick="addToCart(\'' + item.id + '\')" class="desk-product-card ' + disabled + '">'
             + '<img src="' + imgUrl + '" onerror="this.src=\'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100\'">'
-            + '<div class="prod-name" style="font-size:13px;margin-bottom:4px;">' + (item.name || 'Product') + '</div>'
-            + '<div class="prod-sku" style="margin-bottom:6px;">SKU: ' + (item.sku || 'N/A') + '</div>'
+            + '<div class="prod-name" style="font-size:13px;margin-bottom:4px;">' + esc(item.name || "Product") + '</div>'
+            + '<div class="prod-sku" style="margin-bottom:6px;">SKU: ' + esc(item.sku || "N/A") + '</div>'
             + '<div style="display:flex;justify-content:space-between;align-items:center;">'
             + '<span class="badge ' + status.cls + '">' + status.text + '</span>'
             + '<span class="prod-price" style="font-size:14px;">' + formatCurrency(price) + '</span>'
             + '</div>'
             + '<div class="prod-meta" style="margin-top:6px;">' + displayUnits + ' units (' + totalPieces + ' pcs)</div>'
             + '</div>';
-        }).join('');
+        }).join("");
       }
     }
 
     function filterProducts() {
-      const mobileSearch = document.getElementById('product-search');
-      const deskSearch = document.getElementById('desk-product-search');
-      const keyword = ((mobileSearch && mobileSearch.value) || (deskSearch && deskSearch.value) || '').toLowerCase();
-
-      if (mobileSearch && deskSearch && document.activeElement !== deskSearch) mobileSearch.value = deskSearch ? deskSearch.value : mobileSearch.value;
-      if (deskSearch && mobileSearch && document.activeElement !== mobileSearch) deskSearch.value = mobileSearch ? mobileSearch.value : deskSearch.value;
-
+      const mobileSearch = document.getElementById("product-search");
+      const deskSearch = document.getElementById("desk-product-search");
+      const keyword = ((mobileSearch && mobileSearch.value) || (deskSearch && deskSearch.value) || "").toLowerCase();
+      if (mobileSearch && deskSearch) {
+        if (document.activeElement === deskSearch) mobileSearch.value = deskSearch.value;
+        else if (document.activeElement === mobileSearch) deskSearch.value = mobileSearch.value;
+      }
       renderInventoryCatalog(inventoryCatalog.filter(function (i) {
-        return (i.name || '').toLowerCase().indexOf(keyword) >= 0 || (i.sku || '').toLowerCase().indexOf(keyword) >= 0;
+        return (i.name || "").toLowerCase().indexOf(keyword) >= 0 || (i.sku || "").toLowerCase().indexOf(keyword) >= 0;
       }));
     }
 
-    async function startBarcodeScanner() {
-      if (scannerStarting) return;
-      if (typeof Html5Qrcode === 'undefined') {
-        alert('Scanner library not loaded. Check internet, then close & reopen the app.');
-        return;
-      }
-      scannerStarting = true;
-      document.getElementById('scanner-modal').classList.remove('hidden');
-      document.getElementById('scanner-status').textContent = 'Starting camera…';
-      document.getElementById('scanner-status').style.color = '#a78bfa';
-      try {
-        if (html5QrCode) {
-          try { await html5QrCode.stop(); } catch (e) {}
-          try { html5QrCode.clear(); } catch (e) {}
-          html5QrCode = null;
-        }
-        var formats = [
-          Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.ITF, Html5QrcodeSupportedFormats.CODABAR,
-          Html5QrcodeSupportedFormats.QR_CODE
-        ];
-        html5QrCode = new Html5Qrcode('scanner-reader', { formatsToSupport: formats, verbose: false });
-        await html5QrCode.start(
-          { facingMode: 'environment' },
-          {
-            fps: 30,
-            qrbox: function (viewfinderWidth, viewfinderHeight) {
-              var width = Math.floor(viewfinderWidth * 0.94);
-              var height = Math.floor(Math.min(88, viewfinderHeight * 0.20));
-              return { width: width, height: height };
-            },
-            aspectRatio: 1.777,
-            disableFlip: false
-          },
-          onScanSuccess,
-          function () {}
-        );
-        document.getElementById('scanner-status').textContent = 'Hold barcode in the thin line…';
-      } catch (err) {
-        var msg = 'Camera error. Allow permission or search by name.';
-        if (err && err.name === 'NotAllowedError') msg = 'Camera blocked. Allow camera in phone Settings for this app.';
-        document.getElementById('scanner-status').textContent = msg;
-        document.getElementById('scanner-status').style.color = '#fb7185';
-      } finally {
-        scannerStarting = false;
-      }
-    }
-
-    async function stopBarcodeScanner() {
-      try {
-        if (html5QrCode) {
-          await html5QrCode.stop();
-          html5QrCode.clear();
-        }
-      } catch (e) {}
-      html5QrCode = null;
-      document.getElementById('scanner-modal').classList.add('hidden');
-      document.getElementById('scanner-status').textContent = '';
-    }
-
-    function onScanSuccess(decodedText) {
-      var now = Date.now();
-      if (now - lastScanTime < 700) return;
-      lastScanTime = now;
-      var code = String(decodedText || '').trim();
-      if (!code) return;
-      var product = inventoryCatalog.find(function (p) {
-        var sku = String(p.sku || '').trim().toLowerCase();
-        var c = code.toLowerCase();
-        return sku && (sku === c || sku.indexOf(c) >= 0 || c.indexOf(sku) >= 0);
-      });
-      if (product) {
-        document.getElementById('scanner-status').textContent = 'Found: ' + product.name;
-        document.getElementById('scanner-status').style.color = '#34d399';
-        try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
-        addToCart(product.id);
-        setTimeout(function () { stopBarcodeScanner(); }, 350);
-      } else {
-        document.getElementById('scanner-status').textContent = 'No product with SKU: ' + code;
-        document.getElementById('scanner-status').style.color = '#fbbf24';
-      }
+    function setCategory(cat, btn) {
+      document.querySelectorAll(".cat-tab").forEach(function (b) { b.classList.remove("active"); });
+      if (btn) btn.classList.add("active");
+      filterProducts();
     }
 
     function addToCart(itemId) {
       const product = inventoryCatalog.find(function (i) { return i.id === itemId; });
       if (!product) return;
       const available = parseInt(product.stock || 0, 10);
-      if (available <= 0) return alert('Out of stock.');
+      if (available <= 0) return alert("Out of stock.");
       const existing = cart.find(function (c) { return c.id === itemId; });
       if (existing) {
-        if (existing.qty >= available) return alert('Not enough stock.');
+        if (existing.qty >= available) return alert("Not enough stock.");
         existing.qty += 1;
       } else {
         cart.push({
           id: itemId,
-          name: product.name || 'Product',
+          name: product.name || "Product",
           price: parseFloat(product.selling_price || 0),
           cost_price: parseFloat(product.unit_cost || 0),
           qty: 1
@@ -849,7 +1104,7 @@
       const available = parseInt((product && product.stock) || 0, 10);
       item.qty += change;
       if (item.qty <= 0) cart = cart.filter(function (c) { return c.id !== itemId; });
-      else if (item.qty > available) { item.qty = available; alert('Maximum stock reached.'); }
+      else if (item.qty > available) { item.qty = available; alert("Maximum stock reached."); }
       renderCart();
     }
 
@@ -857,81 +1112,79 @@
 
     function renderCart() {
       const totalQty = cart.reduce(function (a, i) { return a + i.qty; }, 0);
+      const mobileTitle = document.getElementById("cart-title-count");
+      const deskTitle = document.getElementById("desk-cart-title");
+      if (mobileTitle) mobileTitle.textContent = "Cart (" + totalQty + " items)";
+      if (deskTitle) deskTitle.textContent = "Cart (" + totalQty + " Items)";
 
-      const mobileTitle = document.getElementById('cart-title-count');
-      const deskTitle = document.getElementById('desk-cart-title');
-      if (mobileTitle) mobileTitle.textContent = 'Cart (' + totalQty + ' items)';
-      if (deskTitle) deskTitle.textContent = 'Cart (' + totalQty + ' items)';
-
-      const mobileContainer = document.getElementById('cart-items-container');
+      const mobileContainer = document.getElementById("cart-items-container");
       if (mobileContainer) {
         if (!cart.length) {
           mobileContainer.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-size:12px;">Your cart is empty. Select products above.</div>';
         } else {
           mobileContainer.innerHTML = cart.map(function (item) {
-            return ''
+            return ""
               + '<div style="display:flex;align-items:center;justify-content:space-between;background:#191932;border:1px solid rgba(139,92,246,0.1);padding:10px;border-radius:12px;margin-bottom:8px;">'
               + '<div style="flex:1;padding-right:8px;">'
-              + '<div class="prod-name">' + item.name + '</div>'
-              + '<div class="prod-price" style="font-size:10px;">' + formatCurrency(item.price) + ' each</div>'
-              + '</div>'
+              + '<div class="prod-name">' + esc(item.name) + '</div>'
+              + '<div class="prod-price" style="font-size:10px;">' + formatCurrency(item.price) + " each</div>"
+              + "</div>"
               + '<div style="display:flex;align-items:center;gap:8px;">'
               + '<div style="display:flex;align-items:center;background:#121224;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">'
-              + '<button onclick="updateCartQty(\'' + item.id + '\', -1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-minus" style="font-size:9px;"></i></button>'
-              + '<span style="padding:0 8px;font-size:12px;font-weight:700;color:#fff;">' + item.qty + '</span>'
-              + '<button onclick="updateCartQty(\'' + item.id + '\', 1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-plus" style="font-size:9px;"></i></button>'
-              + '</div>'
-              + '<span style="font-size:12px;font-weight:700;color:#fff;width:64px;text-align:right;">' + formatCurrency(item.price * item.qty) + '</span>'
-              + '</div></div>';
-          }).join('');
+              + '<button type="button" onclick="updateCartQty(\'' + item.id + '\', -1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-minus" style="font-size:9px;"></i></button>'
+              + '<span style="padding:0 8px;font-size:12px;font-weight:700;color:#fff;">' + item.qty + "</span>"
+              + '<button type="button" onclick="updateCartQty(\'' + item.id + '\', 1)" style="padding:6px 8px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-plus" style="font-size:9px;"></i></button>'
+              + "</div>"
+              + '<span style="font-size:12px;font-weight:700;color:#fff;width:64px;text-align:right;">' + formatCurrency(item.price * item.qty) + "</span>"
+              + "</div></div>";
+          }).join("");
         }
       }
 
-      const deskContainer = document.getElementById('desk-cart-items');
+      const deskContainer = document.getElementById("desk-cart-items");
       if (deskContainer) {
         if (!cart.length) {
-          deskContainer.innerHTML = '<div style="text-align:center;padding:40px 0;color:#64748b;font-size:14px;">Your cart is empty.<br>Select products to add.</div>';
+          deskContainer.innerHTML = '<div style="text-align:center;padding:48px 12px;color:#64748b;font-size:13px;">Your cart is empty.<br>Tap products to add.</div>';
         } else {
           deskContainer.innerHTML = cart.map(function (item) {
-            return ''
+            return ""
               + '<div class="desk-cart-item">'
-              + '<div style="flex:1;">'
-              + '<div class="prod-name" style="font-size:13px;">' + item.name + '</div>'
-              + '<div class="prod-price" style="font-size:12px;">' + formatCurrency(item.price) + ' each</div>'
-              + '</div>'
-              + '<div style="display:flex;align-items:center;gap:12px;">'
-              + '<div style="display:flex;align-items:center;background:#0B0B16;border:1px solid rgba(139,92,246,0.2);border-radius:8px;overflow:hidden;">'
-              + '<button onclick="updateCartQty(\'' + item.id + '\', -1)" style="padding:8px 12px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-minus"></i></button>'
-              + '<span style="padding:0 12px;font-size:14px;font-weight:700;color:#fff;">' + item.qty + '</span>'
-              + '<button onclick="updateCartQty(\'' + item.id + '\', 1)" style="padding:8px 12px;background:none;border:none;color:#cbd5e1;cursor:pointer;"><i class="fa-solid fa-plus"></i></button>'
-              + '</div>'
-              + '<span style="font-size:14px;font-weight:700;color:#fff;min-width:80px;text-align:right;">' + formatCurrency(item.price * item.qty) + '</span>'
-              + '</div></div>';
-          }).join('');
+              + '<div style="flex:1;min-width:0;">'
+              + '<div class="prod-name" style="font-size:13px;">' + esc(item.name) + "</div>"
+              + '<div class="prod-price" style="font-size:12px;">' + formatCurrency(item.price) + " each</div>"
+              + "</div>"
+              + '<div class="qty-box">'
+              + '<button type="button" onclick="updateCartQty(\'' + item.id + '\', -1)"><i class="fa-solid fa-minus"></i></button>'
+              + '<span>' + item.qty + "</span>"
+              + '<button type="button" onclick="updateCartQty(\'' + item.id + '\', 1)"><i class="fa-solid fa-plus"></i></button>'
+              + "</div>"
+              + '<span style="font-size:13px;font-weight:700;min-width:70px;text-align:right;color:#0F172A;">' + formatCurrency(item.price * item.qty) + "</span>"
+              + "</div>";
+          }).join("");
         }
       }
-
       calculateTotals();
     }
-
-    function calculateTotals() {
+   function calculateTotals() {
       const subtotal = cart.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
-      const discountEl = document.getElementById('input-discount') || document.getElementById('desk-input-discount');
+      const discountEl = document.getElementById("input-discount") || document.getElementById("desk-input-discount");
       const discount = parseFloat((discountEl && discountEl.value) || 0);
       const grandTotal = Math.max(subtotal - discount, 0);
 
-      const mSub = document.getElementById('val-subtotal');
-      const mTotal = document.getElementById('val-grand-total');
+      const mSub = document.getElementById("val-subtotal");
+      const mTotal = document.getElementById("val-grand-total");
       if (mSub) mSub.textContent = formatCurrency(subtotal);
       if (mTotal) mTotal.textContent = formatCurrency(grandTotal);
 
-      const dSub = document.getElementById('desk-val-subtotal');
-      const dTotal = document.getElementById('desk-val-grand-total');
+      const dSub = document.getElementById("desk-val-subtotal");
+      const dTotal = document.getElementById("desk-val-grand-total");
+      const dPay = document.getElementById("desk-pay-total-display");
       if (dSub) dSub.textContent = formatCurrency(subtotal);
       if (dTotal) dTotal.textContent = formatCurrency(grandTotal);
+      if (dPay) dPay.textContent = formatCurrency(grandTotal);
 
-      const paidMobile = document.getElementById('input-paid-amount');
-      const paidDesk = document.getElementById('desk-input-paid-amount');
+      const paidMobile = document.getElementById("input-paid-amount");
+      const paidDesk = document.getElementById("desk-input-paid-amount");
       if (paidMobile && (!paidMobile.value || parseFloat(paidMobile.value) === 0)) paidMobile.value = grandTotal.toFixed(2);
       if (paidDesk && (!paidDesk.value || parseFloat(paidDesk.value) === 0)) paidDesk.value = grandTotal.toFixed(2);
 
@@ -940,89 +1193,96 @@
 
     function calculateBalance() {
       const subtotal = cart.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
-      const discountEl = document.getElementById('input-discount') || document.getElementById('desk-input-discount');
+      const discountEl = document.getElementById("input-discount") || document.getElementById("desk-input-discount");
       const discount = parseFloat((discountEl && discountEl.value) || 0);
       const grandTotal = Math.max(subtotal - discount, 0);
-
-      const paidMobile = document.getElementById('input-paid-amount');
-      const paidDesk = document.getElementById('desk-input-paid-amount');
+      const paidMobile = document.getElementById("input-paid-amount");
+      const paidDesk = document.getElementById("desk-input-paid-amount");
       const paid = parseFloat((paidMobile && paidMobile.value) || (paidDesk && paidDesk.value) || 0);
       const balance = paid - grandTotal;
 
-      const mBal = document.getElementById('val-balance');
-      const dBal = document.getElementById('desk-val-balance');
-      if (mBal) { mBal.textContent = formatCurrency(balance); mBal.style.color = balance >= 0 ? '#34d399' : '#fb7185'; }
-      if (dBal) { dBal.textContent = formatCurrency(balance); dBal.style.color = balance >= 0 ? '#34d399' : '#fb7185'; }
+      const mBal = document.getElementById("val-balance");
+      const dBal = document.getElementById("desk-val-balance");
+      if (mBal) { mBal.textContent = formatCurrency(balance); mBal.style.color = balance >= 0 ? "#34d399" : "#fb7185"; }
+      if (dBal) { dBal.textContent = formatCurrency(balance); dBal.style.color = balance >= 0 ? "#059669" : "#fb7185"; }
     }
 
     function syncDiscount(val) {
-      const m = document.getElementById('input-discount');
-      const d = document.getElementById('desk-input-discount');
+      const m = document.getElementById("input-discount");
+      const d = document.getElementById("desk-input-discount");
       if (m) m.value = val;
       if (d) d.value = val;
       calculateTotals();
     }
 
     function syncPaid(val) {
-      const m = document.getElementById('input-paid-amount');
-      const d = document.getElementById('desk-input-paid-amount');
+      const m = document.getElementById("input-paid-amount");
+      const d = document.getElementById("desk-input-paid-amount");
       if (m) m.value = val;
       if (d) d.value = val;
       calculateBalance();
     }
 
+    function setQuickCash(amount) {
+      const m = document.getElementById("input-paid-amount");
+      const d = document.getElementById("desk-input-paid-amount");
+      if (m) m.value = amount;
+      if (d) d.value = amount;
+      calculateBalance();
+    }
+
     function setPaymentMethod(method) {
       selectedPaymentMethod = method;
-      ['Cash', 'Transfer', 'POS', 'Online'].forEach(function (m) {
-        const btn1 = document.getElementById('pm-' + m);
-        const btn2 = document.getElementById('desk-pm-' + m);
-        if (btn1) btn1.classList.toggle('active', m === method);
-        if (btn2) btn2.classList.toggle('active', m === method);
+      ["Cash", "Transfer", "POS", "Online"].forEach(function (m) {
+        const btn1 = document.getElementById("pm-" + m);
+        const btn2 = document.getElementById("desk-pm-" + m);
+        if (btn1) btn1.classList.toggle("active", m === method);
+        if (btn2) btn2.classList.toggle("active", m === method);
       });
     }
 
     function promptCustomer() {
-      const name = prompt('Customer Name:', selectedCustomer);
+      const name = prompt("Customer Name:", selectedCustomer);
       if (name === null) return;
-      selectedCustomer = name.trim() || 'Walk-in Customer';
-
-      const phone = prompt('Customer Phone (optional):', selectedCustomerPhone || '');
-      selectedCustomerPhone = (phone || '').trim();
-
-      const label1 = document.getElementById('selected-customer-label');
-      const label2 = document.getElementById('desk-customer-label');
-      const short = selectedCustomer.length > 12 ? selectedCustomer.slice(0, 12) + '…' : selectedCustomer;
+      selectedCustomer = name.trim() || "Walk-in Customer";
+      const phone = prompt("Customer Phone (optional):", selectedCustomerPhone || "");
+      selectedCustomerPhone = (phone || "").trim();
+      const label1 = document.getElementById("selected-customer-label");
+      const label2 = document.getElementById("desk-customer-label");
+      const short = selectedCustomer.length > 14 ? selectedCustomer.slice(0, 14) + "…" : selectedCustomer;
       if (label1) label1.textContent = short;
       if (label2) label2.textContent = short;
     }
 
     async function completeSale() {
       if (isSavingSale) return;
-      if (!cart.length) return alert('Add items to cart first.');
-      if (!userCompanyId) return alert('Company not loaded. Please refresh.');
+      if (!cart.length) return alert("Add items to cart first.");
+      if (!userCompanyId) return alert("Company not loaded. Please refresh.");
 
       isSavingSale = true;
-      const btns = [document.getElementById('complete-sale-btn'), document.getElementById('desk-complete-sale-btn')];
-      const labels = [document.getElementById('complete-sale-label'), document.getElementById('desk-complete-sale-label')];
-      btns.forEach(b => { if (b) b.disabled = true; });
-      labels.forEach(l => { if (l) l.textContent = 'Saving sale…'; });
+      const btns = [document.getElementById("complete-sale-btn"), document.getElementById("desk-complete-sale-btn")];
+      const labels = [document.getElementById("complete-sale-label"), document.getElementById("desk-complete-sale-label")];
+      btns.forEach(function (b) { if (b) b.disabled = true; });
+      labels.forEach(function (l) { if (l) l.textContent = "Saving sale…"; });
 
       try {
         const subtotal = cart.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
-        const discountEl = document.getElementById('input-discount') || document.getElementById('desk-input-discount');
+        const discountEl = document.getElementById("input-discount") || document.getElementById("desk-input-discount");
         const discount = parseFloat((discountEl && discountEl.value) || 0);
         const grandTotal = Math.max(subtotal - discount, 0);
-        const paidEl = document.getElementById('input-paid-amount') || document.getElementById('desk-input-paid-amount');
+        const paidEl = document.getElementById("input-paid-amount") || document.getElementById("desk-input-paid-amount");
         const paid = parseFloat((paidEl && paidEl.value) || grandTotal);
         const balance = paid - grandTotal;
         const totalProfit = cart.reduce(function (a, i) { return a + (i.price - (i.cost_price || 0)) * i.qty; }, 0);
         const totalCost = cart.reduce(function (a, i) { return a + (i.cost_price || 0) * i.qty; }, 0);
-        const trxId = 'SAL-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(100000 + Math.random() * 900000);
+        const trxId = "SAL-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + Math.floor(100000 + Math.random() * 900000);
         const cashierName = (currentUserProfile && currentUserProfile.user_metadata && currentUserProfile.user_metadata.full_name)
-          || (currentUserProfile && currentUserProfile.email && currentUserProfile.email.split('@')[0]) || 'Staff';
-        const cartSnapshot = cart.map(function (i) { return { id: i.id, name: i.name, price: i.price, cost_price: i.cost_price, qty: i.qty }; });
+          || (currentUserProfile && currentUserProfile.email && currentUserProfile.email.split("@")[0]) || "Staff";
+        const cartSnapshot = cart.map(function (i) {
+          return { id: i.id, name: i.name, price: i.price, cost_price: i.cost_price, qty: i.qty };
+        });
 
-        const { error } = await supabaseClient.from('sales').insert([{
+        const { error } = await supabaseClient.from("sales").insert([{
           company_id: userCompanyId,
           transaction_id: trxId,
           sale_number: trxId,
@@ -1048,13 +1308,13 @@
           const product = inventoryCatalog.find(function (p) { return p.id === item.id; });
           if (product) {
             const newStock = Math.max(0, parseInt(product.stock || 0, 10) - item.qty);
-            await supabaseClient.from('products').update({ stock: newStock }).eq('id', item.id).eq('company_id', userCompanyId);
+            await supabaseClient.from("products").update({ stock: newStock }).eq("id", item.id).eq("company_id", userCompanyId);
           }
         }
 
         lastCompletedTransaction = {
           trxId: trxId,
-          date: new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          date: new Date().toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
           customer: selectedCustomer,
           phone: selectedCustomerPhone,
           cashier: cashierName,
@@ -1071,13 +1331,14 @@
         clearCart();
         renderReceiptModal();
         await fetchInventory();
+        await fetchRecentSales();
       } catch (err) {
         console.error(err);
-        alert('Error saving sale: ' + (err.message || 'Try again'));
+        alert("Error saving sale: " + (err.message || "Try again"));
       } finally {
         isSavingSale = false;
-        btns.forEach(b => { if (b) b.disabled = false; });
-        labels.forEach(l => { if (l) l.textContent = 'Complete Sale & Generate Receipt'; });
+        btns.forEach(function (b) { if (b) b.disabled = false; });
+        labels.forEach(function (l) { if (l) l.textContent = l.id && l.id.indexOf("desk") >= 0 ? "Pay · Complete Sale" : "Complete Sale & Generate Receipt"; });
       }
     }
 
@@ -1085,150 +1346,234 @@
       const t = lastCompletedTransaction;
       if (!t) return;
       applyCompanyToReceiptHeader();
-      document.getElementById('receipt-trx-id').textContent = t.trxId;
-      document.getElementById('receipt-date').textContent = t.date;
-      document.getElementById('receipt-customer-name').textContent = t.customer;
-      document.getElementById('receipt-customer-phone').textContent = t.phone || '—';
-      document.getElementById('receipt-cashier-name').textContent = t.cashier;
-      document.getElementById('receipt-subtotal').textContent = formatCurrency(t.subtotal);
-      document.getElementById('receipt-discount').textContent = '-' + formatCurrency(t.discount);
-      document.getElementById('receipt-tax').textContent = formatCurrency(0);
-      document.getElementById('receipt-total').textContent = formatCurrency(t.grandTotal);
-      document.getElementById('receipt-payment-method').textContent = t.paymentMethod;
-      document.getElementById('receipt-paid-amount').textContent = formatCurrency(t.paid);
-      document.getElementById('receipt-change').textContent = formatCurrency(t.balance);
-      document.getElementById('receipt-items-list').innerHTML = t.items.map(function (i) {
+      document.getElementById("receipt-trx-id").textContent = t.trxId;
+      document.getElementById("receipt-date").textContent = t.date;
+      document.getElementById("receipt-customer-name").textContent = t.customer;
+      document.getElementById("receipt-customer-phone").textContent = t.phone || "—";
+      document.getElementById("receipt-cashier-name").textContent = t.cashier;
+      document.getElementById("receipt-subtotal").textContent = formatCurrency(t.subtotal);
+      document.getElementById("receipt-discount").textContent = "-" + formatCurrency(t.discount);
+      document.getElementById("receipt-tax").textContent = formatCurrency(0);
+      document.getElementById("receipt-total").textContent = formatCurrency(t.grandTotal);
+      document.getElementById("receipt-payment-method").textContent = t.paymentMethod;
+      document.getElementById("receipt-paid-amount").textContent = formatCurrency(t.paid);
+      document.getElementById("receipt-change").textContent = formatCurrency(t.balance);
+      document.getElementById("receipt-items-list").innerHTML = t.items.map(function (i) {
         return '<div style="display:grid;grid-template-columns:5.5fr 1.5fr 3fr;font-size:11px;margin:4px 0;border-bottom:1px dotted #e2e8f0;padding-bottom:4px;">'
-          + '<span style="font-weight:600;color:#0f172a;">' + i.name + '</span>'
-          + '<span style="text-align:center;color:#334155;">' + i.qty + '</span>'
-          + '<span style="text-align:right;color:#0f172a;font-weight:600;">' + formatCurrency(i.price * i.qty) + '</span></div>';
-      }).join('');
-      document.getElementById('receipt-modal').classList.remove('hidden');
+          + '<span style="font-weight:600;color:#0f172a;">' + esc(i.name) + "</span>"
+          + '<span style="text-align:center;color:#334155;">' + i.qty + "</span>"
+          + '<span style="text-align:right;color:#0f172a;font-weight:600;">' + formatCurrency(i.price * i.qty) + "</span></div>";
+      }).join("");
+      document.getElementById("receipt-modal").classList.remove("hidden");
     }
 
     function closeReceiptModal() {
-      document.getElementById('receipt-modal').classList.add('hidden');
+      document.getElementById("receipt-modal").classList.add("hidden");
     }
 
     function buildWhatsAppText() {
       const t = lastCompletedTransaction;
       const c = userCompanyDetails || {};
-      if (!t) return '';
-      const lines = ['*RECEIPT*', '*' + (c.company_name || 'MY STORE') + '*'];
+      if (!t) return "";
+      const lines = ["*RECEIPT*", "*" + (c.company_name || "MY STORE") + "*"];
       if (c.address) lines.push(c.address);
-      if (c.phone) lines.push('Tel: ' + c.phone);
-      lines.push('-------------------', 'Receipt: ' + t.trxId, 'Date: ' + t.date, 'Customer: ' + t.customer);
-      if (t.phone) lines.push('Phone: ' + t.phone);
-      lines.push('Cashier: ' + t.cashier, '-------------------');
-      t.items.forEach(function (i) { lines.push(i.name + ' ×' + i.qty + '  ' + formatCurrency(i.price * i.qty)); });
-      lines.push('-------------------', 'Subtotal: ' + formatCurrency(t.subtotal));
-      if (t.discount > 0) lines.push('Discount: -' + formatCurrency(t.discount));
-      lines.push('*TOTAL: ' + formatCurrency(t.grandTotal) + '*', 'Paid (' + t.paymentMethod + '): ' + formatCurrency(t.paid), 'Change: ' + formatCurrency(t.balance), '-------------------', c.thank_you_message || 'Thank you for your patronage!');
-      return lines.join('\n');
+      if (c.phone) lines.push("Tel: " + c.phone);
+      lines.push("-------------------", "Receipt: " + t.trxId, "Date: " + t.date, "Customer: " + t.customer);
+      if (t.phone) lines.push("Phone: " + t.phone);
+      lines.push("Cashier: " + t.cashier, "-------------------");
+      t.items.forEach(function (i) { lines.push(i.name + " ×" + i.qty + "  " + formatCurrency(i.price * i.qty)); });
+      lines.push("-------------------", "Subtotal: " + formatCurrency(t.subtotal));
+      if (t.discount > 0) lines.push("Discount: -" + formatCurrency(t.discount));
+      lines.push("*TOTAL: " + formatCurrency(t.grandTotal) + "*", "Paid (" + t.paymentMethod + "): " + formatCurrency(t.paid), "Change: " + formatCurrency(t.balance), "-------------------", c.thank_you_message || "Thank you for your patronage!");
+      return lines.join("\n");
+    }
+
+    async function ensureHtml2Pdf() {
+      if (window.html2pdf) return;
+      await new Promise(function (resolve, reject) {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    async function getReceiptPdfBlob() {
+      await ensureHtml2Pdf();
+      const element = document.getElementById("receipt-paper");
+      return html2pdf().from(element).set({
+        margin: 6,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: [80, 220], orientation: "portrait" }
+      }).outputPdf("blob");
     }
 
     async function downloadReceiptPDF() {
       if (!lastCompletedTransaction) return;
       try {
-        if (!window.html2pdf) {
-          await new Promise(function (resolve, reject) {
-            const s = document.createElement('script');
-            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-            s.onload = resolve;
-            s.onerror = reject;
-            document.head.appendChild(s);
-          });
-        }
-        const element = document.getElementById('receipt-paper');
-        const opt = {
+        await ensureHtml2Pdf();
+        const element = document.getElementById("receipt-paper");
+        await html2pdf().from(element).set({
           margin: 6,
-          filename: (lastCompletedTransaction.trxId || 'receipt') + '.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
+          filename: (lastCompletedTransaction.trxId || "receipt") + ".pdf",
+          image: { type: "jpeg", quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: [80, 200], orientation: 'portrait' }
-        };
-        await html2pdf().from(element).set(opt).save();
+          jsPDF: { unit: "mm", format: [80, 220], orientation: "portrait" }
+        }).save();
       } catch (e) {
-        alert('Could not create PDF. Please try again.');
+        alert("Could not create PDF. Please try again.");
+      }
+    }
+
+    async function shareReceiptNative() {
+      if (!lastCompletedTransaction) return;
+      try {
+        const pdfBlob = await getReceiptPdfBlob();
+        const fileName = (lastCompletedTransaction.trxId || "Receipt") + ".pdf";
+        const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Receipt - " + lastCompletedTransaction.trxId,
+            text: "Receipt from " + ((userCompanyDetails && userCompanyDetails.company_name) || "our store")
+          });
+          return;
+        }
+        await downloadReceiptPDF();
+        alert("PDF downloaded. You can share it from your Files / Downloads.");
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        await downloadReceiptPDF();
       }
     }
 
     async function sendReceiptWhatsApp() {
       if (!lastCompletedTransaction) return;
-
       try {
-        if (!window.html2pdf) {
-          await new Promise(function (resolve, reject) {
-            const s = document.createElement('script');
-            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-            s.onload = resolve;
-            s.onerror = reject;
-            document.head.appendChild(s);
-          });
-        }
-
-        const element = document.getElementById('receipt-paper');
-
-        const pdfBlob = await html2pdf().from(element).set({
-          margin: 6,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: 'mm', format: [80, 200], orientation: 'portrait' }
-        }).outputPdf('blob');
-
-        const fileName = (lastCompletedTransaction.trxId || 'Receipt') + '.pdf';
-        const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
+        const pdfBlob = await getReceiptPdfBlob();
+        const fileName = (lastCompletedTransaction.trxId || "Receipt") + ".pdf";
+        const file = new File([pdfBlob], fileName, { type: "application/pdf" });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'Receipt - ' + lastCompletedTransaction.trxId,
-            text: 'Here is your receipt from ' + (userCompanyDetails?.company_name || 'our store')
+            title: "Receipt - " + lastCompletedTransaction.trxId,
+            text: "Here is your receipt from " + ((userCompanyDetails && userCompanyDetails.company_name) || "our store")
           });
           return;
         }
-
         const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const a = document.createElement("a");
+        a.href = url; a.download = fileName;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
         URL.revokeObjectURL(url);
-
         setTimeout(function () {
-          const phone = (selectedCustomerPhone || '').replace(/\D/g, '');
-          const text = encodeURIComponent(
-            'Hello! Here is your receipt (' + lastCompletedTransaction.trxId + ').\n\nPlease find the PDF attached.'
-          );
-          const waUrl = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
-          window.open(waUrl, '_blank');
-        }, 800);
-
+          const phone = (selectedCustomerPhone || "").replace(/\D/g, "");
+          const text = encodeURIComponent("Hello! Here is your receipt (" + lastCompletedTransaction.trxId + ").\n\nPlease find the PDF.");
+          window.open(phone ? ("https://wa.me/" + phone + "?text=" + text) : ("https://wa.me/?text=" + text), "_blank");
+        }, 600);
       } catch (err) {
-        console.error('WhatsApp share error:', err);
-
-        const phone = (selectedCustomerPhone || '').replace(/\D/g, '');
+        const phone = (selectedCustomerPhone || "").replace(/\D/g, "");
         const text = encodeURIComponent(buildWhatsAppText());
-        const waUrl = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
-        window.open(waUrl, '_blank');
+        window.open(phone ? ("https://wa.me/" + phone + "?text=" + text) : ("https://wa.me/?text=" + text), "_blank");
       }
     }
 
     function sendReceiptSMS() {
       if (!lastCompletedTransaction) return;
-      const phone = (selectedCustomerPhone || '').replace(/\D/g, '');
+      const phone = (selectedCustomerPhone || "").replace(/\D/g, "");
       const text = encodeURIComponent(buildWhatsAppText());
-      const url = phone ? `sms:${phone}?body=${text}` : `sms:?body=${text}`;
-      window.location.href = url;
+      window.location.href = phone ? ("sms:" + phone + "?body=" + text) : ("sms:?body=" + text);
     }
 
-    window.addEventListener('DOMContentLoaded', function () {
+    async function startBarcodeScanner() {
+      if (scannerStarting) return;
+      if (typeof Html5Qrcode === "undefined") {
+        alert("Scanner library not loaded. Check internet, then close & reopen the app.");
+        return;
+      }
+      scannerStarting = true;
+      document.getElementById("scanner-modal").classList.remove("hidden");
+      document.getElementById("scanner-status").textContent = "Starting camera…";
+      document.getElementById("scanner-status").style.color = "#a78bfa";
+      try {
+        if (html5QrCode) {
+          try { await html5QrCode.stop(); } catch (e) {}
+          try { html5QrCode.clear(); } catch (e) {}
+          html5QrCode = null;
+        }
+        var formats = [
+          Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.ITF, Html5QrcodeSupportedFormats.CODABAR,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ];
+        html5QrCode = new Html5Qrcode("scanner-reader", { formatsToSupport: formats, verbose: false });
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          {
+            fps: 30,
+            qrbox: function (viewfinderWidth, viewfinderHeight) {
+              return { width: Math.floor(viewfinderWidth * 0.94), height: Math.floor(Math.min(88, viewfinderHeight * 0.20)) };
+            },
+            aspectRatio: 1.777, disableFlip: false
+          },
+          onScanSuccess,
+          function () {}
+        );
+        document.getElementById("scanner-status").textContent = "Hold barcode in the thin line…";
+      } catch (err) {
+        var msg = "Camera error. Allow permission or search by name.";
+        if (err && err.name === "NotAllowedError") msg = "Camera blocked. Allow camera in phone Settings for this app.";
+        document.getElementById("scanner-status").textContent = msg;
+        document.getElementById("scanner-status").style.color = "#fb7185";
+      } finally {
+        scannerStarting = false;
+      }
+    }
+
+    async function stopBarcodeScanner() {
+      try {
+        if (html5QrCode) { await html5QrCode.stop(); html5QrCode.clear(); }
+      } catch (e) {}
+      html5QrCode = null;
+      document.getElementById("scanner-modal").classList.add("hidden");
+      document.getElementById("scanner-status").textContent = "";
+    }
+
+    function onScanSuccess(decodedText) {
+      var now = Date.now();
+      if (now - lastScanTime < 700) return;
+      lastScanTime = now;
+      var code = String(decodedText || "").trim();
+      if (!code) return;
+      var product = inventoryCatalog.find(function (p) {
+        var sku = String(p.sku || "").trim().toLowerCase();
+        var c = code.toLowerCase();
+        return sku && (sku === c || sku.indexOf(c) >= 0 || c.indexOf(sku) >= 0);
+      });
+      if (product) {
+        document.getElementById("scanner-status").textContent = "Found: " + product.name;
+        document.getElementById("scanner-status").style.color = "#34d399";
+        try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
+        addToCart(product.id);
+        setTimeout(function () { stopBarcodeScanner(); }, 350);
+      } else {
+        document.getElementById("scanner-status").textContent = "No product with SKU: " + code;
+        document.getElementById("scanner-status").style.color = "#fbbf24";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", function () {
       applyUserPreferences();
-      // INSTANT: show last known products immediately
       paintFromCache();
       initializePOS();
+    });
+    window.addEventListener("pageshow", function () {
+      applyUserPreferences();
+      paintFromCache();
     });
   </script>
 </body>
