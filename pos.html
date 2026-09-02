@@ -121,7 +121,7 @@
     .pay-btn.active { background: rgba(108,92,231,0.2); border-color: #6C5CE7; color: #fff; }
     .hidden { display: none !important; }
 
-    /* ===== DESKTOP PREMIUM (matches screenshot style) ===== */
+    /* ===== DESKTOP ===== */
     .desktop-shell {
       width: 100%; min-height: 100vh;
       background:
@@ -219,9 +219,7 @@
     body:not(.theme-day) .desk-topbar {
       background: rgba(14,14,28,0.9); border-bottom-color: rgba(139,92,246,0.12);
     }
-    .desk-search {
-      flex: 1; max-width: 420px; position: relative;
-    }
+    .desk-search { flex: 1; max-width: 420px; position: relative; }
     .desk-search i {
       position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 13px;
     }
@@ -375,13 +373,13 @@
     body:not(.theme-day) .tx-row .id { color: #E2E8F0; }
     .tx-row .amt { font-weight: 700; color: #6C5CE7; }
 
-    #receipt-modal, #scanner-modal {
+    #scanner-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 80;
       display: flex; align-items: center; justify-content: center; padding: 12px;
     }
     #scanner-reader { width: 100%; min-height: 280px; background: #000; border-radius: 12px; overflow: hidden; }
 
-    /* Day theme mobile extras */
+    /* Day theme mobile */
     body.theme-day {
       background: #F4F6FB !important; color: #0F172A !important;
     }
@@ -404,17 +402,18 @@
     body.theme-day .prod-sku { color: #64748B !important; }
     body.theme-day .prod-meta { color: #475569 !important; }
     body.theme-day .prod-price { color: #6C5CE7 !important; }
+    body.theme-day .top-bar a, body.theme-day .top-bar .prod-name { color: #0F172A !important; }
   </style>
 </head>
 <body>
- <!-- ==================== MOBILE ==================== -->
+  <!-- ==================== MOBILE ==================== -->
   <div class="mobile-only">
     <div class="iphone-frame">
       <div class="top-bar">
         <div style="display:flex;align-items:center;gap:12px;">
           <a href="dashboard.html" style="color:#cbd5e1;text-decoration:none;"><i class="fa-solid fa-arrow-left"></i></a>
           <div>
-            <div style="font-weight:700;font-size:13px;color:#fff;" class="prod-name">POS Sales</div>
+            <div style="font-weight:700;font-size:13px;" class="prod-name">POS Sales</div>
             <div style="font-size:9px;color:#94a3b8;">Create new sale</div>
           </div>
         </div>
@@ -456,7 +455,7 @@
 
         <div class="card">
           <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:8px;">
-            <h3 style="margin:0;font-size:12px;font-weight:700;color:#fff;" id="cart-title-count">Cart (0 items)</h3>
+            <h3 style="margin:0;font-size:12px;font-weight:700;" class="prod-name" id="cart-title-count">Cart (0 items)</h3>
             <button type="button" onclick="clearCart()" style="background:none;border:none;color:#fb7185;font-size:10px;cursor:pointer;">Clear Cart</button>
           </div>
           <div id="cart-items-container">
@@ -465,14 +464,14 @@
         </div>
 
         <div class="card" style="font-size:12px;">
-          <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Subtotal</span><span style="color:#fff;font-weight:600;" id="val-subtotal">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Subtotal</span><span style="font-weight:600;" id="val-subtotal">₦0</span></div>
           <div style="display:flex;justify-content:space-between;align-items:center;color:#94a3b8;margin-bottom:6px;">
             <span>Discount (₦)</span>
             <input type="number" id="input-discount" value="0" oninput="calculateTotals()" style="width:96px;background:#191932;border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:6px 8px;text-align:right;color:#fff;font-size:12px;">
           </div>
-          <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Tax</span><span style="color:#fff;font-weight:600;" id="val-tax">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-bottom:6px;"><span>Tax</span><span style="font-weight:600;" id="val-tax">₦0</span></div>
           <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(139,92,246,0.1);padding-top:8px;margin-top:4px;">
-            <span style="font-weight:700;color:#fff;font-size:14px;">TOTAL</span>
+            <span style="font-weight:700;font-size:14px;">TOTAL</span>
             <span style="font-weight:800;color:#a78bfa;font-size:16px;" id="val-grand-total">₦0</span>
           </div>
         </div>
@@ -498,7 +497,7 @@
         </div>
 
         <button type="button" id="complete-sale-btn" onclick="completeSale()" class="btn-primary">
-          <i class="fa-solid fa-circle-check"></i> <span id="complete-sale-label">Complete Sale & Generate Receipt</span>
+          <i class="fa-solid fa-circle-check"></i> <span id="complete-sale-label">Complete Sale &amp; Generate Receipt</span>
         </button>
       </div>
 
@@ -511,10 +510,9 @@
     </div>
   </div>
 
-  <!-- ==================== DESKTOP ==================== -->
+ <!-- ==================== DESKTOP ==================== -->
   <div class="desktop-only desktop-shell">
     <div class="desk-layout">
-      <!-- SIDEBAR -->
       <nav class="desk-sidebar">
         <div class="desk-logo">
           <div class="desk-logo-mark">Q</div>
@@ -547,9 +545,7 @@
         </div>
       </nav>
 
-      <!-- MAIN -->
       <div class="desk-main">
-        <!-- TOP BAR -->
         <div class="desk-topbar">
           <div class="desk-search">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -564,7 +560,6 @@
           </div>
         </div>
 
-        <!-- 3 COLUMNS -->
         <div class="desk-pos-grid">
           <!-- PRODUCTS -->
           <div class="pos-col">
@@ -669,7 +664,8 @@
       </div>
     </div>
   </div>
- <!-- SCANNER MODAL -->
+
+  <!-- SCANNER MODAL -->
   <div id="scanner-modal" class="hidden">
     <div style="width:100%;max-width:380px;background:#121224;border:1px solid rgba(139,92,246,0.4);border-radius:20px;padding:16px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -684,97 +680,12 @@
       <p style="text-align:center;font-size:11px;color:#94a3b8;margin:12px 0 0;">Hold barcode in the thin line · good light · 10–20 cm away</p>
       <p id="scanner-status" style="text-align:center;font-size:11px;color:#a78bfa;margin:6px 0 0;"></p>
       <button type="button" onclick="stopBarcodeScanner()" style="width:100%;margin-top:12px;padding:10px;border:none;border-radius:12px;background:#191932;color:#cbd5e1;font-size:12px;cursor:pointer;">
-        Close & search by name instead
+        Close &amp; search by name instead
       </button>
     </div>
   </div>
 
-  <!-- RECEIPT MODAL -->
-  <div id="receipt-modal" class="hidden">
-    <div style="width:100%;max-width:420px;background:#121224;border:1px solid rgba(139,92,246,0.3);border-radius:24px;padding:16px;max-height:94vh;overflow-y:auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,92,246,0.1);padding-bottom:8px;margin-bottom:12px;">
-        <div style="color:#34d399;font-size:13px;font-weight:700;"><i class="fa-solid fa-circle-check"></i> Sale Completed Successfully!</div>
-        <button type="button" onclick="closeReceiptModal()" style="background:none;border:none;color:#94a3b8;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div id="receipt-paper" style="background:#fff;color:#0f172a;padding:22px 18px;font-family:system-ui,-apple-system,sans-serif;width:100%;box-sizing:border-box;border-radius:8px;">
-        <div style="text-align:center;border-bottom:2px solid #0f172a;padding-bottom:14px;margin-bottom:14px;">
-          <div id="receipt-logo-wrap" style="display:none;margin-bottom:10px;">
-            <img id="receipt-logo" src="" alt="Logo" style="max-height:52px;max-width:130px;margin:0 auto;display:block;object-fit:contain;">
-          </div>
-          <h2 id="receipt-biz-name" style="font-size:17px;font-weight:800;margin:0 0 4px 0;text-transform:uppercase;letter-spacing:0.5px;color:#020617;">MY STORE</h2>
-          <p id="receipt-biz-address" style="font-size:11px;color:#475569;margin:2px 0;"></p>
-          <p id="receipt-biz-phone" style="font-size:11px;color:#475569;margin:2px 0;"></p>
-          <p id="receipt-biz-email" style="font-size:11px;color:#475569;margin:2px 0;"></p>
-          <p id="receipt-biz-tax" style="font-size:10px;color:#64748b;margin:4px 0 0;"></p>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:12px;">
-          <div>
-            <p style="margin:0;font-weight:700;color:#0f172a;">RECEIPT</p>
-            <p id="receipt-trx-id" style="margin:3px 0 0;color:#64748b;font-size:10px;">SAL-000000</p>
-          </div>
-          <div style="text-align:right;">
-            <p id="receipt-date" style="margin:0;color:#0f172a;font-size:11px;"></p>
-          </div>
-        </div>
-
-        <div style="font-size:11px;background:#f8fafc;padding:10px 12px;border-radius:8px;margin-bottom:14px;">
-          <p style="margin:0 0 4px;"><b>Customer:</b> <span id="receipt-customer-name">Walk-in</span></p>
-          <p style="margin:0 0 4px;"><b>Phone:</b> <span id="receipt-customer-phone">—</span></p>
-          <p style="margin:0;"><b>Cashier:</b> <span id="receipt-cashier-name">Staff</span></p>
-        </div>
-
-        <div style="margin-bottom:12px;">
-          <div style="display:grid;grid-template-columns:5.5fr 1.5fr 3fr;font-weight:700;border-bottom:2px solid #0f172a;padding-bottom:6px;font-size:11px;">
-            <span>ITEM</span><span style="text-align:center;">QTY</span><span style="text-align:right;">AMOUNT</span>
-          </div>
-          <div id="receipt-items-list" style="margin-top:8px;"></div>
-        </div>
-
-        <div style="border-top:2px solid #0f172a;padding-top:10px;margin-top:10px;font-size:12px;">
-          <div style="display:flex;justify-content:space-between;margin:4px 0;"><span>Subtotal</span><span id="receipt-subtotal">₦0</span></div>
-          <div style="display:flex;justify-content:space-between;margin:4px 0;"><span>Discount</span><span id="receipt-discount">-₦0</span></div>
-          <div style="display:flex;justify-content:space-between;margin:4px 0;"><span>Tax</span><span id="receipt-tax">₦0</span></div>
-          <div style="display:flex;justify-content:space-between;font-weight:800;font-size:15px;border-top:1px solid #cbd5e1;padding-top:8px;margin-top:8px;">
-            <span>TOTAL</span><span id="receipt-total">₦0</span>
-          </div>
-        </div>
-
-        <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #cbd5e1;font-size:11px;">
-          <p style="margin:3px 0;"><b>Payment Method:</b> <span id="receipt-payment-method">Cash</span></p>
-          <p style="margin:3px 0;"><b>Amount Paid:</b> <span id="receipt-paid-amount">₦0</span></p>
-          <p style="margin:3px 0;"><b>Change:</b> <span id="receipt-change">₦0</span></p>
-        </div>
-
-        <div style="text-align:center;padding-top:16px;border-top:2px solid #0f172a;margin-top:16px;font-size:11px;color:#64748b;">
-          <p id="receipt-thank-you" style="margin:0 0 6px;font-weight:600;color:#0f172a;">Thank you for your patronage!</p>
-          <p style="margin:0;font-weight:700;color:#0f172a;" id="receipt-footer-biz">Business Store</p>
-          <p style="margin:6px 0 0;font-size:9px;">Powered by Quantum OPS Elite</p>
-        </div>
-      </div>
-
-      <div style="margin-top:16px;">
-        <p style="text-align:center;font-size:12px;font-weight:600;color:#cbd5e1;margin-bottom:10px;">Send or Download Receipt</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <button type="button" onclick="sendReceiptWhatsApp()" style="padding:12px 8px;background:rgba(5,150,105,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.35);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
-            <i class="fa-brands fa-whatsapp" style="display:block;font-size:16px;margin-bottom:4px;"></i>WhatsApp
-          </button>
-          <button type="button" onclick="sendReceiptSMS()" style="padding:12px 8px;background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
-            <i class="fa-solid fa-sms" style="display:block;font-size:16px;margin-bottom:4px;"></i>SMS
-          </button>
-          <button type="button" onclick="downloadReceiptPDF()" style="padding:12px 8px;background:rgba(108,92,231,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.35);border-radius:12px;font-size:11px;font-weight:600;cursor:pointer;">
-            <i class="fa-solid fa-download" style="display:block;font-size:16px;margin-bottom:4px;"></i>Download
-          </button>
-        </div>
-        <button type="button" onclick="shareReceiptNative()" style="width:100%;margin-top:8px;padding:12px;background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);border-radius:12px;font-size:12px;font-weight:600;cursor:pointer;">
-          <i class="fa-solid fa-share-nodes" style="margin-right:6px;"></i>Share (WhatsApp, Gmail, Files…)
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script>
+ <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -791,7 +702,6 @@
     let selectedPaymentMethod = "Cash";
     let selectedCustomer = "Walk-in Customer";
     let selectedCustomerPhone = "";
-    let lastCompletedTransaction = null;
     let isSavingSale = false;
     let html5QrCode = null;
     let lastScanTime = 0;
@@ -852,10 +762,7 @@
       const cache = loadPosCache();
       if (!cache || !Array.isArray(cache.products) || !cache.products.length) return;
       inventoryCatalog = cache.products;
-      if (cache.company) {
-        userCompanyDetails = cache.company;
-        try { applyCompanyToReceiptHeader(); } catch (e) {}
-      }
+      if (cache.company) userCompanyDetails = cache.company;
       renderInventoryCatalog(inventoryCatalog);
     }
 
@@ -886,22 +793,6 @@
       el.textContent = days[now.getDay()] + ", " + now.getDate() + " " + months[now.getMonth()] + " · " + h12 + ":" + m + " " + ampm;
     }
 
-    function applyCompanyToReceiptHeader() {
-      const c = userCompanyDetails || {};
-      const bizName = c.company_name || "MY STORE";
-      document.getElementById("receipt-biz-name").textContent = bizName;
-      document.getElementById("receipt-footer-biz").textContent = bizName;
-      document.getElementById("receipt-biz-address").textContent = c.address || "";
-      document.getElementById("receipt-biz-phone").textContent = c.phone ? ("Tel: " + c.phone) : "";
-      document.getElementById("receipt-biz-email").textContent = c.email || "";
-      document.getElementById("receipt-biz-tax").textContent = c.tax_id ? ("Tax/RC: " + c.tax_id) : "";
-      document.getElementById("receipt-thank-you").textContent = c.thank_you_message || "Thank you for your patronage!";
-      const logoWrap = document.getElementById("receipt-logo-wrap");
-      const logoImg = document.getElementById("receipt-logo");
-      if (c.logo) { logoImg.src = c.logo; logoWrap.style.display = "block"; }
-      else { logoWrap.style.display = "none"; logoImg.src = ""; }
-    }
-
     async function initializePOS() {
       applyUserPreferences();
       updateLiveClock();
@@ -928,14 +819,14 @@
 
         if (member && member.company_id) {
           userCompanyId = member.company_id;
-          if (member.companies) { userCompanyDetails = member.companies; applyCompanyToReceiptHeader(); }
+          if (member.companies) userCompanyDetails = member.companies;
         } else {
           const { data: owned } = await supabaseClient
             .from("companies")
             .select("id, company_name, address, phone, email, website, tax_id, thank_you_message, logo")
             .eq("owner_id", session.user.id)
             .maybeSingle();
-          if (owned && owned.id) { userCompanyId = owned.id; userCompanyDetails = owned; applyCompanyToReceiptHeader(); }
+          if (owned && owned.id) { userCompanyId = owned.id; userCompanyDetails = owned; }
         }
         await fetchInventory();
         await fetchRecentSales();
@@ -1091,7 +982,10 @@
           name: product.name || "Product",
           price: parseFloat(product.selling_price || 0),
           cost_price: parseFloat(product.unit_cost || 0),
-          qty: 1
+          qty: 1,
+          sku: product.sku || "",
+          image_url: product.image_url || "",
+          unit: "pcs"
         });
       }
       renderCart();
@@ -1165,7 +1059,8 @@
       }
       calculateTotals();
     }
-   function calculateTotals() {
+
+    function calculateTotals() {
       const subtotal = cart.reduce(function (a, i) { return a + i.price * i.qty; }, 0);
       const discountEl = document.getElementById("input-discount") || document.getElementById("desk-input-discount");
       const discount = parseFloat((discountEl && discountEl.value) || 0);
@@ -1254,7 +1149,7 @@
       if (label2) label2.textContent = short;
     }
 
-    async function completeSale() {
+   async function completeSale() {
       if (isSavingSale) return;
       if (!cart.length) return alert("Add items to cart first.");
       if (!userCompanyId) return alert("Company not loaded. Please refresh.");
@@ -1278,30 +1173,46 @@
         const trxId = "SAL-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + Math.floor(100000 + Math.random() * 900000);
         const cashierName = (currentUserProfile && currentUserProfile.user_metadata && currentUserProfile.user_metadata.full_name)
           || (currentUserProfile && currentUserProfile.email && currentUserProfile.email.split("@")[0]) || "Staff";
+
         const cartSnapshot = cart.map(function (i) {
-          return { id: i.id, name: i.name, price: i.price, cost_price: i.cost_price, qty: i.qty };
+          return {
+            id: i.id,
+            name: i.name,
+            price: i.price,
+            cost_price: i.cost_price,
+            qty: i.qty,
+            sku: i.sku || "",
+            image_url: i.image_url || "",
+            unit: i.unit || "pcs"
+          };
         });
 
-        const { error } = await supabaseClient.from("sales").insert([{
-          company_id: userCompanyId,
-          transaction_id: trxId,
-          sale_number: trxId,
-          customer_name: selectedCustomer,
-          cashier_name: cashierName,
-          items: cartSnapshot,
-          subtotal: subtotal,
-          discount: discount,
-          tax: 0,
-          total: grandTotal,
-          total_amount: grandTotal,
-          total_cost: totalCost,
-          profit: totalProfit,
-          total_profit: totalProfit,
-          paid_amount: paid,
-          balance: balance,
-          payment_method: selectedPaymentMethod
-        }]);
+        const { data: savedSale, error } = await supabaseClient
+          .from("sales")
+          .insert([{
+            company_id: userCompanyId,
+            transaction_id: trxId,
+            sale_number: trxId,
+            customer_name: selectedCustomer,
+            cashier_name: cashierName,
+            items: cartSnapshot,
+            subtotal: subtotal,
+            discount: discount,
+            tax: 0,
+            total: grandTotal,
+            total_amount: grandTotal,
+            total_cost: totalCost,
+            profit: totalProfit,
+            total_profit: totalProfit,
+            paid_amount: paid,
+            balance: balance,
+            payment_method: selectedPaymentMethod
+          }])
+          .select("id")
+          .single();
+
         if (error) throw error;
+        if (!savedSale || !savedSale.id) throw new Error("Sale saved but no id returned.");
 
         for (let i = 0; i < cartSnapshot.length; i++) {
           const item = cartSnapshot[i];
@@ -1312,179 +1223,17 @@
           }
         }
 
-        lastCompletedTransaction = {
-          trxId: trxId,
-          date: new Date().toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
-          customer: selectedCustomer,
-          phone: selectedCustomerPhone,
-          cashier: cashierName,
-          items: cartSnapshot,
-          subtotal: subtotal,
-          discount: discount,
-          tax: 0,
-          grandTotal: grandTotal,
-          paymentMethod: selectedPaymentMethod,
-          paid: paid,
-          balance: balance
-        };
-
         clearCart();
-        renderReceiptModal();
-        await fetchInventory();
-        await fetchRecentSales();
+        window.location.href = "receipt.html?id=" + savedSale.id;
       } catch (err) {
         console.error(err);
         alert("Error saving sale: " + (err.message || "Try again"));
-      } finally {
         isSavingSale = false;
         btns.forEach(function (b) { if (b) b.disabled = false; });
-        labels.forEach(function (l) { if (l) l.textContent = l.id && l.id.indexOf("desk") >= 0 ? "Pay · Complete Sale" : "Complete Sale & Generate Receipt"; });
+        labels.forEach(function (l) {
+          if (l) l.textContent = l.id && l.id.indexOf("desk") >= 0 ? "Pay · Complete Sale" : "Complete Sale & Generate Receipt";
+        });
       }
-    }
-
-    function renderReceiptModal() {
-      const t = lastCompletedTransaction;
-      if (!t) return;
-      applyCompanyToReceiptHeader();
-      document.getElementById("receipt-trx-id").textContent = t.trxId;
-      document.getElementById("receipt-date").textContent = t.date;
-      document.getElementById("receipt-customer-name").textContent = t.customer;
-      document.getElementById("receipt-customer-phone").textContent = t.phone || "—";
-      document.getElementById("receipt-cashier-name").textContent = t.cashier;
-      document.getElementById("receipt-subtotal").textContent = formatCurrency(t.subtotal);
-      document.getElementById("receipt-discount").textContent = "-" + formatCurrency(t.discount);
-      document.getElementById("receipt-tax").textContent = formatCurrency(0);
-      document.getElementById("receipt-total").textContent = formatCurrency(t.grandTotal);
-      document.getElementById("receipt-payment-method").textContent = t.paymentMethod;
-      document.getElementById("receipt-paid-amount").textContent = formatCurrency(t.paid);
-      document.getElementById("receipt-change").textContent = formatCurrency(t.balance);
-      document.getElementById("receipt-items-list").innerHTML = t.items.map(function (i) {
-        return '<div style="display:grid;grid-template-columns:5.5fr 1.5fr 3fr;font-size:11px;margin:4px 0;border-bottom:1px dotted #e2e8f0;padding-bottom:4px;">'
-          + '<span style="font-weight:600;color:#0f172a;">' + esc(i.name) + "</span>"
-          + '<span style="text-align:center;color:#334155;">' + i.qty + "</span>"
-          + '<span style="text-align:right;color:#0f172a;font-weight:600;">' + formatCurrency(i.price * i.qty) + "</span></div>";
-      }).join("");
-      document.getElementById("receipt-modal").classList.remove("hidden");
-    }
-
-    function closeReceiptModal() {
-      document.getElementById("receipt-modal").classList.add("hidden");
-    }
-
-    function buildWhatsAppText() {
-      const t = lastCompletedTransaction;
-      const c = userCompanyDetails || {};
-      if (!t) return "";
-      const lines = ["*RECEIPT*", "*" + (c.company_name || "MY STORE") + "*"];
-      if (c.address) lines.push(c.address);
-      if (c.phone) lines.push("Tel: " + c.phone);
-      lines.push("-------------------", "Receipt: " + t.trxId, "Date: " + t.date, "Customer: " + t.customer);
-      if (t.phone) lines.push("Phone: " + t.phone);
-      lines.push("Cashier: " + t.cashier, "-------------------");
-      t.items.forEach(function (i) { lines.push(i.name + " ×" + i.qty + "  " + formatCurrency(i.price * i.qty)); });
-      lines.push("-------------------", "Subtotal: " + formatCurrency(t.subtotal));
-      if (t.discount > 0) lines.push("Discount: -" + formatCurrency(t.discount));
-      lines.push("*TOTAL: " + formatCurrency(t.grandTotal) + "*", "Paid (" + t.paymentMethod + "): " + formatCurrency(t.paid), "Change: " + formatCurrency(t.balance), "-------------------", c.thank_you_message || "Thank you for your patronage!");
-      return lines.join("\n");
-    }
-
-    async function ensureHtml2Pdf() {
-      if (window.html2pdf) return;
-      await new Promise(function (resolve, reject) {
-        const s = document.createElement("script");
-        s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-        s.onload = resolve;
-        s.onerror = reject;
-        document.head.appendChild(s);
-      });
-    }
-
-    async function getReceiptPdfBlob() {
-      await ensureHtml2Pdf();
-      const element = document.getElementById("receipt-paper");
-      return html2pdf().from(element).set({
-        margin: 6,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: [80, 220], orientation: "portrait" }
-      }).outputPdf("blob");
-    }
-
-    async function downloadReceiptPDF() {
-      if (!lastCompletedTransaction) return;
-      try {
-        await ensureHtml2Pdf();
-        const element = document.getElementById("receipt-paper");
-        await html2pdf().from(element).set({
-          margin: 6,
-          filename: (lastCompletedTransaction.trxId || "receipt") + ".pdf",
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: "mm", format: [80, 220], orientation: "portrait" }
-        }).save();
-      } catch (e) {
-        alert("Could not create PDF. Please try again.");
-      }
-    }
-
-    async function shareReceiptNative() {
-      if (!lastCompletedTransaction) return;
-      try {
-        const pdfBlob = await getReceiptPdfBlob();
-        const fileName = (lastCompletedTransaction.trxId || "Receipt") + ".pdf";
-        const file = new File([pdfBlob], fileName, { type: "application/pdf" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: "Receipt - " + lastCompletedTransaction.trxId,
-            text: "Receipt from " + ((userCompanyDetails && userCompanyDetails.company_name) || "our store")
-          });
-          return;
-        }
-        await downloadReceiptPDF();
-        alert("PDF downloaded. You can share it from your Files / Downloads.");
-      } catch (err) {
-        if (err && err.name === "AbortError") return;
-        await downloadReceiptPDF();
-      }
-    }
-
-    async function sendReceiptWhatsApp() {
-      if (!lastCompletedTransaction) return;
-      try {
-        const pdfBlob = await getReceiptPdfBlob();
-        const fileName = (lastCompletedTransaction.trxId || "Receipt") + ".pdf";
-        const file = new File([pdfBlob], fileName, { type: "application/pdf" });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: "Receipt - " + lastCompletedTransaction.trxId,
-            text: "Here is your receipt from " + ((userCompanyDetails && userCompanyDetails.company_name) || "our store")
-          });
-          return;
-        }
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement("a");
-        a.href = url; a.download = fileName;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setTimeout(function () {
-          const phone = (selectedCustomerPhone || "").replace(/\D/g, "");
-          const text = encodeURIComponent("Hello! Here is your receipt (" + lastCompletedTransaction.trxId + ").\n\nPlease find the PDF.");
-          window.open(phone ? ("https://wa.me/" + phone + "?text=" + text) : ("https://wa.me/?text=" + text), "_blank");
-        }, 600);
-      } catch (err) {
-        const phone = (selectedCustomerPhone || "").replace(/\D/g, "");
-        const text = encodeURIComponent(buildWhatsAppText());
-        window.open(phone ? ("https://wa.me/" + phone + "?text=" + text) : ("https://wa.me/?text=" + text), "_blank");
-      }
-    }
-
-    function sendReceiptSMS() {
-      if (!lastCompletedTransaction) return;
-      const phone = (selectedCustomerPhone || "").replace(/\D/g, "");
-      const text = encodeURIComponent(buildWhatsAppText());
-      window.location.href = phone ? ("sms:" + phone + "?body=" + text) : ("sms:?body=" + text);
     }
 
     async function startBarcodeScanner() {
