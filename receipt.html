@@ -796,44 +796,37 @@
       document.getElementById("receipt-wrap").style.display = "flex";
     }
 
-    function buildWhatsAppText() {
-      if (!sale) return "";
-      const c = company || {};
-      const s = sale;
-      const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
-      
-      const lines = [
-        "🧾 *SALES RECEIPT*",
-        "*" + (c.company_name || "Quantum OPS") + "*",
-        "------------------------------------"
-      ];
-      if (c.address) lines.push(c.address);
-      if (c.phone) lines.push("Tel: " + c.phone);
-      lines.push("------------------------------------");
-      lines.push("Receipt No: " + (s.sale_number || s.transaction_id || String(s.id).slice(0, 8)));
-      lines.push("Date: " + new Date(s.created_at).toLocaleString());
-      lines.push("Customer: " + (s.customer_name || "Walk-in Customer"));
-      lines.push("Cashier: " + (s.cashier_name || "Staff"));
-      lines.push("------------------------------------");
-      
-      if (Array.isArray(s.items)) {
-        s.items.forEach(function (i) {
-          const q = i.qty || i.quantity || 1;
-          lines.push("• " + (i.name || "Item") + " x" + q + " = " + formatCurrency(parseMoney(i.price) * q));
-        });
-      }
-      
-      lines.push("------------------------------------");
-      lines.push("*TOTAL: " + formatCurrency(amount) + "*");
-      lines.push("Paid (" + (s.payment_method || "Cash") + "): " + formatCurrency(s.paid_amount != null ? s.paid_amount : amount));
-      lines.push("------------------------------------");
-      lines.push(c.thank_you_message || "Thank you for your purchase!");
-      return lines.join("\n");
-    }
-
-    function sendWhatsApp() {
+    async function sendWhatsApp() {
       if (!sale) return;
-      window.open("https://wa.me/?text=" + encodeURIComponent(buildWhatsAppText()), "_blank");
+      try {
+        const el = document.getElementById("receipt-paper");
+        const name = "Receipt-" + (sale.sale_number || sale.transaction_id || "INV") + ".pdf";
+        
+        el.style.transform = "none";
+        const blob = await html2pdf().set(getPdfOptions(name)).from(el).outputPdf("blob");
+        const file = new File([blob], name, { type: "application/pdf" });
+
+        let rawPhone = sale.customer_phone || sale.phone || "";
+        let cleanPhone = String(rawPhone).replace(/\D/g, "");
+        if (cleanPhone.startsWith("0")) {
+          cleanPhone = "234" + cleanPhone.slice(1);
+        }
+
+        if (cleanPhone) {
+          window.open("https://wa.me/" + cleanPhone, "_blank");
+        }
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file]
+          });
+          return;
+        }
+        await downloadPDF();
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        await downloadPDF();
+      }
     }
 
     function getPdfOptions(filename) {
@@ -897,9 +890,7 @@
 
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
-            files: [file],
-            title: "Receipt - " + name,
-            text: "Official receipt from " + ((company && company.company_name) || "Quantum OPS")
+            files: [file]
           });
           return;
         }
