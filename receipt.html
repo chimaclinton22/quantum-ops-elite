@@ -837,20 +837,36 @@
     }
 
     function getPdfOptions(filename) {
+      const element = document.getElementById("receipt-paper");
+      
+      // Calculate exact pixel dimensions of the receipt container
+      const elementWidth = element.offsetWidth || 420;
+      const elementHeight = element.offsetHeight || 800;
+
+      // Convert pixels to millimeters (1px ≈ 0.264583mm)
+      const pdfWidth = elementWidth * 0.264583;
+      const pdfHeight = (elementHeight + 20) * 0.264583; // 20px padding buffer
+
       return {
-        margin: [4, 4, 4, 4],
+        margin: 0,
         filename: filename || "receipt.pdf",
-        image: { type: "jpeg", quality: 0.98 },
+        image: { type: "jpeg", quality: 1.0 },
         html2canvas: {
           scale: 3,
           useCORS: true,
           backgroundColor: "#ffffff",
           logging: false,
+          scrollX: 0,
           scrollY: 0,
-          windowWidth: 420
+          windowWidth: elementWidth
         },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["css", "legacy"] }
+        // Dynamically match PDF page dimensions to receipt height to guarantee 1 single page
+        jsPDF: { 
+          unit: "mm", 
+          format: [pdfWidth, pdfHeight], 
+          orientation: "portrait" 
+        },
+        pagebreak: { mode: "none" }
       };
     }
 
@@ -859,6 +875,9 @@
       try {
         const el = document.getElementById("receipt-paper");
         const name = "Receipt-" + (sale.sale_number || sale.transaction_id || "INV") + ".pdf";
+        
+        // Temporarily reset transformation for exact rendering capture
+        el.style.transform = "none";
         await html2pdf().set(getPdfOptions(name)).from(el).save();
       } catch (e) {
         console.error(e);
@@ -871,6 +890,8 @@
       try {
         const el = document.getElementById("receipt-paper");
         const name = "Receipt-" + (sale.sale_number || sale.transaction_id || "INV") + ".pdf";
+        
+        el.style.transform = "none";
         const blob = await html2pdf().set(getPdfOptions(name)).from(el).outputPdf("blob");
         const file = new File([blob], name, { type: "application/pdf" });
 
