@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050812">
   <title>QUANTUM OPS — Desktop Dashboard</title>
+  <!-- INSTANT THEME — runs before paint, stops white/black flash -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("theme-day-root");
+        } else {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -14,43 +29,43 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
-      darkMode: 'class',
+      darkMode: "class",
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Plus Jakarta Sans', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
+            sans: ["Plus Jakarta Sans", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
           },
           colors: {
-            canvas: '#050812',
-            sidebar: '#080B17',
-            card: '#0B1020',
-            cardElevated: '#0E1326',
-            borderSubtle: '#1A2035',
-            borderHover: '#202844',
-            primaryPurple: '#7C4DFF',
-            brightPurple: '#8B5CFF',
-            deepPurple: '#5426C7',
-            electricBlue: '#536DFF',
-            cyanAccent: '#4C9AFF',
-            positiveGreen: '#31D17C',
-            brightGreen: '#45E18A',
-            warningYellow: '#F5C451',
-            accentOrange: '#FF9B45',
-            dangerRed: '#FF4F67',
-            accentPink: '#FF4DA6',
-            textPrimary: '#F4F6FF',
-            textSecondary: '#A0A7BB',
-            textMuted: '#68718A',
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            borderHover: "#202844",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            deepPurple: "#5426C7",
+            electricBlue: "#536DFF",
+            cyanAccent: "#4C9AFF",
+            positiveGreen: "#31D17C",
+            brightGreen: "#45E18A",
+            warningYellow: "#F5C451",
+            accentOrange: "#FF9B45",
+            dangerRed: "#FF4F67",
+            accentPink: "#FF4DA6",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A"
           },
           boxShadow: {
-            purpleGlow: '0 0 15px rgba(124, 77, 255, 0.2)',
-            purpleGlowStrong: '0 0 25px rgba(124, 77, 255, 0.4)',
-            cardGlow: '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+            purpleGlow: "0 0 15px rgba(124,77,255,0.2)",
+            purpleGlowStrong: "0 0 25px rgba(124,77,255,0.4)",
+            cardGlow: "0 4px 20px -2px rgba(0,0,0,0.5)"
           }
         }
       }
-    }
+    };
   </script>
   <style>
     ::-webkit-scrollbar { width: 5px; height: 5px; }
@@ -58,7 +73,7 @@
     ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #7C4DFF; }
     .led-clock {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: "JetBrains Mono", monospace;
       font-weight: 700;
       font-size: 14px;
       letter-spacing: 0.06em;
@@ -72,10 +87,10 @@
       text-shadow: 0 0 12px rgba(196,181,253,0.9);
     }
     .nav-link.active {
-      background: rgba(124, 77, 255, 0.18);
+      background: rgba(124,77,255,0.18);
       color: #fff;
       border-left: 2px solid #7C4DFF;
-      box-shadow: 0 0 15px rgba(124, 77, 255, 0.25);
+      box-shadow: 0 0 15px rgba(124,77,255,0.25);
     }
     .ai-avatar-wrap {
       position: relative;
@@ -86,89 +101,51 @@
       border: 1px solid rgba(124,77,255,0.35);
       background: #080B17;
     }
-    .ai-avatar-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center top;
-    }
+    .ai-avatar-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
     .ai-avatar-wrap::after {
-      content: '';
+      content: "";
       position: absolute;
       inset: 0;
       background: linear-gradient(to top, rgba(11,16,32,0.95) 0%, transparent 55%);
     }
     .health-ring {
-      width: 112px;
-      height: 112px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 112px; height: 112px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
       background: conic-gradient(#31D17C 0deg, #1A2035 0deg);
-      position: relative;
-      flex-shrink: 0;
+      position: relative; flex-shrink: 0;
     }
     .health-ring-inner {
-      width: 84px;
-      height: 84px;
-      border-radius: 999px;
+      width: 84px; height: 84px; border-radius: 999px;
       background: #0B1020;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-
-    /* ===== DAY / LIGHT THEME ===== */
-    body.theme-day {
-      background: #F4F6FB !important;
-      color: #0F172A !important;
+    /* DAY THEME */
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside {
+      background: #FFFFFF !important; border-color: #E2E8F0 !important;
     }
-    body.theme-day .bg-canvas,
-    body.theme-day main { background: #F4F6FB !important; }
-    body.theme-day .bg-sidebar,
-    body.theme-day aside {
-      background: #FFFFFF !important;
-      border-color: #E2E8F0 !important;
-    }
-    body.theme-day .bg-card,
-    body.theme-day [class*="bg-card"],
-    body.theme-day .rounded-xl.bg-card {
+    body.theme-day .bg-card, body.theme-day [class*="bg-card"], body.theme-day .rounded-xl.bg-card {
       background: #FFFFFF !important;
       border-color: rgba(108,92,231,0.2) !important;
       box-shadow: 0 2px 12px rgba(15,23,42,0.06) !important;
     }
-    body.theme-day .bg-cardElevated,
-    body.theme-day [class*="cardElevated"] {
-      background: #F8FAFC !important;
-      border-color: #E2E8F0 !important;
+    body.theme-day .bg-cardElevated, body.theme-day [class*="cardElevated"] {
+      background: #F8FAFC !important; border-color: #E2E8F0 !important;
     }
-    body.theme-day .text-white,
-    body.theme-day .text-textPrimary,
-    body.theme-day h1, body.theme-day h3 {
-      color: #0F172A !important;
-    }
-    body.theme-day .text-textMuted,
-    body.theme-day .text-textSecondary {
-      color: #64748B !important;
-    }
-    body.theme-day .border-borderSubtle {
-      border-color: #E2E8F0 !important;
-    }
+    body.theme-day .text-white, body.theme-day .text-textPrimary,
+    body.theme-day h1, body.theme-day h3 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
     body.theme-day header {
-      background: rgba(255,255,255,0.95) !important;
-      border-color: #E2E8F0 !important;
+      background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important;
     }
     body.theme-day input {
-      background: #F1F5F9 !important;
-      border-color: #E2E8F0 !important;
-      color: #0F172A !important;
+      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #0F172A !important;
     }
     body.theme-day .nav-link { color: #64748B !important; }
     body.theme-day .nav-link:hover {
-      background: rgba(108,92,231,0.08) !important;
-      color: #0F172A !important;
+      background: rgba(108,92,231,0.08) !important; color: #0F172A !important;
     }
     body.theme-day .nav-link.active {
       background: rgba(108,92,231,0.12) !important;
@@ -185,15 +162,13 @@
     body.theme-day .ai-avatar-wrap::after {
       background: linear-gradient(to top, rgba(255,255,255,0.92) 0%, transparent 55%);
     }
-    body.theme-day .ai-avatar-wrap .text-white { color: #0F172A !important; }
-    body.theme-day #ai-hello { color: #0F172A !important; }
+    body.theme-day .ai-avatar-wrap .text-white, body.theme-day #ai-hello { color: #0F172A !important; }
     body.theme-day .health-ring-inner { background: #FFFFFF !important; }
     body.theme-day ::-webkit-scrollbar-track { background: #F1F5F9; }
     body.theme-day ::-webkit-scrollbar-thumb { background: #CBD5E1; }
   </style>
 </head>
 <body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-primaryPurple selection:text-white">
-
   <div class="flex flex-1 min-h-screen">
     <!-- SIDEBAR -->
     <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col justify-between p-3 shrink-0 select-none z-30">
@@ -255,7 +230,7 @@
           <input type="text" placeholder="Search anything… (Products, Customers, Invoices)"
             class="w-full pl-9 pr-3 py-1.5 bg-card border border-borderSubtle rounded-lg text-xs text-textPrimary placeholder:text-textMuted focus:outline-none focus:border-primaryPurple focus:ring-1 focus:ring-primaryPurple">
         </div>
-        <div class="led-clock" title="Live Lagos time">
+        <div class="led-clock" title="Live time">
           <span id="clock-date">—</span>
           <span class="mx-1.5 opacity-40">|</span>
           <span id="clock-time">00:00:00</span>
@@ -294,243 +269,115 @@
             <p class="text-xs text-textMuted mt-0.5">Here's what's happening with <span id="greet-company" class="text-textSecondary font-medium">your business</span> today.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
-              <i class="ph-bold ph-heartbeat text-brightGreen"></i>
-              <span class="text-textMuted">Business Health</span>
-              <span class="font-bold text-brightGreen" id="pill-health">—%</span>
+            <a href="pos.html" class="px-3 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold shadow-purpleGlow hover:opacity-90">+ New Sale</a>
+            <a href="inventory.html" class="px-3 py-2 rounded-lg bg-card border border-borderSubtle text-xs font-semibold text-textSecondary hover:text-white">Inventory</a>
+            <a href="debtors.html" class="px-3 py-2 rounded-lg bg-card border border-borderSubtle text-xs font-semibold text-textSecondary hover:text-white">Debtors</a>
+            <span class="text-[10px] text-textMuted font-mono" id="last-sync">—</span>
+          </div>
+        </div>
+
+        <!-- KPI ROW -->
+        <div class="grid grid-cols-2 xl:grid-cols-5 gap-3">
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-[10px] text-textMuted font-semibold uppercase tracking-wide">Sales Today</div>
+            <div class="text-lg font-extrabold text-white mt-1" id="kpi-sales">₦0.00</div>
+            <canvas id="kpiSalesChart" height="36" class="mt-2"></canvas>
+          </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-[10px] text-textMuted font-semibold uppercase tracking-wide">Gross Profit</div>
+            <div class="text-lg font-extrabold text-brightGreen mt-1" id="kpi-profit">₦0.00</div>
+            <canvas id="kpiProfitChart" height="36" class="mt-2"></canvas>
+          </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-[10px] text-textMuted font-semibold uppercase tracking-wide">Transactions</div>
+            <div class="text-lg font-extrabold text-white mt-1" id="kpi-trx">0</div>
+            <canvas id="kpiTransactionsChart" height="36" class="mt-2"></canvas>
+          </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-[10px] text-textMuted font-semibold uppercase tracking-wide">Outstanding Debt</div>
+            <div class="text-lg font-extrabold text-dangerRed mt-1" id="kpi-debt">₦0.00</div>
+            <div class="text-[10px] text-textMuted mt-1" id="kpi-debt-count">0 Customers</div>
+            <canvas id="kpiDebtChart" height="28" class="mt-1"></canvas>
+          </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-[10px] text-textMuted font-semibold uppercase tracking-wide">Low Stock</div>
+            <div class="text-lg font-extrabold text-warningYellow mt-1" id="kpi-low">0 Items</div>
+            <canvas id="kpiLowChart" height="36" class="mt-2"></canvas>
+          </div>
+        </div>
+
+        <!-- CHART + HEALTH -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-3">
+          <div class="xl:col-span-2 rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-sm font-bold text-white">Sales Overview</div>
+                <div class="text-lg font-extrabold text-white mt-0.5" id="week-sales-total">₦0.00</div>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-primaryPurple/20 text-brightPurple font-bold">This Week</span>
             </div>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
-              <i class="ph-bold ph-storefront text-primaryPurple"></i>
-              <span class="text-textMuted">Branch</span>
-              <span class="font-bold text-white">Main</span>
+            <div style="height:220px;position:relative">
+              <canvas id="salesOverviewChart"></canvas>
             </div>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
-              <i class="ph-bold ph-crown text-warningYellow"></i>
-              <span class="text-textMuted">Plan</span>
-              <span class="font-bold text-warningYellow" id="pill-plan">Trial</span>
+          </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4 flex flex-col">
+            <div class="text-sm font-bold text-white mb-3">Business Health</div>
+            <div class="flex items-center gap-4 flex-1">
+              <div class="health-ring" id="health-ring">
+                <div class="health-ring-inner">
+                  <div class="text-xl font-extrabold text-white" id="health-pct">100%</div>
+                  <div class="text-[9px] text-textMuted">Score</div>
+                </div>
+              </div>
+              <div class="space-y-2 text-xs flex-1">
+                <div class="flex justify-between"><span class="text-textMuted">Debt</span><span class="font-bold text-white" id="health-debt">Clear</span></div>
+                <div class="flex justify-between"><span class="text-textMuted">Stock</span><span class="font-bold text-white" id="health-stock">Healthy</span></div>
+                <div class="flex justify-between"><span class="text-textMuted">Expenses</span><span class="font-bold text-white" id="health-exp">₦0</span></div>
+              </div>
             </div>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card border border-borderSubtle text-xs">
-              <i class="ph-bold ph-calendar text-cyanAccent"></i>
-              <span class="text-textMuted">Renewal</span>
-              <span class="font-bold text-white" id="pill-renew">—</span>
+            <div class="grid grid-cols-3 gap-2 mt-3 text-center text-[10px]">
+              <div class="p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="text-textMuted">Sales</div><div class="font-bold text-white" id="sum-sales">₦0</div></div>
+              <div class="p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="text-textMuted">Expenses</div><div class="font-bold text-white" id="sum-exp">₦0</div></div>
+              <div class="p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="text-textMuted">Net</div><div class="font-bold text-brightGreen" id="sum-net">₦0</div></div>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
-          <div class="xl:col-span-9 space-y-4">
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              <a href="transactions.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
-                <div class="flex items-center justify-between mb-1.5">
-                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Total Sales (Today)</span>
-                  <div class="w-6 h-6 rounded-lg bg-primaryPurple/15 flex items-center justify-center text-primaryPurple"><i class="ph-bold ph-shopping-cart text-xs"></i></div>
-                </div>
-                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-sales">₦0</div>
-                <div class="text-[10px] text-brightGreen mt-0.5">Live</div>
-                <div class="h-7 mt-1.5"><canvas id="kpiSalesChart"></canvas></div>
-              </a>
-              <div class="p-3.5 rounded-xl bg-card border border-borderSubtle shadow-cardGlow">
-                <div class="flex items-center justify-between mb-1.5">
-                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Total Profit (Today)</span>
-                  <div class="w-6 h-6 rounded-lg bg-positiveGreen/15 flex items-center justify-center text-positiveGreen"><i class="ph-bold ph-wallet text-xs"></i></div>
-                </div>
-                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-profit">₦0</div>
-                <div class="text-[10px] text-brightGreen mt-0.5">Live</div>
-                <div class="h-7 mt-1.5"><canvas id="kpiProfitChart"></canvas></div>
-              </div>
-              <a href="transactions.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
-                <div class="flex items-center justify-between mb-1.5">
-                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Transactions</span>
-                  <div class="w-6 h-6 rounded-lg bg-electricBlue/15 flex items-center justify-center text-electricBlue"><i class="ph-bold ph-receipt text-xs"></i></div>
-                </div>
-                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-trx">0</div>
-                <div class="text-[10px] text-textMuted mt-0.5">Today</div>
-                <div class="h-7 mt-1.5"><canvas id="kpiTransactionsChart"></canvas></div>
-              </a>
-              <a href="debtors.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
-                <div class="flex items-center justify-between mb-1.5">
-                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Outstanding Debt</span>
-                  <div class="w-6 h-6 rounded-lg bg-dangerRed/15 flex items-center justify-center text-dangerRed"><i class="ph-bold ph-warning-circle text-xs"></i></div>
-                </div>
-                <div class="text-xl font-extrabold text-dangerRed tracking-tight" id="kpi-debt">₦0</div>
-                <div class="text-[10px] text-textMuted mt-0.5" id="kpi-debt-count">0 Customers</div>
-                <div class="h-7 mt-1.5"><canvas id="kpiDebtChart"></canvas></div>
-              </a>
-              <a href="inventory.html" class="p-3.5 rounded-xl bg-card border border-borderSubtle hover:border-borderHover shadow-cardGlow block">
-                <div class="flex items-center justify-between mb-1.5">
-                  <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Low Stock Alerts</span>
-                  <div class="w-6 h-6 rounded-lg bg-warningYellow/15 flex items-center justify-center text-warningYellow"><i class="ph-bold ph-package text-xs"></i></div>
-                </div>
-                <div class="text-xl font-extrabold text-warningYellow tracking-tight" id="kpi-low">0 Items</div>
-                <div class="text-[10px] text-textMuted mt-0.5">Need attention</div>
-                <div class="h-7 mt-1.5"><canvas id="kpiLowChart"></canvas></div>
-              </a>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              <div class="lg:col-span-7 p-4 rounded-xl bg-card border border-borderSubtle">
-                <div class="flex items-center justify-between mb-2">
-                  <div>
-                    <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Sales Overview</h3>
-                    <div class="flex items-baseline gap-2 mt-0.5">
-                      <span class="text-xl font-extrabold text-white" id="week-sales-total">₦0</span>
-                      <span class="text-[10px] font-bold text-brightGreen">This week</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="h-44 w-full"><canvas id="salesOverviewChart"></canvas></div>
-              </div>
-              <!-- BUSINESS HEALTH (replaces Sales by Category) -->
-              <div class="lg:col-span-5 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
-                <div class="flex items-center justify-between mb-3">
-                  <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Business Health</h3>
-                  <span class="text-[10px] text-primaryPurple font-medium">Live score</span>
-                </div>
-                <div class="flex items-center gap-4 flex-1">
-                  <div class="health-ring" id="health-ring">
-                    <div class="health-ring-inner">
-                      <span class="text-lg font-extrabold text-white" id="health-ring-value">—%</span>
-                      <span class="text-[8px] text-textMuted">Score</span>
-                    </div>
-                  </div>
-                  <div class="flex-1 space-y-2 text-[11px]">
-                    <div class="flex justify-between gap-2"><span class="text-textMuted">Debt pressure</span><span class="font-mono text-white" id="health-debt">—</span></div>
-                    <div class="flex justify-between gap-2"><span class="text-textMuted">Low stock</span><span class="font-mono text-white" id="health-stock">—</span></div>
-                    <div class="flex justify-between gap-2"><span class="text-textMuted">Expense load</span><span class="font-mono text-white" id="health-exp">—</span></div>
-                    <div class="flex justify-between gap-2 pt-1 border-t border-borderSubtle"><span class="text-textMuted">Overall</span><span class="font-bold text-brightGreen" id="health-overall">—</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <!-- LISTS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-xs font-bold text-white mb-2">Top Products</div>
+            <div id="top-products" class="space-y-2"><div class="text-xs text-textMuted text-center py-3">—</div></div>
           </div>
-
-          <div class="xl:col-span-3">
-            <div class="p-4 rounded-xl bg-card border border-primaryPurple/35 shadow-purpleGlow flex flex-col h-full relative overflow-hidden">
-              <div class="absolute -right-10 -top-10 w-32 h-32 bg-primaryPurple/20 rounded-full blur-2xl"></div>
-              <div class="flex items-center justify-between mb-3 border-b border-borderSubtle pb-2 relative z-10">
-                <div class="flex items-center gap-2">
-                  <i class="ph-bold ph-robot text-primaryPurple text-base"></i>
-                  <h3 class="text-xs font-extrabold uppercase tracking-wider text-white">AI CEO Assistant</h3>
-                </div>
-                <span class="flex items-center gap-1 text-[10px] text-brightGreen font-bold bg-positiveGreen/10 px-2 py-0.5 rounded-full border border-positiveGreen/20">
-                  <span class="w-1.5 h-1.5 rounded-full bg-brightGreen animate-pulse"></span> Online
-                </span>
-              </div>
-              <div class="ai-avatar-wrap relative z-10 mb-3">
-                <img src="https://i.imgur.com/EQVRlAw_d.webp?maxwidth=760&fidelity=grand" alt="AI CEO" loading="eager">
-                <div class="absolute bottom-2 left-3 right-3 z-10">
-                  <div class="text-sm font-extrabold text-white" id="ai-hello">Hello!</div>
-                  <div class="text-[10px] text-textMuted">I have analyzed your business today.</div>
-                </div>
-              </div>
-              <div class="space-y-2 mb-3 relative z-10 flex-1" id="ai-insights">
-                <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textMuted">Loading insights…</div>
-              </div>
-              <a href="ai-ceo.html" class="relative z-10 w-full py-2.5 px-4 bg-gradient-to-r from-primaryPurple via-brightPurple to-electricBlue text-white font-bold text-xs rounded-xl shadow-purpleGlow flex items-center justify-center gap-2 hover:opacity-95">
-                <i class="ph-bold ph-chat-teardrop-dots text-sm"></i><span>Chat with AI CEO</span>
-              </a>
-            </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-xs font-bold text-white mb-2">Low Stock</div>
+            <div id="low-stock-list" class="space-y-2"><div class="text-xs text-textMuted text-center py-3">—</div></div>
+          </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-xs font-bold text-white mb-2">Top Debtors</div>
+            <div id="top-debtors" class="space-y-2"><div class="text-xs text-textMuted text-center py-3">—</div></div>
+          </div>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-xs font-bold text-white mb-2">Recent Transactions</div>
+            <div id="recent-trx" class="space-y-2"><div class="text-xs text-textMuted text-center py-3">—</div></div>
           </div>
         </div>
 
-        <div class="p-4 rounded-xl bg-card border border-borderSubtle">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Live Business Activities</h3>
-              <span class="w-2 h-2 rounded-full bg-dangerRed animate-ping"></span>
-            </div>
-            <span class="px-2 py-0.5 text-[9px] font-extrabold bg-dangerRed/20 text-dangerRed rounded uppercase">Live</span>
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-xs font-bold text-white mb-2">Live Activities</div>
+            <div id="live-activities" class="grid grid-cols-1 sm:grid-cols-2 gap-2"><div class="text-xs text-textMuted text-center py-3">—</div></div>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5" id="live-activities">
-            <div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textMuted col-span-full text-center py-3">Loading…</div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-2">
-            <div class="flex items-center justify-between">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Top Selling Products</h3>
-              <a href="inventory.html" class="text-[10px] text-primaryPurple">View</a>
-            </div>
-            <div class="space-y-2" id="top-products"><div class="text-xs text-textMuted text-center py-3">No sales data yet</div></div>
-          </div>
-          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-2">
-            <div class="flex items-center justify-between">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Low Stock Items</h3>
-              <a href="inventory.html" class="text-[10px] text-primaryPurple">View All</a>
-            </div>
-            <div class="space-y-2" id="low-stock-list"><div class="text-xs text-textMuted text-center py-3">All stock healthy</div></div>
-          </div>
-          <div class="p-4 rounded-xl bg-card border border-borderSubtle space-y-2">
-            <div class="flex items-center justify-between">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Top Debtors</h3>
-              <a href="debtors.html" class="text-[10px] text-primaryPurple">View All</a>
-            </div>
-            <div class="space-y-2" id="top-debtors"><div class="text-xs text-textMuted text-center py-3">No outstanding debt</div></div>
-          </div>
-          <div class="space-y-3">
-            <div class="p-4 rounded-xl bg-card border border-borderSubtle">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted mb-2">Quick Actions</h3>
-              <div class="grid grid-cols-4 gap-2">
-                <a href="pos.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-shopping-cart text-sm"></i>Sale</a>
-                <a href="inventory.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-plus-circle text-sm"></i>Product</a>
-                <a href="invoice.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-file-text text-sm"></i>Invoice</a>
-                <a href="inventory.html#price-list" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-list-numbers text-sm"></i>Price List</a>
-                <a href="debtors.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-hand-coins text-sm"></i>Debt</a>
-                <a href="expenses.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-receipt text-sm"></i>Expense</a>
-                <a href="marketing.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-whatsapp-logo text-sm"></i>WhatsApp</a>
-                <a href="accounting.html" class="p-2 rounded-lg bg-cardElevated border border-borderSubtle hover:border-primaryPurple text-textSecondary hover:text-brightPurple flex flex-col items-center gap-1 text-[10px]"><i class="ph-bold ph-calculator text-sm"></i>Accounts</a>
+          <div class="rounded-xl bg-card border border-borderSubtle p-4">
+            <div class="text-xs font-bold text-white mb-2">AI Insights</div>
+            <div id="ai-insights" class="space-y-2"><div class="text-xs text-textMuted text-center py-3">—</div></div>
+            <div class="mt-3 p-3 rounded-lg bg-cardElevated border border-borderSubtle flex items-center justify-between">
+              <div>
+                <div class="text-[10px] text-textMuted">Trend vs previous day</div>
+                <div class="text-sm font-extrabold text-white" id="ai-pred">+0.0%</div>
+                <div class="text-[10px] text-textMuted" id="ai-pred-sub">—</div>
               </div>
-            </div>
-            <div class="p-3.5 rounded-xl bg-card border border-borderSubtle space-y-1.5">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted mb-1">Today's Summary</h3>
-              <div class="flex justify-between text-xs"><span class="text-textMuted">Sales</span><span class="font-mono font-bold text-brightGreen" id="sum-sales">₦0</span></div>
-              <div class="flex justify-between text-xs"><span class="text-textMuted">Expenses</span><span class="font-mono font-bold text-dangerRed" id="sum-exp">₦0</span></div>
-              <div class="flex justify-between text-xs pt-1 border-t border-borderSubtle"><span class="text-white font-bold">Net Profit</span><span class="font-mono font-extrabold text-brightGreen" id="sum-net">₦0</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 pb-4">
-          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-borderSubtle space-y-3">
-            <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Branch Performance</h3>
-            <div>
-              <div class="flex justify-between text-xs mb-1"><span class="text-white font-medium">Main Branch</span><span class="font-mono text-textMuted" id="branch-main">—</span></div>
-              <div class="w-full bg-borderSubtle h-2 rounded-full overflow-hidden"><div id="branch-bar" class="bg-gradient-to-r from-primaryPurple to-cyanAccent h-full rounded-full" style="width:100%"></div></div>
-            </div>
-            <p class="text-[10px] text-textMuted">Single-branch mode. Use Multi-Branch when ready.</p>
-          </div>
-          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-primaryPurple/30 flex flex-col justify-between relative overflow-hidden">
-            <div>
-              <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-brightPurple mb-1"><i class="ph-bold ph-trend-up"></i>AI Prediction</div>
-              <p class="text-xs text-textMuted">Your sales trend this week</p>
-              <div class="text-2xl font-extrabold text-white my-1" id="ai-pred">—</div>
-              <p class="text-[10px] text-textMuted" id="ai-pred-sub">Based on live data</p>
-            </div>
-            <div class="h-12 w-full my-2"><canvas id="aiPredictionChart"></canvas></div>
-            <a href="ai-ceo.html" class="block text-center w-full py-1.5 bg-primaryPurple/20 hover:bg-primaryPurple/30 border border-primaryPurple/40 text-brightPurple text-xs font-bold rounded-lg">View Full Analysis</a>
-          </div>
-          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Recent Transactions</h3>
-              <a href="transactions.html" class="text-[10px] text-primaryPurple">View All</a>
-            </div>
-            <div class="space-y-2 flex-1" id="recent-trx"><div class="text-xs text-textMuted text-center py-3">No transactions yet</div></div>
-          </div>
-          <div class="lg:col-span-3 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Notifications</h3>
-              <a href="notifications.html" class="text-[10px] text-primaryPurple">View All</a>
-            </div>
-            <div class="space-y-2 flex-1 text-xs" id="notif-list">
-              <div class="flex items-start gap-2 p-2 rounded-lg bg-cardElevated border border-borderSubtle">
-                <i class="ph-bold ph-check-circle text-brightGreen mt-0.5"></i>
-                <div><div class="font-medium text-white">Cloud Backup Synced</div><div class="text-[10px] text-textMuted">Connected to Supabase</div></div>
-              </div>
-            </div>
-            <div class="mt-2 pt-2 border-t border-borderSubtle text-[10px] text-textMuted flex justify-between">
-              <span class="flex items-center gap-1"><i class="ph-bold ph-check-circle text-brightGreen"></i> Live</span>
-              <span id="last-sync">Just now</span>
+              <canvas id="predChart" width="120" height="48"></canvas>
             </div>
           </div>
         </div>
@@ -539,60 +386,44 @@
   </div>
 
   <script>
+    /* ===== PART 2 — paste full JS here ===== */
+  </script>
+</body>
+</html>
+
+ <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
-    const LOW_STOCK_UNITS = 3;
+
     const CACHE_KEY = "quantum_desktop_cache_v2";
+    const LOW_STOCK_UNITS = 3;
 
     let userCompanyId = null;
-    let companyDetails = null;
-    let salesChart = null;
-    let predChart = null;
-    let sparkCharts = {};
+    let companyData = null;
+    let currentUser = null;
+    let appReady = false;
     let isRefreshing = false;
     let liveChannel = null;
-    let appReady = false;
+    let salesChart = null;
+    let predChart = null;
+    const sparkCharts = {};
 
-    function getSavedTheme() {
-      return localStorage.getItem("quantum_theme") || "night";
+    function $(id) { return document.getElementById(id); }
+    function setText(id, val) {
+      const el = $(id);
+      if (el) el.textContent = val == null || val === "" ? "—" : val;
     }
-    function resolveTheme(pref) {
-      if (pref === "system") {
-        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night";
-      }
-      return pref === "day" ? "day" : "night";
-    }
-    function applyTheme(pref) {
-      const resolved = resolveTheme(pref || getSavedTheme());
-      document.body.classList.remove("theme-day", "theme-night");
-      document.body.classList.add(resolved === "day" ? "theme-day" : "theme-night");
-      document.documentElement.classList.toggle("dark", resolved !== "day");
-      try {
-        document.querySelector('meta[name="theme-color"]').setAttribute("content", resolved === "day" ? "#F4F6FB" : "#050812");
-      } catch (e) {}
-      const icon = document.getElementById("theme-toggle-icon");
-      if (icon) {
-        icon.className = resolved === "day" ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
-      }
-    }
-    function toggleTheme() {
-      const cur = resolveTheme(getSavedTheme());
-      const next = cur === "day" ? "night" : "day";
-      localStorage.setItem("quantum_theme", next);
-      applyTheme(next);
-    }
-
     function formatCurrency(n) {
-      return "₦" + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+      return "₦" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    function parseMoney(value) {
-      if (value == null || value === "") return 0;
-      if (typeof value === "number") return isNaN(value) ? 0 : value;
-      const amount = parseFloat(String(value).replace(/[₦$,\s]/g, ""));
-      return isNaN(amount) ? 0 : amount;
+    function parseMoney(v) {
+      if (v == null || v === "") return 0;
+      if (typeof v === "number") return isNaN(v) ? 0 : v;
+      const n = parseFloat(String(v).replace(/[₦$,\s]/g, ""));
+      return isNaN(n) ? 0 : n;
     }
     function saleAmount(s) {
       return parseMoney(s.total_amount != null ? s.total_amount : s.total);
@@ -601,56 +432,211 @@
       return parseMoney(s.profit != null ? s.profit : s.total_profit);
     }
     function startOfToday() {
-      const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString();
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      return d.toISOString();
     }
     function startOfWeek() {
       const d = new Date();
       const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d.setDate(diff));
-      monday.setHours(0, 0, 0, 0);
-      return monday.toISOString();
+      const diff = day === 0 ? 6 : day - 1;
+      d.setDate(d.getDate() - diff);
+      d.setHours(0, 0, 0, 0);
+      return d.toISOString();
     }
-    function setText(id, val) {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    }
-    function greetingWord() {
+    function getGreeting() {
       const h = new Date().getHours();
       if (h < 12) return "Good morning";
       if (h < 17) return "Good afternoon";
       return "Good evening";
     }
 
+    /* ===== THEME (no flash) ===== */
+    function getSavedTheme() {
+      try { return localStorage.getItem("quantum_theme") || "system"; } catch (e) { return "system"; }
+    }
+    function applyTheme(theme) {
+      const t = theme || getSavedTheme();
+      const preferLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+      const isDay = t === "day" || (t === "system" && preferLight);
+      document.body.classList.toggle("theme-day", isDay);
+      document.documentElement.classList.toggle("dark", !isDay);
+      const icon = $("theme-toggle-icon");
+      if (icon) {
+        icon.className = isDay ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      }
+    }
+    function toggleTheme() {
+      const cur = getSavedTheme();
+      let next = "day";
+      if (cur === "day") next = "night";
+      else if (cur === "night") next = "system";
+      else next = "day";
+      try { localStorage.setItem("quantum_theme", next); } catch (e) {}
+      applyTheme(next);
+    }
+
+    /* ===== CLOCK ===== */
     function tickClock() {
+      const now = new Date();
+      const dateEl = $("clock-date");
+      const timeEl = $("clock-time");
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString("en-GB", {
+          weekday: "short", day: "numeric", month: "short"
+        });
+      }
+      if (timeEl) {
+        timeEl.textContent = now.toLocaleTimeString("en-GB", {
+          hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+        });
+      }
+    }
+
+    /* ===== CACHE ===== */
+    function loadCache() {
       try {
-        const now = new Date();
-        const lagos = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Lagos" }));
-        const dateStr = lagos.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
-        let h = lagos.getHours();
-        const m = String(lagos.getMinutes()).padStart(2, "0");
-        const s = String(lagos.getSeconds()).padStart(2, "0");
-        const ampm = h >= 12 ? "PM" : "AM";
-        h = h % 12 || 12;
-        setText("clock-date", dateStr);
-        setText("clock-time", String(h).padStart(2, "0") + ":" + m + ":" + s + " " + ampm);
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) { return null; }
+    }
+    function saveCache(data) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(Object.assign({ savedAt: Date.now() }, data)));
       } catch (e) {}
     }
-    setInterval(tickClock, 1000);
-    tickClock();
+    function paintCache() {
+      const c = loadCache();
+      if (!c) {
+        setText("kpi-sales", "₦0.00");
+        setText("kpi-profit", "₦0.00");
+        setText("kpi-trx", "0");
+        setText("kpi-debt", "₦0.00");
+        setText("kpi-debt-count", "0 Customers");
+        setText("kpi-low", "0 Items");
+        setText("week-sales-total", "₦0.00");
+        setText("sum-sales", "₦0");
+        setText("sum-exp", "₦0");
+        setText("sum-net", "₦0");
+        setText("health-pct", "100%");
+        return;
+      }
+      setText("kpi-sales", formatCurrency(c.sales));
+      setText("kpi-profit", formatCurrency(c.profit));
+      setText("kpi-trx", String(c.trx || 0));
+      setText("kpi-debt", formatCurrency(c.debt));
+      setText("kpi-debt-count", (c.debtCount || 0) + " Customers");
+      setText("kpi-low", (c.low || 0) + " Items");
+      setText("week-sales-total", formatCurrency(c.weekTotal));
+      setText("sum-sales", formatCurrency(c.sales));
+      setText("sum-exp", formatCurrency(c.exp));
+      setText("sum-net", formatCurrency(c.net));
+      setText("health-pct", (c.health || 100) + "%");
+      setText("health-debt", c.healthDebt || "Clear");
+      setText("health-stock", c.healthStock || "Healthy");
+      setText("health-exp", c.healthExp || "₦0");
+      updateHealthRing(c.health || 100);
 
-    Chart.defaults.color = "#68718A";
-    Chart.defaults.font.family = "Plus Jakarta Sans";
-    Chart.defaults.animation = false;
+      if (c.chartLabels && c.chartValues) {
+        renderSalesChart(c.chartLabels, c.chartValues);
+        createSparkline("kpiSalesChart", "#8B5CFF", c.chartValues);
+        createSparkline("kpiProfitChart", "#31D17C", c.chartValues.map(function (v) { return v * 0.25; }));
+        createSparkline("kpiTransactionsChart", "#536DFF", c.chartValues.map(function (v) { return Math.min(v / 500, 30); }));
+        createSparkline("kpiDebtChart", "#FF4F67", [
+          (c.debt || 0) * 0.3, (c.debt || 0) * 0.4, (c.debt || 0) * 0.35,
+          (c.debt || 0) * 0.5, (c.debt || 0) * 0.45, (c.debt || 0) * 0.6, c.debt || 0
+        ]);
+        createSparkline("kpiLowChart", "#F5C451", [
+          c.low || 0, (c.low || 0) + 1, c.low || 0, (c.low || 0) + 2, c.low || 0, (c.low || 0) + 1, c.low || 0
+        ]);
+        renderPredChart(c.chartValues);
+      }
+      if (c.topProductsHtml && $("top-products")) $("top-products").innerHTML = c.topProductsHtml;
+      if (c.lowStockHtml && $("low-stock-list")) $("low-stock-list").innerHTML = c.lowStockHtml;
+      if (c.debtorsHtml && $("top-debtors")) $("top-debtors").innerHTML = c.debtorsHtml;
+      if (c.recentHtml && $("recent-trx")) $("recent-trx").innerHTML = c.recentHtml;
+      if (c.activitiesHtml && $("live-activities")) $("live-activities").innerHTML = c.activitiesHtml;
+      if (c.insightsHtml && $("ai-insights")) $("ai-insights").innerHTML = c.insightsHtml;
+    }
 
-    function createSparkline(id, color, data) {
-      const el = document.getElementById(id);
-      if (!el) return;
+    /* ===== CHARTS (fast, no animation) ===== */
+    function renderSalesChart(labels, values) {
+      const canvas = $("salesOverviewChart");
+      if (!canvas) return;
       try {
-        if (sparkCharts[id]) { try { sparkCharts[id].destroy(); } catch (e) {} }
-        sparkCharts[id] = new Chart(el.getContext("2d"), {
+        if (salesChart) {
+          try { salesChart.destroy(); } catch (e) {}
+          salesChart = null;
+        }
+        const ctx = canvas.getContext("2d");
+        const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+        gradient.addColorStop(0, "rgba(139,92,255,0.35)");
+        gradient.addColorStop(1, "rgba(139,92,255,0.02)");
+        salesChart = new Chart(ctx, {
           type: "line",
-          data: { labels: data.map(function (_, i) { return i; }), datasets: [{ data: data, borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0.4, fill: false }] },
+          data: {
+            labels: labels || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [{
+              data: values || [0, 0, 0, 0, 0, 0, 0],
+              borderColor: "#8B5CFF",
+              backgroundColor: gradient,
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 3,
+              pointBackgroundColor: "#8B5CFF"
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { color: "#68718A", font: { size: 10 } }
+              },
+              y: {
+                grid: { color: "rgba(26,32,53,0.8)" },
+                ticks: {
+                  color: "#68718A",
+                  font: { size: 10 },
+                  callback: function (v) {
+                    if (v >= 1000000) return "₦" + (v / 1000000).toFixed(1) + "M";
+                    if (v >= 1000) return "₦" + (v / 1000).toFixed(0) + "k";
+                    return "₦" + v;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (e) {
+        console.error("chart", e);
+      }
+    }
+
+    function createSparkline(canvasId, color, data) {
+      const canvas = $(canvasId);
+      if (!canvas) return;
+      try {
+        if (sparkCharts[canvasId]) {
+          try { sparkCharts[canvasId].destroy(); } catch (e) {}
+        }
+        sparkCharts[canvasId] = new Chart(canvas.getContext("2d"), {
+          type: "line",
+          data: {
+            labels: data.map(function (_, i) { return i; }),
+            datasets: [{
+              data: data,
+              borderColor: color,
+              backgroundColor: "transparent",
+              borderWidth: 1.5,
+              tension: 0.4,
+              pointRadius: 0
+            }]
+          },
           options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -662,203 +648,87 @@
       } catch (e) {}
     }
 
-    function renderSalesChart(labels, values) {
-      const el = document.getElementById("salesOverviewChart");
-      if (!el) return;
-      try {
-        if (salesChart) { try { salesChart.destroy(); } catch (e) {} salesChart = null; }
-        const ctx = el.getContext("2d");
-        const grad = ctx.createLinearGradient(0, 0, 0, 180);
-        grad.addColorStop(0, "rgba(124,77,255,0.35)");
-        grad.addColorStop(1, "rgba(124,77,255,0)");
-        salesChart = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: labels,
-            datasets: [{
-              data: values,
-              borderColor: "#8B5CFF",
-              borderWidth: 3,
-              backgroundColor: grad,
-              fill: true,
-              tension: 0.4,
-              pointBackgroundColor: "#8B5CFF",
-              pointBorderColor: "#fff",
-              pointRadius: 3
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { grid: { display: false }, ticks: { color: "#68718A", font: { size: 10 } } },
-              y: { grid: { color: "#1A2035" }, ticks: { color: "#68718A", font: { size: 10 } } }
-            }
-          }
-        });
-      } catch (e) {}
-    }
-
     function renderPredChart(values) {
-      const el = document.getElementById("aiPredictionChart");
-      if (!el) return;
+      const canvas = $("predChart");
+      if (!canvas) return;
       try {
-        if (predChart) { try { predChart.destroy(); } catch (e) {} predChart = null; }
-        predChart = new Chart(el.getContext("2d"), {
+        if (predChart) {
+          try { predChart.destroy(); } catch (e) {}
+          predChart = null;
+        }
+        predChart = new Chart(canvas.getContext("2d"), {
           type: "line",
           data: {
             labels: values.map(function (_, i) { return i; }),
-            datasets: [{ data: values, borderColor: "#4C9AFF", borderWidth: 2, borderDash: [4, 3], pointRadius: 0, tension: 0.4 }]
+            datasets: [{
+              data: values,
+              borderColor: "#8B5CFF",
+              backgroundColor: "rgba(139,92,255,0.15)",
+              borderWidth: 1.5,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0
+            }]
           },
           options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: false,
             animation: false,
-            plugins: { legend: { display: false } },
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
             scales: { x: { display: false }, y: { display: false } }
           }
         });
       } catch (e) {}
     }
 
-    function updateHealthRing(score) {
-      const ring = document.getElementById("health-ring");
-      const val = document.getElementById("health-ring-value");
-      if (val) val.textContent = score + "%";
+    function updateHealthRing(pct) {
+      const ring = $("health-ring");
+      const el = $("health-pct");
+      if (el) el.textContent = Math.round(pct) + "%";
       if (ring) {
-        const deg = Math.max(0, Math.min(100, score)) * 3.6;
-        let color = "#31D17C";
-        if (score < 50) color = "#FF4F67";
-        else if (score < 75) color = "#F5C451";
+        const deg = Math.max(0, Math.min(100, pct)) * 3.6;
+        const color = pct >= 70 ? "#31D17C" : pct >= 40 ? "#F5C451" : "#FF4F67";
         ring.style.background = "conic-gradient(" + color + " " + deg + "deg, #1A2035 " + deg + "deg)";
       }
-      setText("pill-health", score + "%");
-      setText("health-overall", score >= 80 ? "Excellent" : score >= 60 ? "Good" : score >= 40 ? "Fair" : "Needs attention");
     }
 
-    function saveCache(p) {
-      try {
-        if (userCompanyId) {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(Object.assign({ companyId: userCompanyId, ts: Date.now() }, p)));
-        }
-      } catch (e) {}
-    }
-    function loadCache() {
-      try {
-        const r = localStorage.getItem(CACHE_KEY);
-        return r ? JSON.parse(r) : null;
-      } catch (e) { return null; }
-    }
-    function paintCache() {
-      const c = loadCache();
-      if (!c) return;
-      if (c.sales != null) setText("kpi-sales", formatCurrency(c.sales));
-      if (c.profit != null) setText("kpi-profit", formatCurrency(c.profit));
-      if (c.trx != null) setText("kpi-trx", String(c.trx));
-      if (c.debt != null) setText("kpi-debt", formatCurrency(c.debt));
-      if (c.debtCount != null) setText("kpi-debt-count", c.debtCount + " Customers");
-      if (c.low != null) setText("kpi-low", c.low + " Items");
-      if (c.weekTotal != null) setText("week-sales-total", formatCurrency(c.weekTotal));
-      if (c.exp != null) setText("sum-exp", formatCurrency(c.exp));
-      if (c.sales != null) setText("sum-sales", formatCurrency(c.sales));
-      if (c.net != null) setText("sum-net", formatCurrency(c.net));
-      if (c.health != null) updateHealthRing(c.health);
-      if (c.healthDebt) setText("health-debt", c.healthDebt);
-      if (c.healthStock) setText("health-stock", c.healthStock);
-      if (c.healthExp) setText("health-exp", c.healthExp);
-      if (c.chartLabels && c.chartValues) renderSalesChart(c.chartLabels, c.chartValues);
-      if (c.chartValues) {
-        createSparkline("kpiSalesChart", "#8B5CFF", c.chartValues);
-        createSparkline("kpiProfitChart", "#31D17C", c.chartValues.map(function (v) { return v * 0.25; }));
+    /* ===== COMPANY ===== */
+    async function resolveCompany(user) {
+      const { data: member, error } = await supabaseClient
+        .from("company_users")
+        .select("company_id, role, companies(*)")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (member && member.company_id) {
+        userCompanyId = member.company_id;
+        companyData = member.companies || null;
+        return;
       }
-      if (c.topProductsHtml) {
-        const el = document.getElementById("top-products");
-        if (el) el.innerHTML = c.topProductsHtml;
-      }
-      if (c.lowStockHtml) {
-        const el = document.getElementById("low-stock-list");
-        if (el) el.innerHTML = c.lowStockHtml;
-      }
-      if (c.debtorsHtml) {
-        const el = document.getElementById("top-debtors");
-        if (el) el.innerHTML = c.debtorsHtml;
-      }
-      if (c.recentHtml) {
-        const el = document.getElementById("recent-trx");
-        if (el) el.innerHTML = c.recentHtml;
-      }
-      if (c.activitiesHtml) {
-        const el = document.getElementById("live-activities");
-        if (el) el.innerHTML = c.activitiesHtml;
-      }
-      if (c.insightsHtml) {
-        const el = document.getElementById("ai-insights");
-        if (el) el.innerHTML = c.insightsHtml;
-      }
+      const name = (user.user_metadata && user.user_metadata.full_name) || (user.email || "My Shop").split("@")[0];
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + 14);
+      const { data: newCo, error: cErr } = await supabaseClient
+        .from("companies")
+        .insert([{
+          owner_id: user.id,
+          company_name: name,
+          subscription_status: "trial",
+          trial_ends_at: trialEnd.toISOString(),
+          plan: "monthly"
+        }])
+        .select("*")
+        .single();
+      if (cErr) throw cErr;
+      await supabaseClient.from("company_users").insert([{
+        company_id: newCo.id,
+        user_id: user.id,
+        role: "owner"
+      }]);
+      userCompanyId = newCo.id;
+      companyData = newCo;
     }
 
-    async function init() {
-      applyTheme(getSavedTheme());
-      paintCache();
-      try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (!session || !session.user) {
-          window.location.replace("index.html");
-          return;
-        }
-        const user = session.user;
-        const metaName = (user.user_metadata && user.user_metadata.full_name) || (user.email || "").split("@")[0] || "Owner";
-        setText("header-user-name", metaName);
-        setText("greet-name", metaName.split(" ")[0]);
-        setText("greeting-text", greetingWord());
-        setText("ai-hello", "Hello " + metaName.split(" ")[0] + "!");
-        setText("avatar-initials", metaName.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase() || "Q");
-
-        const { data: member } = await supabaseClient
-          .from("company_users")
-          .select("company_id, companies(id, company_name, subscription_status, trial_ends_at, plan)")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (member && member.company_id) {
-          userCompanyId = member.company_id;
-          companyDetails = member.companies || {};
-        } else {
-          const { data: owned } = await supabaseClient
-            .from("companies")
-            .select("id, company_name, subscription_status, trial_ends_at, plan")
-            .eq("owner_id", user.id)
-            .maybeSingle();
-          if (owned) {
-            userCompanyId = owned.id;
-            companyDetails = owned;
-          }
-        }
-
-        if (!userCompanyId) {
-          setText("greet-company", "your business");
-          appReady = true;
-          return;
-        }
-
-        setText("greet-company", companyDetails.company_name || "your business");
-        const status = (companyDetails.subscription_status || "trial").toLowerCase();
-        setText("pill-plan", status === "trial" ? "Trial" : (companyDetails.plan || status || "Elite"));
-        if (companyDetails.trial_ends_at) {
-          setText("pill-renew", new Date(companyDetails.trial_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }));
-        }
-
-        appReady = true;
-        await refreshAll();
-        subscribeRealtime();
-      } catch (err) {
-        console.error(err);
-        appReady = true;
-      }
-    }
-
+    /* ===== DATA ===== */
     async function refreshAll() {
       if (!userCompanyId || isRefreshing) return;
       isRefreshing = true;
@@ -867,11 +737,35 @@
         const weekIso = startOfWeek();
 
         const [salesRes, productsRes, debtorsRes, expensesRes, notifRes] = await Promise.all([
-          supabaseClient.from("sales").select("id, total, total_amount, profit, total_profit, payment_method, customer_name, items, created_at").eq("company_id", userCompanyId).gte("created_at", weekIso).order("created_at", { ascending: false }).limit(500),
-          supabaseClient.from("products").select("id, name, stock, items_per_pack, selling_price").eq("company_id", userCompanyId).limit(400),
-          supabaseClient.from("debtors").select("id, customer_name, amount_owing, status, due_date, created_at").eq("company_id", userCompanyId).limit(200),
-          supabaseClient.from("expenses").select("id, amount, category, created_at").eq("company_id", userCompanyId).gte("created_at", todayIso).limit(100),
-          supabaseClient.from("notifications").select("id, title, message, created_at, is_read").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(5)
+          supabaseClient
+            .from("sales")
+            .select("id, total, total_amount, profit, total_profit, payment_method, customer_name, items, created_at")
+            .eq("company_id", userCompanyId)
+            .gte("created_at", weekIso)
+            .order("created_at", { ascending: false })
+            .limit(500),
+          supabaseClient
+            .from("products")
+            .select("id, name, stock, items_per_pack, selling_price")
+            .eq("company_id", userCompanyId)
+            .limit(400),
+          supabaseClient
+            .from("debtors")
+            .select("id, customer_name, amount_owing, status, due_date, created_at")
+            .eq("company_id", userCompanyId)
+            .limit(200),
+          supabaseClient
+            .from("expenses")
+            .select("id, amount, category, created_at")
+            .eq("company_id", userCompanyId)
+            .gte("created_at", todayIso)
+            .limit(100),
+          supabaseClient
+            .from("notifications")
+            .select("id, title, message, created_at, is_read")
+            .eq("company_id", userCompanyId)
+            .order("created_at", { ascending: false })
+            .limit(5)
         ]);
 
         const weekSales = salesRes.data || [];
@@ -880,7 +774,9 @@
         const expenses = expensesRes.data || [];
         const notifs = notifRes.data || [];
 
-        const todaySales = weekSales.filter(function (s) { return s.created_at >= todayIso; });
+        const todaySales = weekSales.filter(function (s) {
+          return s.created_at >= todayIso;
+        });
         const salesToday = todaySales.reduce(function (a, s) { return a + saleAmount(s); }, 0);
         const profitToday = todaySales.reduce(function (a, s) { return a + saleProfit(s); }, 0);
         const trxToday = todaySales.length;
@@ -917,7 +813,6 @@
         setText("sum-sales", formatCurrency(salesToday));
         setText("sum-exp", formatCurrency(expToday));
         setText("sum-net", formatCurrency(netToday));
-        setText("branch-main", formatCurrency(salesToday) + " today");
         updateHealthRing(health);
         setText("health-debt", unpaid.length ? formatCurrency(debtTotal) : "Clear");
         setText("health-stock", lowStock.length ? lowStock.length + " items" : "Healthy");
@@ -945,8 +840,14 @@
         createSparkline("kpiSalesChart", "#8B5CFF", values.length ? values : [0, 0, 0, 0, 0, 0, 0]);
         createSparkline("kpiProfitChart", "#31D17C", values.map(function (v) { return v * 0.25; }));
         createSparkline("kpiTransactionsChart", "#536DFF", values.map(function (v) { return Math.min(v / 500, 30); }));
-        createSparkline("kpiDebtChart", "#FF4F67", [debtTotal * 0.3, debtTotal * 0.4, debtTotal * 0.35, debtTotal * 0.5, debtTotal * 0.45, debtTotal * 0.6, debtTotal]);
-        createSparkline("kpiLowChart", "#F5C451", [lowStock.length, lowStock.length + 1, lowStock.length, lowStock.length + 2, lowStock.length, lowStock.length + 1, lowStock.length]);
+        createSparkline("kpiDebtChart", "#FF4F67", [
+          debtTotal * 0.3, debtTotal * 0.4, debtTotal * 0.35,
+          debtTotal * 0.5, debtTotal * 0.45, debtTotal * 0.6, debtTotal
+        ]);
+        createSparkline("kpiLowChart", "#F5C451", [
+          lowStock.length, lowStock.length + 1, lowStock.length,
+          lowStock.length + 2, lowStock.length, lowStock.length + 1, lowStock.length
+        ]);
 
         const prodMap = {};
         weekSales.forEach(function (s) {
@@ -958,26 +859,36 @@
           items.forEach(function (it) {
             const name = it.name || "Product";
             if (!prodMap[name]) prodMap[name] = { name: name, qty: 0, revenue: 0 };
-            prodMap[name].qty += Number(it.qty || 1);
-            prodMap[name].revenue += Number(it.price || 0) * Number(it.qty || 1);
+            prodMap[name].qty += Number(it.qty || it.quantity || 1);
+            prodMap[name].revenue += Number(it.price || 0) * Number(it.qty || it.quantity || 1);
           });
         });
-        const topProds = Object.values(prodMap).sort(function (a, b) { return b.revenue - a.revenue; }).slice(0, 5);
+        const topProds = Object.values(prodMap).sort(function (a, b) {
+          return b.revenue - a.revenue;
+        }).slice(0, 5);
+
         let topProductsHtml = "";
-        const topEl = document.getElementById("top-products");
+        const topEl = $("top-products");
         if (topEl) {
           if (!topProds.length) {
             topProductsHtml = '<div class="text-xs text-textMuted text-center py-3">No sales data yet</div>';
           } else {
             topProductsHtml = topProds.slice(0, 3).map(function (p, i) {
-              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2 min-w-0"><span class="w-5 h-5 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + (i + 1) + '</span><div class="truncate"><div class="text-xs font-bold text-white truncate">' + p.name + '</div><div class="text-[10px] text-textMuted">' + p.qty + ' sold</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(p.revenue) + '</span></div>';
+              return (
+                '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+                '<div class="flex items-center gap-2 min-w-0">' +
+                '<span class="w-5 h-5 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + (i + 1) + '</span>' +
+                '<div class="truncate"><div class="text-xs font-bold text-white truncate">' + p.name + '</div>' +
+                '<div class="text-[10px] text-textMuted">' + p.qty + ' sold</div></div></div>' +
+                '<span class="text-xs font-extrabold text-white">' + formatCurrency(p.revenue) + '</span></div>'
+              );
             }).join("");
           }
           topEl.innerHTML = topProductsHtml;
         }
 
         let lowStockHtml = "";
-        const lowEl = document.getElementById("low-stock-list");
+        const lowEl = $("low-stock-list");
         if (lowEl) {
           if (!lowStock.length) {
             lowStockHtml = '<div class="text-xs text-textMuted text-center py-3">All stock healthy</div>';
@@ -986,75 +897,161 @@
               const pieces = Number(p.stock || 0);
               const pack = Number(p.items_per_pack || 24) || 24;
               const critical = pieces / pack <= 1;
-              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="text-xs font-bold text-white truncate">' + (p.name || "Item") + '</div><div class="text-[10px] text-textMuted">' + (pieces / pack).toFixed(1) + ' units left</div></div><span class="px-2 py-0.5 text-[9px] font-bold rounded ' + (critical ? "bg-dangerRed/20 text-dangerRed" : "bg-warningYellow/20 text-warningYellow") + '">' + (critical ? "Critical" : "Low") + "</span></div>";
+              return (
+                '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+                '<div class="min-w-0"><div class="text-xs font-bold text-white truncate">' + (p.name || "Item") + '</div>' +
+                '<div class="text-[10px] text-textMuted">' + (pieces / pack).toFixed(1) + ' units left</div></div>' +
+                '<span class="px-2 py-0.5 text-[9px] font-bold rounded ' +
+                (critical ? "bg-dangerRed/20 text-dangerRed" : "bg-warningYellow/20 text-warningYellow") + '">' +
+                (critical ? "Critical" : "Low") + "</span></div>"
+              );
             }).join("");
           }
           lowEl.innerHTML = lowStockHtml;
         }
 
         let debtorsHtml = "";
-        const debtEl = document.getElementById("top-debtors");
+        const debtEl = $("top-debtors");
         if (debtEl) {
-          const sorted = unpaid.slice().sort(function (a, b) { return parseMoney(b.amount_owing) - parseMoney(a.amount_owing); }).slice(0, 3);
+          const sorted = unpaid.slice().sort(function (a, b) {
+            return parseMoney(b.amount_owing) - parseMoney(a.amount_owing);
+          }).slice(0, 3);
           if (!sorted.length) {
             debtorsHtml = '<div class="text-xs text-textMuted text-center py-3">No outstanding debt</div>';
           } else {
             debtorsHtml = sorted.map(function (d) {
               const nm = d.customer_name || "Customer";
               const ini = nm.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
-              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + ini + '</div><div><div class="text-xs font-bold text-white">' + nm + '</div><div class="text-[10px] text-dangerRed">Outstanding</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(d.amount_owing) + "</span></div>";
+              return (
+                '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+                '<div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + ini + '</div>' +
+                '<div><div class="text-xs font-bold text-white">' + nm + '</div>' +
+                '<div class="text-[10px] text-dangerRed">Outstanding</div></div></div>' +
+                '<span class="text-xs font-extrabold text-white">' + formatCurrency(d.amount_owing) + "</span></div>"
+              );
             }).join("");
           }
           debtEl.innerHTML = debtorsHtml;
         }
 
         let recentHtml = "";
-        const recentEl = document.getElementById("recent-trx");
+        const recentEl = $("recent-trx");
         if (recentEl) {
           if (!todaySales.length) {
             recentHtml = '<div class="text-xs text-textMuted text-center py-3">No transactions yet</div>';
           } else {
             recentHtml = todaySales.slice(0, 4).map(function (s) {
-              return '<div class="flex items-center justify-between text-xs p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="font-mono text-textMuted text-[10px]">#' + String(s.id || "").slice(0, 8) + '</div><div class="font-bold text-white truncate">' + (s.customer_name || "Walk-in") + '</div></div><div class="text-right"><div class="font-extrabold text-white">' + formatCurrency(saleAmount(s)) + '</div><div class="text-[9px] text-brightGreen font-bold">' + (s.payment_method || "Cash") + "</div></div></div>";
+              return (
+                '<div class="flex items-center justify-between text-xs p-2 rounded-lg bg-cardElevated border border-borderSubtle">' +
+                '<div class="min-w-0"><div class="font-mono text-textMuted text-[10px]">#' + String(s.id || "").slice(0, 8) + '</div>' +
+                '<div class="font-bold text-white truncate">' + (s.customer_name || "Walk-in") + '</div></div>' +
+                '<div class="text-right"><div class="font-extrabold text-white">' + formatCurrency(saleAmount(s)) + '</div>' +
+                '<div class="text-[9px] text-brightGreen font-bold">' + (s.payment_method || "Cash") + "</div></div></div>"
+              );
             }).join("");
           }
           recentEl.innerHTML = recentHtml;
         }
 
         let activitiesHtml = "";
-        const actEl = document.getElementById("live-activities");
+        const actEl = $("live-activities");
         if (actEl) {
           const cards = [];
-          if (todaySales[0]) cards.push({ icon: "ph-shopping-bag", c: "positiveGreen", t: "New Sale", v: formatCurrency(saleAmount(todaySales[0])), s: todaySales[0].customer_name || "Walk-in" });
-          cards.push({ icon: "ph-warning", c: "warningYellow", t: "Low Stock", v: lowStock.length + " Items", s: "Need attention" });
-          cards.push({ icon: "ph-hand-coins", c: "dangerRed", t: "Outstanding Debt", v: formatCurrency(debtTotal), s: unpaid.length + " customers" });
-          if (expenses[0]) cards.push({ icon: "ph-receipt", c: "accentPink", t: "Expense", v: formatCurrency(expenses[0].amount), s: expenses[0].category || "Ops" });
-          cards.push({ icon: "ph-trend-up", c: "primaryPurple", t: "Net Profit", v: formatCurrency(netToday), s: "After expenses" });
+          if (todaySales[0]) {
+            cards.push({
+              icon: "ph-shopping-bag", c: "positiveGreen", t: "New Sale",
+              v: formatCurrency(saleAmount(todaySales[0])), s: todaySales[0].customer_name || "Walk-in"
+            });
+          }
+          cards.push({
+            icon: "ph-warning", c: "warningYellow", t: "Low Stock",
+            v: lowStock.length + " Items", s: "Need attention"
+          });
+          cards.push({
+            icon: "ph-hand-coins", c: "dangerRed", t: "Outstanding Debt",
+            v: formatCurrency(debtTotal), s: unpaid.length + " customers"
+          });
+          if (expenses[0]) {
+            cards.push({
+              icon: "ph-receipt", c: "accentPink", t: "Expense",
+              v: formatCurrency(expenses[0].amount), s: expenses[0].category || "Ops"
+            });
+          }
+          cards.push({
+            icon: "ph-trend-up", c: "primaryPurple", t: "Net Profit",
+            v: formatCurrency(netToday), s: "After expenses"
+          });
           activitiesHtml = cards.map(function (c) {
-            const tc = c.c === "positiveGreen" ? "brightGreen" : c.c === "warningYellow" ? "warningYellow" : c.c === "dangerRed" ? "dangerRed" : c.c === "accentPink" ? "accentPink" : "brightPurple";
-            return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg bg-' + c.c + '/15 text-' + tc + ' flex items-center justify-center shrink-0"><i class="ph-bold ' + c.icon + ' text-sm"></i></div><div class="min-w-0 flex-1"><div class="text-[10px] text-textMuted font-medium uppercase">' + c.t + '</div><div class="text-xs font-bold text-white truncate">' + c.v + '</div><div class="text-[9px] text-textMuted truncate">' + c.s + "</div></div></div>";
+            const tc = c.c === "positiveGreen" ? "brightGreen"
+              : c.c === "warningYellow" ? "warningYellow"
+              : c.c === "dangerRed" ? "dangerRed"
+              : c.c === "accentPink" ? "accentPink" : "brightPurple";
+            return (
+              '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-center gap-2.5">' +
+              '<div class="w-8 h-8 rounded-lg bg-' + c.c + '/15 text-' + tc + ' flex items-center justify-center shrink-0">' +
+              '<i class="ph-bold ' + c.icon + ' text-sm"></i></div>' +
+              '<div class="min-w-0 flex-1"><div class="text-[10px] text-textMuted font-medium uppercase">' + c.t + '</div>' +
+              '<div class="text-xs font-bold text-white truncate">' + c.v + '</div>' +
+              '<div class="text-[9px] text-textMuted truncate">' + c.s + "</div></div></div>"
+            );
           }).join("");
           actEl.innerHTML = activitiesHtml;
         }
 
         const insights = [];
-        if (salesToday > 0) insights.push({ icon: "ph-trend-up", c: "positiveGreen", t: "Sales today " + formatCurrency(salesToday), s: trxToday + " transactions · keep it up!" });
-        else insights.push({ icon: "ph-trend-up", c: "primaryPurple", t: "No sales yet today", s: "Open POS to record your first sale" });
+        if (salesToday > 0) {
+          insights.push({
+            icon: "ph-trend-up", c: "positiveGreen",
+            t: "Sales today " + formatCurrency(salesToday),
+            s: trxToday + " transactions · keep it up!"
+          });
+        } else {
+          insights.push({
+            icon: "ph-trend-up", c: "primaryPurple",
+            t: "No sales yet today",
+            s: "Open POS to record your first sale"
+          });
+        }
         if (lowStock.length) {
           const n = lowStock[0].name || "A product";
-          insights.push({ icon: "ph-package", c: "warningYellow", t: n + " is running low", s: lowStock.length + " product(s) need restock" });
+          insights.push({
+            icon: "ph-package", c: "warningYellow",
+            t: n + " is running low",
+            s: lowStock.length + " product(s) need restock"
+          });
         }
         if (unpaid.length) {
-          const top = unpaid.slice().sort(function (a, b) { return parseMoney(b.amount_owing) - parseMoney(a.amount_owing); })[0];
-          insights.push({ icon: "ph-warning", c: "dangerRed", t: (top.customer_name || "Customer") + " owes " + formatCurrency(top.amount_owing), s: unpaid.length + " customers outstanding" });
+          const top = unpaid.slice().sort(function (a, b) {
+            return parseMoney(b.amount_owing) - parseMoney(a.amount_owing);
+          })[0];
+          insights.push({
+            icon: "ph-warning", c: "dangerRed",
+            t: (top.customer_name || "Customer") + " owes " + formatCurrency(top.amount_owing),
+            s: unpaid.length + " customers outstanding"
+          });
         }
-        if (expToday > 0) insights.push({ icon: "ph-receipt", c: "accentPink", t: "Expenses " + formatCurrency(expToday), s: "Watch costs vs profit today" });
+        if (expToday > 0) {
+          insights.push({
+            icon: "ph-receipt", c: "accentPink",
+            t: "Expenses " + formatCurrency(expToday),
+            s: "Watch costs vs profit today"
+          });
+        }
         let insightsHtml = "";
-        const aiEl = document.getElementById("ai-insights");
+        const aiEl = $("ai-insights");
         if (aiEl) {
           insightsHtml = insights.slice(0, 4).map(function (ins) {
-            const tc = ins.c === "positiveGreen" ? "brightGreen" : ins.c === "warningYellow" ? "warningYellow" : ins.c === "dangerRed" ? "dangerRed" : ins.c === "accentPink" ? "accentPink" : "brightPurple";
-            return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5"><div class="p-1.5 rounded-md bg-' + ins.c + '/15 text-' + tc + ' shrink-0 mt-0.5"><i class="ph-bold ' + ins.icon + ' text-xs"></i></div><div><div class="text-xs font-bold text-white">' + ins.t + '</div><div class="text-[10px] text-textMuted">' + ins.s + "</div></div></div>";
+            const tc = ins.c === "positiveGreen" ? "brightGreen"
+              : ins.c === "warningYellow" ? "warningYellow"
+              : ins.c === "dangerRed" ? "dangerRed"
+              : ins.c === "accentPink" ? "accentPink" : "brightPurple";
+            return (
+              '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5">' +
+              '<div class="p-1.5 rounded-md bg-' + ins.c + '/15 text-' + tc + ' shrink-0 mt-0.5">' +
+              '<i class="ph-bold ' + ins.icon + ' text-xs"></i></div>' +
+              '<div><div class="text-xs font-bold text-white">' + ins.t + '</div>' +
+              '<div class="text-[10px] text-textMuted">' + ins.s + "</div></div></div>"
+            );
           }).join("");
           aiEl.innerHTML = insightsHtml;
         }
@@ -1069,14 +1066,8 @@
         setText("ai-pred-sub", predPct >= 0 ? "Up vs previous day trend" : "Down vs previous day — push sales");
         renderPredChart(values.length ? values : [5, 8, 12, 15, 18, 22, 28]);
 
-        const nList = document.getElementById("notif-list");
-        if (nList && notifs.length) {
-          nList.innerHTML = notifs.slice(0, 3).map(function (n) {
-            return '<div class="flex items-start gap-2 p-2 rounded-lg bg-cardElevated border border-borderSubtle"><i class="ph-bold ph-bell text-primaryPurple mt-0.5"></i><div><div class="font-medium text-white text-xs">' + (n.title || "Alert") + '</div><div class="text-[10px] text-textMuted">' + (n.message || "").slice(0, 60) + "</div></div></div>";
-          }).join("");
-        }
         const unread = notifs.filter(function (n) { return !n.is_read; }).length;
-        const dot = document.getElementById("notif-dot");
+        const dot = $("notif-dot");
         if (dot) {
           if (unread) dot.classList.remove("hidden");
           else dot.classList.add("hidden");
@@ -1126,6 +1117,43 @@
           .on("postgres_changes", { event: "*", schema: "public", table: "expenses", filter: "company_id=eq." + userCompanyId }, function () { refreshAll(); })
           .subscribe();
       } catch (e) {}
+    }
+
+    async function init() {
+      applyTheme(getSavedTheme());
+      paintCache();
+      tickClock();
+      setInterval(tickClock, 1000);
+
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        currentUser = session.user;
+        const displayName =
+          (session.user.user_metadata && (session.user.user_metadata.full_name || session.user.user_metadata.name)) ||
+          (session.user.email || "Owner").split("@")[0];
+
+        setText("greeting-text", getGreeting());
+        setText("greet-name", displayName);
+        setText("header-user-name", displayName);
+        const av = $("avatar-initials");
+        if (av) av.textContent = (displayName.charAt(0) || "Q").toUpperCase();
+
+        await resolveCompany(session.user);
+        if (companyData) {
+          setText("greet-company", companyData.company_name || "your business");
+        }
+
+        appReady = true;
+        await refreshAll();
+        subscribeRealtime();
+      } catch (err) {
+        console.error(err);
+        appReady = true;
+      }
     }
 
     window.addEventListener("DOMContentLoaded", init);
