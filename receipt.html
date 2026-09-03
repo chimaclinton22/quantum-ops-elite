@@ -1,1 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#6b21a8">
+  <title>Sales Receipt - Quantum OPS Elite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0b0f19;
+      color: #0f172a;
+      min-height: 100vh;
+      padding: 16px 12px 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        background: #1e293b;
+        padding: 32px 16px 120px;
+      }
+    }
+
+    /* ACTION BAR (Screen Only) */
+    .action-bar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 999;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+      background: rgba(11, 15, 25, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex; gap: 8px; justify-content: center; align-items: center;
+      width: 100%;
+    }
+    .action-bar button {
+      flex: 1; max-width: 130px; height: 42px;
+      border-radius: 12px; border: none;
+      font-size: 12px; font-weight: 700; cursor: pointer; color: #ffffff;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-back { background: #334155; }
+    .btn-wa { background: #059669; }
+    .btn-pdf { background: linear-gradient(135deg, #6b21a8, #7e22ce); }
+    .btn-share { background: #4f46e5; }
+    .action-bar button:active { transform: scale(0.96); }
+
+    .status-msg {
+      text-align: center; padding: 60px 20px; color: #94a3b8; font-size: 14px; font-weight: 500;
+    }
+
+    /* RECEIPT CONTAINER CARD */
+    .receipt-paper {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      color: #0f172a;
+      position: relative;
+    }
+
+    /* HEADER */
+    .r-header {
+      padding: 28px 24px 16px;
+      text-align: center;
+      background: #ffffff;
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .r-single-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+
+    .r-logo-fallback {
+      width: 64px;
+      height: 64px;
+      background: #ffffff;
+      border: 3px solid #6b21a8;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b21a8;
+      font-weight: 800;
+      font-size: 28px;
+    }
+
+    .r-biz-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .r-biz-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b21a8;
+      letter-spacing: 2px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .r-biz-addr {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 6px;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .r-header-divider {
+      width: 80%;
+      height: 1px;
+      background: #e2e8f0;
+      margin: 14px auto 0;
+      position: relative;
+    }
+
+    .r-header-divider::after {
+      content: '◆';
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      padding: 0 6px;
+      color: #6b21a8;
+      font-size: 8px;
+    }
+
+    /* TITLE */
+    .r-title-block {
+      text-align: center;
+      padding: 14px 24px 8px;
+    }
+
+    .r-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.8px;
+    }
+
+    .r-subtitle {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    /* METADATA ROWS */
+    .r-meta-section {
+      padding: 10px 24px 14px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      font-size: 12.5px;
+      padding: 4px 0;
+    }
+
+    .meta-icon {
+      width: 22px;
+      color: #6b21a8;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .meta-label {
+      width: 100px;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .meta-colon {
+      width: 16px;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .meta-val {
+      flex: 1;
+      color: #0f172a;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* CUSTOMER SECTION */
+    .r-customer-box {
+      margin: 4px 24px 16px;
+      padding: 10px 0;
+      border-top: 1px dashed #e2e8f0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .r-customer-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6b21a8;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .r-customer-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .r-customer-note {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 1px;
+    }
+
+    /* ITEMS TABLE */
+    .r-items-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .r-items-table thead th {
+      background: #6b21a8;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 10px 8px;
+    }
+
+    .r-items-table tbody td {
+      padding: 10px 8px;
+      font-size: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .col-num { width: 8%; text-align: center; font-weight: 700; }
+    .col-item { text-align: left; }
+    .col-qty { width: 10%; text-align: center; font-weight: 600; }
+    .col-price { width: 22%; text-align: right; color: #334155; }
+    .col-total { width: 24%; text-align: right; font-weight: 800; color: #0f172a; }
+
+    .item-flex {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .item-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #f1f5f9;
+      flex-shrink: 0;
+    }
+
+    .item-name-text {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .item-cat-text {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 1px;
+    }
+
+    /* SUMMARY SECTION */
+    .r-summary-block {
+      padding: 14px 24px 8px;
+    }
+
+    .sum-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      padding: 3px 0;
+    }
+
+    .sum-label { color: #475569; font-weight: 500; }
+    .sum-val { font-weight: 700; color: #0f172a; }
+
+    .sum-divider {
+      border-top: 1px dashed #cbd5e1;
+      margin: 8px 0;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+    }
+
+    .total-label { font-size: 15px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; }
+    .total-val { font-size: 20px; font-weight: 800; color: #6b21a8; }
+
+    .paid-card {
+      background: #f3e8ff;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .paid-label { font-size: 11px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; text-transform: uppercase; }
+    .paid-val { font-size: 15px; font-weight: 800; color: #0f172a; }
+
+    .change-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 0 12px;
+    }
+
+    .change-label { font-size: 12px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; text-transform: uppercase; }
+    .change-val { font-size: 16px; font-weight: 800; color: #16a34a; }
+
+    /* FOOTER SECURITY & QR CARD */
+    .r-footer-card {
+      margin: 10px 24px 24px;
+      padding: 14px;
+      border: 1px solid #e9d5ff;
+      border-radius: 16px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .qr-box {
+      width: 78px;
+      height: 78px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+
+    .qr-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .security-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sec-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .sec-icon {
+      color: #6b21a8;
+      font-size: 16px;
+      line-height: 1;
+      margin-top: 1px;
+    }
+
+    .sec-text-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .sec-text-sub {
+      font-size: 9.5px;
+      color: #64748b;
+      margin-top: 1px;
+      line-height: 1.25;
+    }
+
+    /* BOTTOM BRAND BAR */
+    .r-bottom-bar {
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .brand-left {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .brand-left strong {
+      color: #6b21a8;
+      font-weight: 800;
+    }
+
+    .brand-left span {
+      display: block;
+      font-size: 9.5px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+
+    .brand-badge {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      width: 52px;
+      background: #6b21a8;
+      border-top-left-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    /* PRINT SPECIFIC STYLES */
+    @media print {
+      body { background: #ffffff !important; padding: 0 !important; }
+      .action-bar, .status-msg { display: none !important; }
+      .receipt-paper {
+        max-width: 100% !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading-state" class="status-msg">Loading receipt...</div>
+  <div id="error-state" class="status-msg" style="display:none; color:#f43f5e;"></div>
+
+  <div id="receipt-wrap" style="display:none; width: 100%; display: flex; justify-content: center;">
+    <div class="receipt-paper" id="receipt-paper">
+      
+      <!-- SINGLE LOGO HEADER -->
+      <div class="r-header">
+        <div class="logo-container">
+          <img id="r-logo" class="r-single-logo" src="" alt="Store Logo" style="display:none;">
+          <div id="r-logo-fallback" class="r-logo-fallback" style="display:none;">Q</div>
+        </div>
+        <div class="r-biz-name" id="r-biz-name">Quantum OPS</div>
+        <div class="r-biz-tag">AI BUSINESS OS</div>
+        <div class="r-biz-addr" id="r-biz-addr"></div>
+        <div class="r-header-divider"></div>
+      </div>
+
+      <!-- RECEIPT TITLE -->
+      <div class="r-title-block">
+        <div class="r-title">SALES RECEIPT</div>
+        <div class="r-subtitle" id="r-thank-short">Thank you for your purchase!</div>
+      </div>
+
+      <!-- METADATA ROWS -->
+      <div class="r-meta-section">
+        <div class="meta-row">
+          <span class="meta-icon">📄</span>
+          <span class="meta-label">Receipt No.</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-receipt-no">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">📅</span>
+          <span class="meta-label">Date</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-date">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">🕒</span>
+          <span class="meta-label">Time</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-time">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">👤</span>
+          <span class="meta-label">Cashier</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-cashier">Staff</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">🖥️</span>
+          <span class="meta-label">Terminal</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-terminal">POS-01</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">💳</span>
+          <span class="meta-label">Payment Type</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-payment">Cash</span>
+        </div>
+      </div>
+
+      <!-- CUSTOMER BOX -->
+      <div class="r-customer-box">
+        <div class="r-customer-header">
+          <span>👤 CUSTOMER</span>
+        </div>
+        <div class="r-customer-name" id="r-customer">Walk-in Customer</div>
+        <div class="r-customer-note" id="r-customer-note">No customer information provided</div>
+      </div>
+
+      <!-- ITEMS TABLE -->
+      <table class="r-items-table">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-item">ITEM</th>
+            <th class="col-qty">QTY</th>
+            <th class="col-price">UNIT PRICE</th>
+            <th class="col-total">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody id="r-items-body">
+          <!-- Dynamic Items Injected Here -->
+        </tbody>
+      </table>
+
+      <!-- SUMMARY SECTION -->
+      <div class="r-summary-block">
+        <div class="sum-row"><span class="sum-label">Subtotal</span><span class="sum-val" id="r-subtotal">₦0.00</span></div>
+        <div class="sum-row"><span class="sum-label">Discount</span><span class="sum-val" id="r-discount">₦0.00</span></div>
+        <div class="sum-row"><span class="sum-label">Tax (0.00%)</span><span class="sum-val" id="r-tax">₦0.00</span></div>
+        
+        <div class="sum-divider"></div>
+
+        <div class="total-row">
+          <span class="total-label">TOTAL</span>
+          <span class="total-val" id="r-total">₦0.00</span>
+        </div>
+
+        <div class="paid-card">
+          <span class="paid-label">AMOUNT PAID</span>
+          <span class="paid-val" id="r-paid">₦0.00</span>
+        </div>
+
+        <div class="change-row">
+          <span class="change-label">CHANGE</span>
+          <span class="change-val" id="r-change">₦0.00</span>
+        </div>
+      </div>
+
+      <!-- SECURITY CARD WITH QR -->
+      <div class="r-footer-card">
+        <div class="qr-box">
+          <img id="r-qr-code" class="qr-img" src="" alt="QR">
+        </div>
+        <div class="security-info">
+          <div class="sec-item">
+            <span class="sec-icon">🛡️</span>
+            <div>
+              <div class="sec-text-title">SECURE TRANSACTION</div>
+              <div class="sec-text-sub">This is a computer generated receipt and does not require a signature.</div>
+            </div>
+          </div>
+          <div class="sec-item">
+            <span class="sec-icon">📱</span>
+            <div>
+              <div class="sec-text-title">SCAN TO REVIEW</div>
+              <div class="sec-text-sub">Scan this QR code to view your transaction details digitally.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM BRAND BAR -->
+      <div class="r-bottom-bar">
+        <div class="brand-left">
+          Powered by <strong>Quantum OPS Elite</strong>
+          <span>Smart. Secure. Scalable.</span>
+        </div>
+        <div class="brand-badge">Q</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FLOATING SCREEN ACTION BAR -->
+  <div class="action-bar">
+    <button type="button" class="btn-back" onclick="goBack()">← Back</button>
+    <button type="button" class="btn-wa" onclick="sendWhatsApp()">WhatsApp</button>
+    <button type="button" class="btn-pdf" onclick="downloadPDF()">Download PDF</button>
+    <button type="button" class="btn-share" onclick="sharePDF()">Share</button>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let sale = null;
+    let company = null;
+
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function parseMoney(v) {
+      if (v == null || v === "") return 0;
+      if (typeof v === "number") return isNaN(v) ? 0 : v;
+      const n = parseFloat(String(v).replace(/[₦$,\s]/g, ""));
+      return isNaN(n) ? 0 : n;
+    }
+
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function getQueryId() {
+      try { return new URLSearchParams(window.location.search).get("id") || ""; }
+      catch (e) { return ""; }
+    }
+
+    function goBack() {
+      if (window.history.length > 1) { window.history.back(); return; }
+      window.location.href = window.innerWidth >= 900 ? "desktop.html" : "dashboard.html";
+    }
+
+    function showError(msg) {
+      document.getElementById("loading-state").style.display = "none";
+      const el = document.getElementById("error-state");
+      el.style.display = "block";
+      el.textContent = msg || "Could not load receipt.";
+    }
+
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val == null || val === "" ? "—" : val;
+    }
+
+    function applyCompany() {
+      const c = company || {};
+      const name = c.company_name || "QUANTUM OPS";
+      const address = c.address || "";
+      const phone = c.phone || "";
+      const email = c.email || "";
+      const thank = c.thank_you_message || "Thank you for your purchase!";
+      const logo = c.logo || "";
+
+      setText("r-biz-name", name);
+      
+      const addrParts = [];
+      if (address) addrParts.push(address);
+      if (phone) addrParts.push("Tel: " + phone);
+      if (email) addrParts.push(email);
+      setText("r-biz-addr", addrParts.join(" · "));
+      
+      setText("r-thank-short", thank);
+
+      const logoImg = document.getElementById("r-logo");
+      const logoFb = document.getElementById("r-logo-fallback");
+      
+      if (logo) {
+        logoImg.src = logo;
+        logoImg.style.display = "block";
+        logoFb.style.display = "none";
+      } else {
+        logoImg.style.display = "none";
+        logoFb.style.display = "flex";
+      }
+    }
+
+    function applySale() {
+      const s = sale;
+      if (!s) return;
+
+      const receiptNo = s.sale_number || s.transaction_id || ("INV-" + String(s.id || "").slice(0, 8).toUpperCase());
+      const dt = new Date(s.created_at || Date.now());
+      const dateStr = dt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+      const timeStr = dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      const customer = s.customer_name || "Walk-in Customer";
+      const cashier = s.cashier_name || "Staff";
+      const terminal = s.terminal || "POS-01";
+      const payment = s.payment_method || "Cash";
+      
+      const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+      const subtotal = parseMoney(s.subtotal != null ? s.subtotal : amount);
+      const discount = parseMoney(s.discount);
+      const tax = parseMoney(s.tax);
+      const paid = parseMoney(s.paid_amount != null ? s.paid_amount : amount);
+      const change = s.balance != null ? parseMoney(s.balance) : (paid - amount);
+
+      setText("r-receipt-no", receiptNo);
+      setText("r-date", dateStr);
+      setText("r-time", timeStr);
+      setText("r-cashier", cashier);
+      setText("r-terminal", terminal);
+      setText("r-payment", payment);
+      setText("r-customer", customer);
+      setText("r-customer-note", customer === "Walk-in Customer" ? "No customer information provided" : "Registered Customer");
+      
+      setText("r-subtotal", formatCurrency(subtotal));
+      setText("r-discount", formatCurrency(discount));
+      setText("r-tax", formatCurrency(tax));
+      setText("r-total", formatCurrency(amount));
+      setText("r-paid", formatCurrency(paid));
+      setText("r-change", formatCurrency(change));
+
+      // QR Code Generation
+      const qrData = encodeURIComponent("RECEIPT:" + receiptNo + "|TOTAL:" + amount);
+      document.getElementById("r-qr-code").src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + qrData;
+
+      const items = Array.isArray(s.items) ? s.items : [];
+      let rows = "";
+      
+      if (!items.length) {
+        rows = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">No items on this receipt</td></tr>';
+      } else {
+        items.forEach(function (item, idx) {
+          const name = item.name || item.product_name || "Item";
+          const category = item.category || "";
+          const qty = parseInt(item.qty || item.quantity || 1, 10);
+          const price = parseMoney(item.price);
+          const lineTotal = price * qty;
+          const img = item.image_url || item.image || item.photo || "";
+          
+          const imgHtml = img
+            ? '<img src="' + esc(img) + '" class="item-thumb" alt="" onerror="this.style.display=\'none\'">'
+            : '';
+
+          rows +=
+            "<tr>" +
+              "<td class=\"col-num\">" + (idx + 1) + "</td>" +
+              "<td class=\"col-item\">" +
+                "<div class=\"item-flex\">" + imgHtml +
+                  "<div>" +
+                    "<div class=\"item-name-text\">" + esc(name) + "</div>" +
+                    (category ? "<div class=\"item-cat-text\">" + esc(category) + "</div>" : "") +
+                  "</div>" +
+                "</div>" +
+              "</td>" +
+              "<td class=\"col-qty\">" + qty + "</td>" +
+              "<td class=\"col-price\">" + formatCurrency(price) + "</td>" +
+              "<td class=\"col-total\">" + formatCurrency(lineTotal) + "</td>" +
+            "</tr>";
+        });
+      }
+      document.getElementById("r-items-body").innerHTML = rows;
+    }
+
+    function revealReceipt() {
+      document.getElementById("loading-state").style.display = "none";
+      document.getElementById("error-state").style.display = "none";
+      document.getElementById("receipt-wrap").style.display = "flex";
+    }
+
+    function buildWhatsAppText() {
+      if (!sale) return "";
+      const c = company || {};
+      const s = sale;
+      const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+      
+      const lines = [
+        "🧾 *SALES RECEIPT*",
+        "*" + (c.company_name || "Quantum OPS") + "*",
+        "------------------------------------"
+      ];
+      if (c.address) lines.push(c.address);
+      if (c.phone) lines.push("Tel: " + c.phone);
+      lines.push("------------------------------------");
+      lines.push("Receipt No: " + (s.sale_number || s.transaction_id || String(s.id).slice(0, 8)));
+      lines.push("Date: " + new Date(s.created_at).toLocaleString());
+      lines.push("Customer: " + (s.customer_name || "Walk-in Customer"));
+      lines.push("Cashier: " + (s.cashier_name || "Staff"));
+      lines.push("------------------------------------");
+      
+      if (Array.isArray(s.items)) {
+        s.items.forEach(function (i) {
+          const q = i.qty || i.quantity || 1;
+          lines.push("• " + (i.name || "Item") + " x" + q + " = " + formatCurrency(parseMoney(i.price) * q));
+        });
+      }
+      
+      lines.push("------------------------------------");
+      lines.push("*TOTAL: " + formatCurrency(amount) + "*");
+      lines.push("Paid (" + (s.payment_method || "Cash") + "): " + formatCurrency(s.paid_amount != null ? s.paid_amount : amount));
+      lines.push("------------------------------------");
+      lines.push(c.thank_you_message || "Thank you for your purchase!");
+      return lines.join("\n");
+    }
+
+    function sendWhatsApp() {
+      if (!sale) return;
+      window.open("https://wa.me/?text=" + encodeURIComponent(buildWhatsAppText()), "_blank");
+    }
+
+    function getPdfOptions(filename) {
+      const element = document.getElementById("receipt-paper");
+      
+      // Calculate exact pixel dimensions of the receipt container
+      const elementWidth = element.offsetWidth || 420;
+      const elementHeight = element.offsetHeight || 800;
+
+      // Convert pixels to millimeters (1px ≈ 0.264583mm)
+      const pdfWidth = elementWidth * 0.264583;
+      const pdfHeight = (elementHeight + 20) * 0.264583; // 20px padding buffer
+
+      return {
+        margin: 0,
+        filename: filename || "receipt.pdf",
+        image: { type: "jpeg", quality: 1.0 },
+        html2canvas: {
+          scale: 3,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: elementWidth
+        },
+        // Dynamically match PDF page dimensions to receipt height to guarantee 1 single page
+        jsPDF: { 
+          unit: "mm", 
+          format: [pdfWidth, pdfHeight], 
+          orientation: "portrait" 
+        },
+        pagebreak: { mode: "none" }
+      };
+    }
+
+    async function downloadPDF() {
+      if (!sale) return;
+      try {
+        const el = document.getElementById("receipt-paper");
+        const name = "Receipt-" + (sale.sale_number || sale.transaction_id || "INV") + ".pdf";
+        
+        // Temporarily reset transformation for exact rendering capture
+        el.style.transform = "none";
+        await html2pdf().set(getPdfOptions(name)).from(el).save();
+      } catch (e) {
+        console.error(e);
+        alert("Unable to generate PDF. Please try again.");
+      }
+    }
+
+    async function sharePDF() {
+      if (!sale) return;
+      try {
+        const el = document.getElementById("receipt-paper");
+        const name = "Receipt-" + (sale.sale_number || sale.transaction_id || "INV") + ".pdf";
+        
+        el.style.transform = "none";
+        const blob = await html2pdf().set(getPdfOptions(name)).from(el).outputPdf("blob");
+        const file = new File([blob], name, { type: "application/pdf" });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Receipt - " + name,
+            text: "Official receipt from " + ((company && company.company_name) || "Quantum OPS")
+          });
+          return;
+        }
+        await downloadPDF();
+      } catch (err) {
+        if (err && err.name === "AbortError") return;
+        await downloadPDF();
+      }
+    }
+
+    async function init() {
+      const saleId = getQueryId();
+      if (!saleId) {
+        showError("Missing sale transaction ID. Please open from POS or Transaction History.");
+        return;
+      }
+
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+
+        const { data: saleData, error: saleErr } = await supabaseClient
+          .from("sales")
+          .select("*")
+          .eq("id", saleId)
+          .maybeSingle();
+
+        if (saleErr) throw saleErr;
+        if (!saleData) {
+          showError("Receipt record not found.");
+          return;
+        }
+        sale = saleData;
+
+        if (sale.company_id) {
+          const { data: c } = await supabaseClient
+            .from("companies")
+            .select("company_name, address, phone, email, website, tax_id, thank_you_message, logo")
+            .eq("id", sale.company_id)
+            .maybeSingle();
+          company = c || null;
+        }
+
+        if (!company) {
+          const { data: member } = await supabaseClient
+            .from("company_users")
+            .select("company_id, companies(company_name, address, phone, email, website, tax_id, thank_you_message, logo)")
+            .eq("user_id", session.user.id)
+            .maybeSingle();
+          if (member && member.companies) company = member.companies;
+        }
+
+        applyCompany();
+        applySale();
+        revealReceipt();
+      } catch (err) {
+        console.error(err);
+        showError(err.message || "Error retrieving receipt.");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
+
 
