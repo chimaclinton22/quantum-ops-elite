@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#6b21a8">
   <title>Sales Receipt - Quantum OPS Elite</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Alex+Brush&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: #0b0f19;
       color: #0f172a;
       min-height: 100vh;
@@ -34,21 +34,20 @@
     /* ACTION BAR (Screen Only) */
     .action-bar {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 999;
-      padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
-      background: rgba(11, 15, 25, 0.95);
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+      background: rgba(11, 15, 25, 0.96);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex; gap: 10px; justify-content: center; align-items: center;
+      display: flex; gap: 8px; justify-content: center; align-items: center;
       width: 100%;
     }
     .action-bar button {
-      flex: 1; max-width: 140px; height: 44px;
-      border-radius: 10px; border: none;
-      font-size: 13px; font-weight: 700; cursor: pointer; color: #ffffff;
+      flex: 1; max-width: 130px; height: 42px;
+      border-radius: 12px; border: none;
+      font-size: 12px; font-weight: 700; cursor: pointer; color: #ffffff;
       display: flex; align-items: center; justify-content: center; gap: 6px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     .btn-back { background: #334155; }
     .btn-wa { background: #059669; }
@@ -60,281 +59,406 @@
       text-align: center; padding: 60px 20px; color: #94a3b8; font-size: 14px; font-weight: 500;
     }
 
-    /* RECEIPT CONTAINER */
+    /* RECEIPT CONTAINER CARD */
     .receipt-paper {
       width: 100%;
-      max-width: 440px;
+      max-width: 420px;
+      margin: 0 auto;
       background: #ffffff;
-      border-radius: 20px;
+      border-radius: 28px;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
       color: #0f172a;
       position: relative;
     }
 
-    @media (min-width: 850px) {
-      .receipt-paper {
-        max-width: 800px;
-        border-radius: 12px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-      }
-    }
-
-    /* HEADER LAYOUT */
+    /* HEADER */
     .r-header {
-      padding: 28px 24px 20px;
-      background: #ffffff;
-      border-bottom: 2px dashed #f1f5f9;
-      position: relative;
-    }
-
-    .r-header-top {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 28px 24px 16px;
       text-align: center;
-      gap: 12px;
+      background: #ffffff;
     }
 
-    .brand-logos {
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .r-single-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+
+    .r-logo-fallback {
+      width: 64px;
+      height: 64px;
+      background: #ffffff;
+      border: 3px solid #6b21a8;
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-    }
-
-    .logo-box {
-      width: 52px; height: 52px;
-      border-radius: 12px;
-      object-fit: cover;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .logo-q-default {
-      background: linear-gradient(135deg, #6b21a8, #7e22ce);
-      color: #ffffff;
+      color: #6b21a8;
       font-weight: 800;
+      font-size: 28px;
+    }
+
+    .r-biz-name {
       font-size: 22px;
-      box-shadow: 0 4px 12px rgba(107, 33, 168, 0.3);
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+      text-transform: uppercase;
     }
 
-    .r-biz-title {
-      font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px; line-height: 1.2;
-    }
     .r-biz-tag {
-      font-size: 10px; font-weight: 700; color: #6b21a8; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px;
-    }
-    .r-biz-details {
-      font-size: 11px; color: #64748b; margin-top: 8px; line-height: 1.5; font-weight: 500;
-    }
-
-    /* DESKTOP HEADER GRID */
-    @media (min-width: 850px) {
-      .r-header-top {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-        text-align: left;
-      }
-      .brand-logos { justify-content: flex-start; }
-      .r-header-right { text-align: right; }
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b21a8;
+      letter-spacing: 2px;
+      margin-top: 4px;
+      text-transform: uppercase;
     }
 
-    /* TITLE BANNER */
-    .r-title-banner {
+    .r-biz-addr {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 6px;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .r-header-divider {
+      width: 80%;
+      height: 1px;
+      background: #e2e8f0;
+      margin: 14px auto 0;
+      position: relative;
+    }
+
+    .r-header-divider::after {
+      content: '◆';
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      padding: 0 6px;
+      color: #6b21a8;
+      font-size: 8px;
+    }
+
+    /* TITLE */
+    .r-title-block {
       text-align: center;
-      padding: 16px 24px;
-      background: #faf5ff;
-      border-bottom: 1px solid #f3e8ff;
-    }
-    .r-title-banner h1 {
-      font-size: 18px; font-weight: 800; color: #0f172a; letter-spacing: 1px;
-    }
-    .r-title-banner p {
-      font-size: 12px; color: #6b21a8; font-weight: 600; margin-top: 2px;
+      padding: 14px 24px 8px;
     }
 
-    /* META & CUSTOMER GRID */
-    .r-info-grid {
-      padding: 18px 24px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      background: #ffffff;
+    .r-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.8px;
     }
 
-    @media (min-width: 850px) {
-      .r-info-grid {
-        grid-template-columns: 1fr 1fr;
-      }
+    .r-subtitle {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 2px;
+      font-weight: 500;
     }
 
-    .info-card {
-      background: #f8fafc;
-      border: 1px solid #f1f5f9;
-      border-radius: 10px;
-      padding: 12px 14px;
-    }
-
-    .info-card-title {
-      font-size: 10px; font-weight: 800; color: #6b21a8; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 6px;
+    /* METADATA ROWS */
+    .r-meta-section {
+      padding: 10px 24px 14px;
     }
 
     .meta-row {
-      display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0;
+      display: flex;
+      align-items: center;
+      font-size: 12.5px;
+      padding: 4px 0;
     }
-    .meta-label { color: #64748b; font-weight: 500; }
-    .meta-val { color: #0f172a; font-weight: 700; text-align: right; }
+
+    .meta-icon {
+      width: 22px;
+      color: #6b21a8;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .meta-label {
+      width: 100px;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .meta-colon {
+      width: 16px;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .meta-val {
+      flex: 1;
+      color: #0f172a;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* CUSTOMER SECTION */
+    .r-customer-box {
+      margin: 4px 24px 16px;
+      padding: 10px 0;
+      border-top: 1px dashed #e2e8f0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+
+    .r-customer-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6b21a8;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .r-customer-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .r-customer-note {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 1px;
+    }
 
     /* ITEMS TABLE */
-    .r-items-wrap {
-      width: 100%;
-      overflow-x: auto;
-    }
-
-    .r-table {
+    .r-items-table {
       width: 100%;
       border-collapse: collapse;
-      text-align: left;
     }
 
-    .r-table th {
+    .r-items-table thead th {
       background: #6b21a8;
       color: #ffffff;
       font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      padding: 10px 12px;
+      padding: 10px 8px;
     }
 
-    .r-table td {
-      padding: 12px;
+    .r-items-table tbody td {
+      padding: 10px 8px;
       font-size: 12px;
       border-bottom: 1px solid #f1f5f9;
       vertical-align: middle;
     }
 
-    .r-table tr:nth-child(even) td {
-      background: #fafafa;
-    }
-
-    .col-center { text-align: center; }
-    .col-right { text-align: right; }
+    .col-num { width: 8%; text-align: center; font-weight: 700; }
+    .col-item { text-align: left; }
+    .col-qty { width: 10%; text-align: center; font-weight: 600; }
+    .col-price { width: 22%; text-align: right; color: #334155; }
+    .col-total { width: 24%; text-align: right; font-weight: 800; color: #0f172a; }
 
     .item-flex {
-      display: flex; align-items: center; gap: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .item-thumb {
-      width: 36px; height: 36px; border-radius: 6px; object-fit: cover; background: #e2e8f0; flex-shrink: 0;
-      border: 1px solid #cbd5e1;
-    }
-    .item-name-text { font-weight: 700; color: #0f172a; font-size: 12.5px; line-height: 1.2; }
-    .item-cat-text { font-size: 10px; color: #64748b; margin-top: 2px; }
-    .item-sku-code { font-family: monospace; font-size: 11px; color: #475569; }
 
-    /* Hide desktop-only columns on mobile screen */
-    .desktop-only { display: none; }
-    @media (min-width: 850px) {
-      .desktop-only { display: table-cell; }
+    .item-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #f1f5f9;
+      flex-shrink: 0;
+    }
+
+    .item-name-text {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .item-cat-text {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 1px;
     }
 
     /* SUMMARY SECTION */
     .r-summary-block {
-      padding: 16px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      background: #ffffff;
-    }
-
-    .summary-box {
-      width: 100%;
-      max-width: 320px;
+      padding: 14px 24px 8px;
     }
 
     .sum-row {
-      display: flex; justify-content: space-between; font-size: 12.5px; padding: 4px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      padding: 3px 0;
     }
-    .sum-label { color: #64748b; font-weight: 500; }
+
+    .sum-label { color: #475569; font-weight: 500; }
     .sum-val { font-weight: 700; color: #0f172a; }
 
     .sum-divider {
-      border-top: 1px dashed #cbd5e1; margin: 8px 0;
+      border-top: 1px dashed #cbd5e1;
+      margin: 8px 0;
     }
 
     .total-row {
-      display: flex; justify-content: space-between; align-items: center; padding: 6px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
     }
-    .total-label { font-size: 14px; font-weight: 800; color: #0f172a; }
+
+    .total-label { font-size: 15px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; }
     .total-val { font-size: 20px; font-weight: 800; color: #6b21a8; }
 
     .paid-card {
       background: #f3e8ff;
-      border-radius: 8px;
-      padding: 8px 12px;
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: 6px;
-      font-weight: 700;
-      font-size: 12px;
-    }
-    .change-row {
-      display: flex; justify-content: space-between; padding: 6px 0 0; font-weight: 700; font-size: 12px; color: #16a34a;
-    }
-
-    /* BOTTOM SECURITY & FOOTER */
-    .r-bottom-bar {
-      padding: 16px 24px;
-      background: #faf8ff;
-      border-top: 1px solid #f3e8ff;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      align-items: center;
-    }
-
-    @media (min-width: 850px) {
-      .r-bottom-bar {
-        flex-direction: row;
-        justify-content: space-between;
-      }
-    }
-
-    .qr-flex {
-      display: flex; align-items: center; gap: 12px;
-    }
-    .qr-img {
-      width: 64px; height: 64px; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; padding: 2px;
-    }
-    .security-text h4 { font-size: 10px; font-weight: 800; color: #0f172a; text-transform: uppercase; }
-    .security-text p { font-size: 10px; color: #64748b; margin-top: 2px; line-height: 1.3; }
-
-    .signature-box {
-      text-align: center;
-      padding-top: 10px;
-    }
-    .sig-line {
-      font-family: 'Alex Brush', cursive;
-      font-size: 24px;
-      color: #1e293b;
-      line-height: 1;
-    }
-    .sig-sub {
-      font-size: 9px; font-weight: 700; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 2px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-
-    .r-footer-credit {
-      background: #6b21a8;
-      color: #ffffff;
-      padding: 8px 16px;
-      font-size: 10px;
+      border-radius: 10px;
+      padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .paid-label { font-size: 11px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; text-transform: uppercase; }
+    .paid-val { font-size: 15px; font-weight: 800; color: #0f172a; }
+
+    .change-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 0 12px;
+    }
+
+    .change-label { font-size: 12px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; text-transform: uppercase; }
+    .change-val { font-size: 16px; font-weight: 800; color: #16a34a; }
+
+    /* FOOTER SECURITY & QR CARD */
+    .r-footer-card {
+      margin: 10px 24px 24px;
+      padding: 14px;
+      border: 1px solid #e9d5ff;
+      border-radius: 16px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .qr-box {
+      width: 78px;
+      height: 78px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 4px;
+      flex-shrink: 0;
+    }
+
+    .qr-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .security-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sec-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .sec-icon {
+      color: #6b21a8;
+      font-size: 16px;
+      line-height: 1;
+      margin-top: 1px;
+    }
+
+    .sec-text-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .sec-text-sub {
+      font-size: 9.5px;
+      color: #64748b;
+      margin-top: 1px;
+      line-height: 1.25;
+    }
+
+    /* BOTTOM BRAND BAR */
+    .r-bottom-bar {
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .brand-left {
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .brand-left strong {
+      color: #6b21a8;
+      font-weight: 800;
+    }
+
+    .brand-left span {
+      display: block;
+      font-size: 9.5px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+
+    .brand-badge {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      width: 52px;
+      background: #6b21a8;
+      border-top-left-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 18px;
     }
 
     /* PRINT SPECIFIC STYLES */
@@ -346,147 +470,160 @@
         box-shadow: none !important;
         border-radius: 0 !important;
       }
-      .desktop-only { display: table-cell !important; }
     }
   </style>
 </head>
 <body>
 
-  <div id="loading-state" class="status-msg">Loading receipt details…</div>
+  <div id="loading-state" class="status-msg">Loading receipt...</div>
   <div id="error-state" class="status-msg" style="display:none; color:#f43f5e;"></div>
 
   <div id="receipt-wrap" style="display:none; width: 100%; display: flex; justify-content: center;">
     <div class="receipt-paper" id="receipt-paper">
       
-      <!-- HEADER -->
+      <!-- SINGLE LOGO HEADER -->
       <div class="r-header">
-        <div class="r-header-top">
-          
-          <div class="brand-logos">
-            <!-- Quantum OS Core Logo Badge -->
-            <div class="logo-box logo-q-default" title="Quantum OPS Elite">Q</div>
-            <!-- Dynamic Merchant Logo -->
-            <img id="r-logo" class="logo-box" src="" alt="Merchant Logo" style="display:none;">
-          </div>
+        <div class="logo-container">
+          <img id="r-logo" class="r-single-logo" src="" alt="Store Logo" style="display:none;">
+          <div id="r-logo-fallback" class="r-logo-fallback" style="display:none;">Q</div>
+        </div>
+        <div class="r-biz-name" id="r-biz-name">Quantum OPS</div>
+        <div class="r-biz-tag">AI BUSINESS OS</div>
+        <div class="r-biz-addr" id="r-biz-addr"></div>
+        <div class="r-header-divider"></div>
+      </div>
 
-          <div class="r-header-right">
-            <div class="r-biz-title" id="r-biz-name">Quantum OPS Headquarters</div>
-            <div class="r-biz-tag">AI BUSINESS OS · ELITE</div>
-            <div class="r-biz-details" id="r-biz-addr">
-              123 Business Avenue, Victoria Island, Lagos, Nigeria.<br>
-              +234 901 234 5678 · support@quantumops.com
-            </div>
-          </div>
+      <!-- RECEIPT TITLE -->
+      <div class="r-title-block">
+        <div class="r-title">SALES RECEIPT</div>
+        <div class="r-subtitle" id="r-thank-short">Thank you for your purchase!</div>
+      </div>
 
+      <!-- METADATA ROWS -->
+      <div class="r-meta-section">
+        <div class="meta-row">
+          <span class="meta-icon">📄</span>
+          <span class="meta-label">Receipt No.</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-receipt-no">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">📅</span>
+          <span class="meta-label">Date</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-date">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">🕒</span>
+          <span class="meta-label">Time</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-time">—</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">👤</span>
+          <span class="meta-label">Cashier</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-cashier">Staff</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">🖥️</span>
+          <span class="meta-label">Terminal</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-terminal">POS-01</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-icon">💳</span>
+          <span class="meta-label">Payment Type</span>
+          <span class="meta-colon">:</span>
+          <span class="meta-val" id="r-payment">Cash</span>
         </div>
       </div>
 
-      <!-- TITLE -->
-      <div class="r-title-banner">
-        <h1>SALES RECEIPT</h1>
-        <p id="r-thank-short">Thank you for your purchase!</p>
-      </div>
-
-      <!-- META & CUSTOMER GRID -->
-      <div class="r-info-grid">
-        
-        <!-- Transaction Details -->
-        <div class="info-card">
-          <div class="info-card-title">
-            <span>📋 TRANSACTION DETAILS</span>
-          </div>
-          <div class="meta-row"><span class="meta-label">Receipt No.</span><span class="meta-val" id="r-receipt-no">—</span></div>
-          <div class="meta-row"><span class="meta-label">Date</span><span class="meta-val" id="r-date">—</span></div>
-          <div class="meta-row"><span class="meta-label">Time</span><span class="meta-val" id="r-time">—</span></div>
-          <div class="meta-row"><span class="meta-label">Cashier</span><span class="meta-val" id="r-cashier">Staff</span></div>
-          <div class="meta-row"><span class="meta-label">Payment Type</span><span class="meta-val" id="r-payment">Cash</span></div>
+      <!-- CUSTOMER BOX -->
+      <div class="r-customer-box">
+        <div class="r-customer-header">
+          <span>👤 CUSTOMER</span>
         </div>
-
-        <!-- Customer Details -->
-        <div class="info-card">
-          <div class="info-card-title">
-            <span>👤 CUSTOMER INFORMATION</span>
-          </div>
-          <div class="meta-row"><span class="meta-label">Customer Name</span><span class="meta-val" id="r-customer">Walk-in Customer</span></div>
-          <div class="meta-row"><span class="meta-label">Status</span><span class="meta-val" id="r-customer-note">No profile provided</span></div>
-        </div>
-
+        <div class="r-customer-name" id="r-customer">Walk-in Customer</div>
+        <div class="r-customer-note" id="r-customer-note">No customer information provided</div>
       </div>
 
-      <!-- TABLE OF ITEMS -->
-      <div class="r-items-wrap">
-        <table class="r-table">
-          <thead>
-            <tr>
-              <th style="width: 6%;" class="col-center">#</th>
-              <th>ITEM DESCRIPTION</th>
-              <th class="desktop-only">SKU / BARCODE</th>
-              <th class="desktop-only col-center">UNIT</th>
-              <th class="col-center">QTY</th>
-              <th class="col-right">PRICE</th>
-              <th class="col-right">TOTAL</th>
-            </tr>
-          </thead>
-          <tbody id="r-items-body">
-            <!-- Dynamic Rows Generated Here -->
-          </tbody>
-        </table>
-      </div>
+      <!-- ITEMS TABLE -->
+      <table class="r-items-table">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-item">ITEM</th>
+            <th class="col-qty">QTY</th>
+            <th class="col-price">UNIT PRICE</th>
+            <th class="col-total">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody id="r-items-body">
+          <!-- Dynamic Items Injected Here -->
+        </tbody>
+      </table>
 
       <!-- SUMMARY SECTION -->
       <div class="r-summary-block">
-        <div class="summary-box">
-          <div class="sum-row"><span class="sum-label">Subtotal</span><span class="sum-val" id="r-subtotal">₦0.00</span></div>
-          <div class="sum-row"><span class="sum-label">Discount</span><span class="sum-val" id="r-discount">₦0.00</span></div>
-          <div class="sum-row"><span class="sum-label">Tax (0.00%)</span><span class="sum-val" id="r-tax">₦0.00</span></div>
-          
-          <div class="sum-divider"></div>
-
-          <div class="total-row">
-            <span class="total-label">TOTAL</span>
-            <span class="total-val" id="r-total">₦0.00</span>
-          </div>
-
-          <div class="paid-card">
-            <span>AMOUNT PAID</span>
-            <span id="r-paid">₦0.00</span>
-          </div>
-
-          <div class="change-row">
-            <span>CHANGE</span>
-            <span id="r-change">₦0.00</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECURITY & SIGNATURE FOOTER -->
-      <div class="r-bottom-bar">
+        <div class="sum-row"><span class="sum-label">Subtotal</span><span class="sum-val" id="r-subtotal">₦0.00</span></div>
+        <div class="sum-row"><span class="sum-label">Discount</span><span class="sum-val" id="r-discount">₦0.00</span></div>
+        <div class="sum-row"><span class="sum-label">Tax (0.00%)</span><span class="sum-val" id="r-tax">₦0.00</span></div>
         
-        <div class="qr-flex">
-          <img id="r-qr-code" class="qr-img" src="" alt="QR Code">
-          <div class="security-text">
-            <h4>SECURE TRANSACTION</h4>
-            <p>Computer-generated official receipt.<br>Scan QR code to verify online.</p>
-          </div>
+        <div class="sum-divider"></div>
+
+        <div class="total-row">
+          <span class="total-label">TOTAL</span>
+          <span class="total-val" id="r-total">₦0.00</span>
         </div>
 
-        <div class="signature-box">
-          <div class="sig-line" id="r-cashier-sig">Chima Eze</div>
-          <div class="sig-sub">Authorized Signature</div>
+        <div class="paid-card">
+          <span class="paid-label">AMOUNT PAID</span>
+          <span class="paid-val" id="r-paid">₦0.00</span>
         </div>
 
+        <div class="change-row">
+          <span class="change-label">CHANGE</span>
+          <span class="change-val" id="r-change">₦0.00</span>
+        </div>
       </div>
 
-      <!-- BRAND FOOTER -->
-      <div class="r-footer-credit">
-        <span>Powered by Quantum OPS Elite</span>
-        <span>Smart. Secure. Scalable.</span>
+      <!-- SECURITY CARD WITH QR -->
+      <div class="r-footer-card">
+        <div class="qr-box">
+          <img id="r-qr-code" class="qr-img" src="" alt="QR">
+        </div>
+        <div class="security-info">
+          <div class="sec-item">
+            <span class="sec-icon">🛡️</span>
+            <div>
+              <div class="sec-text-title">SECURE TRANSACTION</div>
+              <div class="sec-text-sub">This is a computer generated receipt and does not require a signature.</div>
+            </div>
+          </div>
+          <div class="sec-item">
+            <span class="sec-icon">📱</span>
+            <div>
+              <div class="sec-text-title">SCAN TO REVIEW</div>
+              <div class="sec-text-sub">Scan this QR code to view your transaction details digitally.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM BRAND BAR -->
+      <div class="r-bottom-bar">
+        <div class="brand-left">
+          Powered by <strong>Quantum OPS Elite</strong>
+          <span>Smart. Secure. Scalable.</span>
+        </div>
+        <div class="brand-badge">Q</div>
       </div>
 
     </div>
   </div>
 
-  <!-- FLOATING SCREEN ACTIONS -->
+  <!-- FLOATING SCREEN ACTION BAR -->
   <div class="action-bar">
     <button type="button" class="btn-back" onclick="goBack()">← Back</button>
     <button type="button" class="btn-wa" onclick="sendWhatsApp()">WhatsApp</button>
@@ -545,8 +682,8 @@
 
     function applyCompany() {
       const c = company || {};
-      const name = c.company_name || "Quantum OPS Headquarters";
-      const address = c.address || "123 Business Avenue, Victoria Island, Lagos, Nigeria.";
+      const name = c.company_name || "QUANTUM OPS";
+      const address = c.address || "";
       const phone = c.phone || "";
       const email = c.email || "";
       const thank = c.thank_you_message || "Thank you for your purchase!";
@@ -563,9 +700,15 @@
       setText("r-thank-short", thank);
 
       const logoImg = document.getElementById("r-logo");
+      const logoFb = document.getElementById("r-logo-fallback");
+      
       if (logo) {
         logoImg.src = logo;
         logoImg.style.display = "block";
+        logoFb.style.display = "none";
+      } else {
+        logoImg.style.display = "none";
+        logoFb.style.display = "flex";
       }
     }
 
@@ -573,12 +716,13 @@
       const s = sale;
       if (!s) return;
 
-      const receiptNo = s.sale_number || s.transaction_id || String(s.id || "").slice(0, 8);
+      const receiptNo = s.sale_number || s.transaction_id || ("INV-" + String(s.id || "").slice(0, 8).toUpperCase());
       const dt = new Date(s.created_at || Date.now());
       const dateStr = dt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
       const timeStr = dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
       const customer = s.customer_name || "Walk-in Customer";
       const cashier = s.cashier_name || "Staff";
+      const terminal = s.terminal || "POS-01";
       const payment = s.payment_method || "Cash";
       
       const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
@@ -592,10 +736,10 @@
       setText("r-date", dateStr);
       setText("r-time", timeStr);
       setText("r-cashier", cashier);
-      setText("r-cashier-sig", cashier);
+      setText("r-terminal", terminal);
       setText("r-payment", payment);
       setText("r-customer", customer);
-      setText("r-customer-note", customer === "Walk-in Customer" ? "No customer profile connected" : "Verified Customer");
+      setText("r-customer-note", customer === "Walk-in Customer" ? "No customer information provided" : "Registered Customer");
       
       setText("r-subtotal", formatCurrency(subtotal));
       setText("r-discount", formatCurrency(discount));
@@ -604,7 +748,7 @@
       setText("r-paid", formatCurrency(paid));
       setText("r-change", formatCurrency(change));
 
-      // QR Code Quick API Dynamic Load
+      // QR Code Generation
       const qrData = encodeURIComponent("RECEIPT:" + receiptNo + "|TOTAL:" + amount);
       document.getElementById("r-qr-code").src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + qrData;
 
@@ -612,38 +756,34 @@
       let rows = "";
       
       if (!items.length) {
-        rows = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px;">No items listed on this sale</td></tr>';
+        rows = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px;">No items on this receipt</td></tr>';
       } else {
         items.forEach(function (item, idx) {
           const name = item.name || item.product_name || "Item";
-          const category = item.category || "General Item";
+          const category = item.category || "";
           const qty = parseInt(item.qty || item.quantity || 1, 10);
           const price = parseMoney(item.price);
           const lineTotal = price * qty;
-          const sku = item.sku || item.barcode || "N/A";
-          const unit = item.unit || "pcs";
           const img = item.image_url || item.image || item.photo || "";
           
           const imgHtml = img
             ? '<img src="' + esc(img) + '" class="item-thumb" alt="" onerror="this.style.display=\'none\'">'
-            : '<div class="item-thumb" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:10px;font-weight:700;">ITEM</div>';
+            : '';
 
           rows +=
             "<tr>" +
-              "<td class=\"col-center\" style=\"font-weight:700;\">" + (idx + 1) + "</td>" +
-              "<td>" +
+              "<td class=\"col-num\">" + (idx + 1) + "</td>" +
+              "<td class=\"col-item\">" +
                 "<div class=\"item-flex\">" + imgHtml +
                   "<div>" +
                     "<div class=\"item-name-text\">" + esc(name) + "</div>" +
-                    "<div class=\"item-cat-text\">" + esc(category) + "</div>" +
+                    (category ? "<div class=\"item-cat-text\">" + esc(category) + "</div>" : "") +
                   "</div>" +
                 "</div>" +
               "</td>" +
-              "<td class=\"desktop-only item-sku-code\">" + esc(sku) + "</td>" +
-              "<td class=\"desktop-only col-center\" style=\"color:#64748b;\">" + esc(unit) + "</td>" +
-              "<td class=\"col-center\" style=\"font-weight:700;\">" + qty + "</td>" +
-              "<td class=\"col-right\">" + formatCurrency(price) + "</td>" +
-              "<td class=\"col-right\" style=\"font-weight:800;color:#0f172a;\">" + formatCurrency(lineTotal) + "</td>" +
+              "<td class=\"col-qty\">" + qty + "</td>" +
+              "<td class=\"col-price\">" + formatCurrency(price) + "</td>" +
+              "<td class=\"col-total\">" + formatCurrency(lineTotal) + "</td>" +
             "</tr>";
         });
       }
@@ -663,8 +803,8 @@
       const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
       
       const lines = [
-        "🧾 *OFFICIAL SALES RECEIPT*",
-        "*" + (c.company_name || "Quantum OPS Headquarters") + "*",
+        "🧾 *SALES RECEIPT*",
+        "*" + (c.company_name || "Quantum OPS") + "*",
         "------------------------------------"
       ];
       if (c.address) lines.push(c.address);
@@ -685,9 +825,9 @@
       
       lines.push("------------------------------------");
       lines.push("*TOTAL: " + formatCurrency(amount) + "*");
-      lines.push("Payment (" + (s.payment_method || "Cash") + "): " + formatCurrency(s.paid_amount != null ? s.paid_amount : amount));
+      lines.push("Paid (" + (s.payment_method || "Cash") + "): " + formatCurrency(s.paid_amount != null ? s.paid_amount : amount));
       lines.push("------------------------------------");
-      lines.push(c.thank_you_message || "Thank you for your business!");
+      lines.push(c.thank_you_message || "Thank you for your purchase!");
       return lines.join("\n");
     }
 
@@ -697,9 +837,8 @@
     }
 
     function getPdfOptions(filename) {
-      const isMobile = window.innerWidth < 850;
       return {
-        margin: isMobile ? [5, 5, 5, 5] : [8, 8, 8, 8],
+        margin: [4, 4, 4, 4],
         filename: filename || "receipt.pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
@@ -708,10 +847,10 @@
           backgroundColor: "#ffffff",
           logging: false,
           scrollY: 0,
-          windowWidth: isMobile ? 440 : 800
+          windowWidth: 420
         },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["css", "legacy"], avoid: [".r-header", ".r-info-grid", ".r-summary-block", ".r-bottom-bar"] }
+        pagebreak: { mode: ["css", "legacy"] }
       };
     }
 
@@ -739,7 +878,7 @@
           await navigator.share({
             files: [file],
             title: "Receipt - " + name,
-            text: "Official receipt from " + ((company && company.company_name) || "Quantum OPS Headquarters")
+            text: "Official receipt from " + ((company && company.company_name) || "Quantum OPS")
           });
           return;
         }
