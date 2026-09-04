@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>Purchases — Quantum OPS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Plus Jakarta Sans", "sans-serif"] },
+          colors: {
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A",
+            positiveGreen: "#31D17C",
+            dangerRed: "#FF4F67",
+            warningYellow: "#F5C451"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    .nav-link.active {
+      background: rgba(124,77,255,0.18);
+      color: #fff;
+      border-left: 2px solid #7C4DFF;
+    }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .bg-card, body.theme-day .bg-cardElevated { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .text-white, body.theme-day .text-textPrimary, body.theme-day h1 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
+    body.theme-day header { background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
+    body.theme-day input, body.theme-day select, body.theme-day textarea {
+      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #0F172A !important;
+    }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active { background: rgba(108,92,231,0.12) !important; color: #5B3DFF !important; }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex">
+  <!-- SIDEBAR -->
+  <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col p-3 shrink-0">
+    <div class="flex items-center gap-2 px-1 pt-1 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-primaryPurple/20 flex items-center justify-center text-primaryPurple font-bold text-sm">Q</div>
+      <div>
+        <div class="font-extrabold text-sm text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+        <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">Purchases</div>
+      </div>
+    </div>
+    <nav class="space-y-0.5 text-xs flex-1 overflow-y-auto">
+      <a href="desktop.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-squares-four text-base"></i>Dashboard</a>
+      <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-shopping-cart text-base"></i>POS / Sales</a>
+      <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-package text-base"></i>Inventory</a>
+      <a href="purchases.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-bold ph-bag-simple text-base text-primaryPurple"></i>Purchases</a>
+      <a href="debtors.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-hand-coins text-base"></i>Debtors</a>
+      <a href="expenses.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-receipt text-base"></i>Expenses</a>
+      <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-gear text-base"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+    <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
+      <div>
+        <h1 class="text-base font-extrabold text-white">Purchases</h1>
+        <p class="text-[11px] text-textMuted">Record supplier buys · restock inventory</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary" title="Theme">
+          <i class="ph-bold ph-moon text-sm" id="theme-icon"></i>
+        </button>
+        <button type="button" onclick="openPurchaseModal()" class="px-3 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold hover:opacity-90">
+          + New Purchase
+        </button>
+      </div>
+    </header>
+
+    <div class="p-5 space-y-4">
+      <!-- Summary cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">This Month</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="sum-month">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Total Purchases</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="sum-count">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Paid</div>
+          <div class="text-lg font-extrabold text-positiveGreen mt-1" id="sum-paid">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Balance Owed</div>
+          <div class="text-lg font-extrabold text-dangerRed mt-1" id="sum-balance">₦0.00</div>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+        <div class="px-4 py-3 border-b border-borderSubtle flex items-center justify-between">
+          <span class="text-sm font-bold text-white">Purchase History</span>
+          <input id="search-input" type="text" placeholder="Search supplier…" class="px-3 py-1.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary w-48 focus:outline-none focus:border-primaryPurple" oninput="renderList()">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-textMuted border-b border-borderSubtle">
+                <th class="px-4 py-3 font-semibold">Date</th>
+                <th class="px-4 py-3 font-semibold">Supplier</th>
+                <th class="px-4 py-3 font-semibold">Items</th>
+                <th class="px-4 py-3 font-semibold text-right">Total Cost</th>
+                <th class="px-4 py-3 font-semibold text-right">Paid</th>
+                <th class="px-4 py-3 font-semibold text-right">Balance</th>
+                <th class="px-4 py-3 font-semibold">Payment</th>
+                <th class="px-4 py-3 font-semibold">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="purchases-body">
+              <tr><td colspan="8" class="px-4 py-8 text-center text-textMuted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: New Purchase -->
+  <div id="purchase-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.75)">
+    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-card border border-borderSubtle p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-extrabold text-white">New Purchase</h2>
+        <button type="button" onclick="closePurchaseModal()" class="text-textMuted hover:text-white text-xl">&times;</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Supplier Name *</label>
+          <input id="p-supplier" type="text" placeholder="e.g. ABC Distributors" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Purchase Date</label>
+          <input id="p-date" type="date" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Payment Method</label>
+          <select id="p-payment" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+            <option value="Cash">Cash</option>
+            <option value="Transfer">Transfer</option>
+            <option value="POS">POS</option>
+            <option value="Credit">Credit (pay later)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Amount Paid (₦)</label>
+          <input id="p-paid" type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="text-[10px] text-textMuted font-semibold block mb-1">Notes</label>
+        <input id="p-notes" type="text" placeholder="Optional" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+      </div>
+
+      <!-- Line items -->
+      <div class="mb-2 flex items-center justify-between">
+        <span class="text-xs font-bold text-white">Items</span>
+        <button type="button" onclick="addLineRow()" class="text-[11px] font-semibold text-primaryPurple">+ Add line</button>
+      </div>
+      <div id="line-items" class="space-y-2 mb-4"></div>
+
+      <div class="flex items-center justify-between border-t border-borderSubtle pt-4">
+        <div class="text-sm">
+          <span class="text-textMuted">Total: </span>
+          <span class="font-extrabold text-white" id="p-total">₦0.00</span>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" onclick="closePurchaseModal()" class="px-4 py-2 rounded-lg border border-borderSubtle text-xs font-semibold text-textSecondary">Cancel</button>
+          <button type="button" id="save-purchase-btn" onclick="savePurchase()" class="px-4 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold">Save Purchase</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let products = [];
+    let purchases = [];
+    let lineCounter = 0;
+
+    function $(id) { return document.getElementById(id); }
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function parseMoney(v) {
+      if (v == null || v === "") return 0;
+      if (typeof v === "number") return isNaN(v) ? 0 : v;
+      const n = parseFloat(String(v).replace(/[₦$,\s]/g, ""));
+      return isNaN(n) ? 0 : n;
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem("quantum_theme") || "system";
+        const day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.body.classList.toggle("theme-day", day);
+        document.documentElement.classList.toggle("dark", !day);
+        const icon = $("theme-icon");
+        if (icon) icon.className = day ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const cur = localStorage.getItem("quantum_theme") || "system";
+      const next = cur === "day" ? "night" : cur === "night" ? "system" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function openPurchaseModal() {
+      $("p-supplier").value = "";
+      $("p-notes").value = "";
+      $("p-paid").value = "0";
+      $("p-payment").value = "Cash";
+      const today = new Date();
+      $("p-date").value = today.toISOString().slice(0, 10);
+      $("line-items").innerHTML = "";
+      lineCounter = 0;
+      addLineRow();
+      updateTotal();
+      $("purchase-modal").classList.remove("hidden");
+      $("purchase-modal").classList.add("flex");
+    }
+    function closePurchaseModal() {
+      $("purchase-modal").classList.add("hidden");
+      $("purchase-modal").classList.remove("flex");
+    }
+
+    function addLineRow() {
+      lineCounter++;
+      const id = "line-" + lineCounter;
+      const opts = products.map(function (p) {
+        return '<option value="' + esc(p.id) + '" data-name="' + esc(p.name) + '" data-cost="' + (p.unit_cost || p.bulk_cost || 0) + '">' + esc(p.name) + (p.sku ? " (" + esc(p.sku) + ")" : "") + "</option>";
+      }).join("");
+      const html =
+        '<div class="grid grid-cols-12 gap-2 items-end" id="' + id + '">' +
+          '<div class="col-span-5">' +
+            (lineCounter === 1 ? '<label class="text-[10px] text-textMuted block mb-1">Product</label>' : "") +
+            '<select class="line-product w-full px-2 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary" onchange="onProductChange(this)">' +
+              '<option value="">— Select or type below —</option>' + opts +
+            "</select>" +
+            '<input type="text" class="line-name mt-1 w-full px-2 py-1.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary" placeholder="Or type product name">' +
+          "</div>" +
+          '<div class="col-span-2">' +
+            (lineCounter === 1 ? '<label class="text-[10px] text-textMuted block mb-1">Qty</label>' : "") +
+            '<input type="number" min="0" step="1" value="1" class="line-qty w-full px-2 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary" oninput="updateTotal()">' +
+          "</div>" +
+          '<div class="col-span-3">' +
+            (lineCounter === 1 ? '<label class="text-[10px] text-textMuted block mb-1">Unit Cost (₦)</label>' : "") +
+            '<input type="number" min="0" step="0.01" value="0" class="line-cost w-full px-2 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary" oninput="updateTotal()">' +
+          "</div>" +
+          '<div class="col-span-2 flex items-center gap-1">' +
+            '<button type="button" onclick="document.getElementById(\'' + id + '\').remove();updateTotal()" class="text-dangerRed text-sm px-2 py-2">&times;</button>' +
+          "</div>" +
+        "</div>";
+      $("line-items").insertAdjacentHTML("beforeend", html);
+    }
+
+    function onProductChange(sel) {
+      const opt = sel.options[sel.selectedIndex];
+      const row = sel.closest("[id^='line-']");
+      if (!row) return;
+      const nameInput = row.querySelector(".line-name");
+      const costInput = row.querySelector(".line-cost");
+      if (opt && opt.value) {
+        if (nameInput) nameInput.value = opt.getAttribute("data-name") || "";
+        if (costInput) costInput.value = opt.getAttribute("data-cost") || "0";
+      }
+      updateTotal();
+    }
+
+    function updateTotal() {
+      let total = 0;
+      document.querySelectorAll("#line-items [id^='line-']").forEach(function (row) {
+        const qty = parseFloat(row.querySelector(".line-qty").value) || 0;
+        const cost = parseFloat(row.querySelector(".line-cost").value) || 0;
+        total += qty * cost;
+      });
+      $("p-total").textContent = formatCurrency(total);
+    }
+
+    function getLines() {
+      const lines = [];
+      document.querySelectorAll("#line-items [id^='line-']").forEach(function (row) {
+        const sel = row.querySelector(".line-product");
+        const productId = sel && sel.value ? sel.value : null;
+        const name = (row.querySelector(".line-name").value || "").trim() ||
+          (sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].getAttribute("data-name") : "") ||
+          "Item";
+        const qty = parseFloat(row.querySelector(".line-qty").value) || 0;
+        const unitCost = parseFloat(row.querySelector(".line-cost").value) || 0;
+        if (qty > 0) {
+          lines.push({
+            product_id: productId,
+            product_name: name,
+            quantity: qty,
+            unit_cost: unitCost,
+            total_cost: qty * unitCost
+          });
+        }
+      });
+      return lines;
+    }
+
+    async function savePurchase() {
+      const supplier = ($("p-supplier").value || "").trim();
+      if (!supplier) return alert("Enter supplier name");
+      const lines = getLines();
+      if (!lines.length) return alert("Add at least one item");
+      if (!userCompanyId) return alert("Company not loaded. Refresh.");
+
+      const totalCost = lines.reduce(function (a, l) { return a + l.total_cost; }, 0);
+      const paid = parseMoney($("p-paid").value);
+      const balance = Math.max(0, totalCost - paid);
+      const payment = $("p-payment").value || "Cash";
+      const notes = ($("p-notes").value || "").trim();
+      const dateVal = $("p-date").value;
+      const purchasedAt = dateVal ? new Date(dateVal + "T12:00:00").toISOString() : new Date().toISOString();
+
+      const btn = $("save-purchase-btn");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+      try {
+        const { data: purchase, error } = await supabaseClient
+          .from("purchases")
+          .insert([{
+            company_id: userCompanyId,
+            supplier_name: supplier,
+            total_cost: totalCost,
+            paid_amount: paid,
+            balance: balance,
+            payment_method: payment,
+            notes: notes || null,
+            purchased_at: purchasedAt
+          }])
+          .select("id")
+          .single();
+
+        if (error) throw error;
+
+        const itemRows = lines.map(function (l) {
+          return {
+            purchase_id: purchase.id,
+            product_id: l.product_id || null,
+            product_name: l.product_name,
+            quantity: l.quantity,
+            unit_cost: l.unit_cost,
+            total_cost: l.total_cost
+          };
+        });
+        const { error: itemsErr } = await supabaseClient.from("purchase_items").insert(itemRows);
+        if (itemsErr) console.warn("purchase_items", itemsErr);
+
+        // Restock products that match by id
+        for (let i = 0; i < lines.length; i++) {
+          const l = lines[i];
+          if (!l.product_id) continue;
+          const prod = products.find(function (p) { return p.id === l.product_id; });
+          if (!prod) continue;
+          const newStock = (parseFloat(prod.stock) || 0) + l.quantity;
+          await supabaseClient.from("products").update({ stock: newStock }).eq("id", l.product_id).eq("company_id", userCompanyId);
+          prod.stock = newStock;
+        }
+
+        closePurchaseModal();
+        await loadPurchases();
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "Could not save purchase");
+      }
+      if (btn) { btn.disabled = false; btn.textContent = "Save Purchase"; }
+    }
+
+    function renderList() {
+      const q = (($("search-input") || {}).value || "").toLowerCase().trim();
+      let list = purchases;
+      if (q) {
+        list = purchases.filter(function (p) {
+          return String(p.supplier_name || "").toLowerCase().indexOf(q) !== -1 ||
+            String(p.notes || "").toLowerCase().indexOf(q) !== -1;
+        });
+      }
+      const body = $("purchases-body");
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-textMuted">No purchases yet. Click + New Purchase.</td></tr>';
+        return;
+      }
+      body.innerHTML = list.map(function (p) {
+        const dt = p.purchased_at || p.created_at;
+        const dateStr = dt ? new Date(dt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—";
+        return (
+          "<tr class=\"border-b border-borderSubtle/60 hover:bg-cardElevated/50\">" +
+          "<td class=\"px-4 py-3 text-textSecondary\">" + dateStr + "</td>" +
+          "<td class=\"px-4 py-3 font-semibold text-white\">" + esc(p.supplier_name || "—") + "</td>" +
+          "<td class=\"px-4 py-3 text-textMuted\">—</td>" +
+          "<td class=\"px-4 py-3 text-right font-bold text-white\">" + formatCurrency(p.total_cost) + "</td>" +
+          "<td class=\"px-4 py-3 text-right text-positiveGreen\">" + formatCurrency(p.paid_amount) + "</td>" +
+          "<td class=\"px-4 py-3 text-right " + (parseMoney(p.balance) > 0 ? "text-dangerRed font-bold" : "text-textMuted") + "\">" + formatCurrency(p.balance) + "</td>" +
+          "<td class=\"px-4 py-3 text-textSecondary\">" + esc(p.payment_method || "Cash") + "</td>" +
+          "<td class=\"px-4 py-3 text-textMuted max-w-[140px] truncate\">" + esc(p.notes || "") + "</td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
+
+    function updateSummary() {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      let monthTotal = 0, paid = 0, balance = 0;
+      purchases.forEach(function (p) {
+        const dt = new Date(p.purchased_at || p.created_at);
+        if (dt >= monthStart) monthTotal += parseMoney(p.total_cost);
+        paid += parseMoney(p.paid_amount);
+        balance += parseMoney(p.balance);
+      });
+      $("sum-month").textContent = formatCurrency(monthTotal);
+      $("sum-count").textContent = String(purchases.length);
+      $("sum-paid").textContent = formatCurrency(paid);
+      $("sum-balance").textContent = formatCurrency(balance);
+    }
+
+    async function loadPurchases() {
+      if (!userCompanyId) return;
+      const { data, error } = await supabaseClient
+        .from("purchases")
+        .select("*")
+        .eq("company_id", userCompanyId)
+        .order("purchased_at", { ascending: false })
+        .limit(200);
+      if (error) {
+        console.error(error);
+        $("purchases-body").innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-dangerRed">Failed to load</td></tr>';
+        return;
+      }
+      purchases = data || [];
+      updateSummary();
+      renderList();
+    }
+
+    async function loadProducts() {
+      if (!userCompanyId) return;
+      const { data } = await supabaseClient
+        .from("products")
+        .select("id, name, sku, stock, unit_cost, bulk_cost")
+        .eq("company_id", userCompanyId)
+        .order("name")
+        .limit(500);
+      products = data || [];
+    }
+
+    async function init() {
+      applyTheme();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        if (!member || !member.company_id) {
+          alert("No company linked. Open Dashboard first.");
+          window.location.href = "desktop.html";
+          return;
+        }
+        userCompanyId = member.company_id;
+        await Promise.all([loadProducts(), loadPurchases()]);
+      } catch (err) {
+        console.error(err);
+        $("purchases-body").innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-dangerRed">Error loading</td></tr>';
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
