@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>Multi-Branch — Quantum OPS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Plus Jakarta Sans", "sans-serif"] },
+          colors: {
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A",
+            positiveGreen: "#31D17C",
+            dangerRed: "#FF4F67",
+            warningYellow: "#F5C451",
+            cyanAccent: "#4C9AFF"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    .nav-link.active { background: rgba(124,77,255,0.18); color: #fff; border-left: 2px solid #7C4DFF; }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .bg-card, body.theme-day .bg-cardElevated { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .text-white, body.theme-day .text-textPrimary, body.theme-day h1 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
+    body.theme-day header { background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
+    body.theme-day input, body.theme-day select, body.theme-day textarea {
+      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #0F172A !important;
+    }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active { background: rgba(108,92,231,0.12) !important; color: #5B3DFF !important; }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex">
+  <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col p-3 shrink-0">
+    <div class="flex items-center gap-2 px-1 pt-1 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-primaryPurple/20 flex items-center justify-center text-primaryPurple font-bold text-sm">Q</div>
+      <div>
+        <div class="font-extrabold text-sm text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+        <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">Branches</div>
+      </div>
+    </div>
+    <nav class="space-y-0.5 text-xs flex-1 overflow-y-auto">
+      <a href="desktop.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-squares-four text-base"></i>Dashboard</a>
+      <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-shopping-cart text-base"></i>POS / Sales</a>
+      <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-package text-base"></i>Inventory</a>
+      <a href="customers.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-users text-base"></i>Customers</a>
+      <a href="staff.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-identification-card text-base"></i>Staff & Payroll</a>
+      <a href="branches.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-bold ph-git-fork text-base text-primaryPurple"></i>Multi-Branch</a>
+      <a href="accounting.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-calculator text-base"></i>Accounting</a>
+      <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-gear text-base"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+    <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
+      <div>
+        <h1 class="text-base font-extrabold text-white">Multi-Branch</h1>
+        <p class="text-[11px] text-textMuted">Manage shop locations · main branch · contacts</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary">
+          <i class="ph-bold ph-moon text-sm" id="theme-icon"></i>
+        </button>
+        <button type="button" onclick="openBranchModal()" class="px-3 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold hover:opacity-90">
+          + Add Branch
+        </button>
+      </div>
+    </header>
+
+    <div class="p-5 space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Total Branches</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="sum-total">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Main Branch</div>
+          <div class="text-sm font-extrabold text-brightPurple mt-1 truncate" id="sum-main">—</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Other Locations</div>
+          <div class="text-lg font-extrabold text-cyanAccent mt-1" id="sum-other">0</div>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+        <div class="px-4 py-3 border-b border-borderSubtle flex flex-wrap items-center justify-between gap-2">
+          <span class="text-sm font-bold text-white">Branch List</span>
+          <input id="search-input" type="text" placeholder="Search name, address, phone…" oninput="renderList()"
+            class="px-3 py-1.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary w-56 focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-textMuted border-b border-borderSubtle">
+                <th class="px-4 py-3 font-semibold">Branch</th>
+                <th class="px-4 py-3 font-semibold">Address</th>
+                <th class="px-4 py-3 font-semibold">Phone</th>
+                <th class="px-4 py-3 font-semibold">Type</th>
+                <th class="px-4 py-3 font-semibold">Created</th>
+                <th class="px-4 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="branches-body">
+              <tr><td colspan="6" class="px-4 py-8 text-center text-textMuted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-card border border-borderSubtle p-4 text-xs text-textMuted">
+        <strong class="text-textSecondary">Note:</strong> Branches store locations for your business.
+        Sales, inventory, and staff are still company-wide for now. You can later assign stock or cashiers per branch when you expand.
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="branch-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.75)">
+    <div class="w-full max-w-md rounded-2xl bg-card border border-borderSubtle p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-extrabold text-white" id="modal-title">Add Branch</h2>
+        <button type="button" onclick="closeBranchModal()" class="text-textMuted hover:text-white text-xl">&times;</button>
+      </div>
+      <input type="hidden" id="b-id">
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Branch Name *</label>
+          <input id="b-name" type="text" placeholder="e.g. Ikeja Store" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Address</label>
+          <input id="b-address" type="text" placeholder="Street, area, city" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Phone</label>
+          <input id="b-phone" type="tel" placeholder="Branch contact number" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <label class="flex items-center gap-2 cursor-pointer select-none">
+          <input id="b-main" type="checkbox" class="rounded border-borderSubtle">
+          <span class="text-xs text-textSecondary">Set as <strong class="text-white">main branch</strong></span>
+        </label>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button type="button" onclick="closeBranchModal()" class="flex-1 px-4 py-2 rounded-lg border border-borderSubtle text-xs font-semibold text-textSecondary">Cancel</button>
+        <button type="button" id="save-branch-btn" onclick="saveBranch()" class="flex-1 px-4 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let branches = [];
+    let editingId = null;
+
+    function $(id) { return document.getElementById(id); }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem("quantum_theme") || "system";
+        const day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.body.classList.toggle("theme-day", day);
+        document.documentElement.classList.toggle("dark", !day);
+        const icon = $("theme-icon");
+        if (icon) icon.className = day ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const cur = localStorage.getItem("quantum_theme") || "system";
+      const next = cur === "day" ? "night" : cur === "night" ? "system" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function openBranchModal(b) {
+      editingId = b ? b.id : null;
+      $("modal-title").textContent = b ? "Edit Branch" : "Add Branch";
+      $("b-id").value = b ? b.id : "";
+      $("b-name").value = b ? (b.name || "") : "";
+      $("b-address").value = b ? (b.address || "") : "";
+      $("b-phone").value = b ? (b.phone || "") : "";
+      $("b-main").checked = b ? !!b.is_main : false;
+      $("branch-modal").classList.remove("hidden");
+      $("branch-modal").classList.add("flex");
+    }
+    function closeBranchModal() {
+      editingId = null;
+      $("branch-modal").classList.add("hidden");
+      $("branch-modal").classList.remove("flex");
+    }
+
+    async function saveBranch() {
+      const name = ($("b-name").value || "").trim();
+      if (!name) return alert("Enter branch name");
+      if (!userCompanyId) return alert("Company not loaded");
+
+      const isMain = !!$("b-main").checked;
+      const payload = {
+        company_id: userCompanyId,
+        name: name,
+        address: ($("b-address").value || "").trim() || null,
+        phone: ($("b-phone").value || "").trim() || null,
+        is_main: isMain
+      };
+
+      const btn = $("save-branch-btn");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+      try {
+        // If setting main, clear other mains first
+        if (isMain) {
+          await supabaseClient
+            .from("branches")
+            .update({ is_main: false })
+            .eq("company_id", userCompanyId)
+            .eq("is_main", true);
+        }
+
+        if (editingId) {
+          const { error } = await supabaseClient
+            .from("branches")
+            .update(payload)
+            .eq("id", editingId)
+            .eq("company_id", userCompanyId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient.from("branches").insert([payload]);
+          if (error) throw error;
+        }
+        closeBranchModal();
+        await loadBranches();
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "Could not save branch");
+      }
+      if (btn) { btn.disabled = false; btn.textContent = "Save"; }
+    }
+
+    async function deleteBranch(id, name) {
+      if (!confirm("Delete branch \"" + name + "\"?")) return;
+      try {
+        const { error } = await supabaseClient
+          .from("branches")
+          .delete()
+          .eq("id", id)
+          .eq("company_id", userCompanyId);
+        if (error) throw error;
+        await loadBranches();
+      } catch (err) {
+        alert(err.message || "Could not delete");
+      }
+    }
+
+    async function setMain(id) {
+      try {
+        await supabaseClient
+          .from("branches")
+          .update({ is_main: false })
+          .eq("company_id", userCompanyId)
+          .eq("is_main", true);
+        const { error } = await supabaseClient
+          .from("branches")
+          .update({ is_main: true })
+          .eq("id", id)
+          .eq("company_id", userCompanyId);
+        if (error) throw error;
+        await loadBranches();
+      } catch (err) {
+        alert(err.message || "Could not update main branch");
+      }
+    }
+
+    function renderList() {
+      const q = (($("search-input") || {}).value || "").toLowerCase().trim();
+      let list = branches;
+      if (q) {
+        list = branches.filter(function (b) {
+          return String(b.name || "").toLowerCase().indexOf(q) !== -1 ||
+            String(b.address || "").toLowerCase().indexOf(q) !== -1 ||
+            String(b.phone || "").toLowerCase().indexOf(q) !== -1;
+        });
+      }
+      const body = $("branches-body");
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-textMuted">No branches yet. Click + Add Branch.</td></tr>';
+        return;
+      }
+      body.innerHTML = list.map(function (b) {
+        const created = b.created_at
+          ? new Date(b.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+          : "—";
+        const isMain = !!b.is_main;
+        return (
+          "<tr class=\"border-b border-borderSubtle/60 hover:bg-cardElevated/50\">" +
+          "<td class=\"px-4 py-3\"><div class=\"font-semibold text-white\">" + esc(b.name) + "</div></td>" +
+          "<td class=\"px-4 py-3 text-textSecondary max-w-[200px] truncate\">" + (b.address ? esc(b.address) : "—") + "</td>" +
+          "<td class=\"px-4 py-3 text-textMuted\">" + (b.phone ? esc(b.phone) : "—") + "</td>" +
+          "<td class=\"px-4 py-3\">" +
+            (isMain
+              ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-primaryPurple/20 text-brightPurple">Main</span>'
+              : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cardElevated text-textMuted border border-borderSubtle">Branch</span>') +
+          "</td>" +
+          "<td class=\"px-4 py-3 text-textMuted\">" + created + "</td>" +
+          "<td class=\"px-4 py-3 text-right\">" +
+            "<div class=\"flex items-center justify-end gap-1 flex-wrap\">" +
+              (!isMain ? "<button type=\"button\" class=\"px-2 py-1 rounded text-[10px] font-semibold bg-cyanAccent/15 text-cyanAccent\" onclick=\"setMain('" + b.id + "')\">Set main</button>" : "") +
+              "<button type=\"button\" class=\"px-2 py-1 rounded text-[10px] font-semibold bg-primaryPurple/15 text-brightPurple\" onclick='openBranchModal(" + JSON.stringify(b).replace(/'/g, "&#39;") + ")'>Edit</button>" +
+              "<button type=\"button\" class=\"px-2 py-1 rounded text-[10px] font-semibold bg-dangerRed/15 text-dangerRed\" onclick=\"deleteBranch('" + b.id + "','" + esc(b.name).replace(/'/g, "") + "')\">Del</button>" +
+            "</div></td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
+
+    function updateSummary() {
+      const main = branches.find(function (b) { return b.is_main; });
+      $("sum-total").textContent = String(branches.length);
+      $("sum-main").textContent = main ? main.name : "Not set";
+      $("sum-other").textContent = String(Math.max(0, branches.length - (main ? 1 : 0)));
+    }
+
+    async function loadBranches() {
+      if (!userCompanyId) return;
+      const { data, error } = await supabaseClient
+        .from("branches")
+        .select("*")
+        .eq("company_id", userCompanyId)
+        .order("is_main", { ascending: false })
+        .order("name");
+      if (error) {
+        console.error(error);
+        $("branches-body").innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-dangerRed">Failed to load</td></tr>';
+        return;
+      }
+      branches = data || [];
+      updateSummary();
+      renderList();
+    }
+
+    async function init() {
+      applyTheme();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        if (!member || !member.company_id) {
+          window.location.href = "desktop.html";
+          return;
+        }
+        userCompanyId = member.company_id;
+        await loadBranches();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
