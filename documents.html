@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>Documents — Quantum OPS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Plus Jakarta Sans", "sans-serif"] },
+          colors: {
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A",
+            positiveGreen: "#31D17C",
+            dangerRed: "#FF4F67",
+            warningYellow: "#F5C451",
+            cyanAccent: "#4C9AFF"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    .nav-link.active { background: rgba(124,77,255,0.18); color: #fff; border-left: 2px solid #7C4DFF; }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .bg-card, body.theme-day .bg-cardElevated { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .text-white, body.theme-day .text-textPrimary, body.theme-day h1 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
+    body.theme-day header { background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
+    body.theme-day input, body.theme-day select, body.theme-day textarea {
+      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #0F172A !important;
+    }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active { background: rgba(108,92,231,0.12) !important; color: #5B3DFF !important; }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex">
+  <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col p-3 shrink-0">
+    <div class="flex items-center gap-2 px-1 pt-1 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-primaryPurple/20 flex items-center justify-center text-primaryPurple font-bold text-sm">Q</div>
+      <div>
+        <div class="font-extrabold text-sm text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+        <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">Documents</div>
+      </div>
+    </div>
+    <nav class="space-y-0.5 text-xs flex-1 overflow-y-auto">
+      <a href="desktop.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-squares-four text-base"></i>Dashboard</a>
+      <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-shopping-cart text-base"></i>POS / Sales</a>
+      <a href="tasks.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-check-square text-base"></i>Tasks</a>
+      <a href="calendar.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-calendar-blank text-base"></i>Calendar</a>
+      <a href="documents.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-bold ph-folder text-base text-primaryPurple"></i>Documents</a>
+      <a href="staff.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-identification-card text-base"></i>Staff</a>
+      <a href="accounting.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-calculator text-base"></i>Accounting</a>
+      <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-gear text-base"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+    <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
+      <div>
+        <h1 class="text-base font-extrabold text-white">Documents</h1>
+        <p class="text-[11px] text-textMuted">Business files · contracts · licences · links</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary">
+          <i class="ph-bold ph-moon text-sm" id="theme-icon"></i>
+        </button>
+        <button type="button" onclick="openDocModal()" class="px-3 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold hover:opacity-90">
+          + Add Document
+        </button>
+      </div>
+    </header>
+
+    <div class="p-5 space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Total Documents</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="sum-total">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">With File Link</div>
+          <div class="text-lg font-extrabold text-cyanAccent mt-1" id="sum-linked">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Categories</div>
+          <div class="text-lg font-extrabold text-brightPurple mt-1" id="sum-cats">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Added This Month</div>
+          <div class="text-lg font-extrabold text-positiveGreen mt-1" id="sum-month">0</div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="filter-cat" onchange="renderList()" class="px-3 py-1.5 rounded-lg bg-card border border-borderSubtle text-xs text-textPrimary focus:outline-none focus:border-primaryPurple">
+          <option value="all">All categories</option>
+        </select>
+        <input id="search-input" type="text" placeholder="Search title or notes…" oninput="renderList()"
+          class="px-3 py-1.5 rounded-lg bg-card border border-borderSubtle text-xs text-textPrimary w-56 focus:outline-none focus:border-primaryPurple">
+      </div>
+
+      <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-textMuted border-b border-borderSubtle">
+                <th class="px-4 py-3 font-semibold">Document</th>
+                <th class="px-4 py-3 font-semibold">Category</th>
+                <th class="px-4 py-3 font-semibold">Link</th>
+                <th class="px-4 py-3 font-semibold">Added</th>
+                <th class="px-4 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="docs-body">
+              <tr><td colspan="5" class="px-4 py-8 text-center text-textMuted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="text-[10px] text-textMuted">
+        Store title, category, notes, and a link (Google Drive, Dropbox, or any public file URL).
+        Direct file upload to Supabase Storage can be added later.
+      </p>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div id="doc-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.75)">
+    <div class="w-full max-w-md rounded-2xl bg-card border border-borderSubtle p-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-extrabold text-white" id="modal-title">Add Document</h2>
+        <button type="button" onclick="closeDocModal()" class="text-textMuted hover:text-white text-xl">&times;</button>
+      </div>
+      <input type="hidden" id="d-id">
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Title *</label>
+          <input id="d-title" type="text" placeholder="e.g. CAC Certificate, Lease Agreement" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Category</label>
+          <select id="d-category" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+            <option value="General">General</option>
+            <option value="Legal">Legal</option>
+            <option value="Finance">Finance</option>
+            <option value="Tax">Tax</option>
+            <option value="HR">HR</option>
+            <option value="Licences">Licences</option>
+            <option value="Contracts">Contracts</option>
+            <option value="Receipts">Receipts</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">File URL / Link</label>
+          <input id="d-url" type="url" placeholder="https://…" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Notes</label>
+          <textarea id="d-notes" rows="3" placeholder="Optional notes" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple resize-none"></textarea>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button type="button" onclick="closeDocModal()" class="flex-1 px-4 py-2 rounded-lg border border-borderSubtle text-xs font-semibold text-textSecondary">Cancel</button>
+        <button type="button" id="save-doc-btn" onclick="saveDoc()" class="flex-1 px-4 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let docs = [];
+    let editingId = null;
+
+    function $(id) { return document.getElementById(id); }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem("quantum_theme") || "system";
+        const day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.body.classList.toggle("theme-day", day);
+        document.documentElement.classList.toggle("dark", !day);
+        const icon = $("theme-icon");
+        if (icon) icon.className = day ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const cur = localStorage.getItem("quantum_theme") || "system";
+      const next = cur === "day" ? "night" : cur === "night" ? "system" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function openDocModal(doc) {
+      editingId = doc ? doc.id : null;
+      $("modal-title").textContent = doc ? "Edit Document" : "Add Document";
+      $("d-id").value = doc ? doc.id : "";
+      $("d-title").value = doc ? (doc.title || "") : "";
+      $("d-category").value = doc ? (doc.category || "General") : "General";
+      $("d-url").value = doc ? (doc.file_url || "") : "";
+      $("d-notes").value = doc ? (doc.notes || "") : "";
+      $("doc-modal").classList.remove("hidden");
+      $("doc-modal").classList.add("flex");
+    }
+    function closeDocModal() {
+      editingId = null;
+      $("doc-modal").classList.add("hidden");
+      $("doc-modal").classList.remove("flex");
+    }
+
+    async function saveDoc() {
+      const title = ($("d-title").value || "").trim();
+      if (!title) return alert("Enter document title");
+      if (!userCompanyId) return alert("Company not loaded");
+
+      const payload = {
+        company_id: userCompanyId,
+        title: title,
+        category: $("d-category").value || "General",
+        file_url: ($("d-url").value || "").trim() || null,
+        notes: ($("d-notes").value || "").trim() || null
+      };
+
+      const btn = $("save-doc-btn");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+      try {
+        if (editingId) {
+          const { error } = await supabaseClient
+            .from("documents")
+            .update(payload)
+            .eq("id", editingId)
+            .eq("company_id", userCompanyId);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient.from("documents").insert([payload]);
+          if (error) throw error;
+        }
+        closeDocModal();
+        await loadDocs();
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "Could not save document");
+      }
+      if (btn) { btn.disabled = false; btn.textContent = "Save"; }
+    }
+
+    async function deleteDoc(id, title) {
+      if (!confirm("Delete document \"" + title + "\"?")) return;
+      try {
+        const { error } = await supabaseClient
+          .from("documents")
+          .delete()
+          .eq("id", id)
+          .eq("company_id", userCompanyId);
+        if (error) throw error;
+        await loadDocs();
+      } catch (err) {
+        alert(err.message || "Could not delete");
+      }
+    }
+
+    function fillCategoryFilter() {
+      const cats = {};
+      docs.forEach(function (d) {
+        const c = d.category || "General";
+        cats[c] = true;
+      });
+      const sel = $("filter-cat");
+      const current = sel.value || "all";
+      const keys = Object.keys(cats).sort();
+      sel.innerHTML = '<option value="all">All categories</option>' +
+        keys.map(function (c) {
+          return '<option value="' + esc(c) + '">' + esc(c) + "</option>";
+        }).join("");
+      sel.value = current;
+      if (!sel.value) sel.value = "all";
+    }
+
+    function renderList() {
+      const catF = ($("filter-cat") || {}).value || "all";
+      const q = (($("search-input") || {}).value || "").toLowerCase().trim();
+      let list = docs.slice();
+      if (catF !== "all") list = list.filter(function (d) { return (d.category || "General") === catF; });
+      if (q) {
+        list = list.filter(function (d) {
+          return String(d.title || "").toLowerCase().indexOf(q) !== -1 ||
+            String(d.notes || "").toLowerCase().indexOf(q) !== -1 ||
+            String(d.category || "").toLowerCase().indexOf(q) !== -1;
+        });
+      }
+
+      const body = $("docs-body");
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-textMuted">No documents yet. Click + Add Document.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = list.map(function (d) {
+        const added = d.created_at
+          ? new Date(d.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+          : "—";
+        const hasLink = !!(d.file_url && String(d.file_url).trim());
+        return (
+          "<tr class=\"border-b border-borderSubtle/60 hover:bg-cardElevated/50\">" +
+          "<td class=\"px-4 py-3\"><div class=\"font-semibold text-white\">" + esc(d.title) + "</div>" +
+          (d.notes ? "<div class=\"text-[10px] text-textMuted truncate max-w-[240px]\">" + esc(d.notes) + "</div>" : "") +
+          "</td>" +
+          "<td class=\"px-4 py-3\"><span class=\"px-2 py-0.5 rounded text-[10px] font-bold bg-primaryPurple/15 text-brightPurple\">" +
+          esc(d.category || "General") + "</span></td>" +
+          "<td class=\"px-4 py-3\">" +
+          (hasLink
+            ? '<a href="' + esc(d.file_url) + '" target="_blank" rel="noopener" class="text-cyanAccent font-semibold hover:underline">Open link</a>'
+            : '<span class="text-textMuted">—</span>') +
+          "</td>" +
+          "<td class=\"px-4 py-3 text-textMuted\">" + added + "</td>" +
+          "<td class=\"px-4 py-3 text-right\">" +
+          "<button type=\"button\" class=\"px-2 py-1 rounded text-[10px] font-semibold bg-primaryPurple/15 text-brightPurple mr-1\" onclick='openDocModal(" + JSON.stringify(d).replace(/'/g, "&#39;") + ")'>Edit</button>" +
+          "<button type=\"button\" class=\"px-2 py-1 rounded text-[10px] font-semibold bg-dangerRed/15 text-dangerRed\" onclick=\"deleteDoc('" + d.id + "','" + esc(d.title).replace(/'/g, "") + "')\">Del</button>" +
+          "</td></tr>"
+        );
+      }).join("");
+    }
+
+    function updateSummary() {
+      const linked = docs.filter(function (d) { return d.file_url; }).length;
+      const cats = {};
+      docs.forEach(function (d) { cats[d.category || "General"] = true; });
+      const now = new Date();
+      const ym = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+      const monthCount = docs.filter(function (d) {
+        return d.created_at && String(d.created_at).slice(0, 7) === ym;
+      }).length;
+      $("sum-total").textContent = String(docs.length);
+      $("sum-linked").textContent = String(linked);
+      $("sum-cats").textContent = String(Object.keys(cats).length);
+      $("sum-month").textContent = String(monthCount);
+    }
+
+    async function loadDocs() {
+      if (!userCompanyId) return;
+      const { data, error } = await supabaseClient
+        .from("documents")
+        .select("*")
+        .eq("company_id", userCompanyId)
+        .order("created_at", { ascending: false })
+        .limit(300);
+      if (error) {
+        console.error(error);
+        $("docs-body").innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-dangerRed">Failed to load</td></tr>';
+        return;
+      }
+      docs = data || [];
+      fillCategoryFilter();
+      updateSummary();
+      renderList();
+    }
+
+    async function init() {
+      applyTheme();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        if (!member || !member.company_id) {
+          window.location.href = "desktop.html";
+          return;
+        }
+        userCompanyId = member.company_id;
+        await loadDocs();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
