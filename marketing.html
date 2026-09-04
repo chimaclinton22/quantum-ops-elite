@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>Marketing — Quantum OPS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Plus Jakarta Sans", "sans-serif"] },
+          colors: {
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A",
+            positiveGreen: "#31D17C",
+            dangerRed: "#FF4F67",
+            warningYellow: "#F5C451",
+            cyanAccent: "#4C9AFF"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    .nav-link.active { background: rgba(124,77,255,0.18); color: #fff; border-left: 2px solid #7C4DFF; }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .bg-card, body.theme-day .bg-cardElevated { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .text-white, body.theme-day .text-textPrimary, body.theme-day h1 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
+    body.theme-day header { background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
+    body.theme-day input, body.theme-day textarea, body.theme-day select {
+      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #0F172A !important;
+    }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active { background: rgba(108,92,231,0.12) !important; color: #5B3DFF !important; }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex">
+  <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col p-3 shrink-0">
+    <div class="flex items-center gap-2 px-1 pt-1 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-primaryPurple/20 flex items-center justify-center text-primaryPurple font-bold text-sm">Q</div>
+      <div>
+        <div class="font-extrabold text-sm text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+        <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">Marketing</div>
+      </div>
+    </div>
+    <nav class="space-y-0.5 text-xs flex-1 overflow-y-auto">
+      <a href="desktop.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-squares-four text-base"></i>Dashboard</a>
+      <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-shopping-cart text-base"></i>POS / Sales</a>
+      <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-package text-base"></i>Inventory</a>
+      <a href="customers.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-users text-base"></i>Customers</a>
+      <a href="marketing.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-bold ph-megaphone text-base text-primaryPurple"></i>Marketing</a>
+      <a href="debtors.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-hand-coins text-base"></i>Debtors</a>
+      <a href="accounting.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-calculator text-base"></i>Accounting</a>
+      <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-gear text-base"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+    <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
+      <div>
+        <h1 class="text-base font-extrabold text-white">Marketing</h1>
+        <p class="text-[11px] text-textMuted">WhatsApp outreach · promo templates · customer reach</p>
+      </div>
+      <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary">
+        <i class="ph-bold ph-moon text-sm" id="theme-icon"></i>
+      </button>
+    </header>
+
+    <div class="p-5 space-y-4">
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Customers</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="m-customers">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">With Phone</div>
+          <div class="text-lg font-extrabold text-positiveGreen mt-1" id="m-phone">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Reachable %</div>
+          <div class="text-lg font-extrabold text-cyanAccent mt-1" id="m-reach">0%</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Shop Name</div>
+          <div class="text-sm font-extrabold text-white mt-1 truncate" id="m-shop">—</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <!-- Message builder -->
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-sm font-bold text-white mb-3">Message Builder</div>
+          <div class="mb-3">
+            <label class="text-[10px] text-textMuted font-semibold block mb-1">Template</label>
+            <select id="template-select" onchange="applyTemplate()" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary focus:outline-none focus:border-primaryPurple">
+              <option value="promo">Promo / Discount</option>
+              <option value="newstock">New Stock Arrival</option>
+              <option value="thankyou">Thank You / Loyalty</option>
+              <option value="reminder">Visit Reminder</option>
+              <option value="custom">Custom (blank)</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="text-[10px] text-textMuted font-semibold block mb-1">Message</label>
+            <textarea id="msg-body" rows="7" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple resize-none" placeholder="Your message…"></textarea>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="copyMessage()" class="px-3 py-2 rounded-lg border border-borderSubtle text-xs font-semibold text-textSecondary hover:text-white">Copy text</button>
+            <button type="button" onclick="openWhatsAppBlank()" class="px-3 py-2 rounded-lg bg-positiveGreen text-white text-xs font-bold">Open WhatsApp</button>
+          </div>
+          <p class="text-[10px] text-textMuted mt-3">Tip: Select a customer below to send this message directly to their number.</p>
+        </div>
+
+        <!-- Quick tips -->
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-sm font-bold text-white mb-3">Marketing Tips (Nigeria shops)</div>
+          <div class="space-y-2 text-xs">
+            <div class="p-3 rounded-lg bg-cardElevated border border-borderSubtle">
+              <div class="font-bold text-white mb-1">WhatsApp status daily</div>
+              <div class="text-textMuted">Post new arrivals or prices on Status — free and high reach among regulars.</div>
+            </div>
+            <div class="p-3 rounded-lg bg-cardElevated border border-borderSubtle">
+              <div class="font-bold text-white mb-1">Collect phone at every sale</div>
+              <div class="text-textMuted">Save numbers in CRM so you can message promos and debt reminders.</div>
+            </div>
+            <div class="p-3 rounded-lg bg-cardElevated border border-borderSubtle">
+              <div class="font-bold text-white mb-1">Bundle offers</div>
+              <div class="text-textMuted">“Buy 2 get small discount” moves slow stock faster than random price cuts.</div>
+            </div>
+            <div class="p-3 rounded-lg bg-cardElevated border border-borderSubtle">
+              <div class="font-bold text-white mb-1">Follow up after big sales</div>
+              <div class="text-textMuted">A thank-you WhatsApp builds loyalty and repeat visits.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customers with phone -->
+      <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+        <div class="px-4 py-3 border-b border-borderSubtle flex flex-wrap items-center justify-between gap-2">
+          <span class="text-sm font-bold text-white">Reachable Customers</span>
+          <input id="search-input" type="text" placeholder="Search name or phone…" oninput="renderCustomers()"
+            class="px-3 py-1.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary w-52 focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-textMuted border-b border-borderSubtle">
+                <th class="px-4 py-3 font-semibold">Customer</th>
+                <th class="px-4 py-3 font-semibold">Phone</th>
+                <th class="px-4 py-3 font-semibold text-right">Orders</th>
+                <th class="px-4 py-3 font-semibold text-right">Spent</th>
+                <th class="px-4 py-3 font-semibold text-right">Send</th>
+              </tr>
+            </thead>
+            <tbody id="cust-body">
+              <tr><td colspan="5" class="px-4 py-8 text-center text-textMuted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let companyName = "our shop";
+    let customers = [];
+
+    function $(id) { return document.getElementById(id); }
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem("quantum_theme") || "system";
+        const day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.body.classList.toggle("theme-day", day);
+        document.documentElement.classList.toggle("dark", !day);
+        const icon = $("theme-icon");
+        if (icon) icon.className = day ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const cur = localStorage.getItem("quantum_theme") || "system";
+      const next = cur === "day" ? "night" : cur === "night" ? "system" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function normalizePhone(phone) {
+      let p = String(phone || "").replace(/\D/g, "");
+      if (p.startsWith("0")) p = "234" + p.slice(1);
+      return p;
+    }
+
+    function templates() {
+      const shop = companyName || "our shop";
+      return {
+        promo:
+          "Good day!\n\nSpecial offer from *" + shop + "* 🎉\n\nEnjoy exclusive discounts on selected items this week. Visit us or reply to this message to order.\n\nThank you for choosing " + shop + "!\n— Powered by Quantum OPS Elite",
+        newstock:
+          "Hello!\n\nFresh stock just arrived at *" + shop + "* 📦\n\nCome check out the new products while quantities last. We are open and ready to serve you.\n\nSee you soon!\n— " + shop,
+        thankyou:
+          "Dear valued customer,\n\nThank you for shopping with *" + shop + "*. We appreciate your patronage and look forward to serving you again.\n\nFor enquiries, just reply to this message.\n— " + shop,
+        reminder:
+          "Hi!\n\nIt's been a while since your last visit to *" + shop + "*. We'd love to see you again — new items and great prices waiting for you.\n\nVisit us today!\n— " + shop,
+        custom: ""
+      };
+    }
+
+    function applyTemplate() {
+      const key = ($("template-select") || {}).value || "promo";
+      const t = templates();
+      $("msg-body").value = t[key] != null ? t[key] : "";
+    }
+
+    function copyMessage() {
+      const text = ($("msg-body") || {}).value || "";
+      if (!text.trim()) return alert("Message is empty");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          alert("Message copied");
+        }).catch(function () {
+          prompt("Copy this:", text);
+        });
+      } else {
+        prompt("Copy this:", text);
+      }
+    }
+
+    function openWhatsAppBlank() {
+      const text = ($("msg-body") || {}).value || "";
+      window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+    }
+
+    function sendToCustomer(phone, name) {
+      const text = ($("msg-body") || {}).value || "";
+      const p = normalizePhone(phone);
+      if (!p) return alert("Invalid phone number");
+      let msg = text;
+      if (name && msg.indexOf("{name}") !== -1) {
+        msg = msg.split("{name}").join(name);
+      }
+      window.open("https://wa.me/" + p + "?text=" + encodeURIComponent(msg), "_blank");
+    }
+
+    function renderCustomers() {
+      const q = (($("search-input") || {}).value || "").toLowerCase().trim();
+      let list = customers.filter(function (c) { return !!c.phone; });
+      if (q) {
+        list = list.filter(function (c) {
+          return String(c.full_name || "").toLowerCase().indexOf(q) !== -1 ||
+            String(c.phone || "").toLowerCase().indexOf(q) !== -1;
+        });
+      }
+      const body = $("cust-body");
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-textMuted">No customers with phone numbers. Add phones in CRM.</td></tr>';
+        return;
+      }
+      body.innerHTML = list.map(function (c) {
+        return (
+          "<tr class=\"border-b border-borderSubtle/60 hover:bg-cardElevated/50\">" +
+          "<td class=\"px-4 py-3 font-semibold text-white\">" + esc(c.full_name || "Customer") + "</td>" +
+          "<td class=\"px-4 py-3 text-textSecondary\">" + esc(c.phone) + "</td>" +
+          "<td class=\"px-4 py-3 text-right text-white\">" + (c.total_orders || 0) + "</td>" +
+          "<td class=\"px-4 py-3 text-right font-bold text-positiveGreen\">" + formatCurrency(c.total_spent) + "</td>" +
+          "<td class=\"px-4 py-3 text-right\">" +
+            "<button type=\"button\" class=\"px-2 py-1 rounded text-[10px] font-bold bg-positiveGreen/20 text-positiveGreen\" " +
+            "onclick=\"sendToCustomer('" + esc(c.phone).replace(/'/g, "") + "','" + esc(c.full_name || "").replace(/'/g, "") + "')\">WhatsApp</button>" +
+          "</td></tr>"
+        );
+      }).join("");
+    }
+
+    async function loadData() {
+      if (!userCompanyId) return;
+      const { data: cust } = await supabaseClient
+        .from("customers")
+        .select("id, full_name, phone, total_spent, total_orders")
+        .eq("company_id", userCompanyId)
+        .order("full_name")
+        .limit(500);
+      customers = cust || [];
+      const withPhone = customers.filter(function (c) { return !!c.phone; }).length;
+      $("m-customers").textContent = String(customers.length);
+      $("m-phone").textContent = String(withPhone);
+      $("m-reach").textContent = customers.length
+        ? Math.round((withPhone / customers.length) * 100) + "%"
+        : "0%";
+      renderCustomers();
+    }
+
+    async function init() {
+      applyTheme();
+      applyTemplate();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id, companies(company_name)")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        if (!member || !member.company_id) {
+          window.location.href = "desktop.html";
+          return;
+        }
+        userCompanyId = member.company_id;
+        if (member.companies && member.companies.company_name) {
+          companyName = member.companies.company_name;
+        }
+        $("m-shop").textContent = companyName;
+        applyTemplate();
+        await loadData();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
