@@ -601,64 +601,67 @@
     }
 
     function paintFromCache() {
-      const cache = loadDashboardCache();
-      if (!cache) return;
-      if (cache.todaySales != null) {
-        setText("val-today-sales", formatCurrency(cache.todaySales));
-        todaySalesAmount = cache.todaySales;
-      }
-      if (cache.todayProfit != null) {
-        setText("val-today-profit", formatCurrency(cache.todayProfit));
-        todayGrossProfit = cache.todayProfit;
-      }
-      if (cache.todayCount != null) setText("val-transactions", String(cache.todayCount));
-      if (cache.todayExpenses != null) setText("val-today-expenses", formatCurrency(cache.todayExpenses));
-      if (cache.netProfit != null) {
-        const netEl = $("val-net-profit");
-        if (netEl) {
-          netEl.textContent = formatCurrency(cache.netProfit);
-          netEl.className = "kpi-value " + (cache.netProfit >= 0 ? "text-success" : "text-loss");
-        }
-      }
-      if (cache.outstandingDebt != null) setText("val-outstanding-debt", formatCurrency(cache.outstandingDebt));
-      if (cache.debtCustomers != null) setText("val-debt-customers", cache.debtCustomers + " Customers");
-      if (cache.lowStock != null) setText("val-low-stock", cache.lowStock + " Items");
-      if (cache.businessHealth != null) setText("val-business-health", cache.businessHealth);
-      if (cache.weeklyTotal != null) setText("val-weekly-total", formatCurrency(cache.weeklyTotal));
-      if (cache.productImageMap) productImageMap = cache.productImageMap;
-      if (cache.topProductsHtml) {
-        const el = $("top-products-list");
-        if (el) el.innerHTML = cache.topProductsHtml;
-      }
-      if (cache.recentHtml) {
-        const el = $("recent-activities-list");
-        if (el) el.innerHTML = cache.recentHtml;
-      }
-      var debtCard = $("card-outstanding-debt");
-      if (debtCard) {
-        if (cache.outstandingDebt > 0) debtCard.classList.add("alert-breathing-red");
-        else debtCard.classList.remove("alert-breathing-red");
-      }
-      var lowCard = $("card-low-stock");
-      if (lowCard) {
-        if (cache.lowStock > 0) lowCard.classList.add("alert-breathing-amber");
-        else lowCard.classList.remove("alert-breathing-amber");
-      }
-      var expCard = $("card-expenses");
-      if (expCard && cache.todayExpenses != null) {
-        var tooHigh = cache.todayExpenses > 0 && (
-          cache.todayExpenses >= (cache.todayProfit || 0) ||
-          ((cache.todaySales || 0) > 0 && cache.todayExpenses > (cache.todaySales || 0) * 0.35)
-        );
-        if (tooHigh) expCard.classList.add("alert-breathing-red");
-        else expCard.classList.remove("alert-breathing-red");
-      }
-      if (cache.chartTotals && Array.isArray(cache.chartTotals) && cache.chartTotals.length === 7) {
-        renderSalesChart(null, cache.chartTotals);
-      }
-    }
+  const cache = loadDashboardCache();
+  if (!cache) return;
+  // Don't paint another company's cache once we know our company
+  if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
 
-    function toggleActionSheet() {
+  if (cache.todaySales != null) {
+    setText("val-today-sales", formatCurrency(cache.todaySales));
+    todaySalesAmount = cache.todaySales;
+  }
+  if (cache.todayProfit != null) {
+    setText("val-today-profit", formatCurrency(cache.todayProfit));
+    todayGrossProfit = cache.todayProfit;
+  }
+  if (cache.todayCount != null) setText("val-transactions", String(cache.todayCount));
+  if (cache.todayExpenses != null) setText("val-today-expenses", formatCurrency(cache.todayExpenses));
+  if (cache.netProfit != null) {
+    const netEl = $("val-net-profit");
+    if (netEl) {
+      netEl.textContent = formatCurrency(cache.netProfit);
+      netEl.className = "kpi-value " + (cache.netProfit >= 0 ? "text-success" : "text-loss");
+    }
+  }
+  if (cache.outstandingDebt != null) setText("val-outstanding-debt", formatCurrency(cache.outstandingDebt));
+  if (cache.debtCustomers != null) setText("val-debt-customers", cache.debtCustomers + " Customers");
+  if (cache.lowStock != null) setText("val-low-stock", cache.lowStock + " Items");
+  if (cache.businessHealth != null) setText("val-business-health", cache.businessHealth);
+  if (cache.weeklyTotal != null) setText("val-weekly-total", formatCurrency(cache.weeklyTotal));
+  if (cache.productImageMap) productImageMap = cache.productImageMap;
+  if (cache.topProductsHtml) {
+    const el = $("top-products-list");
+    if (el) el.innerHTML = cache.topProductsHtml;
+  }
+  if (cache.recentHtml) {
+    const el = $("recent-activities-list");
+    if (el) el.innerHTML = cache.recentHtml;
+  }
+  var debtCard = $("card-outstanding-debt");
+  if (debtCard) {
+    if (cache.outstandingDebt > 0) debtCard.classList.add("alert-breathing-red");
+    else debtCard.classList.remove("alert-breathing-red");
+  }
+  var lowCard = $("card-low-stock");
+  if (lowCard) {
+    if (cache.lowStock > 0) lowCard.classList.add("alert-breathing-amber");
+    else lowCard.classList.remove("alert-breathing-amber");
+  }
+  var expCard = $("card-expenses");
+  if (expCard && cache.todayExpenses != null) {
+    var tooHigh = cache.todayExpenses > 0 && (
+      cache.todayExpenses >= (cache.todayProfit || 0) ||
+      ((cache.todaySales || 0) > 0 && cache.todayExpenses > (cache.todaySales || 0) * 0.35)
+    );
+    if (tooHigh) expCard.classList.add("alert-breathing-red");
+    else expCard.classList.remove("alert-breathing-red");
+  }
+  if (cache.chartTotals && Array.isArray(cache.chartTotals) && cache.chartTotals.length === 7) {
+    renderSalesChart(null, cache.chartTotals);
+  }
+}
+
+  function toggleActionSheet() {
       const sheet = $("action-sheet");
       if (sheet) sheet.classList.toggle("open");
     }
@@ -896,14 +899,14 @@
         const todayStr = getLocalDateString(new Date());
         let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
         sales.forEach(function (s) {
-          const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
-          const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-          weeklyTotal += amount;
-          if (getLocalDateString(new Date(s.created_at)) === todayStr) {
-            todaySales += amount; todayProfit += profit; todayCount++;
-          }
-        });
-        expenses.forEach(function (e) {
+       const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+       const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
+       if (isInThisWeek(s.created_at)) weeklyTotal += amount;
+       if (getLocalDateString(new Date(s.created_at)) === todayStr) {
+       todaySales += amount; todayProfit += profit; todayCount++;
+       }
+       });
+       expenses.forEach(function (e) {
           if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
         });
         debtors.forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
