@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>Accounting — Quantum OPS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Plus Jakarta Sans", "sans-serif"], mono: ["JetBrains Mono", "monospace"] },
+          colors: {
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A",
+            positiveGreen: "#31D17C",
+            dangerRed: "#FF4F67",
+            warningYellow: "#F5C451",
+            cyanAccent: "#4C9AFF"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    .nav-link.active { background: rgba(124,77,255,0.18); color: #fff; border-left: 2px solid #7C4DFF; }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .bg-card, body.theme-day .bg-cardElevated { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .text-white, body.theme-day .text-textPrimary, body.theme-day h1 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
+    body.theme-day header { background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active { background: rgba(108,92,231,0.12) !important; color: #5B3DFF !important; }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex">
+  <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col p-3 shrink-0">
+    <div class="flex items-center gap-2 px-1 pt-1 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-primaryPurple/20 flex items-center justify-center text-primaryPurple font-bold text-sm">Q</div>
+      <div>
+        <div class="font-extrabold text-sm text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+        <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">Accounting</div>
+      </div>
+    </div>
+    <nav class="space-y-0.5 text-xs flex-1 overflow-y-auto">
+      <a href="desktop.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-squares-four text-base"></i>Dashboard</a>
+      <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-shopping-cart text-base"></i>POS / Sales</a>
+      <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-package text-base"></i>Inventory</a>
+      <a href="purchases.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-bag-simple text-base"></i>Purchases</a>
+      <a href="customers.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-users text-base"></i>Customers</a>
+      <a href="debtors.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-hand-coins text-base"></i>Debtors</a>
+      <a href="accounting.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-bold ph-calculator text-base text-primaryPurple"></i>Accounting</a>
+      <a href="expenses.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-receipt text-base"></i>Expenses</a>
+      <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-gear text-base"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+    <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
+      <div>
+        <h1 class="text-base font-extrabold text-white">Accounting</h1>
+        <p class="text-[11px] text-textMuted">Profit &amp; Loss · cash summary from live sales &amp; expenses</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="period-select" onchange="loadAccounting()" class="px-3 py-1.5 rounded-lg bg-card border border-borderSubtle text-xs text-textPrimary focus:outline-none focus:border-primaryPurple">
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month" selected>This Month</option>
+          <option value="all">All Time</option>
+        </select>
+        <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary">
+          <i class="ph-bold ph-moon text-sm" id="theme-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="p-5 space-y-4">
+      <!-- P&L KPIs -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Revenue (Sales)</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="acc-revenue">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Gross Profit</div>
+          <div class="text-lg font-extrabold text-positiveGreen mt-1" id="acc-gross">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Expenses</div>
+          <div class="text-lg font-extrabold text-dangerRed mt-1" id="acc-expenses">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Net Profit</div>
+          <div class="text-lg font-extrabold mt-1" id="acc-net">₦0.00</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-3">
+        <!-- P&L statement -->
+        <div class="xl:col-span-2 rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-sm font-bold text-white mb-3">Profit &amp; Loss Statement</div>
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between py-2 border-b border-borderSubtle">
+              <span class="text-textSecondary font-medium">Sales Revenue</span>
+              <span class="font-bold text-white" id="pl-sales">₦0.00</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-borderSubtle">
+              <span class="text-textSecondary font-medium">Cost of Goods (est.)</span>
+              <span class="font-bold text-textMuted" id="pl-cogs">₦0.00</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-borderSubtle bg-cardElevated/40 px-2 rounded">
+              <span class="text-white font-semibold">Gross Profit</span>
+              <span class="font-extrabold text-positiveGreen" id="pl-gross">₦0.00</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-borderSubtle">
+              <span class="text-textSecondary font-medium">Operating Expenses</span>
+              <span class="font-bold text-dangerRed" id="pl-opex">₦0.00</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-borderSubtle">
+              <span class="text-textSecondary font-medium">Purchases (stock buy-in)</span>
+              <span class="font-bold text-warningYellow" id="pl-purchases">₦0.00</span>
+            </div>
+            <div class="flex justify-between py-3 mt-1 px-2 rounded-lg bg-primaryPurple/10 border border-primaryPurple/30">
+              <span class="text-white font-extrabold">Net Profit / (Loss)</span>
+              <span class="font-extrabold text-lg" id="pl-net">₦0.00</span>
+            </div>
+          </div>
+          <p class="text-[10px] text-textMuted mt-3">Gross profit uses recorded sale profit. Net = Gross − Expenses. Purchases shown for cash outflow awareness.</p>
+        </div>
+
+        <!-- Expense by category -->
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-sm font-bold text-white mb-3">Expenses by Category</div>
+          <div style="height:180px;position:relative"><canvas id="expenseChart"></canvas></div>
+          <div id="expense-cats" class="mt-3 space-y-1.5 text-xs max-h-40 overflow-y-auto"></div>
+        </div>
+      </div>
+
+      <!-- Secondary metrics -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Transactions</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="acc-trx">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Avg Ticket</div>
+          <div class="text-lg font-extrabold text-cyanAccent mt-1" id="acc-avg">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Purchases Outflow</div>
+          <div class="text-lg font-extrabold text-warningYellow mt-1" id="acc-purchases">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Margin %</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="acc-margin">0%</div>
+        </div>
+      </div>
+
+      <!-- Recent expenses strip -->
+      <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+        <div class="px-4 py-3 border-b border-borderSubtle flex justify-between items-center">
+          <span class="text-sm font-bold text-white">Recent Expenses (period)</span>
+          <a href="expenses.html" class="text-[11px] font-semibold text-primaryPurple">Manage expenses →</a>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-textMuted border-b border-borderSubtle">
+                <th class="px-4 py-2 font-semibold">Date</th>
+                <th class="px-4 py-2 font-semibold">Title</th>
+                <th class="px-4 py-2 font-semibold">Category</th>
+                <th class="px-4 py-2 font-semibold text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="exp-body">
+              <tr><td colspan="4" class="px-4 py-6 text-center text-textMuted">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let expenseChart = null;
+
+    function $(id) { return document.getElementById(id); }
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function parseMoney(v) {
+      if (v == null || v === "") return 0;
+      if (typeof v === "number") return isNaN(v) ? 0 : v;
+      const n = parseFloat(String(v).replace(/[₦$,\s]/g, ""));
+      return isNaN(n) ? 0 : n;
+    }
+    function saleAmount(s) {
+      return parseMoney(s.total_amount != null ? s.total_amount : s.total);
+    }
+    function saleProfit(s) {
+      return parseMoney(s.profit != null ? s.profit : s.total_profit);
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem("quantum_theme") || "system";
+        const day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.body.classList.toggle("theme-day", day);
+        document.documentElement.classList.toggle("dark", !day);
+        const icon = $("theme-icon");
+        if (icon) icon.className = day ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const cur = localStorage.getItem("quantum_theme") || "system";
+      const next = cur === "day" ? "night" : cur === "night" ? "system" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function periodStart() {
+      const period = ($("period-select") || {}).value || "month";
+      const d = new Date();
+      if (period === "today") {
+        d.setHours(0, 0, 0, 0);
+        return d.toISOString();
+      }
+      if (period === "week") {
+        const day = d.getDay();
+        const diff = day === 0 ? 6 : day - 1;
+        d.setDate(d.getDate() - diff);
+        d.setHours(0, 0, 0, 0);
+        return d.toISOString();
+      }
+      if (period === "month") {
+        return new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+      }
+      return "2000-01-01T00:00:00.000Z";
+    }
+
+    function renderExpenseChart(cats) {
+      const canvas = $("expenseChart");
+      if (!canvas) return;
+      const labels = Object.keys(cats);
+      const values = labels.map(function (k) { return cats[k]; });
+      try {
+        if (expenseChart) { try { expenseChart.destroy(); } catch (e) {} expenseChart = null; }
+        if (!labels.length) return;
+        expenseChart = new Chart(canvas.getContext("2d"), {
+          type: "doughnut",
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              backgroundColor: ["#7C4DFF", "#31D17C", "#FF4F67", "#F5C451", "#4C9AFF", "#FF9B45", "#FF4DA6", "#536DFF"],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      } catch (e) {}
+    }
+
+    async function loadAccounting() {
+      if (!userCompanyId) return;
+      const start = periodStart();
+
+      try {
+        const [salesRes, expRes, purchRes] = await Promise.all([
+          supabaseClient
+            .from("sales")
+            .select("id, total, total_amount, profit, total_profit, total_cost, created_at")
+            .eq("company_id", userCompanyId)
+            .gte("created_at", start)
+            .limit(2000),
+          supabaseClient
+            .from("expenses")
+            .select("id, title, category, amount, created_at")
+            .eq("company_id", userCompanyId)
+            .gte("created_at", start)
+            .order("created_at", { ascending: false })
+            .limit(500),
+          supabaseClient
+            .from("purchases")
+            .select("id, total_cost, paid_amount, purchased_at, created_at")
+            .eq("company_id", userCompanyId)
+            .gte("purchased_at", start)
+            .limit(500)
+        ]);
+
+        const sales = salesRes.data || [];
+        const expenses = expRes.data || [];
+        const purchases = purchRes.data || [];
+
+        let revenue = 0, gross = 0, cogs = 0;
+        sales.forEach(function (s) {
+          const amt = saleAmount(s);
+          const prof = saleProfit(s);
+          revenue += amt;
+          gross += prof;
+          cogs += parseMoney(s.total_cost) || Math.max(0, amt - prof);
+        });
+        let opex = 0;
+        const cats = {};
+        expenses.forEach(function (e) {
+          const a = parseMoney(e.amount);
+          opex += a;
+          const cat = e.category || "Other";
+          cats[cat] = (cats[cat] || 0) + a;
+        });
+        let purchTotal = 0;
+        purchases.forEach(function (p) {
+          purchTotal += parseMoney(p.total_cost);
+        });
+
+        const net = gross - opex;
+        const trx = sales.length;
+        const avg = trx ? revenue / trx : 0;
+        const margin = revenue > 0 ? (gross / revenue) * 100 : 0;
+
+        $("acc-revenue").textContent = formatCurrency(revenue);
+        $("acc-gross").textContent = formatCurrency(gross);
+        $("acc-expenses").textContent = formatCurrency(opex);
+        const netEl = $("acc-net");
+        netEl.textContent = formatCurrency(net);
+        netEl.className = "text-lg font-extrabold mt-1 " + (net >= 0 ? "text-positiveGreen" : "text-dangerRed");
+
+        $("pl-sales").textContent = formatCurrency(revenue);
+        $("pl-cogs").textContent = formatCurrency(cogs);
+        $("pl-gross").textContent = formatCurrency(gross);
+        $("pl-opex").textContent = formatCurrency(opex);
+        $("pl-purchases").textContent = formatCurrency(purchTotal);
+        const plNet = $("pl-net");
+        plNet.textContent = formatCurrency(net);
+        plNet.className = "font-extrabold text-lg " + (net >= 0 ? "text-positiveGreen" : "text-dangerRed");
+
+        $("acc-trx").textContent = String(trx);
+        $("acc-avg").textContent = formatCurrency(avg);
+        $("acc-purchases").textContent = formatCurrency(purchTotal);
+        $("acc-margin").textContent = margin.toFixed(1) + "%";
+
+        renderExpenseChart(cats);
+        const catBox = $("expense-cats");
+        const sortedCats = Object.entries(cats).sort(function (a, b) { return b[1] - a[1]; });
+        if (!sortedCats.length) {
+          catBox.innerHTML = '<div class="text-textMuted text-center py-2">No expenses in this period</div>';
+        } else {
+          catBox.innerHTML = sortedCats.map(function (pair) {
+            const pct = opex > 0 ? ((pair[1] / opex) * 100).toFixed(0) : 0;
+            return (
+              '<div class="flex justify-between items-center">' +
+              '<span class="text-textSecondary truncate">' + esc(pair[0]) + '</span>' +
+              '<span class="font-bold text-white">' + formatCurrency(pair[1]) + ' <span class="text-textMuted font-normal">(' + pct + '%)</span></span></div>'
+            );
+          }).join("");
+        }
+
+        const expBody = $("exp-body");
+        if (!expenses.length) {
+          expBody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-textMuted">No expenses in this period</td></tr>';
+        } else {
+          expBody.innerHTML = expenses.slice(0, 15).map(function (e) {
+            const d = e.created_at
+              ? new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+              : "—";
+            return (
+              "<tr class=\"border-b border-borderSubtle/50\">" +
+              "<td class=\"px-4 py-2 text-textMuted\">" + d + "</td>" +
+              "<td class=\"px-4 py-2 text-white font-medium\">" + esc(e.title || "Expense") + "</td>" +
+              "<td class=\"px-4 py-2 text-textSecondary\">" + esc(e.category || "Other") + "</td>" +
+              "<td class=\"px-4 py-2 text-right font-bold text-dangerRed\">" + formatCurrency(e.amount) + "</td>" +
+              "</tr>"
+            );
+          }).join("");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function init() {
+      applyTheme();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        if (!member || !member.company_id) {
+          window.location.href = "desktop.html";
+          return;
+        }
+        userCompanyId = member.company_id;
+        await loadAccounting();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
