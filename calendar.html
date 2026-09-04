@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>Calendar — Quantum OPS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Plus Jakarta Sans", "sans-serif"] },
+          colors: {
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A",
+            positiveGreen: "#31D17C",
+            dangerRed: "#FF4F67",
+            warningYellow: "#F5C451",
+            cyanAccent: "#4C9AFF"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    .nav-link.active { background: rgba(124,77,255,0.18); color: #fff; border-left: 2px solid #7C4DFF; }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .bg-card, body.theme-day .bg-cardElevated { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .text-white, body.theme-day .text-textPrimary, body.theme-day h1 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
+    body.theme-day header { background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
+    body.theme-day input, body.theme-day select, body.theme-day textarea {
+      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #0F172A !important;
+    }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active { background: rgba(108,92,231,0.12) !important; color: #5B3DFF !important; }
+    .cal-day { min-height: 88px; }
+    .cal-day.today { box-shadow: inset 0 0 0 2px #7C4DFF; }
+    .cal-day.other-month { opacity: 0.35; }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex">
+  <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col p-3 shrink-0">
+    <div class="flex items-center gap-2 px-1 pt-1 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-primaryPurple/20 flex items-center justify-center text-primaryPurple font-bold text-sm">Q</div>
+      <div>
+        <div class="font-extrabold text-sm text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+        <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">Calendar</div>
+      </div>
+    </div>
+    <nav class="space-y-0.5 text-xs flex-1 overflow-y-auto">
+      <a href="desktop.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-squares-four text-base"></i>Dashboard</a>
+      <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-shopping-cart text-base"></i>POS / Sales</a>
+      <a href="tasks.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-check-square text-base"></i>Tasks & Projects</a>
+      <a href="calendar.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-bold ph-calendar-blank text-base text-primaryPurple"></i>Calendar</a>
+      <a href="staff.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-identification-card text-base"></i>Staff & Payroll</a>
+      <a href="branches.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-git-fork text-base"></i>Multi-Branch</a>
+      <a href="accounting.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-calculator text-base"></i>Accounting</a>
+      <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-gear text-base"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+    <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
+      <div>
+        <h1 class="text-base font-extrabold text-white">Calendar</h1>
+        <p class="text-[11px] text-textMuted">Task deadlines on a monthly view</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary">
+          <i class="ph-bold ph-moon text-sm" id="theme-icon"></i>
+        </button>
+        <button type="button" onclick="openQuickTask()" class="px-3 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold hover:opacity-90">
+          + Task on date
+        </button>
+      </div>
+    </header>
+
+    <div class="p-5 space-y-4">
+      <!-- Month nav -->
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="shiftMonth(-1)" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary hover:text-white">
+            <i class="ph-bold ph-caret-left"></i>
+          </button>
+          <h2 class="text-lg font-extrabold text-white min-w-[180px] text-center" id="month-label">—</h2>
+          <button type="button" onclick="shiftMonth(1)" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary hover:text-white">
+            <i class="ph-bold ph-caret-right"></i>
+          </button>
+          <button type="button" onclick="goToday()" class="px-3 py-1.5 rounded-lg border border-borderSubtle text-xs font-semibold text-textSecondary hover:text-white">Today</button>
+        </div>
+        <div class="flex items-center gap-3 text-[10px] text-textMuted">
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-dangerRed"></span> High</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primaryPurple"></span> Medium</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-textMuted"></span> Low</span>
+          <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-positiveGreen"></span> Done</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <!-- Calendar grid -->
+        <div class="xl:col-span-2 rounded-xl bg-card border border-borderSubtle overflow-hidden">
+          <div class="grid grid-cols-7 border-b border-borderSubtle text-[10px] font-bold text-textMuted uppercase tracking-wide">
+            <div class="px-2 py-2 text-center">Mon</div>
+            <div class="px-2 py-2 text-center">Tue</div>
+            <div class="px-2 py-2 text-center">Wed</div>
+            <div class="px-2 py-2 text-center">Thu</div>
+            <div class="px-2 py-2 text-center">Fri</div>
+            <div class="px-2 py-2 text-center">Sat</div>
+            <div class="px-2 py-2 text-center">Sun</div>
+          </div>
+          <div id="cal-grid" class="grid grid-cols-7"></div>
+        </div>
+
+        <!-- Day panel -->
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-sm font-bold text-white mb-1" id="day-title">Select a day</div>
+          <div class="text-[11px] text-textMuted mb-3" id="day-sub">Click any date to see tasks</div>
+          <div id="day-tasks" class="space-y-2 max-h-[420px] overflow-y-auto text-xs">
+            <div class="text-textMuted text-center py-6">No day selected</div>
+          </div>
+          <button type="button" id="add-for-day-btn" onclick="openQuickTask(selectedDate)" class="hidden mt-3 w-full px-3 py-2 rounded-lg bg-primaryPurple/20 text-brightPurple text-xs font-bold border border-primaryPurple/30">
+            + Add task for this day
+          </button>
+        </div>
+      </div>
+
+      <p class="text-[10px] text-textMuted">
+        Calendar shows tasks with a due date. Manage full list in
+        <a href="tasks.html" class="text-primaryPurple font-semibold">Tasks & Projects</a>.
+      </p>
+    </div>
+  </main>
+
+  <!-- Quick task modal -->
+  <div id="task-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.75)">
+    <div class="w-full max-w-md rounded-2xl bg-card border border-borderSubtle p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-extrabold text-white">New Task</h2>
+        <button type="button" onclick="closeTaskModal()" class="text-textMuted hover:text-white text-xl">&times;</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Title *</label>
+          <input id="t-title" type="text" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] text-textMuted font-semibold block mb-1">Priority</label>
+            <select id="t-priority" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-textMuted font-semibold block mb-1">Due date</label>
+            <input id="t-due" type="date" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary">
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Assigned to</label>
+          <input id="t-assigned" type="text" placeholder="Optional" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary">
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button type="button" onclick="closeTaskModal()" class="flex-1 px-4 py-2 rounded-lg border border-borderSubtle text-xs font-semibold text-textSecondary">Cancel</button>
+        <button type="button" id="save-task-btn" onclick="saveTask()" class="flex-1 px-4 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let tasks = [];
+    let viewYear, viewMonth; // month 0-11
+    let selectedDate = null; // YYYY-MM-DD
+
+    function $(id) { return document.getElementById(id); }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+    function pad(n) { return String(n).padStart(2, "0"); }
+    function toKey(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
+    function todayKey() {
+      const n = new Date();
+      return toKey(n.getFullYear(), n.getMonth(), n.getDate());
+    }
+
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem("quantum_theme") || "system";
+        const day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.body.classList.toggle("theme-day", day);
+        document.documentElement.classList.toggle("dark", !day);
+        const icon = $("theme-icon");
+        if (icon) icon.className = day ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const cur = localStorage.getItem("quantum_theme") || "system";
+      const next = cur === "day" ? "night" : cur === "night" ? "system" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function taskDotColor(t) {
+      if ((t.status || "") === "done") return "bg-positiveGreen";
+      if ((t.priority || "") === "high") return "bg-dangerRed";
+      if ((t.priority || "") === "low") return "bg-textMuted";
+      return "bg-primaryPurple";
+    }
+
+    function tasksForDate(key) {
+      return tasks.filter(function (t) {
+        return t.due_date && String(t.due_date).slice(0, 10) === key;
+      });
+    }
+
+    function renderCalendar() {
+      const label = new Date(viewYear, viewMonth, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+      $("month-label").textContent = label;
+
+      // Monday-first grid
+      const first = new Date(viewYear, viewMonth, 1);
+      let startDow = first.getDay(); // 0 Sun
+      startDow = startDow === 0 ? 6 : startDow - 1; // Mon=0
+      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+      const prevDays = new Date(viewYear, viewMonth, 0).getDate();
+
+      const cells = [];
+      for (let i = 0; i < startDow; i++) {
+        const d = prevDays - startDow + i + 1;
+        const y = viewMonth === 0 ? viewYear - 1 : viewYear;
+        const m = viewMonth === 0 ? 11 : viewMonth - 1;
+        cells.push({ y: y, m: m, d: d, other: true });
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        cells.push({ y: viewYear, m: viewMonth, d: d, other: false });
+      }
+      while (cells.length % 7 !== 0 || cells.length < 42) {
+        const idx = cells.length - (startDow + daysInMonth);
+        const d = idx + 1;
+        const y = viewMonth === 11 ? viewYear + 1 : viewYear;
+        const m = viewMonth === 11 ? 0 : viewMonth + 1;
+        cells.push({ y: y, m: m, d: d, other: true });
+        if (cells.length >= 42) break;
+      }
+
+      const today = todayKey();
+      const grid = $("cal-grid");
+      grid.innerHTML = cells.map(function (c) {
+        const key = toKey(c.y, c.m, c.d);
+        const dayTasks = tasksForDate(key);
+        const isToday = key === today;
+        const isSel = key === selectedDate;
+        const dots = dayTasks.slice(0, 4).map(function (t) {
+          return '<span class="w-1.5 h-1.5 rounded-full ' + taskDotColor(t) + '"></span>';
+        }).join("");
+        const more = dayTasks.length > 4 ? '<span class="text-[9px] text-textMuted">+' + (dayTasks.length - 4) + "</span>" : "";
+        return (
+          '<button type="button" class="cal-day border-b border-r border-borderSubtle p-1.5 text-left hover:bg-cardElevated/60 transition ' +
+          (c.other ? "other-month " : "") +
+          (isToday ? "today " : "") +
+          (isSel ? "bg-primaryPurple/10 " : "") +
+          '" data-date="' + key + '" onclick="selectDay(\'' + key + '\')">' +
+          '<div class="text-[11px] font-bold ' + (isToday ? "text-brightPurple" : "text-textSecondary") + '">' + c.d + "</div>" +
+          '<div class="flex flex-wrap gap-0.5 mt-1 items-center">' + dots + more + "</div>" +
+          (dayTasks.length ? '<div class="text-[9px] text-textMuted mt-0.5">' + dayTasks.length + " task" + (dayTasks.length > 1 ? "s" : "") + "</div>" : "") +
+          "</button>"
+        );
+      }).join("");
+    }
+
+    function selectDay(key) {
+      selectedDate = key;
+      renderCalendar();
+      const parts = key.split("-");
+      const nice = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]))
+        .toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      $("day-title").textContent = nice;
+      $("day-sub").textContent = key === todayKey() ? "Today" : "Scheduled tasks";
+      $("add-for-day-btn").classList.remove("hidden");
+
+      const list = tasksForDate(key);
+      const box = $("day-tasks");
+      if (!list.length) {
+        box.innerHTML = '<div class="text-textMuted text-center py-6">No tasks due this day</div>';
+        return;
+      }
+      box.innerHTML = list.map(function (t) {
+        const st = (t.status || "todo") === "done" ? "Done" : (t.status || "todo") === "in_progress" ? "In progress" : "To do";
+        return (
+          '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle">' +
+          '<div class="flex items-start justify-between gap-2">' +
+          '<div class="font-semibold text-white">' + esc(t.title) + "</div>" +
+          '<span class="w-2 h-2 rounded-full mt-1 shrink-0 ' + taskDotColor(t) + '"></span></div>' +
+          '<div class="text-[10px] text-textMuted mt-1">' + st +
+          (t.assigned_to ? " · " + esc(t.assigned_to) : "") +
+          (t.priority ? " · " + esc(t.priority) : "") + "</div></div>"
+        );
+      }).join("");
+    }
+
+    function shiftMonth(delta) {
+      viewMonth += delta;
+      if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+      if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+      renderCalendar();
+    }
+    function goToday() {
+      const n = new Date();
+      viewYear = n.getFullYear();
+      viewMonth = n.getMonth();
+      selectedDate = todayKey();
+      renderCalendar();
+      selectDay(selectedDate);
+    }
+
+    function openQuickTask(dateKey) {
+      $("t-title").value = "";
+      $("t-priority").value = "medium";
+      $("t-assigned").value = "";
+      $("t-due").value = dateKey || selectedDate || todayKey();
+      $("task-modal").classList.remove("hidden");
+      $("task-modal").classList.add("flex");
+    }
+    function closeTaskModal() {
+      $("task-modal").classList.add("hidden");
+      $("task-modal").classList.remove("flex");
+    }
+
+    async function saveTask() {
+      const title = ($("t-title").value || "").trim();
+      if (!title) return alert("Enter title");
+      if (!userCompanyId) return alert("Company not loaded");
+      const btn = $("save-task-btn");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+      try {
+        const { error } = await supabaseClient.from("tasks").insert([{
+          company_id: userCompanyId,
+          title: title,
+          status: "todo",
+          priority: $("t-priority").value || "medium",
+          due_date: $("t-due").value || null,
+          assigned_to: ($("t-assigned").value || "").trim() || null
+        }]);
+        if (error) throw error;
+        closeTaskModal();
+        await loadTasks();
+        if (selectedDate) selectDay(selectedDate);
+      } catch (err) {
+        alert(err.message || "Could not save");
+      }
+      if (btn) { btn.disabled = false; btn.textContent = "Save"; }
+    }
+
+    async function loadTasks() {
+      if (!userCompanyId) return;
+      const { data, error } = await supabaseClient
+        .from("tasks")
+        .select("id, title, status, priority, due_date, assigned_to")
+        .eq("company_id", userCompanyId)
+        .not("due_date", "is", null)
+        .limit(500);
+      if (error) console.error(error);
+      tasks = data || [];
+      renderCalendar();
+      if (selectedDate) selectDay(selectedDate);
+    }
+
+    async function init() {
+      applyTheme();
+      const n = new Date();
+      viewYear = n.getFullYear();
+      viewMonth = n.getMonth();
+      selectedDate = todayKey();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        if (!member || !member.company_id) {
+          window.location.href = "desktop.html";
+          return;
+        }
+        userCompanyId = member.company_id;
+        await loadTasks();
+        selectDay(selectedDate);
+      } catch (err) {
+        console.error(err);
+        renderCalendar();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
