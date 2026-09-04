@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#050812">
+  <title>Customers (CRM) — Quantum OPS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("quantum_theme") || "system";
+        var day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        if (day) document.documentElement.classList.remove("dark");
+        else document.documentElement.classList.add("dark");
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Plus Jakarta Sans", "sans-serif"] },
+          colors: {
+            canvas: "#050812",
+            sidebar: "#080B17",
+            card: "#0B1020",
+            cardElevated: "#0E1326",
+            borderSubtle: "#1A2035",
+            primaryPurple: "#7C4DFF",
+            brightPurple: "#8B5CFF",
+            textPrimary: "#F4F6FF",
+            textSecondary: "#A0A7BB",
+            textMuted: "#68718A",
+            positiveGreen: "#31D17C",
+            dangerRed: "#FF4F67",
+            warningYellow: "#F5C451",
+            cyanAccent: "#4C9AFF"
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #050812; }
+    ::-webkit-scrollbar-thumb { background: #1A2035; border-radius: 4px; }
+    .nav-link.active {
+      background: rgba(124,77,255,0.18);
+      color: #fff;
+      border-left: 2px solid #7C4DFF;
+    }
+    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
+    body.theme-day .bg-canvas, body.theme-day main { background: #F4F6FB !important; }
+    body.theme-day .bg-sidebar, body.theme-day aside { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .bg-card, body.theme-day .bg-cardElevated { background: #fff !important; border-color: #E2E8F0 !important; }
+    body.theme-day .text-white, body.theme-day .text-textPrimary, body.theme-day h1 { color: #0F172A !important; }
+    body.theme-day .text-textMuted, body.theme-day .text-textSecondary { color: #64748B !important; }
+    body.theme-day .border-borderSubtle { border-color: #E2E8F0 !important; }
+    body.theme-day header { background: rgba(255,255,255,0.95) !important; border-color: #E2E8F0 !important; }
+    body.theme-day input, body.theme-day select, body.theme-day textarea {
+      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #0F172A !important;
+    }
+    body.theme-day .nav-link { color: #64748B !important; }
+    body.theme-day .nav-link.active { background: rgba(108,92,231,0.12) !important; color: #5B3DFF !important; }
+  </style>
+</head>
+<body class="bg-canvas text-textPrimary font-sans antialiased min-h-screen flex">
+  <!-- SIDEBAR -->
+  <aside class="w-[210px] bg-sidebar border-r border-borderSubtle flex flex-col p-3 shrink-0">
+    <div class="flex items-center gap-2 px-1 pt-1 mb-4">
+      <div class="w-8 h-8 rounded-lg bg-primaryPurple/20 flex items-center justify-center text-primaryPurple font-bold text-sm">Q</div>
+      <div>
+        <div class="font-extrabold text-sm text-white leading-none">QUANTUM <span class="text-primaryPurple">OPS</span></div>
+        <div class="text-[9px] font-bold tracking-widest text-textMuted uppercase mt-0.5">CRM</div>
+      </div>
+    </div>
+    <nav class="space-y-0.5 text-xs flex-1 overflow-y-auto">
+      <a href="desktop.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-squares-four text-base"></i>Dashboard</a>
+      <a href="pos.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-shopping-cart text-base"></i>POS / Sales</a>
+      <a href="inventory.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-package text-base"></i>Inventory</a>
+      <a href="purchases.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-bag-simple text-base"></i>Purchases</a>
+      <a href="customers.html" class="nav-link active flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium"><i class="ph-bold ph-users text-base text-primaryPurple"></i>Customers (CRM)</a>
+      <a href="debtors.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-hand-coins text-base"></i>Debtors</a>
+      <a href="expenses.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-receipt text-base"></i>Expenses</a>
+      <a href="profile.html" class="nav-link flex items-center gap-2.5 px-3 py-2 rounded-lg text-textSecondary hover:text-white hover:bg-cardElevated"><i class="ph-bold ph-gear text-base"></i>Settings</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="flex-1 flex flex-col min-w-0 bg-canvas overflow-y-auto">
+    <header class="h-14 border-b border-borderSubtle px-5 flex items-center justify-between sticky top-0 bg-canvas/90 backdrop-blur-md z-20">
+      <div>
+        <h1 class="text-base font-extrabold text-white">Customers (CRM)</h1>
+        <p class="text-[11px] text-textMuted">Manage customer records · contact · history</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="toggleTheme()" class="w-8 h-8 rounded-lg bg-card border border-borderSubtle flex items-center justify-center text-textSecondary" title="Theme">
+          <i class="ph-bold ph-moon text-sm" id="theme-icon"></i>
+        </button>
+        <button type="button" onclick="openCustomerModal()" class="px-3 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold hover:opacity-90">
+          + Add Customer
+        </button>
+      </div>
+    </header>
+
+    <div class="p-5 space-y-4">
+      <!-- Summary -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Total Customers</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="sum-total">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">With Phone</div>
+          <div class="text-lg font-extrabold text-cyanAccent mt-1" id="sum-phone">0</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Total Spent</div>
+          <div class="text-lg font-extrabold text-positiveGreen mt-1" id="sum-spent">₦0.00</div>
+        </div>
+        <div class="rounded-xl bg-card border border-borderSubtle p-4">
+          <div class="text-[10px] text-textMuted font-semibold uppercase">Total Orders</div>
+          <div class="text-lg font-extrabold text-white mt-1" id="sum-orders">0</div>
+        </div>
+      </div>
+
+      <!-- Search + table -->
+      <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+        <div class="px-4 py-3 border-b border-borderSubtle flex flex-wrap items-center justify-between gap-2">
+          <span class="text-sm font-bold text-white">Customer List</span>
+          <input id="search-input" type="text" placeholder="Search name, phone, email…"
+            class="px-3 py-1.5 rounded-lg bg-cardElevated border border-borderSubtle text-xs text-textPrimary w-56 focus:outline-none focus:border-primaryPurple"
+            oninput="renderList()">
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-textMuted border-b border-borderSubtle">
+                <th class="px-4 py-3 font-semibold">Customer</th>
+                <th class="px-4 py-3 font-semibold">Phone</th>
+                <th class="px-4 py-3 font-semibold">Email</th>
+                <th class="px-4 py-3 font-semibold text-right">Orders</th>
+                <th class="px-4 py-3 font-semibold text-right">Total Spent</th>
+                <th class="px-4 py-3 font-semibold">Joined</th>
+                <th class="px-4 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customers-body">
+              <tr><td colspan="7" class="px-4 py-8 text-center text-textMuted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL Add / Edit -->
+  <div id="customer-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.75)">
+    <div class="w-full max-w-md rounded-2xl bg-card border border-borderSubtle p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-extrabold text-white" id="modal-title">Add Customer</h2>
+        <button type="button" onclick="closeCustomerModal()" class="text-textMuted hover:text-white text-xl">&times;</button>
+      </div>
+      <input type="hidden" id="c-id">
+      <div class="space-y-3">
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Full Name *</label>
+          <input id="c-name" type="text" placeholder="Customer full name" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] text-textMuted font-semibold block mb-1">Phone</label>
+            <input id="c-phone" type="tel" placeholder="080…" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+          </div>
+          <div>
+            <label class="text-[10px] text-textMuted font-semibold block mb-1">Email</label>
+            <input id="c-email" type="email" placeholder="email@example.com" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+          </div>
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Address</label>
+          <input id="c-address" type="text" placeholder="Optional" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple">
+        </div>
+        <div>
+          <label class="text-[10px] text-textMuted font-semibold block mb-1">Notes</label>
+          <textarea id="c-notes" rows="2" placeholder="Optional notes" class="w-full px-3 py-2 rounded-lg bg-cardElevated border border-borderSubtle text-sm text-textPrimary focus:outline-none focus:border-primaryPurple resize-none"></textarea>
+        </div>
+      </div>
+      <div class="flex gap-2 mt-5">
+        <button type="button" onclick="closeCustomerModal()" class="flex-1 px-4 py-2 rounded-lg border border-borderSubtle text-xs font-semibold text-textSecondary">Cancel</button>
+        <button type="button" id="save-customer-btn" onclick="saveCustomer()" class="flex-1 px-4 py-2 rounded-lg bg-primaryPurple text-white text-xs font-bold">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    let userCompanyId = null;
+    let customers = [];
+    let editingId = null;
+
+    function $(id) { return document.getElementById(id); }
+    function formatCurrency(n) {
+      return "₦" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
+
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem("quantum_theme") || "system";
+        const day = t === "day" || (t === "system" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+        document.body.classList.toggle("theme-day", day);
+        document.documentElement.classList.toggle("dark", !day);
+        const icon = $("theme-icon");
+        if (icon) icon.className = day ? "ph-bold ph-sun text-sm" : "ph-bold ph-moon text-sm";
+      } catch (e) {}
+    }
+    function toggleTheme() {
+      const cur = localStorage.getItem("quantum_theme") || "system";
+      const next = cur === "day" ? "night" : cur === "night" ? "system" : "day";
+      localStorage.setItem("quantum_theme", next);
+      applyTheme();
+    }
+
+    function openCustomerModal(cust) {
+      editingId = cust ? cust.id : null;
+      $("modal-title").textContent = cust ? "Edit Customer" : "Add Customer";
+      $("c-id").value = cust ? cust.id : "";
+      $("c-name").value = cust ? (cust.full_name || "") : "";
+      $("c-phone").value = cust ? (cust.phone || "") : "";
+      $("c-email").value = cust ? (cust.email || "") : "";
+      $("c-address").value = cust ? (cust.address || "") : "";
+      $("c-notes").value = cust ? (cust.notes || "") : "";
+      $("customer-modal").classList.remove("hidden");
+      $("customer-modal").classList.add("flex");
+    }
+    function closeCustomerModal() {
+      editingId = null;
+      $("customer-modal").classList.add("hidden");
+      $("customer-modal").classList.remove("flex");
+    }
+
+    async function saveCustomer() {
+      const name = ($("c-name").value || "").trim();
+      if (!name) return alert("Enter customer name");
+      if (!userCompanyId) return alert("Company not loaded. Refresh.");
+
+      const payload = {
+        company_id: userCompanyId,
+        full_name: name,
+        phone: ($("c-phone").value || "").trim() || null,
+        email: ($("c-email").value || "").trim() || null,
+        address: ($("c-address").value || "").trim() || null,
+        notes: ($("c-notes").value || "").trim() || null,
+        updated_at: new Date().toISOString()
+      };
+
+      const btn = $("save-customer-btn");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+
+      try {
+        if (editingId) {
+          const { error } = await supabaseClient
+            .from("customers")
+            .update(payload)
+            .eq("id", editingId)
+            .eq("company_id", userCompanyId);
+          if (error) throw error;
+        } else {
+          payload.total_spent = 0;
+          payload.total_orders = 0;
+          const { error } = await supabaseClient.from("customers").insert([payload]);
+          if (error) throw error;
+        }
+        closeCustomerModal();
+        await loadCustomers();
+      } catch (err) {
+        console.error(err);
+        alert(err.message || "Could not save customer");
+      }
+      if (btn) { btn.disabled = false; btn.textContent = "Save"; }
+    }
+
+    async function deleteCustomer(id, name) {
+      if (!confirm("Delete customer \"" + name + "\"? This cannot be undone.")) return;
+      try {
+        const { error } = await supabaseClient
+          .from("customers")
+          .delete()
+          .eq("id", id)
+          .eq("company_id", userCompanyId);
+        if (error) throw error;
+        await loadCustomers();
+      } catch (err) {
+        alert(err.message || "Could not delete");
+      }
+    }
+
+    function whatsappLink(phone) {
+      if (!phone) return null;
+      let p = String(phone).replace(/\D/g, "");
+      if (p.startsWith("0")) p = "234" + p.slice(1);
+      if (!p) return null;
+      return "https://wa.me/" + p;
+    }
+
+    function renderList() {
+      const q = (($("search-input") || {}).value || "").toLowerCase().trim();
+      let list = customers;
+      if (q) {
+        list = customers.filter(function (c) {
+          return String(c.full_name || "").toLowerCase().indexOf(q) !== -1 ||
+            String(c.phone || "").toLowerCase().indexOf(q) !== -1 ||
+            String(c.email || "").toLowerCase().indexOf(q) !== -1 ||
+            String(c.address || "").toLowerCase().indexOf(q) !== -1;
+        });
+      }
+      const body = $("customers-body");
+      if (!list.length) {
+        body.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-textMuted">No customers yet. Click + Add Customer.</td></tr>';
+        return;
+      }
+      body.innerHTML = list.map(function (c) {
+        const joined = c.created_at
+          ? new Date(c.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+          : "—";
+        const wa = whatsappLink(c.phone);
+        const initials = String(c.full_name || "?").split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+        return (
+          "<tr class=\"border-b border-borderSubtle/60 hover:bg-cardElevated/50\">" +
+          "<td class=\"px-4 py-3\">" +
+            "<div class=\"flex items-center gap-2\">" +
+              "<div class=\"w-8 h-8 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center shrink-0\">" + initials + "</div>" +
+              "<div class=\"min-w-0\"><div class=\"font-semibold text-white truncate\">" + esc(c.full_name) + "</div>" +
+              (c.notes ? "<div class=\"text-[10px] text-textMuted truncate\">" + esc(c.notes) + "</div>" : "") +
+              "</div></div></td>" +
+          "<td class=\"px-4 py-3 text-textSecondary\">" + (c.phone ? esc(c.phone) : "—") + "</td>" +
+          "<td class=\"px-4 py-3 text-textMuted max-w-[140px] truncate\">" + (c.email ? esc(c.email) : "—") + "</td>" +
+          "<td class=\"px-4 py-3 text-right text-white font-semibold\">" + (c.total_orders || 0) + "</td>" +
+          "<td class=\"px-4 py-3 text-right font-bold text-positiveGreen\">" + formatCurrency(c.total_spent) + "</td>" +
+          "<td class=\"px-4 py-3 text-textMuted\">" + joined + "</td>" +
+          "<td class=\"px-4 py-3 text-right\">" +
+            "<div class=\"flex items-center justify-end gap-1\">" +
+              (wa ? "<a href=\"" + wa + "\" target=\"_blank\" class=\"px-2 py-1 rounded text-[10px] font-semibold bg-positiveGreen/15 text-positiveGreen\" title=\"WhatsApp\">WA</a>" : "") +
+              "<button type=\"button\" onclick='openCustomerModal(" + JSON.stringify(c).replace(/'/g, "&#39;") + ")' class=\"px-2 py-1 rounded text-[10px] font-semibold bg-primaryPurple/15 text-brightPurple\">Edit</button>" +
+              "<button type=\"button\" onclick=\"deleteCustomer('" + c.id + "','" + esc(c.full_name).replace(/'/g, "") + "')\" class=\"px-2 py-1 rounded text-[10px] font-semibold bg-dangerRed/15 text-dangerRed\">Del</button>" +
+            "</div></td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
+
+    function updateSummary() {
+      let withPhone = 0, spent = 0, orders = 0;
+      customers.forEach(function (c) {
+        if (c.phone) withPhone++;
+        spent += Number(c.total_spent || 0);
+        orders += Number(c.total_orders || 0);
+      });
+      $("sum-total").textContent = String(customers.length);
+      $("sum-phone").textContent = String(withPhone);
+      $("sum-spent").textContent = formatCurrency(spent);
+      $("sum-orders").textContent = String(orders);
+    }
+
+    async function loadCustomers() {
+      if (!userCompanyId) return;
+      const { data, error } = await supabaseClient
+        .from("customers")
+        .select("*")
+        .eq("company_id", userCompanyId)
+        .order("full_name", { ascending: true })
+        .limit(500);
+      if (error) {
+        console.error(error);
+        $("customers-body").innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-dangerRed">Failed to load</td></tr>';
+        return;
+      }
+      customers = data || [];
+      updateSummary();
+      renderList();
+    }
+
+    async function init() {
+      applyTheme();
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session || !session.user) {
+          window.location.replace("index.html");
+          return;
+        }
+        const { data: member } = await supabaseClient
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        if (!member || !member.company_id) {
+          alert("No company linked. Open Dashboard first.");
+          window.location.href = "desktop.html";
+          return;
+        }
+        userCompanyId = member.company_id;
+        await loadCustomers();
+      } catch (err) {
+        console.error(err);
+        $("customers-body").innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-dangerRed">Error loading</td></tr>';
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
