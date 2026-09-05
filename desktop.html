@@ -555,6 +555,7 @@
     let isRefreshing = false;
     let liveChannel = null;
     let appReady = false;
+    let productImageMap = {};
 
     function getSavedTheme() {
       return localStorage.getItem("quantum_theme") || "night";
@@ -600,16 +601,27 @@
     function saleProfit(s) {
       return parseMoney(s.profit != null ? s.profit : s.total_profit);
     }
-    function startOfToday() {
-      const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString();
+    // Local-date helpers — same logic as mobile (Monday start)
+    function getLocalDateString(dateObj) {
+      const d = new Date(dateObj);
+      return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     }
-    function startOfWeek() {
+    function startOfWeekDate() {
       const d = new Date();
       const day = d.getDay();
       const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d.setDate(diff));
+      const monday = new Date(d.getFullYear(), d.getMonth(), diff);
       monday.setHours(0, 0, 0, 0);
-      return monday.toISOString();
+      return monday;
+    }
+    function isInThisWeek(createdAt) {
+      if (!createdAt) return false;
+      return new Date(createdAt) >= startOfWeekDate();
+    }
+    function startOfTodayLocal() {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      return d;
     }
     function setText(id, val) {
       const el = document.getElementById(id);
@@ -620,6 +632,11 @@
       if (h < 12) return "Good morning";
       if (h < 17) return "Good afternoon";
       return "Good evening";
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
     }
 
     function tickClock() {
@@ -754,6 +771,8 @@
     function paintCache() {
       const c = loadCache();
       if (!c) return;
+      // Company-safe: never paint another company's data
+      if (userCompanyId && c.companyId && c.companyId !== userCompanyId) return;
       if (c.sales != null) setText("kpi-sales", formatCurrency(c.sales));
       if (c.profit != null) setText("kpi-profit", formatCurrency(c.profit));
       if (c.trx != null) setText("kpi-trx", String(c.trx));
@@ -773,6 +792,7 @@
         createSparkline("kpiSalesChart", "#8B5CFF", c.chartValues);
         createSparkline("kpiProfitChart", "#31D17C", c.chartValues.map(function (v) { return v * 0.25; }));
       }
+      if (c.productImageMap) productImageMap = c.productImageMap;
       if (c.topProductsHtml) {
         const el = document.getElementById("top-products");
         if (el) el.innerHTML = c.topProductsHtml;
@@ -801,7 +821,7 @@
 
     async function init() {
       applyTheme(getSavedTheme());
-      paintCache();
+      paintCache(); // instant first paint (company check skipped until id known)
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
@@ -850,6 +870,8 @@
           setText("pill-renew", new Date(companyDetails.trial_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }));
         }
 
+        // Re-paint now that companyId is known (company-safe)
+        paintCache();
         appReady = true;
         await refreshAll();
         subscribeRealtime();
@@ -863,28 +885,40 @@
       if (!userCompanyId || isRefreshing) return;
       isRefreshing = true;
       try {
-        const todayIso = startOfToday();
-        const weekIso = startOfWeek();
+        const weekStart = startOfWeekDate();
+        const weekIso = weekStart.toISOString();
+        const todayStr = getLocalDateString(new Date());
 
         const [salesRes, productsRes, debtorsRes, expensesRes, notifRes] = await Promise.all([
           supabaseClient.from("sales").select("id, total, total_amount, profit, total_profit, payment_method, customer_name, items, created_at").eq("company_id", userCompanyId).gte("created_at", weekIso).order("created_at", { ascending: false }).limit(500),
-          supabaseClient.from("products").select("id, name, stock, items_per_pack, selling_price").eq("company_id", userCompanyId).limit(400),
+          supabaseClient.from("products").select("id, name, stock, items_per_pack, selling_price, image_url").eq("company_id", userCompanyId).limit(400),
           supabaseClient.from("debtors").select("id, customer_name, amount_owing, status, due_date, created_at").eq("company_id", userCompanyId).limit(200),
-          supabaseClient.from("expenses").select("id, amount, category, created_at").eq("company_id", userCompanyId).gte("created_at", todayIso).limit(100),
+          supabaseClient.from("expenses").select("id, amount, category, created_at").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(100),
           supabaseClient.from("notifications").select("id, title, message, created_at, is_read").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(5)
         ]);
 
-        const weekSales = salesRes.data || [];
+        const weekSales = (salesRes.data || []).filter(function (s) { return isInThisWeek(s.created_at); });
         const products = productsRes.data || [];
         const debtors = debtorsRes.data || [];
         const expenses = expensesRes.data || [];
         const notifs = notifRes.data || [];
 
-        const todaySales = weekSales.filter(function (s) { return s.created_at >= todayIso; });
+        productImageMap = {};
+        products.forEach(function (p) {
+          if (p.name) productImageMap[String(p.name).toLowerCase()] = p.image_url || "";
+        });
+
+        const todaySales = weekSales.filter(function (s) {
+          return getLocalDateString(new Date(s.created_at)) === todayStr;
+        });
         const salesToday = todaySales.reduce(function (a, s) { return a + saleAmount(s); }, 0);
         const profitToday = todaySales.reduce(function (a, s) { return a + saleProfit(s); }, 0);
         const trxToday = todaySales.length;
-        const expToday = expenses.reduce(function (a, e) { return a + parseMoney(e.amount); }, 0);
+
+        const todayExpenses = expenses.filter(function (e) {
+          return getLocalDateString(new Date(e.created_at)) === todayStr;
+        });
+        const expToday = todayExpenses.reduce(function (a, e) { return a + parseMoney(e.amount); }, 0);
         const netToday = profitToday - expToday;
 
         const unpaid = debtors.filter(function (d) {
@@ -923,31 +957,25 @@
         setText("health-stock", lowStock.length ? lowStock.length + " items" : "Healthy");
         setText("health-exp", expToday > 0 ? formatCurrency(expToday) : "₦0");
 
-        const dayMap = {};
-        const labels = [];
-        for (let i = 6; i >= 0; i--) {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          d.setHours(0, 0, 0, 0);
-          const key = d.toISOString().slice(0, 10);
-          labels.push(d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" }));
-          dayMap[key] = 0;
-        }
+        // Chart = THIS WEEK only (Mon–Sun), same as mobile
+        const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        const totals = [0, 0, 0, 0, 0, 0, 0];
         weekSales.forEach(function (s) {
-          const key = String(s.created_at).slice(0, 10);
-          if (dayMap[key] != null) dayMap[key] += saleAmount(s);
+          let idx = new Date(s.created_at).getDay() - 1;
+          if (idx === -1) idx = 6;
+          totals[idx] += saleAmount(s);
         });
-        const values = Object.keys(dayMap).sort().map(function (k) { return dayMap[k]; });
-        const weekTotal = values.reduce(function (a, b) { return a + b; }, 0);
+        const weekTotal = totals.reduce(function (a, b) { return a + b; }, 0);
         setText("week-sales-total", formatCurrency(weekTotal));
-        renderSalesChart(labels, values);
+        renderSalesChart(days, totals);
 
-        createSparkline("kpiSalesChart", "#8B5CFF", values.length ? values : [0, 0, 0, 0, 0, 0, 0]);
-        createSparkline("kpiProfitChart", "#31D17C", values.map(function (v) { return v * 0.25; }));
-        createSparkline("kpiTransactionsChart", "#536DFF", values.map(function (v) { return Math.min(v / 500, 30); }));
+        createSparkline("kpiSalesChart", "#8B5CFF", totals);
+        createSparkline("kpiProfitChart", "#31D17C", totals.map(function (v) { return v * 0.25; }));
+        createSparkline("kpiTransactionsChart", "#536DFF", totals.map(function (v) { return Math.min(v / 500, 30); }));
         createSparkline("kpiDebtChart", "#FF4F67", [debtTotal * 0.3, debtTotal * 0.4, debtTotal * 0.35, debtTotal * 0.5, debtTotal * 0.45, debtTotal * 0.6, debtTotal]);
         createSparkline("kpiLowChart", "#F5C451", [lowStock.length, lowStock.length + 1, lowStock.length, lowStock.length + 2, lowStock.length, lowStock.length + 1, lowStock.length]);
 
+        // Top Selling Products — THIS WEEK, top 5, with photos
         const prodMap = {};
         weekSales.forEach(function (s) {
           let items = s.items;
@@ -969,53 +997,60 @@
           if (!topProds.length) {
             topProductsHtml = '<div class="text-xs text-textMuted text-center py-3">No sales data yet</div>';
           } else {
-            topProductsHtml = topProds.slice(0, 3).map(function (p, i) {
-              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2 min-w-0"><span class="w-5 h-5 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + (i + 1) + '</span><div class="truncate"><div class="text-xs font-bold text-white truncate">' + p.name + '</div><div class="text-[10px] text-textMuted">' + p.qty + ' sold</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(p.revenue) + '</span></div>';
+            topProductsHtml = topProds.map(function (p, i) {
+              const img = productImageMap[String(p.name).toLowerCase()] || "";
+              const thumb = img
+                ? '<img src="' + esc(img) + '" alt="" class="w-7 h-7 rounded-md object-cover border border-borderSubtle shrink-0" loading="lazy" onerror="this.style.display=\'none\'">'
+                : '<span class="w-5 h-5 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center shrink-0">' + (i + 1) + '</span>';
+              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2 min-w-0">' + thumb + '<div class="truncate"><div class="text-xs font-bold text-white truncate">' + esc(p.name) + '</div><div class="text-[10px] text-textMuted">' + p.qty + ' sold</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(p.revenue) + '</span></div>';
             }).join("");
           }
           topEl.innerHTML = topProductsHtml;
         }
 
+        // Low Stock — top 5
         let lowStockHtml = "";
         const lowEl = document.getElementById("low-stock-list");
         if (lowEl) {
           if (!lowStock.length) {
             lowStockHtml = '<div class="text-xs text-textMuted text-center py-3">All stock healthy</div>';
           } else {
-            lowStockHtml = lowStock.slice(0, 3).map(function (p) {
+            lowStockHtml = lowStock.slice(0, 5).map(function (p) {
               const pieces = Number(p.stock || 0);
               const pack = Number(p.items_per_pack || 24) || 24;
               const critical = pieces / pack <= 1;
-              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="text-xs font-bold text-white truncate">' + (p.name || "Item") + '</div><div class="text-[10px] text-textMuted">' + (pieces / pack).toFixed(1) + ' units left</div></div><span class="px-2 py-0.5 text-[9px] font-bold rounded ' + (critical ? "bg-dangerRed/20 text-dangerRed" : "bg-warningYellow/20 text-warningYellow") + '">' + (critical ? "Critical" : "Low") + "</span></div>";
+              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="text-xs font-bold text-white truncate">' + esc(p.name || "Item") + '</div><div class="text-[10px] text-textMuted">' + (pieces / pack).toFixed(1) + ' units left</div></div><span class="px-2 py-0.5 text-[9px] font-bold rounded ' + (critical ? "bg-dangerRed/20 text-dangerRed" : "bg-warningYellow/20 text-warningYellow") + '">' + (critical ? "Critical" : "Low") + "</span></div>";
             }).join("");
           }
           lowEl.innerHTML = lowStockHtml;
         }
 
+        // Top Debtors — top 5
         let debtorsHtml = "";
         const debtEl = document.getElementById("top-debtors");
         if (debtEl) {
-          const sorted = unpaid.slice().sort(function (a, b) { return parseMoney(b.amount_owing) - parseMoney(a.amount_owing); }).slice(0, 3);
+          const sorted = unpaid.slice().sort(function (a, b) { return parseMoney(b.amount_owing) - parseMoney(a.amount_owing); }).slice(0, 5);
           if (!sorted.length) {
             debtorsHtml = '<div class="text-xs text-textMuted text-center py-3">No outstanding debt</div>';
           } else {
             debtorsHtml = sorted.map(function (d) {
               const nm = d.customer_name || "Customer";
               const ini = nm.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
-              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + ini + '</div><div><div class="text-xs font-bold text-white">' + nm + '</div><div class="text-[10px] text-dangerRed">Outstanding</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(d.amount_owing) + "</span></div>";
+              return '<div class="flex items-center justify-between p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded-full bg-primaryPurple/20 text-brightPurple text-[10px] font-bold flex items-center justify-center">' + ini + '</div><div><div class="text-xs font-bold text-white">' + esc(nm) + '</div><div class="text-[10px] text-dangerRed">Outstanding</div></div></div><span class="text-xs font-extrabold text-white">' + formatCurrency(d.amount_owing) + "</span></div>";
             }).join("");
           }
           debtEl.innerHTML = debtorsHtml;
         }
 
+        // Recent Transactions — top 5 today
         let recentHtml = "";
         const recentEl = document.getElementById("recent-trx");
         if (recentEl) {
           if (!todaySales.length) {
             recentHtml = '<div class="text-xs text-textMuted text-center py-3">No transactions yet</div>';
           } else {
-            recentHtml = todaySales.slice(0, 4).map(function (s) {
-              return '<div class="flex items-center justify-between text-xs p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="font-mono text-textMuted text-[10px]">#' + String(s.id || "").slice(0, 8) + '</div><div class="font-bold text-white truncate">' + (s.customer_name || "Walk-in") + '</div></div><div class="text-right"><div class="font-extrabold text-white">' + formatCurrency(saleAmount(s)) + '</div><div class="text-[9px] text-brightGreen font-bold">' + (s.payment_method || "Cash") + "</div></div></div>";
+            recentHtml = todaySales.slice(0, 5).map(function (s) {
+              return '<div class="flex items-center justify-between text-xs p-2 rounded-lg bg-cardElevated border border-borderSubtle"><div class="min-w-0"><div class="font-mono text-textMuted text-[10px]">#' + String(s.id || "").slice(0, 8) + '</div><div class="font-bold text-white truncate">' + esc(s.customer_name || "Walk-in") + '</div></div><div class="text-right"><div class="font-extrabold text-white">' + formatCurrency(saleAmount(s)) + '</div><div class="text-[9px] text-brightGreen font-bold">' + esc(s.payment_method || "Cash") + "</div></div></div>";
             }).join("");
           }
           recentEl.innerHTML = recentHtml;
@@ -1028,11 +1063,11 @@
           if (todaySales[0]) cards.push({ icon: "ph-shopping-bag", c: "positiveGreen", t: "New Sale", v: formatCurrency(saleAmount(todaySales[0])), s: todaySales[0].customer_name || "Walk-in" });
           cards.push({ icon: "ph-warning", c: "warningYellow", t: "Low Stock", v: lowStock.length + " Items", s: "Need attention" });
           cards.push({ icon: "ph-hand-coins", c: "dangerRed", t: "Outstanding Debt", v: formatCurrency(debtTotal), s: unpaid.length + " customers" });
-          if (expenses[0]) cards.push({ icon: "ph-receipt", c: "accentPink", t: "Expense", v: formatCurrency(expenses[0].amount), s: expenses[0].category || "Ops" });
+          if (todayExpenses[0]) cards.push({ icon: "ph-receipt", c: "accentPink", t: "Expense", v: formatCurrency(todayExpenses[0].amount), s: todayExpenses[0].category || "Ops" });
           cards.push({ icon: "ph-trend-up", c: "primaryPurple", t: "Net Profit", v: formatCurrency(netToday), s: "After expenses" });
           activitiesHtml = cards.map(function (c) {
             const tc = c.c === "positiveGreen" ? "brightGreen" : c.c === "warningYellow" ? "warningYellow" : c.c === "dangerRed" ? "dangerRed" : c.c === "accentPink" ? "accentPink" : "brightPurple";
-            return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg bg-' + c.c + '/15 text-' + tc + ' flex items-center justify-center shrink-0"><i class="ph-bold ' + c.icon + ' text-sm"></i></div><div class="min-w-0 flex-1"><div class="text-[10px] text-textMuted font-medium uppercase">' + c.t + '</div><div class="text-xs font-bold text-white truncate">' + c.v + '</div><div class="text-[9px] text-textMuted truncate">' + c.s + "</div></div></div>";
+            return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg bg-' + c.c + '/15 text-' + tc + ' flex items-center justify-center shrink-0"><i class="ph-bold ' + c.icon + ' text-sm"></i></div><div class="min-w-0 flex-1"><div class="text-[10px] text-textMuted font-medium uppercase">' + c.t + '</div><div class="text-xs font-bold text-white truncate">' + c.v + '</div><div class="text-[9px] text-textMuted truncate">' + esc(c.s) + "</div></div></div>";
           }).join("");
           actEl.innerHTML = activitiesHtml;
         }
@@ -1054,25 +1089,25 @@
         if (aiEl) {
           insightsHtml = insights.slice(0, 4).map(function (ins) {
             const tc = ins.c === "positiveGreen" ? "brightGreen" : ins.c === "warningYellow" ? "warningYellow" : ins.c === "dangerRed" ? "dangerRed" : ins.c === "accentPink" ? "accentPink" : "brightPurple";
-            return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5"><div class="p-1.5 rounded-md bg-' + ins.c + '/15 text-' + tc + ' shrink-0 mt-0.5"><i class="ph-bold ' + ins.icon + ' text-xs"></i></div><div><div class="text-xs font-bold text-white">' + ins.t + '</div><div class="text-[10px] text-textMuted">' + ins.s + "</div></div></div>";
+            return '<div class="p-2.5 rounded-lg bg-cardElevated border border-borderSubtle flex items-start gap-2.5"><div class="p-1.5 rounded-md bg-' + ins.c + '/15 text-' + tc + ' shrink-0 mt-0.5"><i class="ph-bold ' + ins.icon + ' text-xs"></i></div><div><div class="text-xs font-bold text-white">' + esc(ins.t) + '</div><div class="text-[10px] text-textMuted">' + esc(ins.s) + "</div></div></div>";
           }).join("");
           aiEl.innerHTML = insightsHtml;
         }
 
         let predPct = 0;
-        if (values.length >= 2) {
-          const last = values[values.length - 1];
-          const prev = values[values.length - 2] || last;
+        if (totals.length >= 2) {
+          const last = totals[totals.length - 1];
+          const prev = totals[totals.length - 2] || last;
           if (prev > 0) predPct = ((last - prev) / prev) * 100;
         }
         setText("ai-pred", (predPct >= 0 ? "+" : "") + predPct.toFixed(1) + "%");
         setText("ai-pred-sub", predPct >= 0 ? "Up vs previous day trend" : "Down vs previous day — push sales");
-        renderPredChart(values.length ? values : [5, 8, 12, 15, 18, 22, 28]);
+        renderPredChart(totals.length ? totals : [5, 8, 12, 15, 18, 22, 28]);
 
         const nList = document.getElementById("notif-list");
         if (nList && notifs.length) {
           nList.innerHTML = notifs.slice(0, 3).map(function (n) {
-            return '<div class="flex items-start gap-2 p-2 rounded-lg bg-cardElevated border border-borderSubtle"><i class="ph-bold ph-bell text-primaryPurple mt-0.5"></i><div><div class="font-medium text-white text-xs">' + (n.title || "Alert") + '</div><div class="text-[10px] text-textMuted">' + (n.message || "").slice(0, 60) + "</div></div></div>";
+            return '<div class="flex items-start gap-2 p-2 rounded-lg bg-cardElevated border border-borderSubtle"><i class="ph-bold ph-bell text-primaryPurple mt-0.5"></i><div><div class="font-medium text-white text-xs">' + esc(n.title || "Alert") + '</div><div class="text-[10px] text-textMuted">' + esc((n.message || "").slice(0, 60)) + "</div></div></div>";
           }).join("");
         }
         const unread = notifs.filter(function (n) { return !n.is_read; }).length;
@@ -1097,14 +1132,15 @@
           healthDebt: unpaid.length ? formatCurrency(debtTotal) : "Clear",
           healthStock: lowStock.length ? lowStock.length + " items" : "Healthy",
           healthExp: expToday > 0 ? formatCurrency(expToday) : "₦0",
-          chartLabels: labels,
-          chartValues: values,
+          chartLabels: days,
+          chartValues: totals,
           topProductsHtml: topProductsHtml,
           lowStockHtml: lowStockHtml,
           debtorsHtml: debtorsHtml,
           recentHtml: recentHtml,
           activitiesHtml: activitiesHtml,
-          insightsHtml: insightsHtml
+          insightsHtml: insightsHtml,
+          productImageMap: productImageMap
         });
       } catch (err) {
         console.error("refreshAll", err);
@@ -1143,5 +1179,3 @@
   </script>
 </body>
 </html>
-
-
