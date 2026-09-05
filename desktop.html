@@ -4,7 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050812">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Quantum OPS">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
   <title>QUANTUM OPS — Desktop Dashboard</title>
+  <!-- FOUC-free theme: apply before first paint -->
+  <script>
+    (function () {
+      try {
+        var pref = localStorage.getItem("quantum_theme") || "night";
+        var resolved = pref;
+        if (pref === "system") {
+          resolved = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "day" : "night";
+        } else {
+          resolved = pref === "day" ? "day" : "night";
+        }
+        document.documentElement.classList.toggle("dark", resolved !== "day");
+        if (resolved === "day") {
+          document.documentElement.style.background = "#F4F6FB";
+          document.documentElement.classList.remove("dark");
+        } else {
+          document.documentElement.style.background = "#050812";
+        }
+      } catch (e) {}
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -325,7 +353,7 @@
                   <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Total Sales (Today)</span>
                   <div class="w-6 h-6 rounded-lg bg-primaryPurple/15 flex items-center justify-center text-primaryPurple"><i class="ph-bold ph-shopping-cart text-xs"></i></div>
                 </div>
-                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-sales">₦0</div>
+                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-sales">—</div>
                 <div class="text-[10px] text-brightGreen mt-0.5">Live</div>
                 <div class="h-7 mt-1.5"><canvas id="kpiSalesChart"></canvas></div>
               </a>
@@ -334,7 +362,7 @@
                   <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Total Profit (Today)</span>
                   <div class="w-6 h-6 rounded-lg bg-positiveGreen/15 flex items-center justify-center text-positiveGreen"><i class="ph-bold ph-wallet text-xs"></i></div>
                 </div>
-                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-profit">₦0</div>
+                <div class="text-xl font-extrabold text-white tracking-tight" id="kpi-profit">—</div>
                 <div class="text-[10px] text-brightGreen mt-0.5">Live</div>
                 <div class="h-7 mt-1.5"><canvas id="kpiProfitChart"></canvas></div>
               </div>
@@ -352,7 +380,7 @@
                   <span class="text-[10px] font-semibold text-textMuted uppercase tracking-wider">Outstanding Debt</span>
                   <div class="w-6 h-6 rounded-lg bg-dangerRed/15 flex items-center justify-center text-dangerRed"><i class="ph-bold ph-warning-circle text-xs"></i></div>
                 </div>
-                <div class="text-xl font-extrabold text-dangerRed tracking-tight" id="kpi-debt">₦0</div>
+                <div class="text-xl font-extrabold text-dangerRed tracking-tight" id="kpi-debt">—</div>
                 <div class="text-[10px] text-textMuted mt-0.5" id="kpi-debt-count">0 Customers</div>
                 <div class="h-7 mt-1.5"><canvas id="kpiDebtChart"></canvas></div>
               </a>
@@ -373,14 +401,13 @@
                   <div>
                     <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Sales Overview</h3>
                     <div class="flex items-baseline gap-2 mt-0.5">
-                      <span class="text-xl font-extrabold text-white" id="week-sales-total">₦0</span>
+                      <span class="text-xl font-extrabold text-white" id="week-sales-total">—</span>
                       <span class="text-[10px] font-bold text-brightGreen">This week</span>
                     </div>
                   </div>
                 </div>
                 <div class="h-44 w-full"><canvas id="salesOverviewChart"></canvas></div>
               </div>
-              <!-- BUSINESS HEALTH (replaces Sales by Category) -->
               <div class="lg:col-span-5 p-4 rounded-xl bg-card border border-borderSubtle flex flex-col">
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted">Business Health</h3>
@@ -484,9 +511,9 @@
             </div>
             <div class="p-3.5 rounded-xl bg-card border border-borderSubtle space-y-1.5">
               <h3 class="text-[10px] font-bold uppercase tracking-wider text-textMuted mb-1">Today's Summary</h3>
-              <div class="flex justify-between text-xs"><span class="text-textMuted">Sales</span><span class="font-mono font-bold text-brightGreen" id="sum-sales">₦0</span></div>
-              <div class="flex justify-between text-xs"><span class="text-textMuted">Expenses</span><span class="font-mono font-bold text-dangerRed" id="sum-exp">₦0</span></div>
-              <div class="flex justify-between text-xs pt-1 border-t border-borderSubtle"><span class="text-white font-bold">Net Profit</span><span class="font-mono font-extrabold text-brightGreen" id="sum-net">₦0</span></div>
+              <div class="flex justify-between text-xs"><span class="text-textMuted">Sales</span><span class="font-mono font-bold text-brightGreen" id="sum-sales">—</span></div>
+              <div class="flex justify-between text-xs"><span class="text-textMuted">Expenses</span><span class="font-mono font-bold text-dangerRed" id="sum-exp">—</span></div>
+              <div class="flex justify-between text-xs pt-1 border-t border-borderSubtle"><span class="text-white font-bold">Net Profit</span><span class="font-mono font-extrabold text-brightGreen" id="sum-net">—</span></div>
             </div>
           </div>
         </div>
@@ -557,6 +584,30 @@
     let appReady = false;
     let productImageMap = {};
 
+    /* ===== GLOBAL CURRENCY + LANGUAGE (same as mobile) ===== */
+    let companyCurrency = "NGN";
+    let companySymbol = "₦";
+    let companyLanguage = "en";
+
+    function t(key, fallback) {
+      return fallback != null ? fallback : key;
+    }
+
+    function formatCurrency(amount) {
+      const n = Number(amount || 0);
+      try {
+        if (companyCurrency && companyCurrency.length === 3) {
+          return new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: companyCurrency,
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0
+          }).format(n);
+        }
+      } catch (e) {}
+      return (companySymbol || "₦") + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
     function getSavedTheme() {
       return localStorage.getItem("quantum_theme") || "night";
     }
@@ -586,13 +637,10 @@
       applyTheme(next);
     }
 
-    function formatCurrency(n) {
-      return "₦" + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
-    }
     function parseMoney(value) {
       if (value == null || value === "") return 0;
       if (typeof value === "number") return isNaN(value) ? 0 : value;
-      const amount = parseFloat(String(value).replace(/[₦$,\s]/g, ""));
+      const amount = parseFloat(String(value).replace(/[₦$€£₹GH₵KShR,\s]/g, ""));
       return isNaN(amount) ? 0 : amount;
     }
     function saleAmount(s) {
@@ -601,7 +649,6 @@
     function saleProfit(s) {
       return parseMoney(s.profit != null ? s.profit : s.total_profit);
     }
-    // Local-date helpers — same logic as mobile (Monday start)
     function getLocalDateString(dateObj) {
       const d = new Date(dateObj);
       return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -617,11 +664,6 @@
     function isInThisWeek(createdAt) {
       if (!createdAt) return false;
       return new Date(createdAt) >= startOfWeekDate();
-    }
-    function startOfTodayLocal() {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      return d;
     }
     function setText(id, val) {
       const el = document.getElementById(id);
@@ -688,6 +730,7 @@
         const grad = ctx.createLinearGradient(0, 0, 0, 180);
         grad.addColorStop(0, "rgba(124,77,255,0.35)");
         grad.addColorStop(1, "rgba(124,77,255,0)");
+        const sym = companySymbol || "₦";
         salesChart = new Chart(ctx, {
           type: "line",
           data: {
@@ -711,7 +754,7 @@
             plugins: { legend: { display: false } },
             scales: {
               x: { grid: { display: false }, ticks: { color: "#68718A", font: { size: 10 } } },
-              y: { grid: { color: "#1A2035" }, ticks: { color: "#68718A", font: { size: 10 } } }
+              y: { grid: { color: "#1A2035" }, ticks: { color: "#68718A", font: { size: 10 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
             }
           }
         });
@@ -758,7 +801,13 @@
     function saveCache(p) {
       try {
         if (userCompanyId) {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(Object.assign({ companyId: userCompanyId, ts: Date.now() }, p)));
+          localStorage.setItem(CACHE_KEY, JSON.stringify(Object.assign({
+            companyId: userCompanyId,
+            currency: companyCurrency,
+            symbol: companySymbol,
+            language: companyLanguage,
+            ts: Date.now()
+          }, p)));
         }
       } catch (e) {}
     }
@@ -771,8 +820,12 @@
     function paintCache() {
       const c = loadCache();
       if (!c) return;
-      // Company-safe: never paint another company's data
+      // Company-safe
       if (userCompanyId && c.companyId && c.companyId !== userCompanyId) return;
+      if (c.currency) companyCurrency = c.currency;
+      if (c.symbol) companySymbol = c.symbol;
+      if (c.language) companyLanguage = c.language;
+
       if (c.sales != null) setText("kpi-sales", formatCurrency(c.sales));
       if (c.profit != null) setText("kpi-profit", formatCurrency(c.profit));
       if (c.trx != null) setText("kpi-trx", String(c.trx));
@@ -821,7 +874,7 @@
 
     async function init() {
       applyTheme(getSavedTheme());
-      paintCache(); // instant first paint (company check skipped until id known)
+      paintCache();
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
@@ -838,7 +891,7 @@
 
         const { data: member } = await supabaseClient
           .from("company_users")
-          .select("company_id, companies(id, company_name, subscription_status, trial_ends_at, plan)")
+          .select("company_id, companies(id, company_name, subscription_status, trial_ends_at, plan, currency, currency_symbol, language, country_code, country_name)")
           .eq("user_id", user.id)
           .maybeSingle();
 
@@ -848,7 +901,7 @@
         } else {
           const { data: owned } = await supabaseClient
             .from("companies")
-            .select("id, company_name, subscription_status, trial_ends_at, plan")
+            .select("id, company_name, subscription_status, trial_ends_at, plan, currency, currency_symbol, language, country_code, country_name")
             .eq("owner_id", user.id)
             .maybeSingle();
           if (owned) {
@@ -870,7 +923,13 @@
           setText("pill-renew", new Date(companyDetails.trial_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }));
         }
 
-        // Re-paint now that companyId is known (company-safe)
+        // Currency + language from company
+        if (companyDetails.currency) companyCurrency = companyDetails.currency;
+        if (companyDetails.currency_symbol) companySymbol = companyDetails.currency_symbol;
+        else if (companyDetails.currency === "NGN") companySymbol = "₦";
+        if (companyDetails.language) companyLanguage = companyDetails.language;
+
+        // Re-paint now that company + currency known
         paintCache();
         appReady = true;
         await refreshAll();
@@ -933,14 +992,8 @@
           return pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS;
         });
 
-        let health = 100;
-        if (debtTotal > salesToday * 2 && salesToday > 0) health -= 25;
-        else if (debtTotal > 0 && salesToday === 0) health -= 15;
-        if (lowStock.length > 5) health -= 20;
-        else if (lowStock.length > 0) health -= 10;
-        if (expToday > profitToday && profitToday > 0) health -= 15;
-        else if (salesToday > 0 && expToday > salesToday * 0.35) health -= 10;
-        health = Math.max(20, Math.min(100, health));
+        // ===== BUSINESS HEALTH — EXACT same formula as mobile =====
+        const healthScore = Math.max(100 - lowStock.length * 5, 40);
 
         setText("kpi-sales", formatCurrency(salesToday));
         setText("kpi-profit", formatCurrency(profitToday));
@@ -952,12 +1005,12 @@
         setText("sum-exp", formatCurrency(expToday));
         setText("sum-net", formatCurrency(netToday));
         setText("branch-main", formatCurrency(salesToday) + " today");
-        updateHealthRing(health);
+        updateHealthRing(healthScore);
         setText("health-debt", unpaid.length ? formatCurrency(debtTotal) : "Clear");
         setText("health-stock", lowStock.length ? lowStock.length + " items" : "Healthy");
-        setText("health-exp", expToday > 0 ? formatCurrency(expToday) : "₦0");
+        setText("health-exp", expToday > 0 ? formatCurrency(expToday) : formatCurrency(0));
 
-        // Chart = THIS WEEK only (Mon–Sun), same as mobile
+        // Chart = THIS WEEK only (Mon–Sun)
         const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
         const totals = [0, 0, 0, 0, 0, 0, 0];
         weekSales.forEach(function (s) {
@@ -1128,10 +1181,10 @@
           weekTotal: weekTotal,
           exp: expToday,
           net: netToday,
-          health: health,
+          health: healthScore,
           healthDebt: unpaid.length ? formatCurrency(debtTotal) : "Clear",
           healthStock: lowStock.length ? lowStock.length + " items" : "Healthy",
-          healthExp: expToday > 0 ? formatCurrency(expToday) : "₦0",
+          healthExp: expToday > 0 ? formatCurrency(expToday) : formatCurrency(0),
           chartLabels: days,
           chartValues: totals,
           topProductsHtml: topProductsHtml,
