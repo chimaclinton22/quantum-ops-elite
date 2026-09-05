@@ -24,6 +24,10 @@
       height: 100%;
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
+      /* Prevent body scroll — only .main-scroll scrolls */
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
     }
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
@@ -31,15 +35,16 @@
     .iphone-frame {
       width: 100%;
       max-width: 100%;
-      min-height: 100%;
-      min-height: 100dvh;
+      height: 100%;
+      height: 100dvh;
       background: #05060B;
       position: relative;
       display: flex;
       flex-direction: column;
-      /* Fixed header + nav: no shake, no cut-off */
+      /* Safe areas for notch + home indicator */
       padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+      overflow: hidden;
     }
 
     .neon-card {
@@ -90,7 +95,7 @@
       border-color: rgba(255,90,122,0.55); color: #FF5A7A;
     }
 
-    /* FIXED top bar — never cuts under notch */
+    /* FIXED top bar — never scrolls, never under notch */
     .top-bar {
       position: sticky;
       top: 0;
@@ -104,6 +109,7 @@
       border-bottom: 1px solid rgba(139,92,255,0.18);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+      transform: translateZ(0);
     }
 
     .main-scroll {
@@ -140,7 +146,7 @@
     }
     .branch-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* FIXED bottom nav — no shake */
+    /* FIXED bottom nav — no shake, no jump */
     .bottom-nav {
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -156,6 +162,7 @@
       -webkit-backdrop-filter: blur(14px);
       transform: translateZ(0);
       will-change: transform;
+      -webkit-transform: translateZ(0);
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center; gap: 2px;
@@ -380,12 +387,12 @@
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
         <a href="transactions.html?view=sales" class="neon-card">
           <p class="kpi-label">Total Sales (Today)</p>
-          <h3 class="kpi-value" id="val-today-sales">₦0</h3>
+          <h3 class="kpi-value" id="val-today-sales">—</h3>
           <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
         </a>
         <a href="transactions.html?view=profit" class="neon-card">
           <p class="kpi-label">Gross Profit (Today)</p>
-          <h3 class="kpi-value" id="val-today-profit">₦0</h3>
+          <h3 class="kpi-value" id="val-today-profit">—</h3>
           <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
         </a>
         <a href="transactions.html?view=transactions" class="neon-card">
@@ -398,12 +405,12 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
         <a href="expenses.html" id="card-expenses" class="neon-card">
           <p class="kpi-label">Expenses (Today)</p>
-          <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
+          <h3 class="kpi-value text-loss" id="val-today-expenses">—</h3>
           <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
         </a>
         <div class="neon-card">
           <p class="kpi-label">Net Profit (Today)</p>
-          <h3 class="kpi-value text-success" id="val-net-profit">₦0</h3>
+          <h3 class="kpi-value text-success" id="val-net-profit">—</h3>
           <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
         </div>
       </div>
@@ -411,7 +418,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
         <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
           <p class="kpi-label">Outstanding Debt</p>
-          <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
+          <h3 class="kpi-value text-loss" id="val-outstanding-debt">—</h3>
           <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
         </a>
         <a href="inventory.html" id="card-low-stock" class="neon-card">
@@ -432,7 +439,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div>
             <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
-            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">₦0</h3>
+            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">—</h3>
           </div>
           <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
         </div>
@@ -498,7 +505,7 @@
       <div class="field"><label>Customer Name *</label><input type="text" id="debt-customer" placeholder="e.g. John Doe"></div>
       <div class="field"><label>Phone Number</label><input type="tel" id="debt-phone" placeholder="e.g. 08012345678"></div>
       <div class="field"><label>Item Bought</label><input type="text" id="debt-item" placeholder="e.g. Sneakers"></div>
-      <div class="field"><label>Amount Owing (₦) *</label><input type="number" id="debt-amount" placeholder="e.g. 25000"></div>
+      <div class="field"><label id="debt-amount-label">Amount Owing *</label><input type="number" id="debt-amount" placeholder="e.g. 25000"></div>
       <div class="field"><label>Due Date</label><input type="date" id="debt-duedate"></div>
       <button type="button" onclick="submitNewDebt()" id="save-debt-btn" class="btn-primary">Save Debt Record</button>
     </div>
@@ -525,6 +532,38 @@
     let lastChartKey = "";
     let chartBusy = false;
     let productImageMap = {};
+
+    /* ===== GLOBAL CURRENCY + LANGUAGE (from company) ===== */
+    let companyCurrency = "NGN";
+    let companySymbol = "₦";
+    let companyLanguage = "en";
+
+    // Light i18n helper — ready for future expansion, defaults to English
+    const I18N = {
+      en: {}
+    };
+    function t(key, fallback) {
+      const lang = companyLanguage || "en";
+      if (I18N[lang] && I18N[lang][key]) return I18N[lang][key];
+      return fallback != null ? fallback : key;
+    }
+
+    function formatCurrency(amount) {
+      const n = Number(amount || 0);
+      try {
+        // Prefer Intl when currency code is known
+        if (companyCurrency && companyCurrency.length === 3) {
+          return new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: companyCurrency,
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0
+          }).format(n);
+        }
+      } catch (e) {}
+      // Fallback: symbol + locale number
+      return (companySymbol || "₦") + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
 
     function getSavedTheme() { return localStorage.getItem("quantum_theme") || "night"; }
     function resolveTheme(pref) {
@@ -556,13 +595,10 @@
 
     function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
-    function formatCurrency(amount) {
-      return "₦" + Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
-    }
     function parseMoney(value) {
       if (value == null || value === "") return 0;
       if (typeof value === "number") return isNaN(value) ? 0 : value;
-      const amount = parseFloat(String(value).replace(/[₦$,\s]/g, ""));
+      const amount = parseFloat(String(value).replace(/[₦$€£₹GH₵KShR,\s]/g, ""));
       return isNaN(amount) ? 0 : amount;
     }
     function getLocalDateString(dateObj) {
@@ -590,7 +626,13 @@
     function saveDashboardCache(payload) {
       try {
         if (!userCompanyId) return;
-        localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(Object.assign({ companyId: userCompanyId, ts: Date.now() }, payload)));
+        localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(Object.assign({
+          companyId: userCompanyId,
+          currency: companyCurrency,
+          symbol: companySymbol,
+          language: companyLanguage,
+          ts: Date.now()
+        }, payload)));
       } catch (e) {}
     }
     function loadDashboardCache() {
@@ -603,8 +645,13 @@
     function paintFromCache() {
       const cache = loadDashboardCache();
       if (!cache) return;
-      // Company-safe: never paint another company's data
+      // Company-safe
       if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
+      // Restore currency from cache if company not yet loaded
+      if (cache.currency) companyCurrency = cache.currency;
+      if (cache.symbol) companySymbol = cache.symbol;
+      if (cache.language) companyLanguage = cache.language;
+
       if (cache.todaySales != null) {
         setText("val-today-sales", formatCurrency(cache.todaySales));
         todaySalesAmount = cache.todaySales;
@@ -658,6 +705,13 @@
       if (cache.chartTotals && Array.isArray(cache.chartTotals) && cache.chartTotals.length === 7) {
         renderSalesChart(null, cache.chartTotals);
       }
+      // Update debt modal label
+      updateDebtAmountLabel();
+    }
+
+    function updateDebtAmountLabel() {
+      const el = $("debt-amount-label");
+      if (el) el.textContent = "Amount Owing (" + (companySymbol || "₦") + ") *";
     }
 
     function toggleActionSheet() {
@@ -667,6 +721,7 @@
     function openAddDebtModal() {
       const sheet = $("action-sheet");
       if (sheet) sheet.classList.remove("open");
+      updateDebtAmountLabel();
       const m = $("debt-modal");
       if (m) m.classList.remove("hidden");
     }
@@ -777,6 +832,13 @@
     function applyCompanyProfile(c) {
       if (!c) return;
       if (c.company_name) setText("current-branch-name", c.company_name);
+      // Currency + language from company
+      if (c.currency) companyCurrency = c.currency;
+      if (c.currency_symbol) companySymbol = c.currency_symbol;
+      else if (c.currency === "NGN") companySymbol = "₦";
+      if (c.language) companyLanguage = c.language;
+      updateDebtAmountLabel();
+
       const logoEl = $("user-avatar-logo");
       const initialEl = $("user-avatar-initial");
       if (c.logo && logoEl) {
@@ -817,9 +879,10 @@
         setText("user-avatar-initial", capitalizedName.charAt(0));
 
         userCompanyId = null;
+        const companySelect = "company_id, companies(company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at, currency, currency_symbol, language, country_code, country_name)";
         const { data: member } = await supabaseClient
           .from("company_users")
-          .select("company_id, companies(company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at)")
+          .select(companySelect)
           .eq("user_id", user.id)
           .maybeSingle();
         if (member && member.company_id) {
@@ -828,7 +891,7 @@
         } else {
           const { data: owned } = await supabaseClient
             .from("companies")
-            .select("id, company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at")
+            .select("id, company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at, currency, currency_symbol, language, country_code, country_name")
             .eq("owner_id", user.id)
             .maybeSingle();
           if (owned && owned.id) {
@@ -837,7 +900,7 @@
           }
         }
 
-        // Now that companyId is known, re-paint cache (company-safe) then refresh live
+        // Re-paint with correct company + currency
         paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
@@ -902,7 +965,6 @@
         sales.forEach(function (s) {
           const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
           const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-          // CRITICAL FIX: only sum THIS WEEK into weeklyTotal
           if (isInThisWeek(s.created_at)) weeklyTotal += amount;
           if (getLocalDateString(new Date(s.created_at)) === todayStr) {
             todaySales += amount; todayProfit += profit; todayCount++;
@@ -1020,7 +1082,7 @@
             totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
           });
         }
-        const chartKey = totals.join(",");
+        const chartKey = totals.join(",") + "|" + companySymbol;
         if (chartKey === lastChartKey && salesChartInstance) {
           chartBusy = false;
           return totals;
@@ -1034,6 +1096,7 @@
             const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
             gradient.addColorStop(0, "#8B5CFF");
             gradient.addColorStop(1, "#2EA8FF");
+            const sym = companySymbol || "₦";
             salesChartInstance = new Chart(ctx, {
               type: "line",
               data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: "rgba(139,92,255,0.12)", borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
@@ -1044,7 +1107,7 @@
                 plugins: { legend: { display: false } },
                 scales: {
                   x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
-                  y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return "₦" + (v / 1000).toFixed(0) + "k"; } } }
+                  y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
                 }
               }
             });
@@ -1060,7 +1123,6 @@
       imgMap = imgMap || productImageMap || {};
       const counts = {};
       (sales || []).forEach(function (s) {
-        // CRITICAL FIX: Top products = THIS WEEK only
         if (!isInThisWeek(s.created_at)) return;
         let items = s.items;
         if (typeof items === "string") {
@@ -1080,7 +1142,7 @@
       if (!sorted.length) {
         html = '<div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>';
       } else {
-        html = sorted.map(function (entry, i) {
+        html = sorted.map(function (entry) {
           const name = entry[0];
           const img = imgMap[String(name).toLowerCase()] || "";
           const thumb = img
@@ -1236,7 +1298,7 @@
       if (event === "SIGNED_OUT") window.location.replace("index.html");
     });
 
-    /* Instant paint + strong restore when coming back from POS (browser back / pageshow) */
+    /* Instant paint + strong restore */
     window.addEventListener("DOMContentLoaded", function () {
       applyUserPreferences();
       paintFromCache();
