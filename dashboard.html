@@ -511,7 +511,7 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
-    const DASH_CACHE_KEY = "quantum_dash_cache_v1";
+    const DASH_CACHE_KEY = "quantum_dash_cache_v2";
 
     let salesChartInstance = null;
     let userCompanyId = null;
@@ -603,6 +603,8 @@
     function paintFromCache() {
       const cache = loadDashboardCache();
       if (!cache) return;
+      // Company-safe: never paint another company's data
+      if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
       if (cache.todaySales != null) {
         setText("val-today-sales", formatCurrency(cache.todaySales));
         todaySalesAmount = cache.todaySales;
@@ -835,6 +837,8 @@
           }
         }
 
+        // Now that companyId is known, re-paint cache (company-safe) then refresh live
+        paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
         loadUnreadBadge();
@@ -898,7 +902,8 @@
         sales.forEach(function (s) {
           const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
           const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-          weeklyTotal += amount;
+          // CRITICAL FIX: only sum THIS WEEK into weeklyTotal
+          if (isInThisWeek(s.created_at)) weeklyTotal += amount;
           if (getLocalDateString(new Date(s.created_at)) === todayStr) {
             todaySales += amount; todayProfit += profit; todayCount++;
           }
@@ -1055,6 +1060,8 @@
       imgMap = imgMap || productImageMap || {};
       const counts = {};
       (sales || []).forEach(function (s) {
+        // CRITICAL FIX: Top products = THIS WEEK only
+        if (!isInThisWeek(s.created_at)) return;
         let items = s.items;
         if (typeof items === "string") {
           try { items = JSON.parse(items); } catch (e) { items = []; }
@@ -1251,4 +1258,3 @@
   </script>
 </body>
 </html>
-
