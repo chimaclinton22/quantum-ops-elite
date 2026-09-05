@@ -37,6 +37,7 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      /* Fixed header + nav: no shake, no cut-off */
       padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
     }
@@ -89,6 +90,7 @@
       border-color: rgba(255,90,122,0.55); color: #FF5A7A;
     }
 
+    /* FIXED top bar — never cuts under notch */
     .top-bar {
       position: sticky;
       top: 0;
@@ -138,6 +140,7 @@
     }
     .branch-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+    /* FIXED bottom nav — no shake */
     .bottom-nav {
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -248,6 +251,7 @@
       font-size: 12px; flex-shrink: 0; border: 1px solid rgba(139,92,255,0.25);
     }
 
+    /* Day theme */
     body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
     body.theme-day .iphone-frame { background: #F4F6FB !important; }
     body.theme-day .top-bar, body.theme-day .bottom-nav {
@@ -338,14 +342,176 @@
         </a>
       </div>
     </div>
- <script>
+
+    <div class="main-scroll custom-scrollbar">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px;">
+        <div style="min-width:0;">
+          <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day 👋</h1>
+          <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <div class="branch-chip">
+            <i class="fa-solid fa-store" style="font-size:10px;"></i>
+            <span id="current-branch-name">My Business</span>
+            <i id="profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:11px;"></i>
+          </div>
+          <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">
+            <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-verify-banner" class="status-banner verify hidden">
+        <div style="min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:3px;"><i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Verify Your Business Profile</div>
+          <div style="font-size:10px;color:#A8B3CF;line-height:1.4;">Complete your business info to unlock the full experience.</div>
+        </div>
+        <a href="profile.html" class="banner-btn purple">Verify →</a>
+      </div>
+
+      <div id="trial-banner" class="status-banner trial hidden">
+        <div style="min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:#FFD54A;margin-bottom:3px;" id="trial-banner-title"><i class="fa-solid fa-gift" style="margin-right:6px;"></i>14-Day Free Trial</div>
+          <div style="font-size:10px;color:#A8B3CF;line-height:1.4;" id="trial-banner-text">You have access to all features.</div>
+        </div>
+        <a href="upgrade.html" class="banner-btn gold">Subscribe</a>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+        <a href="transactions.html?view=sales" class="neon-card">
+          <p class="kpi-label">Total Sales (Today)</p>
+          <h3 class="kpi-value" id="val-today-sales">₦0</h3>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+        </a>
+        <a href="transactions.html?view=profit" class="neon-card">
+          <p class="kpi-label">Gross Profit (Today)</p>
+          <h3 class="kpi-value" id="val-today-profit">₦0</h3>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+        </a>
+        <a href="transactions.html?view=transactions" class="neon-card">
+          <p class="kpi-label">Transactions</p>
+          <h3 class="kpi-value" id="val-transactions">0</h3>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+        </a>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <a href="expenses.html" id="card-expenses" class="neon-card">
+          <p class="kpi-label">Expenses (Today)</p>
+          <h3 class="kpi-value text-loss" id="val-today-expenses">₦0</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
+        </a>
+        <div class="neon-card">
+          <p class="kpi-label">Net Profit (Today)</p>
+          <h3 class="kpi-value text-success" id="val-net-profit">₦0</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+        <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
+          <p class="kpi-label">Outstanding Debt</p>
+          <h3 class="kpi-value text-loss" id="val-outstanding-debt">₦0</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
+        </a>
+        <a href="inventory.html" id="card-low-stock" class="neon-card">
+          <p class="kpi-label">Low Stock Alerts</p>
+          <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
+        </a>
+        <div class="neon-card">
+          <p class="kpi-label">Business Health</p>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+            <i class="fa-solid fa-shield-halved text-cyan" style="font-size:14px;"></i>
+            <span class="kpi-value text-cyan" id="val-business-health" style="font-size:13px;">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
+            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">₦0</h3>
+          </div>
+          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
+        </div>
+        <div style="height:140px;width:100%;position:relative;">
+          <canvas id="salesOverviewChart"></canvas>
+        </div>
+      </div>
+
+      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
+          <a href="inventory.html" class="text-purple" style="font-size:10px;font-weight:600;text-decoration:none;">View all</a>
+        </div>
+        <div id="top-products-list" style="font-size:11px;">
+          <div class="text-muted" style="text-align:center;padding:8px 0;">Loading…</div>
+        </div>
+      </div>
+
+      <div class="neon-card neon-card-elevated" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Recent Activities</h4>
+          <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
+        </div>
+        <div id="recent-activities-list" style="font-size:11px;">
+          <div class="text-muted" style="text-align:center;padding:8px 0;">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
+      <button type="button" onclick="toggleActionSheet()" class="fab-plus" aria-label="Quick actions"><i class="fa-solid fa-plus"></i></button>
+      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
+      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
+    </nav>
+  </div>
+
+  <div id="action-sheet">
+    <div id="action-sheet-content">
+      <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;">Quick Business Actions</h3>
+        <button type="button" onclick="toggleActionSheet()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <a href="pos.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-cash-register"></i></div><span style="font-size:11px;">New Sale</span></a>
+        <button type="button" onclick="openAddDebtModal()" class="action-tile" style="cursor:pointer;font-family:inherit;"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-invoice-dollar"></i></div><span style="font-size:11px;">Add Debt</span></button>
+        <a href="inventory.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(34,245,160,0.12);color:#22F5A0;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-boxes-stacked"></i></div><span style="font-size:11px;">Inventory</span></a>
+        <a href="expenses.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-money-bill-wave"></i></div><span style="font-size:11px;">Expenses</span></a>
+        <a href="ai-ceo.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(46,168,255,0.15);color:#5CC8FF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-robot"></i></div><span style="font-size:11px;">AI CEO</span></a>
+        <button type="button" onclick="handleLogout()" class="action-tile" style="cursor:pointer;font-family:inherit;"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-right-from-bracket"></i></div><span style="font-size:11px;color:#FF5A7A;">Log Out</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="debt-modal" class="hidden">
+    <div class="modal-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;"></i>Record New Debt</h3>
+        <button type="button" onclick="closeAddDebtModal()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="field"><label>Customer Name *</label><input type="text" id="debt-customer" placeholder="e.g. John Doe"></div>
+      <div class="field"><label>Phone Number</label><input type="tel" id="debt-phone" placeholder="e.g. 08012345678"></div>
+      <div class="field"><label>Item Bought</label><input type="text" id="debt-item" placeholder="e.g. Sneakers"></div>
+      <div class="field"><label>Amount Owing (₦) *</label><input type="number" id="debt-amount" placeholder="e.g. 25000"></div>
+      <div class="field"><label>Due Date</label><input type="date" id="debt-duedate"></div>
+      <button type="button" onclick="submitNewDebt()" id="save-debt-btn" class="btn-primary">Save Debt Record</button>
+    </div>
+  </div>
+
+  <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
-    const DASH_CACHE_KEY = "quantum_dash_cache_v2";
+    const DASH_CACHE_KEY = "quantum_dash_cache_v1";
 
     let salesChartInstance = null;
     let userCompanyId = null;
@@ -437,8 +603,6 @@
     function paintFromCache() {
       const cache = loadDashboardCache();
       if (!cache) return;
-      if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
-
       if (cache.todaySales != null) {
         setText("val-today-sales", formatCurrency(cache.todaySales));
         todaySalesAmount = cache.todaySales;
@@ -734,7 +898,7 @@
         sales.forEach(function (s) {
           const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
           const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-          if (isInThisWeek(s.created_at)) weeklyTotal += amount;
+          weeklyTotal += amount;
           if (getLocalDateString(new Date(s.created_at)) === todayStr) {
             todaySales += amount; todayProfit += profit; todayCount++;
           }
@@ -770,7 +934,8 @@
         isFetchingMetrics = false;
       }
     }
-   function processSalesMetrics(sales) {
+
+    function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
       let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0;
       (sales || []).forEach(function (s) {
@@ -788,7 +953,6 @@
       setText("val-transactions", String(todayCount));
       setText("val-weekly-total", formatCurrency(weeklyTotal));
     }
-
     function processExpensesMetrics(expenses) {
       const todayStr = getLocalDateString(new Date());
       let todayExp = 0;
@@ -874,7 +1038,7 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                  x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } },
+                  x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
                   y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return "₦" + (v / 1000).toFixed(0) + "k"; } } }
                 }
               }
@@ -891,7 +1055,6 @@
       imgMap = imgMap || productImageMap || {};
       const counts = {};
       (sales || []).forEach(function (s) {
-        if (!isInThisWeek(s.created_at)) return;
         let items = s.items;
         if (typeof items === "string") {
           try { items = JSON.parse(items); } catch (e) { items = []; }
@@ -910,7 +1073,7 @@
       if (!sorted.length) {
         html = '<div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>';
       } else {
-        html = sorted.map(function (entry) {
+        html = sorted.map(function (entry, i) {
           const name = entry[0];
           const img = imgMap[String(name).toLowerCase()] || "";
           const thumb = img
@@ -1066,6 +1229,7 @@
       if (event === "SIGNED_OUT") window.location.replace("index.html");
     });
 
+    /* Instant paint + strong restore when coming back from POS (browser back / pageshow) */
     window.addEventListener("DOMContentLoaded", function () {
       applyUserPreferences();
       paintFromCache();
@@ -1087,3 +1251,4 @@
   </script>
 </body>
 </html>
+
