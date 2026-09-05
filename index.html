@@ -126,7 +126,8 @@
       font-size: 13px;
       pointer-events: none;
     }
-    .input-wrap input {
+    .input-wrap input,
+    .input-wrap select {
       width: 100%;
       background: #0B0B16;
       border: 1px solid rgba(139,92,255,0.2);
@@ -136,8 +137,22 @@
       color: #fff;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
     }
-    .input-wrap input:focus {
+    .input-wrap select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .input-wrap select option {
+      background: #0B0B16;
+      color: #fff;
+    }
+    .input-wrap input:focus,
+    .input-wrap select:focus {
       border-color: #8B5CFF;
       box-shadow: 0 0 0 3px rgba(139,92,255,0.15);
     }
@@ -279,6 +294,16 @@
           </div>
         </div>
 
+        <div id="country-field" class="field hidden">
+          <label for="country">Country <span style="color:#FF5A7A;">*</span></label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-globe left-icon"></i>
+            <select id="country" name="country">
+              <option value="">Select your country</option>
+            </select>
+          </div>
+        </div>
+
         <div id="password-field" class="field">
           <label for="password">Password</label>
           <div class="input-wrap">
@@ -332,14 +357,105 @@
     let currentMode = "login";
     let isBusy = false;
 
-    /* Phone → mobile.html | Desktop → desktop.html | NEVER dashboard.html */
+    /* Country → currency map (code, name, currency, symbol, language) */
+    const COUNTRIES = [
+      { code: "NG", name: "Nigeria", currency: "NGN", symbol: "₦", language: "en" },
+      { code: "GH", name: "Ghana", currency: "GHS", symbol: "GH₵", language: "en" },
+      { code: "KE", name: "Kenya", currency: "KES", symbol: "KSh", language: "en" },
+      { code: "ZA", name: "South Africa", currency: "ZAR", symbol: "R", language: "en" },
+      { code: "EG", name: "Egypt", currency: "EGP", symbol: "E£", language: "en" },
+      { code: "TZ", name: "Tanzania", currency: "TZS", symbol: "TSh", language: "en" },
+      { code: "UG", name: "Uganda", currency: "UGX", symbol: "USh", language: "en" },
+      { code: "RW", name: "Rwanda", currency: "RWF", symbol: "FRw", language: "en" },
+      { code: "ET", name: "Ethiopia", currency: "ETB", symbol: "Br", language: "en" },
+      { code: "CM", name: "Cameroon", currency: "XAF", symbol: "FCFA", language: "en" },
+      { code: "CI", name: "Côte d'Ivoire", currency: "XOF", symbol: "CFA", language: "fr" },
+      { code: "SN", name: "Senegal", currency: "XOF", symbol: "CFA", language: "fr" },
+      { code: "MA", name: "Morocco", currency: "MAD", symbol: "MAD", language: "en" },
+      { code: "DZ", name: "Algeria", currency: "DZD", symbol: "DA", language: "en" },
+      { code: "TN", name: "Tunisia", currency: "TND", symbol: "DT", language: "en" },
+      { code: "US", name: "United States", currency: "USD", symbol: "$", language: "en" },
+      { code: "GB", name: "United Kingdom", currency: "GBP", symbol: "£", language: "en" },
+      { code: "CA", name: "Canada", currency: "CAD", symbol: "$", language: "en" },
+      { code: "AU", name: "Australia", currency: "AUD", symbol: "$", language: "en" },
+      { code: "IN", name: "India", currency: "INR", symbol: "₹", language: "en" },
+      { code: "AE", name: "United Arab Emirates", currency: "AED", symbol: "د.إ", language: "en" },
+      { code: "SA", name: "Saudi Arabia", currency: "SAR", symbol: "﷼", language: "en" },
+      { code: "DE", name: "Germany", currency: "EUR", symbol: "€", language: "en" },
+      { code: "FR", name: "France", currency: "EUR", symbol: "€", language: "en" },
+      { code: "NL", name: "Netherlands", currency: "EUR", symbol: "€", language: "en" },
+      { code: "ES", name: "Spain", currency: "EUR", symbol: "€", language: "en" },
+      { code: "IT", name: "Italy", currency: "EUR", symbol: "€", language: "en" },
+      { code: "IE", name: "Ireland", currency: "EUR", symbol: "€", language: "en" },
+      { code: "PT", name: "Portugal", currency: "EUR", symbol: "€", language: "en" },
+      { code: "BE", name: "Belgium", currency: "EUR", symbol: "€", language: "en" },
+      { code: "BR", name: "Brazil", currency: "BRL", symbol: "R$", language: "en" },
+      { code: "MX", name: "Mexico", currency: "MXN", symbol: "$", language: "en" },
+      { code: "PH", name: "Philippines", currency: "PHP", symbol: "₱", language: "en" },
+      { code: "PK", name: "Pakistan", currency: "PKR", symbol: "₨", language: "en" },
+      { code: "BD", name: "Bangladesh", currency: "BDT", symbol: "৳", language: "en" },
+      { code: "SG", name: "Singapore", currency: "SGD", symbol: "$", language: "en" },
+      { code: "MY", name: "Malaysia", currency: "MYR", symbol: "RM", language: "en" },
+      { code: "ID", name: "Indonesia", currency: "IDR", symbol: "Rp", language: "en" },
+      { code: "CN", name: "China", currency: "CNY", symbol: "¥", language: "en" },
+      { code: "JP", name: "Japan", currency: "JPY", symbol: "¥", language: "en" },
+      { code: "TR", name: "Turkey", currency: "TRY", symbol: "₺", language: "en" },
+      { code: "NZ", name: "New Zealand", currency: "NZD", symbol: "$", language: "en" },
+      { code: "CH", name: "Switzerland", currency: "CHF", symbol: "CHF", language: "en" },
+      { code: "SE", name: "Sweden", currency: "SEK", symbol: "kr", language: "en" },
+      { code: "NO", name: "Norway", currency: "NOK", symbol: "kr", language: "en" },
+      { code: "DK", name: "Denmark", currency: "DKK", symbol: "kr", language: "en" },
+      { code: "PL", name: "Poland", currency: "PLN", symbol: "zł", language: "en" },
+      { code: "ZM", name: "Zambia", currency: "ZMW", symbol: "ZK", language: "en" },
+      { code: "ZW", name: "Zimbabwe", currency: "ZWL", symbol: "Z$", language: "en" },
+      { code: "BW", name: "Botswana", currency: "BWP", symbol: "P", language: "en" },
+      { code: "NA", name: "Namibia", currency: "NAD", symbol: "N$", language: "en" },
+      { code: "MW", name: "Malawi", currency: "MWK", symbol: "MK", language: "en" },
+      { code: "MZ", name: "Mozambique", currency: "MZN", symbol: "MT", language: "en" },
+      { code: "AO", name: "Angola", currency: "AOA", symbol: "Kz", language: "en" },
+      { code: "CD", name: "DR Congo", currency: "CDF", symbol: "FC", language: "en" },
+      { code: "GA", name: "Gabon", currency: "XAF", symbol: "FCFA", language: "fr" },
+      { code: "BJ", name: "Benin", currency: "XOF", symbol: "CFA", language: "fr" },
+      { code: "TG", name: "Togo", currency: "XOF", symbol: "CFA", language: "fr" },
+      { code: "NE", name: "Niger", currency: "XOF", symbol: "CFA", language: "fr" },
+      { code: "ML", name: "Mali", currency: "XOF", symbol: "CFA", language: "fr" },
+      { code: "BF", name: "Burkina Faso", currency: "XOF", symbol: "CFA", language: "fr" }
+    ];
+
+    function populateCountrySelect() {
+      const sel = document.getElementById("country");
+      if (!sel) return;
+      // Keep first placeholder option, then add sorted countries (Nigeria first)
+      const sorted = COUNTRIES.slice().sort(function (a, b) {
+        if (a.code === "NG") return -1;
+        if (b.code === "NG") return 1;
+        return a.name.localeCompare(b.name);
+      });
+      sorted.forEach(function (c) {
+        const opt = document.createElement("option");
+        opt.value = c.code;
+        opt.textContent = c.name + " (" + c.symbol + " " + c.currency + ")";
+        sel.appendChild(opt);
+      });
+    }
+    populateCountrySelect();
+
+    function getCountryData(code) {
+      if (!code) return null;
+      for (let i = 0; i < COUNTRIES.length; i++) {
+        if (COUNTRIES[i].code === code) return COUNTRIES[i];
+      }
+      return null;
+    }
+
+    /* Phone → dashboard.html | Desktop → desktop.html */
     function getDashboardTarget() {
-  const ua = navigator.userAgent || "";
-  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-  const isSmallScreen = window.innerWidth < 1024;
-  if (isMobileUA || isSmallScreen) return "dashboard.html";  // was mobile.html
-  return "desktop.html";
-}
+      const ua = navigator.userAgent || "";
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+      const isSmallScreen = window.innerWidth < 1024;
+      if (isMobileUA || isSmallScreen) return "dashboard.html";
+      return "desktop.html";
+    }
 
     function goToApp() {
       const target = getDashboardTarget();
@@ -401,6 +517,7 @@
       document.getElementById("form-subtitle").textContent = "Start managing your business in minutes";
       document.getElementById("name-field").classList.remove("hidden");
       document.getElementById("confirm-field").classList.remove("hidden");
+      document.getElementById("country-field").classList.remove("hidden");
       document.getElementById("trial-badge").classList.add("show");
       document.getElementById("submit-btn").querySelector("span").textContent = "Create Account";
       document.getElementById("password").setAttribute("autocomplete", "new-password");
@@ -415,6 +532,7 @@
       document.getElementById("form-subtitle").textContent = "Enter your email and password to continue";
       document.getElementById("name-field").classList.add("hidden");
       document.getElementById("confirm-field").classList.add("hidden");
+      document.getElementById("country-field").classList.add("hidden");
       document.getElementById("trial-badge").classList.remove("show");
       document.getElementById("submit-btn").querySelector("span").textContent = "Sign In";
       document.getElementById("password").setAttribute("autocomplete", "current-password");
@@ -423,10 +541,19 @@
       document.getElementById("alert").classList.remove("show");
     }
 
-    async function createCompanyForUser(user, shopName) {
+    async function createCompanyForUser(user, shopName, countryData) {
       const name = (shopName && shopName.trim())
         ? shopName.trim()
         : (user.email ? user.email.split("@")[0] : "My Business");
+
+      // Defaults if no country provided (login fallback)
+      const c = countryData || {
+        code: "NG",
+        name: "Nigeria",
+        currency: "NGN",
+        symbol: "₦",
+        language: "en"
+      };
 
       const { data: existing } = await supabaseClient
         .from("companies")
@@ -457,7 +584,11 @@
         .insert([{
           owner_id: user.id,
           company_name: name,
-          currency: "NGN",
+          country_code: c.code,
+          country_name: c.name,
+          currency: c.currency,
+          currency_symbol: c.symbol,
+          language: c.language || "en",
           subscription_status: "trial",
           trial_ends_at: trialEnds
         }])
@@ -486,6 +617,7 @@
       const password = document.getElementById("password").value;
       const fullName = document.getElementById("full_name").value.trim();
       const confirmPassword = document.getElementById("confirm_password").value;
+      const countryCode = document.getElementById("country").value;
 
       setBusy(true);
       document.getElementById("alert").classList.remove("show");
@@ -493,19 +625,29 @@
       try {
         if (currentMode === "signup") {
           if (!fullName) throw new Error("Please enter your Full Name or Shop Name");
+          if (!countryCode) throw new Error("Please select your country");
           if (!password || password.length < 6) throw new Error("Password must be at least 6 characters");
           if (password !== confirmPassword) throw new Error("Passwords do not match");
+
+          const countryData = getCountryData(countryCode);
+          if (!countryData) throw new Error("Please select a valid country");
 
           const { data, error } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
-            options: { data: { full_name: fullName } }
+            options: {
+              data: {
+                full_name: fullName,
+                country_code: countryData.code,
+                country_name: countryData.name
+              }
+            }
           });
           if (error) throw error;
           if (!data.user) throw new Error("Account created but something went wrong. Please try again.");
 
           try {
-            await createCompanyForUser(data.user, fullName);
+            await createCompanyForUser(data.user, fullName, countryData);
           } catch (ce) {
             console.error(ce);
           }
@@ -515,6 +657,7 @@
             showLogin();
             document.getElementById("email").value = email;
             document.getElementById("password").value = "";
+            document.getElementById("country").value = "";
           }, 1400);
 
         } else {
@@ -536,7 +679,12 @@
           if (!link) {
             const name = (data.user.user_metadata && data.user.user_metadata.full_name)
               || (data.user.email ? data.user.email.split("@")[0] : "My Business");
-            await createCompanyForUser(data.user, name);
+            // Prefer country from user_metadata if present, else NG defaults
+            let countryData = null;
+            if (data.user.user_metadata && data.user.user_metadata.country_code) {
+              countryData = getCountryData(data.user.user_metadata.country_code);
+            }
+            await createCompanyForUser(data.user, name, countryData);
           }
 
           showAlert("Login successful! Redirecting…", false);
