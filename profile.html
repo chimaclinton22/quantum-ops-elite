@@ -1,1 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Quantum Ops Elite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white">
+    <div class="max-w-4xl mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-8">My Profile</h1>
+        
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="text-sm text-slate-400">Full Name</label>
+                    <input type="text" id="fullName" class="w-full bg-slate-800 border border-slate-600 rounded-2xl px-4 py-3 mt-1">
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Email</label>
+                    <input type="email" id="email" class="w-full bg-slate-800 border border-slate-600 rounded-2xl px-4 py-3 mt-1" readonly>
+                </div>
+            </div>
+            
+            <button onclick="updateProfile()" 
+                    class="mt-6 px-8 py-3 bg-purple-600 rounded-2xl font-semibold">
+                Save Changes
+            </button>
+        </div>
+    </div>
 
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzer7oCcXJVNUroa_TYHEnJx4KxTFnX4mGmrpf7y-WVH8DbQ-b1QyGkDIs_wTaQtxCs/exec";
+        
+        async function loadProfile() {
+            const sessionId = localStorage.getItem('sessionId');
+            const res = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "getCurrentUser", sessionId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('fullName').value = data.data.user.fullName;
+                document.getElementById('email').value = data.data.user.email;
+            }
+        }
+        
+        async function updateProfile() {
+            const sessionId = localStorage.getItem('sessionId');
+            const fullName = document.getElementById('fullName').value;
+            
+            await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({ 
+                    action: "updateProfile", 
+                    sessionId, 
+                    updates: { fullName } 
+                })
+            });
+            alert("Profile updated!");
+        }
+        
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>
