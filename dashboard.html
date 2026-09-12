@@ -24,7 +24,6 @@
       height: 100%;
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
-      /* Prevent body scroll — only .main-scroll scrolls */
       overflow: hidden;
       position: fixed;
       width: 100%;
@@ -41,7 +40,6 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      /* Safe areas for notch + home indicator */
       padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
       overflow: hidden;
@@ -95,7 +93,6 @@
       border-color: rgba(255,90,122,0.55); color: #FF5A7A;
     }
 
-    /* FIXED top bar — never scrolls, never under notch */
     .top-bar {
       position: sticky;
       top: 0;
@@ -146,7 +143,6 @@
     }
     .branch-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* FIXED bottom nav — no shake, no jump */
     .bottom-nav {
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -258,7 +254,6 @@
       font-size: 12px; flex-shrink: 0; border: 1px solid rgba(139,92,255,0.25);
     }
 
-    /* Day theme */
     body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
     body.theme-day .iphone-frame { background: #F4F6FB !important; }
     body.theme-day .top-bar, body.theme-day .bottom-nav {
@@ -441,7 +436,7 @@
             <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
             <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">—</h3>
           </div>
-          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
+          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">Last 7 Days</span>
         </div>
         <div style="height:140px;width:100%;position:relative;">
           <canvas id="salesOverviewChart"></canvas>
@@ -518,7 +513,7 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
-    const DASH_CACHE_KEY = "quantum_dash_cache_v2";
+    const DASH_CACHE_KEY = "quantum_dash_cache_v3";
 
     let salesChartInstance = null;
     let userCompanyId = null;
@@ -533,15 +528,11 @@
     let chartBusy = false;
     let productImageMap = {};
 
-    /* ===== GLOBAL CURRENCY + LANGUAGE (from company) ===== */
     let companyCurrency = "NGN";
     let companySymbol = "₦";
     let companyLanguage = "en";
 
-    // Light i18n helper — ready for future expansion, defaults to English
-    const I18N = {
-      en: {}
-    };
+    const I18N = { en: {} };
     function t(key, fallback) {
       const lang = companyLanguage || "en";
       if (I18N[lang] && I18N[lang][key]) return I18N[lang][key];
@@ -551,7 +542,6 @@
     function formatCurrency(amount) {
       const n = Number(amount || 0);
       try {
-        // Prefer Intl when currency code is known
         if (companyCurrency && companyCurrency.length === 3) {
           return new Intl.NumberFormat(undefined, {
             style: "currency",
@@ -561,7 +551,6 @@
           }).format(n);
         }
       } catch (e) {}
-      // Fallback: symbol + locale number
       return (companySymbol || "₦") + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
 
@@ -605,13 +594,12 @@
       const d = new Date(dateObj);
       return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     }
+    // Rolling last 7 days (today + previous 6) — chart & top products stay filled
     function startOfWeekDate() {
       const d = new Date();
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d.getFullYear(), d.getMonth(), diff);
-      monday.setHours(0, 0, 0, 0);
-      return monday;
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - 6);
+      return d;
     }
     function isInThisWeek(createdAt) {
       if (!createdAt) return false;
@@ -645,9 +633,7 @@
     function paintFromCache() {
       const cache = loadDashboardCache();
       if (!cache) return;
-      // Company-safe
       if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
-      // Restore currency from cache if company not yet loaded
       if (cache.currency) companyCurrency = cache.currency;
       if (cache.symbol) companySymbol = cache.symbol;
       if (cache.language) companyLanguage = cache.language;
@@ -705,7 +691,6 @@
       if (cache.chartTotals && Array.isArray(cache.chartTotals) && cache.chartTotals.length === 7) {
         renderSalesChart(null, cache.chartTotals);
       }
-      // Update debt modal label
       updateDebtAmountLabel();
     }
 
@@ -832,7 +817,6 @@
     function applyCompanyProfile(c) {
       if (!c) return;
       if (c.company_name) setText("current-branch-name", c.company_name);
-      // Currency + language from company
       if (c.currency) companyCurrency = c.currency;
       if (c.currency_symbol) companySymbol = c.currency_symbol;
       else if (c.currency === "NGN") companySymbol = "₦";
@@ -900,7 +884,6 @@
           }
         }
 
-        // Re-paint with correct company + currency
         paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
@@ -1298,7 +1281,6 @@
       if (event === "SIGNED_OUT") window.location.replace("index.html");
     });
 
-    /* Instant paint + strong restore */
     window.addEventListener("DOMContentLoaded", function () {
       applyUserPreferences();
       paintFromCache();
@@ -1320,4 +1302,3 @@
   </script>
 </body>
 </html>
-
