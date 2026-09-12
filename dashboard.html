@@ -24,6 +24,7 @@
       height: 100%;
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
+      /* Prevent body scroll — only .main-scroll scrolls */
       overflow: hidden;
       position: fixed;
       width: 100%;
@@ -40,6 +41,7 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      /* Safe areas for notch + home indicator */
       padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
       overflow: hidden;
@@ -93,6 +95,7 @@
       border-color: rgba(255,90,122,0.55); color: #FF5A7A;
     }
 
+    /* FIXED top bar — never scrolls, never under notch */
     .top-bar {
       position: sticky;
       top: 0;
@@ -143,6 +146,7 @@
     }
     .branch-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+    /* FIXED bottom nav — no shake, no jump */
     .bottom-nav {
       position: fixed;
       left: 0; right: 0; bottom: 0;
@@ -254,6 +258,7 @@
       font-size: 12px; flex-shrink: 0; border: 1px solid rgba(139,92,255,0.25);
     }
 
+    /* Day theme */
     body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
     body.theme-day .iphone-frame { background: #F4F6FB !important; }
     body.theme-day .top-bar, body.theme-day .bottom-nav {
@@ -307,7 +312,143 @@
   </style>
 </head>
 <body>
-  <div class="iphone-frame">      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+  <div class="iphone-frame">
+    <div id="subscription-lock" class="hidden" style="position:fixed;inset:0;background:rgba(5,6,11,0.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;">
+      <div style="background:#101326;border:1px solid rgba(139,92,255,0.4);border-radius:24px;padding:28px 22px;max-width:320px;width:100%;">
+        <div style="width:64px;height:64px;border-radius:20px;background:rgba(255,90,122,0.15);border:1px solid rgba(255,90,122,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <i class="fa-solid fa-lock" style="font-size:26px;color:#FF5A7A;"></i>
+        </div>
+        <h2 style="margin:0 0 8px;font-size:18px;font-weight:800;color:#fff;">Trial Ended</h2>
+        <p style="margin:0 0 6px;font-size:12px;color:#A8B3CF;">Your 14-day free trial has expired.</p>
+        <p style="margin:0 0 20px;font-size:12px;color:#7C88A5;">Subscribe to continue using Quantum OPS Elite.</p>
+        <a href="upgrade.html" class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px;">
+          <i class="fa-solid fa-crown" style="margin-right:6px;"></i> Upgrade Now
+        </a>
+        <button type="button" onclick="handleLogout()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,90,122,0.35);background:transparent;color:#FF5A7A;font-size:12px;font-weight:600;cursor:pointer;">Log Out</button>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <button type="button" onclick="toggleActionSheet()" class="icon-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+          <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;flex-shrink:0;">Q</div>
+          <span class="brand-title" style="font-weight:800;font-size:11px;color:#fff;white-space:nowrap;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;">ELITE</span></span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <button type="button" onclick="enableNotifications()" class="icon-btn" title="Enable Notifications"><i class="fa-solid fa-bell" style="font-size:12px;"></i></button>
+        <a href="ai-ceo.html" class="icon-btn"><i class="fa-solid fa-robot" style="color:#B07CFF;font-size:12px;"></i></a>
+        <a href="notifications.html" class="icon-btn" style="position:relative;">
+          <i class="fa-regular fa-bell" style="font-size:12px;"></i>
+          <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;background:#FF5A7A;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;">0</span>
+        </a>
+        <a href="profile.html" style="width:32px;height:32px;border-radius:999px;overflow:hidden;border:1px solid rgba(139,92,255,0.4);background:#12162B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B07CFF;text-decoration:none;flex-shrink:0;">
+          <span id="user-avatar-initial">C</span>
+          <img id="user-avatar-logo" src="" style="width:100%;height:100%;object-fit:cover;display:none;" alt="">
+        </a>
+      </div>
+    </div>
+
+    <div class="main-scroll custom-scrollbar">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px;">
+        <div style="min-width:0;">
+          <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day 👋</h1>
+          <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <div class="branch-chip">
+            <i class="fa-solid fa-store" style="font-size:10px;"></i>
+            <span id="current-branch-name">My Business</span>
+            <i id="profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:11px;"></i>
+          </div>
+          <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">
+            <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="profile-verify-banner" class="status-banner verify hidden">
+        <div style="min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:3px;"><i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Verify Your Business Profile</div>
+          <div style="font-size:10px;color:#A8B3CF;line-height:1.4;">Complete your business info to unlock the full experience.</div>
+        </div>
+        <a href="profile.html" class="banner-btn purple">Verify →</a>
+      </div>
+
+      <div id="trial-banner" class="status-banner trial hidden">
+        <div style="min-width:0;">
+          <div style="font-size:12px;font-weight:700;color:#FFD54A;margin-bottom:3px;" id="trial-banner-title"><i class="fa-solid fa-gift" style="margin-right:6px;"></i>14-Day Free Trial</div>
+          <div style="font-size:10px;color:#A8B3CF;line-height:1.4;" id="trial-banner-text">You have access to all features.</div>
+        </div>
+        <a href="upgrade.html" class="banner-btn gold">Subscribe</a>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
+        <a href="transactions.html?view=sales" class="neon-card">
+          <p class="kpi-label">Total Sales (Today)</p>
+          <h3 class="kpi-value" id="val-today-sales">—</h3>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+        </a>
+        <a href="transactions.html?view=profit" class="neon-card">
+          <p class="kpi-label">Gross Profit (Today)</p>
+          <h3 class="kpi-value" id="val-today-profit">—</h3>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+        </a>
+        <a href="transactions.html?view=transactions" class="neon-card">
+          <p class="kpi-label">Transactions</p>
+          <h3 class="kpi-value" id="val-transactions">0</h3>
+          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+        </a>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <a href="expenses.html" id="card-expenses" class="neon-card">
+          <p class="kpi-label">Expenses (Today)</p>
+          <h3 class="kpi-value text-loss" id="val-today-expenses">—</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
+        </a>
+        <div class="neon-card">
+          <p class="kpi-label">Net Profit (Today)</p>
+          <h3 class="kpi-value text-success" id="val-net-profit">—</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+        <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
+          <p class="kpi-label">Outstanding Debt</p>
+          <h3 class="kpi-value text-loss" id="val-outstanding-debt">—</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
+        </a>
+        <a href="inventory.html" id="card-low-stock" class="neon-card">
+          <p class="kpi-label">Low Stock Alerts</p>
+          <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
+          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
+        </a>
+        <div class="neon-card">
+          <p class="kpi-label">Business Health</p>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+            <i class="fa-solid fa-shield-halved text-cyan" style="font-size:14px;"></i>
+            <span class="kpi-value text-cyan" id="val-business-health" style="font-size:13px;">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
+            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">—</h3>
+          </div>
+          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">This Week</span>
+        </div>
+        <div style="height:140px;width:100%;position:relative;">
+          <canvas id="salesOverviewChart"></canvas>
+        </div>
+      </div>
+
+      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
           <a href="inventory.html" class="text-purple" style="font-size:10px;font-weight:600;text-decoration:none;">View all</a>
@@ -377,7 +518,7 @@
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
-    const DASH_CACHE_KEY = "quantum_dash_cache_v3";
+    const DASH_CACHE_KEY = "quantum_dash_cache_v2";
 
     let salesChartInstance = null;
     let userCompanyId = null;
@@ -397,6 +538,7 @@
     let companySymbol = "₦";
     let companyLanguage = "en";
 
+    // Light i18n helper — ready for future expansion, defaults to English
     const I18N = {
       en: {}
     };
@@ -408,9 +550,8 @@
 
     function formatCurrency(amount) {
       const n = Number(amount || 0);
-      const num = n.toLocaleString(undefined, { maximumFractionDigits: 0 });
-      if (companySymbol) return companySymbol + num;
       try {
+        // Prefer Intl when currency code is known
         if (companyCurrency && companyCurrency.length === 3) {
           return new Intl.NumberFormat(undefined, {
             style: "currency",
@@ -420,7 +561,8 @@
           }).format(n);
         }
       } catch (e) {}
-      return "₦" + num;
+      // Fallback: symbol + locale number
+      return (companySymbol || "₦") + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
     }
 
     function getSavedTheme() { return localStorage.getItem("quantum_theme") || "night"; }
@@ -503,7 +645,9 @@
     function paintFromCache() {
       const cache = loadDashboardCache();
       if (!cache) return;
+      // Company-safe
       if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
+      // Restore currency from cache if company not yet loaded
       if (cache.currency) companyCurrency = cache.currency;
       if (cache.symbol) companySymbol = cache.symbol;
       if (cache.language) companyLanguage = cache.language;
@@ -559,21 +703,9 @@
         else expCard.classList.remove("alert-breathing-red");
       }
       if (cache.chartTotals && Array.isArray(cache.chartTotals) && cache.chartTotals.length === 7) {
-        var totals = cache.chartTotals.slice();
-        if (!salesChartInstance) lastChartKey = "";
-        function drawCachedChart() {
-          try { renderSalesChart(null, totals); } catch (e) {}
-        }
-        drawCachedChart();
-        if (typeof requestAnimationFrame === "function") {
-          requestAnimationFrame(function () {
-            drawCachedChart();
-            requestAnimationFrame(drawCachedChart);
-          });
-        } else {
-          setTimeout(drawCachedChart, 40);
-        }
+        renderSalesChart(null, cache.chartTotals);
       }
+      // Update debt modal label
       updateDebtAmountLabel();
     }
 
@@ -700,6 +832,7 @@
     function applyCompanyProfile(c) {
       if (!c) return;
       if (c.company_name) setText("current-branch-name", c.company_name);
+      // Currency + language from company
       if (c.currency) companyCurrency = c.currency;
       if (c.currency_symbol) companySymbol = c.currency_symbol;
       else if (c.currency === "NGN") companySymbol = "₦";
@@ -744,7 +877,8 @@
         const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
         setText("greeting-title", greeting + ", " + capitalizedName + " 👋");
         setText("user-avatar-initial", capitalizedName.charAt(0));
-       userCompanyId = null;
+
+        userCompanyId = null;
         const companySelect = "company_id, companies(company_name, logo, address, phone, email, subscription_status, trial_ends_at, subscription_ends_at, currency, currency_symbol, language, country_code, country_name)";
         const { data: member } = await supabaseClient
           .from("company_users")
@@ -754,7 +888,6 @@
         if (member && member.company_id) {
           userCompanyId = member.company_id;
           applyCompanyProfile(member.companies);
-          paintFromCache();
         } else {
           const { data: owned } = await supabaseClient
             .from("companies")
@@ -764,10 +897,10 @@
           if (owned && owned.id) {
             userCompanyId = owned.id;
             applyCompanyProfile(owned);
-            paintFromCache();
           }
         }
 
+        // Re-paint with correct company + currency
         paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
@@ -958,39 +1091,27 @@
         const canvas = $("salesOverviewChart");
         if (canvas) {
           try {
+            if (salesChartInstance) { try { salesChartInstance.destroy(); } catch (e) {} salesChartInstance = null; }
+            const ctx = canvas.getContext("2d");
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
+            gradient.addColorStop(0, "#8B5CFF");
+            gradient.addColorStop(1, "#2EA8FF");
             const sym = companySymbol || "₦";
-            if (salesChartInstance && salesChartInstance.data && salesChartInstance.data.datasets && salesChartInstance.data.datasets[0]) {
-              salesChartInstance.data.labels = days;
-              salesChartInstance.data.datasets[0].data = totals.slice();
-              salesChartInstance.options.animation = false;
-              if (salesChartInstance.options.scales && salesChartInstance.options.scales.y && salesChartInstance.options.scales.y.ticks) {
-                salesChartInstance.options.scales.y.ticks.callback = function (v) { return sym + (v / 1000).toFixed(0) + "k"; };
-              }
-              salesChartInstance.update("none");
-            } else {
-              if (salesChartInstance) { try { salesChartInstance.destroy(); } catch (e) {} salesChartInstance = null; }
-              const ctx = canvas.getContext("2d");
-              const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
-              gradient.addColorStop(0, "#8B5CFF");
-              gradient.addColorStop(1, "#2EA8FF");
-              salesChartInstance = new Chart(ctx, {
-                type: "line",
-                data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: "rgba(139,92,255,0.12)", borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  animation: false,
-                  plugins: { legend: { display: false } },
-                  scales: {
-                    x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
-                    y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
-                  }
+            salesChartInstance = new Chart(ctx, {
+              type: "line",
+              data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: "rgba(139,92,255,0.12)", borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
+                  y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
                 }
-              });
-            }
-          } catch (e) {
-            console.warn("chart", e);
-          }
+              }
+            });
+          } catch (e) {}
         }
         return totals;
       } finally {
@@ -1177,6 +1298,7 @@
       if (event === "SIGNED_OUT") window.location.replace("index.html");
     });
 
+    /* Instant paint + strong restore */
     window.addEventListener("DOMContentLoaded", function () {
       applyUserPreferences();
       paintFromCache();
@@ -1197,4 +1319,5 @@
     });
   </script>
 </body>
-</html>     
+</html>
+
