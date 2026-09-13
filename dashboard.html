@@ -514,10 +514,12 @@
     });
     const LOW_STOCK_UNITS = 3;
     const DASH_CACHE_KEY = "quantum_dash_cache_v3";
+    const REQUEST_TIMEOUT_MS = 12000;
 
     let salesChartInstance = null;
     let userCompanyId = null;
     let isFetchingMetrics = false;
+    let pendingRefresh = false;
     let liveRefreshTimer = null;
     let liveChannel = null;
     let todayGrossProfit = 0;
@@ -527,6 +529,10 @@
     let lastChartKey = "";
     let chartBusy = false;
     let productImageMap = {};
+    let lastGoodSales = null;
+    let lastGoodProducts = null;
+    let lastGoodDebtors = null;
+    let lastGoodExpenses = null;
 
     let companyCurrency = "NGN";
     let companySymbol = "₦";
@@ -609,6 +615,15 @@
       return String(s || "").replace(/[&<>"']/g, function (c) {
         return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
       });
+    }
+
+    function withTimeout(promise, ms) {
+      return Promise.race([
+        promise,
+        new Promise(function (_, reject) {
+          setTimeout(function () { reject(new Error("Request timed out")); }, ms || REQUEST_TIMEOUT_MS);
+        })
+      ]);
     }
 
     function saveDashboardCache(payload) {
@@ -836,7 +851,11 @@
     async function loadUnreadBadge() {
       if (!userCompanyId) return;
       try {
-        const { count } = await supabaseClient.from("notifications").select("id", { count: "exact", head: true }).eq("company_id", userCompanyId).eq("is_read", false);
+        const result = await withTimeout(
+          supabaseClient.from("notifications").select("id", { count: "exact", head: true }).eq("company_id", userCompanyId).eq("is_read", false),
+          REQUEST_TIMEOUT_MS
+        );
+        const count = result.count;
         const badge = $("notif-badge");
         if (!badge) return;
         if (!count) { badge.classList.add("hidden"); return; }
@@ -892,16 +911,17 @@
         if (userCompanyId) {
           if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch (e) {} }
           liveChannel = supabaseClient.channel("mobile-live-" + userCompanyId)
-            .on("postgres_changes", { event: "*", schema: "public", table: "sales" }, scheduleLiveRefresh)
-            .on("postgres_changes", { event: "*", schema: "public", table: "products" }, scheduleLiveRefresh)
-            .on("postgres_changes", { event: "*", schema: "public", table: "debtors" }, scheduleLiveRefresh)
-            .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, scheduleLiveRefresh)
-            .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, loadUnreadBadge)
+            .on("postgres_changes", { event: "*", schema: "public", table: "sales", filter: "company_id=eq." + userCompanyId }, scheduleLiveRefresh)
+            .on("postgres_changes", { event: "*", schema: "public", table: "products", filter: "company_id=eq." + userCompanyId }, scheduleLiveRefresh)
+            .on("postgres_changes", { event: "*", schema: "public", table: "debtors", filter: "company_id=eq." + userCompanyId }, scheduleLiveRefresh)
+            .on("postgres_changes", { event: "*", schema: "public", table: "expenses", filter: "company_id=eq." + userCompanyId }, scheduleLiveRefresh)
+            .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: "company_id=eq." + userCompanyId }, loadUnreadBadge)
             .subscribe();
         }
       } catch (err) {
         console.error("init", err);
         appReady = true;
+        paintFromCache();
       }
     }
 
@@ -916,19 +936,66 @@
         renderRecentActivities([]);
         return;
       }
-      if (isFetchingMetrics) return;
+      if (isFetchingMetrics) {
+        pendingRefresh = true;
+        return;
+      }
       isFetchingMetrics = true;
+      pendingRefresh = false;
       try {
-        const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([
+        const salesP = withTimeout(
           supabaseClient.from("sales").select("id, total_amount, total, profit, total_profit, created_at, payment_method, items").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(500),
+          REQUEST_TIMEOUT_MS
+        ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
+
+        const productsP = withTimeout(
           supabaseClient.from("products").select("id, name, stock, items_per_pack, image_url, selling_price").eq("company_id", userCompanyId).limit(200),
+          REQUEST_TIMEOUT_MS
+        ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
+
+        const debtorsP = withTimeout(
           supabaseClient.from("debtors").select("id, customer_name, amount_owing, status").eq("company_id", userCompanyId).limit(100),
-          supabaseClient.from("expenses").select("id, amount, created_at").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(60)
-        ]);
-        const sales = salesRes.data || [];
-        const products = productsRes.data || [];
-        const debtors = debtorsRes.data || [];
-        const expenses = expensesRes.data || [];
+          REQUEST_TIMEOUT_MS
+        ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
+
+        const expensesP = withTimeout(
+          supabaseClient.from("expenses").select("id, amount, created_at").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(60),
+          REQUEST_TIMEOUT_MS
+        ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
+
+        const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([salesP, productsP, debtorsP, expensesP]);
+
+        let sales = lastGoodSales;
+        let products = lastGoodProducts;
+        let debtors = lastGoodDebtors;
+        let expenses = lastGoodExpenses;
+        let anySuccess = false;
+
+        if (salesRes && !salesRes.error && salesRes.data != null) {
+          sales = salesRes.data;
+          lastGoodSales = sales;
+          anySuccess = true;
+        }
+        if (productsRes && !productsRes.error && productsRes.data != null) {
+          products = productsRes.data;
+          lastGoodProducts = products;
+          anySuccess = true;
+        }
+        if (debtorsRes && !debtorsRes.error && debtorsRes.data != null) {
+          debtors = debtorsRes.data;
+          lastGoodDebtors = debtors;
+          anySuccess = true;
+        }
+        if (expensesRes && !expensesRes.error && expensesRes.data != null) {
+          expenses = expensesRes.data;
+          lastGoodExpenses = expenses;
+          anySuccess = true;
+        }
+
+        if (sales == null) sales = [];
+        if (products == null) products = [];
+        if (debtors == null) debtors = [];
+        if (expenses == null) expenses = [];
 
         productImageMap = {};
         products.forEach(function (p) {
@@ -943,45 +1010,51 @@
         const topHtml = renderTopProducts(sales, productImageMap);
         const recentHtml = renderRecentActivities(sales);
 
-        const todayStr = getLocalDateString(new Date());
-        let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
-        sales.forEach(function (s) {
-          const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
-          const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-          if (isInThisWeek(s.created_at)) weeklyTotal += amount;
-          if (getLocalDateString(new Date(s.created_at)) === todayStr) {
-            todaySales += amount; todayProfit += profit; todayCount++;
-          }
-        });
-        expenses.forEach(function (e) {
-          if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
-        });
-        debtors.forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
-        products.forEach(function (p) {
-          const pieces = parseFloat(p.stock || 0);
-          const pack = parseFloat(p.items_per_pack || 24) || 24;
-          if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
-        });
-        saveDashboardCache({
-          todaySales: todaySales,
-          todayProfit: todayProfit,
-          todayCount: todayCount,
-          todayExpenses: todayExp,
-          netProfit: todayProfit - todayExp,
-          outstandingDebt: debtTotal,
-          debtCustomers: debtors.length,
-          lowStock: low,
-          businessHealth: Math.max(100 - low * 5, 40) + "%",
-          weeklyTotal: weeklyTotal,
-          chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
-          topProductsHtml: topHtml,
-          recentHtml: recentHtml,
-          productImageMap: productImageMap
-        });
+        if (anySuccess) {
+          const todayStr = getLocalDateString(new Date());
+          let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
+          sales.forEach(function (s) {
+            const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+            const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
+            if (isInThisWeek(s.created_at)) weeklyTotal += amount;
+            if (getLocalDateString(new Date(s.created_at)) === todayStr) {
+              todaySales += amount; todayProfit += profit; todayCount++;
+            }
+          });
+          expenses.forEach(function (e) {
+            if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
+          });
+          debtors.forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
+          products.forEach(function (p) {
+            const pieces = parseFloat(p.stock || 0);
+            const pack = parseFloat(p.items_per_pack || 24) || 24;
+            if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
+          });
+          saveDashboardCache({
+            todaySales: todaySales,
+            todayProfit: todayProfit,
+            todayCount: todayCount,
+            todayExpenses: todayExp,
+            netProfit: todayProfit - todayExp,
+            outstandingDebt: debtTotal,
+            debtCustomers: debtors.length,
+            lowStock: low,
+            businessHealth: Math.max(100 - low * 5, 40) + "%",
+            weeklyTotal: weeklyTotal,
+            chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
+            topProductsHtml: topHtml,
+            recentHtml: recentHtml,
+            productImageMap: productImageMap
+          });
+        }
       } catch (err) {
         console.error("metrics", err);
       } finally {
         isFetchingMetrics = false;
+        if (pendingRefresh) {
+          pendingRefresh = false;
+          setTimeout(function () { fetchAllLiveMetrics(); }, 200);
+        }
       }
     }
 
