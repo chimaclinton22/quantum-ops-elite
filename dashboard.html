@@ -12,8 +12,6 @@
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <title>Quantum OPS Elite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -443,6 +441,81 @@
         </div>
       </div>
 
+      <!-- INSTANT CACHE PAINT: runs before any CDN scripts, paints KPIs from localStorage immediately -->
+      <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem("quantum_dash_cache_v4");
+          if (!raw) return;
+          var cache = JSON.parse(raw);
+          window.__quantumDashCacheBoot = cache;
+          var sym = cache.symbol || "₦";
+          function fmt(n) {
+            n = Number(n || 0);
+            try {
+              if (cache.currency && cache.currency.length === 3) {
+                return new Intl.NumberFormat(undefined, {
+                  style: "currency",
+                  currency: cache.currency,
+                  maximumFractionDigits: 0,
+                  minimumFractionDigits: 0
+                }).format(n);
+              }
+            } catch (e) {}
+            return sym + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+          }
+          function set(id, v) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = v;
+          }
+          if (cache.companyName) set("current-branch-name", cache.companyName);
+          if (cache.todaySales != null) set("val-today-sales", fmt(cache.todaySales));
+          if (cache.todayProfit != null) set("val-today-profit", fmt(cache.todayProfit));
+          if (cache.todayCount != null) set("val-transactions", String(cache.todayCount));
+          if (cache.todayExpenses != null) set("val-today-expenses", fmt(cache.todayExpenses));
+          if (cache.netProfit != null) {
+            var netEl = document.getElementById("val-net-profit");
+            if (netEl) {
+              netEl.textContent = fmt(cache.netProfit);
+              netEl.className = "kpi-value " + (cache.netProfit >= 0 ? "text-success" : "text-loss");
+            }
+          }
+          if (cache.outstandingDebt != null) set("val-outstanding-debt", fmt(cache.outstandingDebt));
+          if (cache.debtCustomers != null) set("val-debt-customers", cache.debtCustomers + " Customers");
+          if (cache.lowStock != null) set("val-low-stock", cache.lowStock + " Items");
+          if (cache.businessHealth != null) set("val-business-health", cache.businessHealth);
+          if (cache.weeklyTotal != null) set("val-weekly-total", fmt(cache.weeklyTotal));
+          if (cache.topProductsHtml) {
+            var tp = document.getElementById("top-products-list");
+            if (tp) tp.innerHTML = cache.topProductsHtml;
+          }
+          if (cache.recentHtml) {
+            var ra = document.getElementById("recent-activities-list");
+            if (ra) ra.innerHTML = cache.recentHtml;
+          }
+          var debtCard = document.getElementById("card-outstanding-debt");
+          if (debtCard) {
+            if (cache.outstandingDebt > 0) debtCard.classList.add("alert-breathing-red");
+            else debtCard.classList.remove("alert-breathing-red");
+          }
+          var lowCard = document.getElementById("card-low-stock");
+          if (lowCard) {
+            if (cache.lowStock > 0) lowCard.classList.add("alert-breathing-amber");
+            else lowCard.classList.remove("alert-breathing-amber");
+          }
+          var expCard = document.getElementById("card-expenses");
+          if (expCard && cache.todayExpenses != null) {
+            var tooHigh = cache.todayExpenses > 0 && (
+              cache.todayExpenses >= (cache.todayProfit || 0) ||
+              ((cache.todaySales || 0) > 0 && cache.todayExpenses > (cache.todaySales || 0) * 0.35)
+            );
+            if (tooHigh) expCard.classList.add("alert-breathing-red");
+            else expCard.classList.remove("alert-breathing-red");
+          }
+        } catch (e) {}
+      })();
+      </script>
+
       <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
@@ -505,7 +578,10 @@
       <button type="button" onclick="submitNewDebt()" id="save-debt-btn" class="btn-primary">Save Debt Record</button>
     </div>
   </div>
-    <script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -651,8 +727,11 @@
     function saveDashboardCache(payload) {
       try {
         if (!userCompanyId) return;
+        var branchEl = $("current-branch-name");
+        var companyName = (branchEl && branchEl.textContent) ? branchEl.textContent.trim() : "";
         localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(Object.assign({
           companyId: userCompanyId,
+          companyName: companyName,
           currency: companyCurrency,
           symbol: companySymbol,
           language: companyLanguage,
@@ -668,12 +747,14 @@
     }
 
     function paintFromCache() {
-      const cache = loadDashboardCache();
+      const cache = loadDashboardCache() || window.__quantumDashCacheBoot;
       if (!cache) return;
+      // Never block when userCompanyId is still null — allow paint from boot/cache
       if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
       if (cache.currency) companyCurrency = cache.currency;
       if (cache.symbol) companySymbol = cache.symbol;
       if (cache.language) companyLanguage = cache.language;
+      if (cache.companyName) setText("current-branch-name", cache.companyName);
 
       if (cache.todaySales != null) {
         setText("val-today-sales", formatCurrency(cache.todaySales));
@@ -889,6 +970,8 @@
     async function initializeApp() {
       if (loggingOut) return;
       try {
+        // Paint from cache immediately, before any network/auth wait
+        paintFromCache();
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
           window.location.replace("index.html");
@@ -1149,7 +1232,7 @@
         else debtCard.classList.remove("alert-breathing-red");
       }
     }
-       function renderSalesChart(sales, forcedTotals) {
+    function renderSalesChart(sales, forcedTotals) {
       if (chartBusy) {
         chartBusy = false;
       }
@@ -1404,7 +1487,7 @@
     window.addEventListener("pageshow", function (e) {
       applyUserPreferences();
       paintFromCache();
-      if (e.persisted && appReady && userCompanyId) {
+      if (appReady && userCompanyId) {
         scheduleLiveRefresh();
       }
     });
