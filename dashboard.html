@@ -441,7 +441,7 @@
         </div>
       </div>
 
-      <!-- INSTANT CACHE PAINT: runs before any CDN scripts, paints KPIs from localStorage immediately -->
+      <!-- INSTANT CACHE PAINT #1: KPIs + branch name (elements already in DOM) -->
       <script>
       (function () {
         try {
@@ -485,14 +485,6 @@
           if (cache.lowStock != null) set("val-low-stock", cache.lowStock + " Items");
           if (cache.businessHealth != null) set("val-business-health", cache.businessHealth);
           if (cache.weeklyTotal != null) set("val-weekly-total", fmt(cache.weeklyTotal));
-          if (cache.topProductsHtml) {
-            var tp = document.getElementById("top-products-list");
-            if (tp) tp.innerHTML = cache.topProductsHtml;
-          }
-          if (cache.recentHtml) {
-            var ra = document.getElementById("recent-activities-list");
-            if (ra) ra.innerHTML = cache.recentHtml;
-          }
           var debtCard = document.getElementById("card-outstanding-debt");
           if (debtCard) {
             if (cache.outstandingDebt > 0) debtCard.classList.add("alert-breathing-red");
@@ -535,6 +527,29 @@
           <div class="text-muted" style="text-align:center;padding:8px 0;">—</div>
         </div>
       </div>
+
+      <!-- INSTANT CACHE PAINT #2: lists (elements now exist in DOM) -->
+      <script>
+      (function () {
+        try {
+          var cache = window.__quantumDashCacheBoot;
+          if (!cache) {
+            var raw = localStorage.getItem("quantum_dash_cache_v4");
+            if (!raw) return;
+            cache = JSON.parse(raw);
+            window.__quantumDashCacheBoot = cache;
+          }
+          if (cache.topProductsHtml) {
+            var tp = document.getElementById("top-products-list");
+            if (tp) tp.innerHTML = cache.topProductsHtml;
+          }
+          if (cache.recentHtml) {
+            var ra = document.getElementById("recent-activities-list");
+            if (ra) ra.innerHTML = cache.recentHtml;
+          }
+        } catch (e) {}
+      })();
+      </script>
     </div>
 
     <nav class="bottom-nav">
