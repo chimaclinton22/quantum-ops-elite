@@ -467,7 +467,7 @@
       </div>
 
       <div id="products-list">
-        <div style="text-align:center;padding:32px;color:#64748b;font-size:13px;">Loading products…</div>
+        <div style="text-align:center;padding:32px;color:#64748b;font-size:13px;">—</div>
       </div>
 
       <div class="card" style="margin-top:8px;">
@@ -518,7 +518,7 @@
  <!-- ===================== DESKTOP ===================== -->
   <div class="desktop-shell desktop-only">
     <div class="desk-layout">
-      <aside class="desk-sidebar">
+          <aside class="desk-sidebar">
         <div class="desk-logo">
           <div class="desk-logo-mark">Q</div>
           <div>
@@ -580,7 +580,7 @@
                 <button type="button" class="cat-tab" data-cat="low" onclick="setCategory('low', this)">Low</button>
               </div>
               <div class="desk-product-grid" id="desk-products-grid">
-                <div style="grid-column:1/-1;text-align:center;padding:32px;color:#64748b;">Loading…</div>
+                <div style="grid-column:1/-1;text-align:center;padding:32px;color:#64748b;">—</div>
               </div>
             </div>
           </div>
@@ -1046,7 +1046,16 @@
     if (label2) label2.textContent = short;
   }
 
-  /* ===== COMPLETE SALE (kept intact) ===== */
+  /* ===== COMPLETE SALE (kept intact — receipt redirect unchanged) ===== */   function resetSaleButtons() {
+    isSavingSale = false;
+    var btns = [document.getElementById("complete-sale-btn"), document.getElementById("desk-complete-sale-btn")];
+    var labels = [document.getElementById("complete-sale-label"), document.getElementById("desk-complete-sale-label")];
+    btns.forEach(function (b) { if (b) b.disabled = false; });
+    labels.forEach(function (l) {
+      if (l) l.textContent = (l.id && l.id.indexOf("desk") >= 0) ? "Pay · Complete Sale" : "Complete Sale & Generate Receipt";
+    });
+  }
+
   async function completeSale() {
     if (isSavingSale) return;
     if (!cart.length) return alert("Add items to cart first.");
@@ -1120,8 +1129,10 @@
       clearCart();
       window.location.href = "receipt.html?id=" + savedSale.id;
     } catch (err) {
-      console.error(err);
+      console.error("completeSale error:", err);
       alert("Error saving sale: " + (err.message || "Try again"));
+    } finally {
+      // Always unlock if still on this page (success navigates away)
       isSavingSale = false;
       btns.forEach(function (b) { if (b) b.disabled = false; });
       labels.forEach(function (l) {
@@ -1296,17 +1307,26 @@
   setInterval(tickClock, 1000);
   tickClock();
 
-  window.addEventListener("pageshow", function () {
-  applyUserPreferences();
-  paintFromCache();
-  isSavingSale = false;
-  var btns = [document.getElementById("complete-sale-btn"), document.getElementById("desk-complete-sale-btn")];
-  var labels = [document.getElementById("complete-sale-label"), document.getElementById("desk-complete-sale-label")];
-  btns.forEach(function (b) { if (b) b.disabled = false; });
-  labels.forEach(function (l) {
-    if (l) l.textContent = (l.id && l.id.indexOf("desk") >= 0) ? "Pay · Complete Sale" : "Complete Sale & Generate Receipt";
+  window.addEventListener("DOMContentLoaded", function () {
+    applyUserPreferences();
+    paintFromCache();
+    resetSaleButtons();
+    initializePOS();
   });
-});
+
+  window.addEventListener("pageshow", function () {
+    applyUserPreferences();
+    paintFromCache();
+    resetSaleButtons();
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") {
+      applyUserPreferences();
+      paintFromCache();
+      resetSaleButtons();
+    }
+  });
 </script>
 </body>
 </html>
