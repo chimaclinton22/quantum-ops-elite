@@ -436,7 +436,7 @@
             <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
             <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">—</h3>
           </div>
-          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">Last 7 Days</span>
+          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">All Time</span>
         </div>
         <div style="height:140px;width:100%;position:relative;">
           <canvas id="salesOverviewChart"></canvas>
@@ -449,7 +449,7 @@
           <a href="inventory.html" class="text-purple" style="font-size:10px;font-weight:600;text-decoration:none;">View all</a>
         </div>
         <div id="top-products-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">Loading…</div>
+          <div class="text-muted" style="text-align:center;padding:8px 0;">—</div>
         </div>
       </div>
 
@@ -459,7 +459,7 @@
           <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
         </div>
         <div id="recent-activities-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">Loading…</div>
+          <div class="text-muted" style="text-align:center;padding:8px 0;">—</div>
         </div>
       </div>
     </div>
@@ -505,15 +505,14 @@
       <button type="button" onclick="submitNewDebt()" id="save-debt-btn" class="btn-primary">Save Debt Record</button>
     </div>
   </div>
-
-  <script>
+    <script>
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
     const LOW_STOCK_UNITS = 3;
-    const DASH_CACHE_KEY = "quantum_dash_cache_v3";
+    const DASH_CACHE_KEY = "quantum_dash_cache_v4";
     const REQUEST_TIMEOUT_MS = 12000;
 
     let salesChartInstance = null;
@@ -600,16 +599,39 @@
       const d = new Date(dateObj);
       return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     }
-    // Rolling last 7 days (today + previous 6) — chart & top products stay filled
-    function startOfWeekDate() {
+    // Rolling last 7 days (today + previous 6) for chart only
+    function startOfRolling7Date() {
       const d = new Date();
       d.setHours(0, 0, 0, 0);
       d.setDate(d.getDate() - 6);
       return d;
     }
-    function isInThisWeek(createdAt) {
+    function isInLast7Days(createdAt) {
       if (!createdAt) return false;
-      return new Date(createdAt) >= startOfWeekDate();
+      return new Date(createdAt) >= startOfRolling7Date();
+    }
+    function getLast7DayLabels() {
+      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const labels = [];
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        labels.push(dayNames[d.getDay()]);
+      }
+      return labels;
+    }
+    function getLast7DateKeys() {
+      const keys = [];
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        keys.push(getLocalDateString(d));
+      }
+      return keys;
     }
     function esc(s) {
       return String(s || "").replace(/[&<>"']/g, function (c) {
@@ -965,6 +987,11 @@
 
         const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([salesP, productsP, debtorsP, expensesP]);
 
+        if (salesRes && salesRes.error) console.error("salesRes.error", salesRes.error);
+        if (productsRes && productsRes.error) console.error("productsRes.error", productsRes.error);
+        if (debtorsRes && debtorsRes.error) console.error("debtorsRes.error", debtorsRes.error);
+        if (expensesRes && expensesRes.error) console.error("expensesRes.error", expensesRes.error);
+
         let sales = lastGoodSales;
         let products = lastGoodProducts;
         let debtors = lastGoodDebtors;
@@ -1012,11 +1039,11 @@
 
         if (anySuccess) {
           const todayStr = getLocalDateString(new Date());
-          let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
+          let todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
           sales.forEach(function (s) {
             const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
             const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-            if (isInThisWeek(s.created_at)) weeklyTotal += amount;
+            allTimeTotal += amount;
             if (getLocalDateString(new Date(s.created_at)) === todayStr) {
               todaySales += amount; todayProfit += profit; todayCount++;
             }
@@ -1040,7 +1067,7 @@
             debtCustomers: debtors.length,
             lowStock: low,
             businessHealth: Math.max(100 - low * 5, 40) + "%",
-            weeklyTotal: weeklyTotal,
+            weeklyTotal: allTimeTotal,
             chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
             topProductsHtml: topHtml,
             recentHtml: recentHtml,
@@ -1060,11 +1087,11 @@
 
     function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
-      let todaySales = 0, todayProfit = 0, todayCount = 0, weeklyTotal = 0;
+      let todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0;
       (sales || []).forEach(function (s) {
         const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
         const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-        if (isInThisWeek(s.created_at)) weeklyTotal += amount;
+        allTimeTotal += amount;
         if (getLocalDateString(new Date(s.created_at)) === todayStr) {
           todaySales += amount; todayProfit += profit; todayCount++;
         }
@@ -1074,7 +1101,7 @@
       setText("val-today-sales", formatCurrency(todaySales));
       setText("val-today-profit", formatCurrency(todayProfit));
       setText("val-transactions", String(todayCount));
-      setText("val-weekly-total", formatCurrency(weeklyTotal));
+      setText("val-weekly-total", formatCurrency(allTimeTotal));
     }
     function processExpensesMetrics(expenses) {
       const todayStr = getLocalDateString(new Date());
@@ -1122,52 +1149,68 @@
         else debtCard.classList.remove("alert-breathing-red");
       }
     }
-
-    function renderSalesChart(sales, forcedTotals) {
-      if (chartBusy) return null;
+       function renderSalesChart(sales, forcedTotals) {
+      if (chartBusy) {
+        chartBusy = false;
+      }
       chartBusy = true;
       let totals = forcedTotals;
       try {
-        const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        const dayLabels = getLast7DayLabels();
+        const dateKeys = getLast7DateKeys();
         if (!totals) {
           totals = [0, 0, 0, 0, 0, 0, 0];
           (sales || []).forEach(function (s) {
-            if (!isInThisWeek(s.created_at)) return;
-            let idx = new Date(s.created_at).getDay() - 1;
-            if (idx === -1) idx = 6;
-            totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
+            if (!isInLast7Days(s.created_at)) return;
+            const key = getLocalDateString(new Date(s.created_at));
+            const idx = dateKeys.indexOf(key);
+            if (idx >= 0) {
+              totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
+            }
           });
         }
-        const chartKey = totals.join(",") + "|" + companySymbol;
+        const chartKey = totals.join(",") + "|" + dayLabels.join(",") + "|" + companySymbol;
         if (chartKey === lastChartKey && salesChartInstance) {
-          chartBusy = false;
           return totals;
         }
         lastChartKey = chartKey;
         const canvas = $("salesOverviewChart");
         if (canvas) {
           try {
-            if (salesChartInstance) { try { salesChartInstance.destroy(); } catch (e) {} salesChartInstance = null; }
-            const ctx = canvas.getContext("2d");
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
-            gradient.addColorStop(0, "#8B5CFF");
-            gradient.addColorStop(1, "#2EA8FF");
             const sym = companySymbol || "₦";
-            salesChartInstance = new Chart(ctx, {
-              type: "line",
-              data: { labels: days, datasets: [{ data: totals, borderColor: gradient, backgroundColor: "rgba(139,92,255,0.12)", borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                  x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
-                  y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
+            if (salesChartInstance) {
+              salesChartInstance.data.labels = dayLabels;
+              salesChartInstance.data.datasets[0].data = totals;
+              salesChartInstance.options.scales.y.ticks.callback = function (v) {
+                return sym + (v / 1000).toFixed(0) + "k";
+              };
+              salesChartInstance.update("none");
+            } else {
+              const ctx = canvas.getContext("2d");
+              const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
+              gradient.addColorStop(0, "#8B5CFF");
+              gradient.addColorStop(1, "#2EA8FF");
+              salesChartInstance = new Chart(ctx, {
+                type: "line",
+                data: { labels: dayLabels, datasets: [{ data: totals, borderColor: gradient, backgroundColor: "rgba(139,92,255,0.12)", borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  animation: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
+                    y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
+                  }
                 }
-              }
-            });
-          } catch (e) {}
+              });
+            }
+          } catch (e) {
+            console.error("chart", e);
+            try { if (salesChartInstance) { salesChartInstance.destroy(); } } catch (e2) {}
+            salesChartInstance = null;
+            lastChartKey = "";
+          }
         }
         return totals;
       } finally {
@@ -1179,7 +1222,6 @@
       imgMap = imgMap || productImageMap || {};
       const counts = {};
       (sales || []).forEach(function (s) {
-        if (!isInThisWeek(s.created_at)) return;
         let items = s.items;
         if (typeof items === "string") {
           try { items = JSON.parse(items); } catch (e) { items = []; }
