@@ -31,14 +31,18 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      background: #07070F;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #E2E8F0;
-      min-height: 100%; height: 100%;
-      overscroll-behavior: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+  background: #07070F;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #E2E8F0;
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: fixed;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+   .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2D48; border-radius: 4px; }
 
     .mobile-only { display: block !important; }
@@ -50,14 +54,18 @@
 
     /* ===== MOBILE — FIXED TOP + FIXED BOTTOM ===== */
     .iphone-frame {
-      width: 100%; max-width: 100%;
-      height: 100%; height: 100dvh;
-      background: #0B0B16;
-      position: relative;
-      display: flex; flex-direction: column;
-      padding-top: env(safe-area-inset-top, 0px);
-      overflow: hidden;
-    }
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  background: #0B0B16;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  overflow: hidden;
+}
     .top-bar {
       position: sticky; top: 0; z-index: 30; flex-shrink: 0;
       padding: 10px 12px;
@@ -74,19 +82,28 @@
       cursor: pointer; flex-shrink: 0;
     }
     .main-scroll {
-      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: contain; padding: 10px 12px 12px; min-height: 0;
-    }
-    /* Fixed checkout bar above bottom-nav */
-    .checkout-bar {
-      flex-shrink: 0;
-      padding: 10px 12px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-      background: rgba(14,14,28,0.98);
-      border-top: 1px solid rgba(139,92,246,0.2);
-      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      z-index: 35;
-    }
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: 10px 12px 12px;
+  min-height: 0;
+  touch-action: pan-y;
+}
+.checkout-bar {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  padding-bottom: 10px;
+  margin-bottom: 0;
+  background: rgba(14,14,28,0.98);
+  border-top: 1px solid rgba(139,92,246,0.2);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 35;
+  position: relative;
+}
+
     .card {
       background: #121224; border: 1px solid rgba(139,92,246,0.15);
       border-radius: 16px; padding: 12px; margin-bottom: 12px;
@@ -302,10 +319,15 @@
     body:not(.theme-day) .pos-col-head { border-bottom-color: rgba(139,92,246,0.12); }
     .pos-col-head h2 { font-size: 15px; font-weight: 800; color: #0F172A; margin: 0; }
     body:not(.theme-day) .pos-col-head h2 { color: #fff; }
-    .pos-col-body { flex: 1; overflow-y: auto; padding: 14px 16px; min-height: 0; }
-    .pos-col-foot {
-      padding: 14px 16px; border-top: 1px solid #E2E8F0; flex-shrink: 0; background: #FAFBFF;
-    }
+    .pos-col-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 16px;
+  min-height: 0;
+  touch-action: pan-y;
+}
+
     body:not(.theme-day) .pos-col-foot {
       border-top-color: rgba(139,92,246,0.12); background: #0B0B16;
     }
@@ -1274,21 +1296,17 @@
   setInterval(tickClock, 1000);
   tickClock();
 
-  window.addEventListener("DOMContentLoaded", function () {
-    applyUserPreferences();
-    paintFromCache();
-    initializePOS();
-  });
   window.addEventListener("pageshow", function () {
-    applyUserPreferences();
-    paintFromCache();
+  applyUserPreferences();
+  paintFromCache();
+  isSavingSale = false;
+  var btns = [document.getElementById("complete-sale-btn"), document.getElementById("desk-complete-sale-btn")];
+  var labels = [document.getElementById("complete-sale-label"), document.getElementById("desk-complete-sale-label")];
+  btns.forEach(function (b) { if (b) b.disabled = false; });
+  labels.forEach(function (l) {
+    if (l) l.textContent = (l.id && l.id.indexOf("desk") >= 0) ? "Pay · Complete Sale" : "Complete Sale & Generate Receipt";
   });
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") {
-      paintFromCache();
-      if (userCompanyId) fetchProducts();
-    }
-  });
+});
 </script>
 </body>
 </html>
