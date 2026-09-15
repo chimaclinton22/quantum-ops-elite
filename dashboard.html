@@ -84,7 +84,6 @@
       font-size: 13px;
     }
 
-    /* Floating AI */
     #ai-float {
       position: fixed;
       right: 12px;
@@ -129,7 +128,6 @@
     .nav-item.active { color: #B07CFF; }
     .nav-item i { font-size: 16px; margin-bottom: 2px; }
 
-    /* Theme Day */
     body.theme-day {
       background: #F4F6FB !important;
       color: #0F172A !important;
@@ -238,6 +236,52 @@
   </style>
 </head>
 <body>
+  <!-- Instant Cache Paint (runs before anything else) -->
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem("quantum_dash_cache_v4");
+        if (!raw) return;
+        var cache = JSON.parse(raw);
+        window.__quantumDashCacheBoot = cache;
+        var sym = cache.symbol || "₦";
+        function fmt(n) {
+          n = Number(n || 0);
+          try {
+            if (cache.currency && cache.currency.length === 3) {
+              return new Intl.NumberFormat(undefined, {
+                style: "currency", currency: cache.currency,
+                maximumFractionDigits: 0, minimumFractionDigits: 0
+              }).format(n);
+            }
+          } catch (e) {}
+          return sym + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        }
+        function set(id, v) {
+          var el = document.getElementById(id);
+          if (el) el.textContent = v;
+        }
+        // We paint as soon as the elements exist (after DOM is parsed)
+        window.addEventListener("DOMContentLoaded", function () {
+          if (cache.companyName) set("business-name", cache.companyName);
+          if (cache.todaySales != null) set("val-today-sales", fmt(cache.todaySales));
+          if (cache.todayProfit != null) set("val-today-profit", fmt(cache.todayProfit));
+          if (cache.todayExpenses != null) set("val-today-expenses", fmt(cache.todayExpenses));
+          if (cache.outstandingDebt != null) set("val-outstanding-debt", fmt(cache.outstandingDebt));
+          if (cache.debtCustomers != null) set("val-debt-customers", cache.debtCustomers + " Customers");
+          if (cache.lowStock != null) {
+            set("val-low-stock", cache.lowStock);
+            set("alert-low-stock", cache.lowStock + " products are running low on stock");
+          }
+          if (cache.businessHealth != null) set("val-business-health", cache.businessHealth);
+          if (cache.outstandingDebt != null) {
+            set("alert-debt", (cache.debtCustomers || 0) + " customers owe " + fmt(cache.outstandingDebt));
+          }
+        });
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Subscription Lock -->
   <div id="subscription-lock" class="hidden">
     <div style="background:#101326;border:1px solid rgba(139,92,255,0.4);border-radius:24px;padding:28px 22px;max-width:320px;width:100%;">
@@ -274,7 +318,6 @@
       </div>
 
       <div class="flex items-center space-x-3">
-        <!-- LED Clock -->
         <div class="led-clock" id="led-clock">--:--:--</div>
 
         <div class="relative cursor-pointer" onclick="window.location.href='notifications.html'">
@@ -334,7 +377,6 @@
 
       <!-- 4 KPI Cards -->
       <div class="grid grid-cols-2 gap-3 mb-6">
-        <!-- Today's Sales -->
         <a href="transactions.html?view=sales" class="glow-card-green rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
           <div class="flex items-center justify-between mb-2">
             <span class="text-[11px] font-medium text-gray-300">Today's Sales</span>
@@ -349,7 +391,6 @@
           </div>
         </a>
 
-        <!-- Today's Profit -->
         <a href="transactions.html?view=profit" class="glow-card-purple rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
           <div class="flex items-center justify-between mb-2">
             <span class="text-[11px] font-medium text-gray-300">Today's Profit</span>
@@ -364,7 +405,6 @@
           </div>
         </a>
 
-        <!-- Today's Expenses -->
         <a href="expenses.html" id="card-expenses" class="glow-card-amber rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
           <div class="flex items-center justify-between mb-2">
             <span class="text-[11px] font-medium text-gray-300">Today's Expenses</span>
@@ -378,7 +418,6 @@
           </div>
         </a>
 
-        <!-- Outstanding Debt -->
         <a href="debtors.html" id="card-outstanding-debt" class="glow-card-pink rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
           <div class="flex items-center justify-between mb-2">
             <span class="text-[11px] font-medium text-gray-300">Outstanding Debt</span>
@@ -525,41 +564,6 @@
         </div>
       </div>
 
-      <!-- Sales Overview Chart -->
-      <div class="glow-card rounded-2xl p-4 mb-4">
-        <div class="flex justify-between items-center mb-3">
-          <div>
-            <h4 class="text-gray-400 text-xs font-semibold">Sales Overview</h4>
-            <h3 class="text-white text-sm font-bold mt-1" id="val-weekly-total">—</h3>
-          </div>
-          <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2.5 py-1 rounded-full border border-purple-500/30 font-semibold">Last 7 Days</span>
-        </div>
-        <div style="height:140px;width:100%;position:relative;">
-          <canvas id="salesOverviewChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Top Products -->
-      <div class="glow-card rounded-2xl p-4 mb-4">
-        <div class="flex justify-between items-center mb-3">
-          <h4 class="text-gray-400 text-xs font-semibold">Top Selling Products</h4>
-          <a href="inventory.html" class="text-purple-400 text-xs font-semibold">View all</a>
-        </div>
-        <div id="top-products-list" class="text-xs">
-          <div class="text-gray-500 text-center py-3">—</div>
-        </div>
-      </div>
-
-      <!-- Recent Activities -->
-      <div class="glow-card rounded-2xl p-4">
-        <div class="flex justify-between items-center mb-3">
-          <h4 class="text-gray-400 text-xs font-semibold">Recent Activities</h4>
-          <span class="text-purple-400 text-xs font-semibold">Live Feed</span>
-        </div>
-        <div id="recent-activities-list" class="text-xs">
-          <div class="text-gray-500 text-center py-3">—</div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -645,7 +649,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // ==================== CONFIG ====================
@@ -664,7 +667,6 @@
     const AI_POS_KEY = "quantum_ai_float_y";
 
     // ==================== STATE ====================
-    let salesChartInstance = null;
     let userCompanyId = null;
     let isFetchingMetrics = false;
     let pendingRefresh = false;
@@ -674,9 +676,6 @@
     let todaySalesAmount = 0;
     let appReady = false;
     let loggingOut = false;
-    let lastChartKey = "";
-    let chartBusy = false;
-    let productImageMap = {};
     let lastGoodSales = null;
     let lastGoodProducts = null;
     let lastGoodDebtors = null;
@@ -699,44 +698,6 @@
     function getLocalDateString(dateObj) {
       const d = new Date(dateObj);
       return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    }
-    function startOfRolling7Date() {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() - 6);
-      return d;
-    }
-    function isInLast7Days(createdAt) {
-      if (!createdAt) return false;
-      return new Date(createdAt) >= startOfRolling7Date();
-    }
-    function getLast7DayLabels() {
-      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const labels = [];
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(now.getDate() - i);
-        labels.push(dayNames[d.getDay()]);
-      }
-      return labels;
-    }
-    function getLast7DateKeys() {
-      const keys = [];
-      const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(now.getDate() - i);
-        keys.push(getLocalDateString(d));
-      }
-      return keys;
-    }
-    function esc(s) {
-      return String(s || "").replace(/[&<>"']/g, function (c) {
-        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
-      });
     }
     function withTimeout(promise, ms) {
       return Promise.race([
@@ -811,18 +772,10 @@
           (payload.todaySales != null && payload.todaySales > 0) ||
           (payload.todayCount != null && payload.todayCount > 0) ||
           (payload.outstandingDebt != null && payload.outstandingDebt > 0) ||
-          (payload.lowStock != null && payload.lowStock > 0) ||
-          (payload.weeklyTotal != null && payload.weeklyTotal > 0) ||
-          (payload.topProductsHtml && payload.topProductsHtml.indexOf("No product") === -1) ||
-          (payload.recentHtml && payload.recentHtml.indexOf("No recent") === -1);
+          (payload.lowStock != null && payload.lowStock > 0);
         var existing = loadDashboardCache();
         if (existing && existing.companyId === userCompanyId && !hasAnyData) return;
-        if (payload.weeklyTotal != null && lastKnownAllTimeTotal > 0 && payload.weeklyTotal < lastKnownAllTimeTotal) {
-          payload.weeklyTotal = lastKnownAllTimeTotal;
-        }
-        if (payload.weeklyTotal != null && payload.weeklyTotal > lastKnownAllTimeTotal) {
-          lastKnownAllTimeTotal = payload.weeklyTotal;
-        }
+
         var branchEl = $("business-name");
         var companyName = (branchEl && branchEl.textContent) ? branchEl.textContent.trim() : "";
         localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(Object.assign({
@@ -843,9 +796,11 @@
     }
 
     function paintFromCache() {
-      const cache = loadDashboardCache();
+      const cache = loadDashboardCache() || window.__quantumDashCacheBoot;
       if (!cache) return;
+      // Soft match - allow paint even if companyId not yet known
       if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
+
       if (cache.currency) companyCurrency = cache.currency;
       if (cache.symbol) companySymbol = cache.symbol;
       if (cache.language) companyLanguage = cache.language;
@@ -859,7 +814,7 @@
         setText("val-today-profit", formatCurrency(cache.todayProfit));
         todayGrossProfit = cache.todayProfit;
       }
-      if (cache.todayCount != null) setText("val-customers", String(cache.todayCount)); // reuse for display
+      if (cache.todayCount != null) setText("val-customers", String(cache.todayCount));
       if (cache.todayExpenses != null) setText("val-today-expenses", formatCurrency(cache.todayExpenses));
       if (cache.outstandingDebt != null) setText("val-outstanding-debt", formatCurrency(cache.outstandingDebt));
       if (cache.debtCustomers != null) setText("val-debt-customers", cache.debtCustomers + " Customers");
@@ -868,21 +823,6 @@
         setText("alert-low-stock", cache.lowStock + " products are running low on stock");
       }
       if (cache.businessHealth != null) setText("val-business-health", cache.businessHealth);
-      if (cache.weeklyTotal != null) {
-        setText("val-weekly-total", formatCurrency(cache.weeklyTotal));
-        if (cache.weeklyTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = cache.weeklyTotal;
-      }
-      if (cache.productImageMap) productImageMap = cache.productImageMap;
-      if (cache.topProductsHtml) {
-        const el = $("top-products-list");
-        if (el) el.innerHTML = cache.topProductsHtml;
-      }
-      if (cache.recentHtml) {
-        const el = $("recent-activities-list");
-        if (el) el.innerHTML = cache.recentHtml;
-      }
-
-      // Alerts text
       if (cache.outstandingDebt != null) {
         setText("alert-debt", (cache.debtCustomers || 0) + " customers owe " + formatCurrency(cache.outstandingDebt));
       }
@@ -892,7 +832,6 @@
         if (cache.outstandingDebt > 0) debtCard.classList.add("alert-breathing-red");
         else debtCard.classList.remove("alert-breathing-red");
       }
-      var lowCard = $("card-low-stock"); // not present, but low stock number is
       var expCard = $("card-expenses");
       if (expCard && cache.todayExpenses != null) {
         var tooHigh = cache.todayExpenses > 0 && (
@@ -901,9 +840,6 @@
         );
         if (tooHigh) expCard.classList.add("alert-breathing-red");
         else expCard.classList.remove("alert-breathing-red");
-      }
-      if (cache.chartTotals && Array.isArray(cache.chartTotals) && cache.chartTotals.length === 7) {
-        renderSalesChart(null, cache.chartTotals);
       }
       updateDebtAmountLabel();
     }
@@ -938,7 +874,7 @@
         if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch (e) {} liveChannel = null; }
         await supabaseClient.auth.signOut({ scope: "local" });
       } catch (e) {}
-      try { localStorage.removeItem(DASH_CACHE_KEY); } catch (e) {}
+      // Keep the cache so next login is instant
       window.location.replace("index.html");
     }
 
@@ -1056,7 +992,6 @@
         badge.textContent = count > 99 ? "99+" : String(count);
         badge.classList.remove("hidden");
         setText("alert-notif", "You have " + count + " unread messages");
-        setText("alert-count", String(Math.min(count + (parseInt(($("val-low-stock")||{}).textContent)||0, 10) + (parseInt(($("val-debt-customers")||{}).textContent)||0 > 0 ? 1 : 0), 9)));
       } catch (e) {}
     }
 
@@ -1064,7 +999,9 @@
     async function initializeApp() {
       if (loggingOut) return;
       try {
+        // Paint immediately from cache
         paintFromCache();
+
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
           window.location.replace("index.html");
@@ -1101,6 +1038,7 @@
           }
         }
 
+        // Paint again after company is known
         paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
@@ -1139,7 +1077,7 @@
       try {
         const salesP = withTimeout(
           supabaseClient.from("sales")
-            .select("id, total_amount, total, profit, total_profit, created_at, payment_method, items")
+            .select("id, total_amount, total, profit, total_profit, created_at")
             .eq("company_id", userCompanyId)
             .order("created_at", { ascending: false })
             .limit(SALES_LIMIT),
@@ -1148,7 +1086,7 @@
 
         const productsP = withTimeout(
           supabaseClient.from("products")
-            .select("id, name, stock, items_per_pack, image_url, selling_price")
+            .select("id, name, stock, items_per_pack")
             .eq("company_id", userCompanyId)
             .limit(PRODUCTS_LIMIT),
           REQUEST_TIMEOUT_MS
@@ -1207,66 +1145,42 @@
         if (debtors == null) debtors = [];
         if (expenses == null) expenses = [];
 
-        productImageMap = {};
-        products.forEach(function (p) {
-          if (p.name) productImageMap[String(p.name).toLowerCase()] = p.image_url || "";
-        });
-
         processSalesMetrics(sales);
         processInventoryMetrics(products);
         processDebtorsMetrics(debtors);
         processExpensesMetrics(expenses);
 
-        const salesSnapshot = sales;
-        const imgMapSnapshot = productImageMap;
-        setTimeout(function () {
-          if (thisGen !== metricsGeneration) return;
-          const chartTotals = renderSalesChart(salesSnapshot);
-          const topHtml = renderTopProducts(salesSnapshot, imgMapSnapshot);
-          const recentHtml = renderRecentActivities(salesSnapshot);
+        if (anySuccess && thisGen === metricsGeneration) {
+          const todayStr = getLocalDateString(new Date());
+          let todaySales = 0, todayProfit = 0, todayCount = 0, todayExp = 0, debtTotal = 0, low = 0;
+          sales.forEach(function (s) {
+            const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+            const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
+            if (getLocalDateString(new Date(s.created_at)) === todayStr) {
+              todaySales += amount; todayProfit += profit; todayCount++;
+            }
+          });
+          expenses.forEach(function (e) {
+            if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
+          });
+          debtors.forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
+          products.forEach(function (p) {
+            const pieces = parseFloat(p.stock || 0);
+            const pack = parseFloat(p.items_per_pack || 24) || 24;
+            if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
+          });
 
-          if (anySuccess && thisGen === metricsGeneration) {
-            const todayStr = getLocalDateString(new Date());
-            let todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
-            salesSnapshot.forEach(function (s) {
-              const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
-              const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-              allTimeTotal += amount;
-              if (getLocalDateString(new Date(s.created_at)) === todayStr) {
-                todaySales += amount; todayProfit += profit; todayCount++;
-              }
-            });
-            expenses.forEach(function (e) {
-              if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
-            });
-            debtors.forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
-            products.forEach(function (p) {
-              const pieces = parseFloat(p.stock || 0);
-              const pack = parseFloat(p.items_per_pack || 24) || 24;
-              if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
-            });
-            if (allTimeTotal < lastKnownAllTimeTotal) allTimeTotal = lastKnownAllTimeTotal;
-            else if (allTimeTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = allTimeTotal;
-            setText("val-weekly-total", formatCurrency(allTimeTotal));
-
-            saveDashboardCache({
-              todaySales: todaySales,
-              todayProfit: todayProfit,
-              todayCount: todayCount,
-              todayExpenses: todayExp,
-              netProfit: todayProfit - todayExp,
-              outstandingDebt: debtTotal,
-              debtCustomers: debtors.length,
-              lowStock: low,
-              businessHealth: Math.max(100 - low * 5, 40) + "%",
-              weeklyTotal: allTimeTotal,
-              chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
-              topProductsHtml: topHtml,
-              recentHtml: recentHtml,
-              productImageMap: productImageMap
-            });
-          }
-        }, 50);
+          saveDashboardCache({
+            todaySales: todaySales,
+            todayProfit: todayProfit,
+            todayCount: todayCount,
+            todayExpenses: todayExp,
+            outstandingDebt: debtTotal,
+            debtCustomers: debtors.length,
+            lowStock: low,
+            businessHealth: Math.max(100 - low * 5, 40) + "%"
+          });
+        }
       } catch (err) {
         console.error("metrics", err);
         paintFromCache();
@@ -1281,23 +1195,19 @@
 
     function processSalesMetrics(sales) {
       const todayStr = getLocalDateString(new Date());
-      let todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0;
+      let todaySales = 0, todayProfit = 0, todayCount = 0;
       (sales || []).forEach(function (s) {
         const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
         const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-        allTimeTotal += amount;
         if (getLocalDateString(new Date(s.created_at)) === todayStr) {
           todaySales += amount; todayProfit += profit; todayCount++;
         }
       });
-      if (allTimeTotal < lastKnownAllTimeTotal) allTimeTotal = lastKnownAllTimeTotal;
-      else if (allTimeTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = allTimeTotal;
       todayGrossProfit = todayProfit;
       todaySalesAmount = todaySales;
       setText("val-today-sales", formatCurrency(todaySales));
       setText("val-today-profit", formatCurrency(todayProfit));
       setText("val-customers", String(todayCount));
-      setText("val-weekly-total", formatCurrency(allTimeTotal));
     }
     function processExpensesMetrics(expenses) {
       const todayStr = getLocalDateString(new Date());
@@ -1335,149 +1245,6 @@
         if (total > 0) debtCard.classList.add("alert-breathing-red");
         else debtCard.classList.remove("alert-breathing-red");
       }
-    }
-
-    function renderSalesChart(sales, forcedTotals) {
-      if (chartBusy) chartBusy = false;
-      chartBusy = true;
-      let totals = forcedTotals;
-      try {
-        const dayLabels = getLast7DayLabels();
-        const dateKeys = getLast7DateKeys();
-        if (!totals) {
-          totals = [0, 0, 0, 0, 0, 0, 0];
-          (sales || []).forEach(function (s) {
-            if (!isInLast7Days(s.created_at)) return;
-            const key = getLocalDateString(new Date(s.created_at));
-            const idx = dateKeys.indexOf(key);
-            if (idx >= 0) {
-              totals[idx] += parseMoney(s.total_amount != null ? s.total_amount : s.total);
-            }
-          });
-        }
-        const chartKey = totals.join(",") + "|" + dayLabels.join(",") + "|" + companySymbol;
-        if (chartKey === lastChartKey && salesChartInstance) return totals;
-        lastChartKey = chartKey;
-        const canvas = $("salesOverviewChart");
-        if (canvas) {
-          try {
-            const sym = companySymbol || "₦";
-            if (salesChartInstance) {
-              salesChartInstance.data.labels = dayLabels;
-              salesChartInstance.data.datasets[0].data = totals;
-              salesChartInstance.options.scales.y.ticks.callback = function (v) {
-                return sym + (v / 1000).toFixed(0) + "k";
-              };
-              salesChartInstance.update("none");
-            } else {
-              const ctx = canvas.getContext("2d");
-              const gradient = ctx.createLinearGradient(0, 0, canvas.width || 300, 0);
-              gradient.addColorStop(0, "#8B5CFF");
-              gradient.addColorStop(1, "#2EA8FF");
-              salesChartInstance = new Chart(ctx, {
-                type: "line",
-                data: { labels: dayLabels, datasets: [{ data: totals, borderColor: gradient, backgroundColor: "rgba(139,92,255,0.12)", borderWidth: 2.5, fill: true, tension: 0.4, pointRadius: 3 }] },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  animation: false,
-                  plugins: { legend: { display: false } },
-                  scales: {
-                    x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
-                    y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
-                  }
-                }
-              });
-            }
-          } catch (e) {
-            console.error("chart", e);
-          }
-        }
-        return totals;
-      } finally {
-        chartBusy = false;
-      }
-    }
-
-    function renderTopProducts(sales, imgMap) {
-      imgMap = imgMap || productImageMap || {};
-      const counts = {};
-      (sales || []).forEach(function (s) {
-        let items = s.items;
-        if (typeof items === "string") {
-          try { items = JSON.parse(items); } catch (e) { items = []; }
-        }
-        if (!Array.isArray(items)) return;
-        items.forEach(function (i) {
-          const n = i.name || "Product";
-          if (!counts[n]) counts[n] = { qty: 0, revenue: 0 };
-          counts[n].qty += parseInt(i.qty || 1, 10);
-          counts[n].revenue += parseFloat(i.price || 0) * parseInt(i.qty || 1, 10);
-        });
-      });
-      const sorted = Object.entries(counts).sort(function (a, b) { return b[1].revenue - a[1].revenue; }).slice(0, 5);
-      const container = $("top-products-list");
-      let html = "";
-      if (!sorted.length) {
-        html = '<div class="text-gray-500 text-center py-3">No product sales recorded yet.</div>';
-      } else {
-        html = sorted.map(function (entry) {
-          const name = entry[0];
-          const img = imgMap[String(name).toLowerCase()] || "";
-          const thumb = img
-            ? '<img style="width:36px;height:36px;border-radius:10px;object-fit:cover;background:#1a1f38;border:1px solid rgba(139,92,255,0.25);flex-shrink:0;" src="' + esc(img) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
-            : '<div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,255,0.15);color:#B07CFF;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;border:1px solid rgba(139,92,255,0.25);"><i class="fa-solid fa-box"></i></div>';
-          return (
-            '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(46,168,255,0.08);gap:10px;">' +
-            '<div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">' +
-            thumb +
-            '<div style="min-width:0;"><div style="font-weight:700;font-size:12px;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(name) + '</div>' +
-            '<div style="font-size:9px;color:#7C88A5;">' + entry[1].qty + ' sold</div></div></div>' +
-            '<span style="font-weight:800;font-size:12px;flex-shrink:0;">' + formatCurrency(entry[1].revenue) + '</span></div>'
-          );
-        }).join("");
-      }
-      if (container) container.innerHTML = html;
-      return html;
-    }
-
-    function renderRecentActivities(sales) {
-      const container = $("recent-activities-list");
-      let html = "";
-      if (!sales || !sales.length) {
-        html = '<div class="text-gray-500 text-center py-3">No recent activity recorded yet.</div>';
-      } else {
-        const sorted = sales.slice().sort(function (a, b) { return new Date(b.created_at) - new Date(a.created_at); }).slice(0, 5);
-        html = sorted.map(function (s) {
-          const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
-          let label = "New Sale";
-          let items = s.items;
-          if (typeof items === "string") {
-            try { items = JSON.parse(items); } catch (e) { items = []; }
-          }
-          if (Array.isArray(items) && items[0]) label = items[0].name || "New Sale";
-          return (
-            '<div style="display:flex;justify-content:space-between;padding:6px 0;">' +
-            '<div style="display:flex;gap:10px;align-items:center;min-width:0;"><div style="width:28px;height:28px;border-radius:10px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;"><i class="fa-solid fa-cart-shopping"></i></div>' +
-            '<div style="min-width:0;"><p style="margin:0;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(label) + '</p>' +
-            '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + esc(s.payment_method || "Cash") + '</p></div></div>' +
-            '<div style="text-align:right;flex-shrink:0;"><p style="margin:0;font-weight:700;color:#22F5A0;font-size:11px;">' + formatCurrency(amount) + '</p>' +
-            '<p style="margin:2px 0 0;font-size:9px;color:#7C88A5;">' + getTimeAgo(s.created_at) + '</p></div></div>'
-          );
-        }).join("");
-      }
-      if (container) container.innerHTML = html;
-      return html;
-    }
-
-    function getTimeAgo(dateString) {
-      if (!dateString) return "Just now";
-      const mins = Math.floor((new Date() - new Date(dateString)) / 60000);
-      if (mins < 1) return "Just now";
-      if (mins < 60) return mins + " min ago";
-      const hrs = Math.floor(mins / 60);
-      if (hrs < 24) return hrs + "h ago";
-      return getLocalDateString(new Date(dateString));
     }
 
     // ==================== DEBT SUBMIT ====================
@@ -1530,7 +1297,6 @@
       if (!ai) return;
       let startY = 0, startTop = 0, dragging = false;
 
-      // Restore saved position
       const saved = localStorage.getItem(AI_POS_KEY);
       if (saved) {
         const y = parseInt(saved, 10);
@@ -1569,7 +1335,6 @@
       window.addEventListener("mouseup", onEnd);
       window.addEventListener("touchend", onEnd);
 
-      // Tap to go to AI CEO
       let tapStart = 0;
       ai.addEventListener("touchstart", function () { tapStart = Date.now(); });
       ai.addEventListener("click", function () {
@@ -1588,7 +1353,7 @@
       paintFromCache();
       initializeApp();
     });
-    window.addEventListener("pageshow", function (e) {
+    window.addEventListener("pageshow", function () {
       applyUserPreferences();
       paintFromCache();
       if (appReady && userCompanyId) scheduleLiveRefresh();
