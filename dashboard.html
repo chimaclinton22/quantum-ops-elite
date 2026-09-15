@@ -355,8 +355,7 @@
             <span id="current-branch-name">My Business</span>
             <i id="profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:11px;"></i>
           </div>
-          <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">
-            <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
+          <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">            <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
           </div>
         </div>
       </div>
@@ -677,8 +676,7 @@
       applyTheme(getSavedTheme());
       applyTextSize(getSavedTextSize());
     }
-
-    function $(id) { return document.getElementById(id); }
+   function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
     function parseMoney(value) {
       if (value == null || value === "") return 0;
@@ -1026,7 +1024,8 @@
         paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
-        loadUnreadBadge();
+        // Badge + realtime after first metrics (don't block KPIs)
+        setTimeout(function () { try { loadUnreadBadge(); } catch (e) {} }, 400);
 
         if (userCompanyId) {
           if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch (e) {} }
@@ -1046,14 +1045,9 @@
     }
 
     async function fetchAllLiveMetrics() {
+      // CRITICAL: never wipe UI to empty while company is still loading
       if (!userCompanyId) {
-        processSalesMetrics([]);
-        processInventoryMetrics([]);
-        processDebtorsMetrics([]);
-        processExpensesMetrics([]);
-        renderSalesChart([]);
-        renderTopProducts([], {});
-        renderRecentActivities([]);
+        try { paintFromCache(); } catch (e) {}
         return;
       }
       if (isFetchingMetrics) {
@@ -1064,12 +1058,12 @@
       pendingRefresh = false;
       try {
         const salesP = withTimeout(
-          supabaseClient.from("sales").select("id, total_amount, total, profit, total_profit, created_at, payment_method, items").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(500),
+          supabaseClient.from("sales").select("id, total_amount, total, profit, total_profit, created_at, payment_method, items").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(180),
           REQUEST_TIMEOUT_MS
         ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
 
         const productsP = withTimeout(
-          supabaseClient.from("products").select("id, name, stock, items_per_pack, image_url, selling_price").eq("company_id", userCompanyId).limit(200),
+          supabaseClient.from("products").select("id, name, stock, items_per_pack, image_url").eq("company_id", userCompanyId).limit(100),
           REQUEST_TIMEOUT_MS
         ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
 
@@ -1086,8 +1080,7 @@
         const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([salesP, productsP, debtorsP, expensesP]);
 
         if (salesRes && salesRes.error) console.error("salesRes.error", salesRes.error);
-        if (productsRes && productsRes.error) console.error("productsRes.error", productsRes.error);
-        if (debtorsRes && debtorsRes.error) console.error("debtorsRes.error", debtorsRes.error);
+        if (productsRes && productsRes.error) console.error("productsRes.error", productsRes.error);        if (debtorsRes && debtorsRes.error) console.error("debtorsRes.error", debtorsRes.error);
         if (expensesRes && expensesRes.error) console.error("expensesRes.error", expensesRes.error);
 
         let sales = lastGoodSales;
@@ -1127,51 +1120,72 @@
           if (p.name) productImageMap[String(p.name).toLowerCase()] = p.image_url || "";
         });
 
+        // PHASE 1 — KPIs first (instant feel)
         processSalesMetrics(sales);
         processInventoryMetrics(products);
         processDebtorsMetrics(debtors);
         processExpensesMetrics(expenses);
-        const chartTotals = renderSalesChart(sales);
-        const topHtml = renderTopProducts(sales, productImageMap);
-        const recentHtml = renderRecentActivities(sales);
 
-        if (anySuccess) {
-          const todayStr = getLocalDateString(new Date());
-          let todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
-          sales.forEach(function (s) {
-            const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
-            const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-            allTimeTotal += amount;
-            if (getLocalDateString(new Date(s.created_at)) === todayStr) {
-              todaySales += amount; todayProfit += profit; todayCount++;
+        // PHASE 2 — chart / top products / recent after paint (non-blocking)
+        var salesForSecondary = sales;
+        var productsForSecondary = products;
+        var debtorsForSecondary = debtors;
+        var expensesForSecondary = expenses;
+        var anySuccessSecondary = anySuccess;
+        setTimeout(function () {
+          try {
+            productImageMap = {};
+            (productsForSecondary || []).forEach(function (p) {
+              if (p.name) productImageMap[String(p.name).toLowerCase()] = p.image_url || "";
+            });
+            var chartTotals = renderSalesChart(salesForSecondary);
+            var topHtml = renderTopProducts(salesForSecondary, productImageMap);
+            var recentHtml = renderRecentActivities(salesForSecondary);
+            if (anySuccessSecondary) {
+              var todayStr = getLocalDateString(new Date());
+              var todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
+              (salesForSecondary || []).forEach(function (s) {
+                var amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+                var profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
+                allTimeTotal += amount;
+                if (getLocalDateString(new Date(s.created_at)) === todayStr) {
+                  todaySales += amount; todayProfit += profit; todayCount++;
+                }
+              });
+              try {
+                var cachedAt = loadDashboardCache();
+                if (cachedAt && cachedAt.weeklyTotal != null && Number(cachedAt.weeklyTotal) > allTimeTotal) {
+                  allTimeTotal = Number(cachedAt.weeklyTotal);
+                }
+              } catch (e3) {}
+              (expensesForSecondary || []).forEach(function (e) {
+                if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
+              });
+              (debtorsForSecondary || []).forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
+              (productsForSecondary || []).forEach(function (p) {
+                var pieces = parseFloat(p.stock || 0);
+                var pack = parseFloat(p.items_per_pack || 24) || 24;
+                if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
+              });
+              saveDashboardCache({
+                todaySales: todaySales,
+                todayProfit: todayProfit,
+                todayCount: todayCount,
+                todayExpenses: todayExp,
+                netProfit: todayProfit - todayExp,
+                outstandingDebt: debtTotal,
+                debtCustomers: (debtorsForSecondary || []).length,
+                lowStock: low,
+                businessHealth: Math.max(100 - low * 5, 40) + "%",
+                weeklyTotal: allTimeTotal,
+                chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
+                topProductsHtml: topHtml,
+                recentHtml: recentHtml,
+                productImageMap: productImageMap
+              });
             }
-          });
-          expenses.forEach(function (e) {
-            if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
-          });
-          debtors.forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
-          products.forEach(function (p) {
-            const pieces = parseFloat(p.stock || 0);
-            const pack = parseFloat(p.items_per_pack || 24) || 24;
-            if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
-          });
-          saveDashboardCache({
-            todaySales: todaySales,
-            todayProfit: todayProfit,
-            todayCount: todayCount,
-            todayExpenses: todayExp,
-            netProfit: todayProfit - todayExp,
-            outstandingDebt: debtTotal,
-            debtCustomers: debtors.length,
-            lowStock: low,
-            businessHealth: Math.max(100 - low * 5, 40) + "%",
-            weeklyTotal: allTimeTotal,
-            chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
-            topProductsHtml: topHtml,
-            recentHtml: recentHtml,
-            productImageMap: productImageMap
-          });
-        }
+          } catch (e2) { console.error("secondary metrics", e2); }
+        }, 50);
       } catch (err) {
         console.error("metrics", err);
       } finally {
@@ -1194,6 +1208,13 @@
           todaySales += amount; todayProfit += profit; todayCount++;
         }
       });
+      // All-time may be undercounted if we only fetched recent rows — never show less than cache
+      try {
+        var cached = loadDashboardCache();
+        if (cached && cached.weeklyTotal != null && Number(cached.weeklyTotal) > allTimeTotal) {
+          allTimeTotal = Number(cached.weeklyTotal);
+        }
+      } catch (e) {}
       todayGrossProfit = todayProfit;
       todaySalesAmount = todaySales;
       setText("val-today-sales", formatCurrency(todaySales));
@@ -1298,7 +1319,7 @@
                   plugins: { legend: { display: false } },
                   scales: {
                     x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
-                    y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
+                    y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } }
                   }
                 }
               });
@@ -1515,3 +1536,6 @@
   </script>
 </body>
 </html>
+
+
+
