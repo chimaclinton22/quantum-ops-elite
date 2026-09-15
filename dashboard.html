@@ -3,21 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#05060B">
+  <meta name="theme-color" content="#090A15">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Quantum OPS">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <title>Quantum OPS Elite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            darkBg: '#090A15',
+            cardBg: '#121528',
+            cardBorder: '#23294E',
+            accentGreen: '#10B981',
+            accentRed: '#EF4444',
+            accentPurple: '#8B5CF6',
+            accentBlue: '#3B82F6',
+            accentOrange: '#F59E0B',
+            accentPink: '#EC4899',
+          }
+        }
+      }
+    }
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      background: #05060B;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #F8FAFF;
+      background: #04050d;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #ffffff;
       min-height: 100%;
       height: 100%;
       overscroll-behavior: none;
@@ -26,178 +45,116 @@
       position: fixed;
       width: 100%;
     }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2A3050; border-radius: 4px; }
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #090A15; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #23294E; border-radius: 4px; }
 
-    .iphone-frame {
-      width: 100%;
-      max-width: 100%;
-      height: 100%;
-      height: 100dvh;
-      background: #05060B;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      padding-top: env(safe-area-inset-top, 0px);
-      padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-      overflow: hidden;
+    .glow-card {
+      background: linear-gradient(135deg, rgba(26, 31, 60, 0.7) 0%, rgba(15, 18, 36, 0.9) 100%);
+      border: 1px solid rgba(79, 70, 229, 0.25);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .glow-card-green {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 18, 36, 0.9) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15);
+    }
+    .glow-card-purple {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(15, 18, 36, 0.9) 100%);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15);
+    }
+    .glow-card-amber {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(15, 18, 36, 0.9) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);
+    }
+    .glow-card-pink {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.12) 0%, rgba(15, 18, 36, 0.9) 100%);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      box-shadow: 0 8px 30px rgba(236, 72, 153, 0.15);
     }
 
-    .neon-card {
-      background: #101326;
+    .led-clock {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #22F5A0;
+      text-shadow: 0 0 8px rgba(34, 245, 160, 0.6);
+      font-size: 13px;
+    }
+
+    /* Floating AI */
+    #ai-float {
+      position: fixed;
+      right: 12px;
+      width: 52px;
+      height: 52px;
       border-radius: 16px;
-      padding: 12px;
-      border: 1px solid rgba(139,92,255,0.22);
-      box-shadow: 0 0 0 1px rgba(139,92,255,0.08), 0 4px 14px rgba(0,0,0,0.25);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .neon-card:active, a.neon-card:hover {
-      border-color: rgba(139,92,255,0.45);
-      box-shadow: 0 0 0 1px rgba(139,92,255,0.2), 0 0 18px rgba(139,92,255,0.12);
-    }
-    .neon-card-elevated {
-      background: #131832;
-      border: 1px solid rgba(139,92,255,0.28);
-      box-shadow: 0 0 0 1px rgba(139,92,255,0.1), 0 6px 18px rgba(0,0,0,0.3);
-    }
-
-    @keyframes breathe-red {
-      0%, 100% { box-shadow: 0 0 0 1px rgba(255,90,122,0.55), 0 0 14px rgba(255,90,122,0.35); }
-      50% { box-shadow: 0 0 0 1px rgba(255,90,122,0.9), 0 0 22px rgba(255,90,122,0.55); }
-    }
-    @keyframes breathe-amber {
-      0%, 100% { box-shadow: 0 0 0 1px rgba(255,213,74,0.5), 0 0 12px rgba(255,213,74,0.3); }
-      50% { box-shadow: 0 0 0 1px rgba(255,213,74,0.85), 0 0 20px rgba(255,213,74,0.5); }
-    }
-    .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; }
-    .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; }
-    @keyframes breathe-red-day {
-      0%, 100% { box-shadow: 0 0 0 2px rgba(255,90,122,0.55), 0 0 18px rgba(255,90,122,0.35); border-color: rgba(255,90,122,0.55); }
-      50% { box-shadow: 0 0 0 2px rgba(255,90,122,0.95), 0 0 28px rgba(255,90,122,0.55); border-color: rgba(255,90,122,0.95); }
-    }
-    @keyframes breathe-amber-day {
-      0%, 100% { box-shadow: 0 0 0 2px rgba(255,180,0,0.5), 0 0 16px rgba(255,180,0,0.3); border-color: rgba(255,180,0,0.5); }
-      50% { box-shadow: 0 0 0 2px rgba(255,180,0,0.9), 0 0 26px rgba(255,180,0,0.5); border-color: rgba(255,180,0,0.9); }
-    }
-
-    .premium-badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(139,92,255,0.22));
-      border: 1px solid rgba(255,215,0,0.5); color: #FFD54A;
-      font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; cursor: pointer;
-    }
-    .premium-badge.expired {
-      background: linear-gradient(135deg, rgba(255,90,122,0.2), rgba(255,90,122,0.1));
-      border-color: rgba(255,90,122,0.55); color: #FF5A7A;
-    }
-
-    .top-bar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      flex-shrink: 0;
-      padding: 10px 14px;
+      background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
+      border: 2px solid rgba(255,255,255,0.15);
+      box-shadow: 0 0 20px rgba(139, 92, 255, 0.55), 0 8px 24px rgba(0,0,0,0.4);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      background: rgba(8,10,20,0.98);
-      border-bottom: 1px solid rgba(139,92,255,0.18);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      transform: translateZ(0);
+      justify-content: center;
+      z-index: 45;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      transition: box-shadow 0.2s;
     }
-
-    .main-scroll {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: contain;
-      padding: 12px 14px 20px;
-      min-height: 0;
-    }
-
-    .text-main { color: #FFFFFF; }
-    .text-sec { color: #A8B3CF; }
-    .text-muted { color: #7C88A5; }
-    .text-success { color: #22F5A0; }
-    .text-loss { color: #FF5A7A; }
-    .text-warn { color: #FFD54A; }
-    .text-cyan { color: #00E5FF; }
-    .text-purple { color: #B07CFF; }
-    .kpi-label { font-size: 10px; color: #A8B3CF; margin: 0 0 4px 0; font-weight: 500; }
-    .kpi-value { font-size: 13px; font-weight: 800; color: #F8FAFF; margin: 0; letter-spacing: -0.02em; }
-    .kpi-live { font-size: 9px; color: #00FFB2; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
-
-    .icon-btn {
-      width: 34px; height: 34px; border-radius: 12px; background: #12162B;
-      border: 1px solid rgba(139,92,255,0.28); color: #A8B3CF;
-      display: flex; align-items: center; justify-content: center;
-      text-decoration: none; cursor: pointer; flex-shrink: 0;
-    }
-    .branch-chip {
-      display: flex; align-items: center; gap: 6px; background: #12162B;
-      border: 1px solid rgba(139,92,255,0.35); padding: 6px 10px; border-radius: 12px;
-      font-size: 11px; color: #B07CFF; font-weight: 600; max-width: 140px;
-    }
-    .branch-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #ai-float:active { cursor: grabbing; }
+    #ai-float i { font-size: 22px; color: #fff; pointer-events: none; }
+    #ai-float.dragging { box-shadow: 0 0 28px rgba(139, 92, 255, 0.8); }
 
     .bottom-nav {
       position: fixed;
       left: 0; right: 0; bottom: 0;
       z-index: 40;
       height: calc(64px + env(safe-area-inset-bottom, 0px));
-      padding: 0 16px env(safe-area-inset-bottom, 0px);
-      background: rgba(8,10,20,0.98);
-      border-top: 1px solid rgba(139,92,255,0.22);
+      padding: 0 8px env(safe-area-inset-bottom, 0px);
+      background: rgba(11, 14, 29, 0.95);
+      border-top: 1px solid #23294E;
       display: flex;
       align-items: center;
       justify-content: space-between;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      transform: translateZ(0);
-      will-change: transform;
-      -webkit-transform: translateZ(0);
     }
     .nav-item {
       display: flex; flex-direction: column; align-items: center; gap: 2px;
-      color: #8A93B2; text-decoration: none; font-size: 9px;
-      min-width: 48px; padding: 6px 4px;
+      color: #8A93B2; text-decoration: none; font-size: 10px; font-weight: 500;
+      min-width: 56px; padding: 6px 4px; transition: color 0.2s;
     }
     .nav-item.active { color: #B07CFF; }
-    .fab-plus {
-      position: relative; top: -16px;
-      width: 52px; height: 52px; border-radius: 999px;
-      border: 3px solid #05060B;
-      background: linear-gradient(135deg, #5B3DFF, #8B5CFF);
-      color: #fff; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; box-shadow: 0 0 20px rgba(139,92,255,0.55);
-      flex-shrink: 0;
-    }
-    .hidden { display: none !important; }
+    .nav-item i { font-size: 16px; margin-bottom: 2px; }
 
-    .status-banner {
-      border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    /* Theme Day */
+    body.theme-day {
+      background: #F4F6FB !important;
+      color: #0F172A !important;
     }
-    .status-banner.verify {
-      background: linear-gradient(135deg, rgba(108,92,231,0.18), rgba(79,70,229,0.12));
-      border: 1px solid rgba(139,92,255,0.35);
+    body.theme-day .glow-card,
+    body.theme-day .glow-card-green,
+    body.theme-day .glow-card-purple,
+    body.theme-day .glow-card-amber,
+    body.theme-day .glow-card-pink {
+      background: #FFFFFF !important;
+      border-color: rgba(108, 92, 231, 0.22) !important;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06) !important;
     }
-    .status-banner.trial {
-      background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(139,92,255,0.1));
-      border: 1px solid rgba(255,215,0,0.4);
+    body.theme-day .text-white { color: #0F172A !important; }
+    body.theme-day .text-gray-300, body.theme-day .text-gray-400 { color: #64748B !important; }
+    body.theme-day .bottom-nav {
+      background: rgba(255,255,255,0.98) !important;
+      border-color: #E2E8F0 !important;
     }
-    .status-banner.trial.urgent {
-      background: linear-gradient(135deg, rgba(255,90,122,0.18), rgba(255,90,122,0.08));
-      border: 1px solid rgba(255,90,122,0.45);
-    }
-    .status-banner .banner-btn {
-      flex-shrink: 0; padding: 8px 12px; border-radius: 10px; border: none;
-      font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-    }
-    .banner-btn.purple { background: linear-gradient(135deg,#5B3DFF,#8B5CFF); color: #fff; }
-    .banner-btn.gold { background: linear-gradient(135deg,#FFD54A,#F59E0B); color: #1a1a2e; }
+    body.theme-day .nav-item { color: #64748B !important; }
+    body.theme-day .nav-item.active { color: #6C5CE7 !important; }
+    body.theme-day .led-clock { color: #059669; text-shadow: none; }
+    body.theme-day #ai-float { border-color: rgba(0,0,0,0.08); }
+
+    .hidden { display: none !important; }
 
     #action-sheet {
       position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 50;
@@ -213,11 +170,7 @@
       transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
     }
     #action-sheet.open #action-sheet-content { transform: translateY(0); }
-    .action-tile {
-      background: #131832; border: 1px solid rgba(139,92,255,0.22); border-radius: 16px;
-      padding: 14px; text-align: center; text-decoration: none; color: #F8FAFF;
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-    }
+    body.theme-day #action-sheet-content { background: #FFFFFF; }
 
     #debt-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 60;
@@ -228,139 +181,141 @@
       border: 1px solid rgba(139,92,255,0.35); border-radius: 24px; padding: 20px;
       max-height: 90vh; overflow-y: auto;
     }
+    body.theme-day .modal-panel { background: #FFFFFF; border-color: #E2E8F0; }
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 10px; color: #A8B3CF; margin-bottom: 4px; }
+    body.theme-day .field label { color: #64748B; }
     .field input {
       width: 100%; background: #131832; border: 1px solid rgba(139,92,255,0.25);
       border-radius: 12px; padding: 10px 12px; font-size: 12px; color: #fff; outline: none;
     }
+    body.theme-day .field input { background: #F8FAFC; border-color: #E2E8F0; color: #0F172A; }
     .btn-primary {
       width: 100%; padding: 12px; border: none; border-radius: 12px;
       background: linear-gradient(135deg, #5B3DFF, #8B5CFF); color: #fff;
       font-weight: 700; font-size: 12px; cursor: pointer;
     }
-    a.neon-card { text-decoration: none; color: inherit; display: block; }
 
-    .prod-thumb {
-      width: 36px; height: 36px; border-radius: 10px; object-fit: cover;
-      background: #1a1f38; border: 1px solid rgba(139,92,255,0.25); flex-shrink: 0;
+    @keyframes breathe-red {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(255,90,122,0.55), 0 0 14px rgba(255,90,122,0.35); }
+      50% { box-shadow: 0 0 0 1px rgba(255,90,122,0.9), 0 0 22px rgba(255,90,122,0.55); }
     }
-    .prod-thumb-ph {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: rgba(139,92,255,0.15); color: #B07CFF;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; flex-shrink: 0; border: 1px solid rgba(139,92,255,0.25);
+    @keyframes breathe-amber {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(255,213,74,0.5), 0 0 12px rgba(255,213,74,0.3); }
+      50% { box-shadow: 0 0 0 1px rgba(255,213,74,0.85), 0 0 20px rgba(255,213,74,0.5); }
     }
+    .alert-breathing-red { animation: breathe-red 1.8s ease-in-out infinite; }
+    .alert-breathing-amber { animation: breathe-amber 1.8s ease-in-out infinite; }
 
-    body.theme-day { background: #F4F6FB !important; color: #0F172A !important; }
-    body.theme-day .iphone-frame { background: #F4F6FB !important; }
-    body.theme-day .top-bar, body.theme-day .bottom-nav {
-      background: rgba(255,255,255,0.98) !important; border-color: #E2E8F0 !important;
+    .status-banner {
+      border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
     }
-    body.theme-day .neon-card:not(.alert-breathing-red):not(.alert-breathing-amber),
-    body.theme-day .neon-card-elevated:not(.alert-breathing-red):not(.alert-breathing-amber),
-    body.theme-day .modal-panel, body.theme-day #action-sheet-content {
-      background: #FFFFFF !important;
-      border-color: rgba(108,92,231,0.22) !important;
-      box-shadow: 0 2px 12px rgba(15,23,42,0.06) !important;
+    .status-banner.verify {
+      background: linear-gradient(135deg, rgba(108,92,231,0.18), rgba(79,70,229,0.12));
+      border: 1px solid rgba(139,92,255,0.35);
     }
-    body.theme-day .alert-breathing-red {
-      background: #FFFFFF !important; border-color: rgba(255,90,122,0.65) !important;
-      animation: breathe-red-day 1.8s ease-in-out infinite !important;
+    .status-banner.trial {
+      background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(139,92,255,0.1));
+      border: 1px solid rgba(255,215,0,0.4);
     }
-    body.theme-day .alert-breathing-amber {
-      background: #FFFFFF !important; border-color: rgba(255,180,0,0.65) !important;
-      animation: breathe-amber-day 1.8s ease-in-out infinite !important;
+    .status-banner.trial.urgent {
+      background: linear-gradient(135deg, rgba(255,90,122,0.18), rgba(255,90,122,0.08));
+      border: 1px solid rgba(255,90,122,0.45);
     }
-    body.theme-day .text-main, body.theme-day .kpi-value { color: #0F172A !important; }
-    body.theme-day .text-sec, body.theme-day .text-muted, body.theme-day .kpi-label { color: #64748B !important; }
-    body.theme-day .top-bar span, body.theme-day .top-bar .text-main, body.theme-day .brand-title { color: #0F172A !important; }
-    body.theme-day .icon-btn, body.theme-day .branch-chip {
-      background: #F1F5F9 !important; border-color: #E2E8F0 !important; color: #475569 !important;
+    .banner-btn {
+      flex-shrink: 0; padding: 8px 12px; border-radius: 10px; border: none;
+      font-size: 11px; font-weight: 700; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
     }
-    body.theme-day .branch-chip { color: #6C5CE7 !important; }
-    body.theme-day .nav-item { color: #64748B !important; }
-    body.theme-day .nav-item.active { color: #6C5CE7 !important; }
-    body.theme-day .field input {
-      background: #F8FAFC !important; border-color: #E2E8F0 !important; color: #0F172A !important;
-    }
-    body.theme-day .action-tile {
-      background: #F8FAFC !important; border-color: #E2E8F0 !important; color: #0F172A !important;
-    }
-    body.theme-day .fab-plus { border-color: #F4F6FB !important; }
-    body.theme-day .prod-thumb-ph { background: #EDE9FE; color: #6C5CE7; }
+    .banner-btn.purple { background: linear-gradient(135deg,#5B3DFF,#8B5CFF); color: #fff; }
+    .banner-btn.gold { background: linear-gradient(135deg,#FFD54A,#F59E0B); color: #1a1a2e; }
 
-    body.text-small .kpi-label { font-size: 9px; }
-    body.text-small .kpi-value { font-size: 12px; }
-    body.text-small .nav-item { font-size: 8px; }
-    body.text-medium .kpi-label { font-size: 10px; }
-    body.text-medium .kpi-value { font-size: 13px; }
-    body.text-medium .nav-item { font-size: 9px; }
-    body.text-large .kpi-label { font-size: 12px; }
-    body.text-large .kpi-value { font-size: 15px; }
-    body.text-large .nav-item { font-size: 10px; }
-    body.text-xlarge .kpi-label { font-size: 13px; }
-    body.text-xlarge .kpi-value { font-size: 17px; }
-    body.text-xlarge .nav-item { font-size: 11px; }
+    #subscription-lock {
+      position: fixed; inset: 0; background: rgba(5,6,11,0.97); z-index: 100;
+      display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center;
+    }
   </style>
 </head>
 <body>
-  <div class="iphone-frame">
-    <div id="subscription-lock" class="hidden" style="position:fixed;inset:0;background:rgba(5,6,11,0.97);z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;">
-      <div style="background:#101326;border:1px solid rgba(139,92,255,0.4);border-radius:24px;padding:28px 22px;max-width:320px;width:100%;">
-        <div style="width:64px;height:64px;border-radius:20px;background:rgba(255,90,122,0.15);border:1px solid rgba(255,90,122,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-          <i class="fa-solid fa-lock" style="font-size:26px;color:#FF5A7A;"></i>
+  <!-- Subscription Lock -->
+  <div id="subscription-lock" class="hidden">
+    <div style="background:#101326;border:1px solid rgba(139,92,255,0.4);border-radius:24px;padding:28px 22px;max-width:320px;width:100%;">
+      <div style="width:64px;height:64px;border-radius:20px;background:rgba(255,90,122,0.15);border:1px solid rgba(255,90,122,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <i class="fa-solid fa-lock" style="font-size:26px;color:#FF5A7A;"></i>
+      </div>
+      <h2 style="margin:0 0 8px;font-size:18px;font-weight:800;color:#fff;">Trial Ended</h2>
+      <p style="margin:0 0 6px;font-size:12px;color:#A8B3CF;">Your 14-day free trial has expired.</p>
+      <p style="margin:0 0 20px;font-size:12px;color:#7C88A5;">Subscribe to continue using Quantum OPS Elite.</p>
+      <a href="upgrade.html" class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px;">
+        <i class="fa-solid fa-crown" style="margin-right:6px;"></i> Upgrade Now
+      </a>
+      <button type="button" onclick="handleLogout()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,90,122,0.35);background:transparent;color:#FF5A7A;font-size:12px;font-weight:600;cursor:pointer;">Log Out</button>
+    </div>
+  </div>
+
+  <!-- Main Frame -->
+  <div class="w-full h-full flex flex-col relative" style="padding-top: env(safe-area-inset-top, 0px); padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));">
+
+    <!-- Top Bar (no network bar) -->
+    <div class="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 p-0.5 shadow-lg shadow-purple-500/20 flex items-center justify-center">
+          <div class="w-full h-full bg-[#0d1021] rounded-[14px] flex items-center justify-center">
+            <i class="fa-solid fa-cube text-indigo-400 text-base"></i>
+          </div>
         </div>
-        <h2 style="margin:0 0 8px;font-size:18px;font-weight:800;color:#fff;">Trial Ended</h2>
-        <p style="margin:0 0 6px;font-size:12px;color:#A8B3CF;">Your 14-day free trial has expired.</p>
-        <p style="margin:0 0 20px;font-size:12px;color:#7C88A5;">Subscribe to continue using Quantum OPS Elite.</p>
-        <a href="upgrade.html" class="btn-primary" style="display:block;text-align:center;text-decoration:none;margin-bottom:10px;">
-          <i class="fa-solid fa-crown" style="margin-right:6px;"></i> Upgrade Now
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="text-white font-bold tracking-wide text-base">Quantum <span class="text-purple-400">OPS</span></span>
+          </div>
+          <span class="text-[11px] text-purple-300 font-medium tracking-widest uppercase">Elite</span>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- LED Clock -->
+        <div class="led-clock" id="led-clock">--:--:--</div>
+
+        <div class="relative cursor-pointer" onclick="window.location.href='notifications.html'">
+          <div class="w-10 h-10 rounded-full bg-[#151932] border border-[#23294E] flex items-center justify-center text-gray-300 hover:text-white transition">
+            <i class="fa-regular fa-bell text-sm"></i>
+          </div>
+          <span id="notif-badge" class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-darkBg shadow-md hidden">0</span>
+        </div>
+
+        <a href="profile.html" class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 p-0.5 cursor-pointer shadow-md block">
+          <div class="w-full h-full bg-[#121528] rounded-full flex items-center justify-center overflow-hidden">
+            <span id="user-avatar-initial" class="text-sm font-bold text-purple-300">C</span>
+            <img id="user-avatar-logo" src="" style="width:100%;height:100%;object-fit:cover;display:none;" alt="">
+          </div>
         </a>
-        <button type="button" onclick="handleLogout()" style="width:100%;padding:11px;border-radius:12px;border:1px solid rgba(255,90,122,0.35);background:transparent;color:#FF5A7A;font-size:12px;font-weight:600;cursor:pointer;">Log Out</button>
       </div>
     </div>
 
-    <div class="top-bar">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-        <button type="button" onclick="toggleActionSheet()" class="icon-btn" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
-        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,255,0.25);border:1px solid rgba(139,92,255,0.45);display:flex;align-items:center;justify-content:center;color:#B07CFF;font-weight:800;font-size:11px;flex-shrink:0;">Q</div>
-          <span class="brand-title" style="font-weight:800;font-size:11px;color:#fff;white-space:nowrap;">QUANTUM OPS <span style="font-size:8px;color:#B07CFF;border:1px solid rgba(139,92,255,0.4);padding:1px 5px;border-radius:4px;">ELITE</span></span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-        <button type="button" onclick="enableNotifications()" class="icon-btn" title="Enable Notifications"><i class="fa-solid fa-bell" style="font-size:12px;"></i></button>
-        <a href="ai-ceo.html" class="icon-btn"><i class="fa-solid fa-robot" style="color:#B07CFF;font-size:12px;"></i></a>
-        <a href="notifications.html" class="icon-btn" style="position:relative;">
-          <i class="fa-regular fa-bell" style="font-size:12px;"></i>
-          <span id="notif-badge" class="hidden" style="position:absolute;top:-4px;right:-4px;min-width:14px;height:14px;padding:0 3px;background:#FF5A7A;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;">0</span>
-        </a>
-        <a href="profile.html" style="width:32px;height:32px;border-radius:999px;overflow:hidden;border:1px solid rgba(139,92,255,0.4);background:#12162B;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#B07CFF;text-decoration:none;flex-shrink:0;">
-          <span id="user-avatar-initial">C</span>
-          <img id="user-avatar-logo" src="" style="width:100%;height:100%;object-fit:cover;display:none;" alt="">
-        </a>
-      </div>
-    </div>
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto custom-scroll px-4 pt-1 pb-4">
 
-    <div class="main-scroll custom-scrollbar">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:8px;">
-        <div style="min-width:0;">
-          <h1 class="text-main" style="margin:0;font-size:16px;font-weight:800;" id="greeting-title">Good day 👋</h1>
-          <p class="text-sec" style="margin:4px 0 0;font-size:11px;">Here's what's happening with your business today.</p>
+      <!-- Greeting + Date -->
+      <div class="mb-5 flex items-start justify-between">
+        <div>
+          <p class="text-gray-400 text-xs font-normal mb-0.5" id="greeting-label">Good morning,</p>
+          <h2 class="text-white text-lg font-bold flex items-center space-x-1.5">
+            <span id="business-name">My Business</span>
+            <span class="text-sm">👑</span>
+          </h2>
+          <p class="text-gray-400 text-xs mt-0.5">Here's what's happening with your business today.</p>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-          <div class="branch-chip">
-            <i class="fa-solid fa-store" style="font-size:10px;"></i>
-            <span id="current-branch-name">My Business</span>
-            <i id="profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:11px;"></i>
+        <div class="bg-[#141830] border border-[#23294E] rounded-2xl px-3 py-2 text-right shrink-0 shadow-sm">
+          <div class="flex items-center space-x-1.5 text-indigo-400 text-xs font-semibold mb-0.5 justify-end">
+            <i class="fa-regular fa-calendar text-[11px]"></i>
+            <span id="date-display">—</span>
           </div>
-          <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">
-            <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
-          </div>
+          <p class="text-[10px] text-gray-400" id="day-display">—</p>
         </div>
       </div>
 
+      <!-- Banners -->
       <div id="profile-verify-banner" class="status-banner verify hidden">
         <div style="min-width:0;">
           <div style="font-size:12px;font-weight:700;color:#C4B5FD;margin-bottom:3px;"><i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i>Verify Your Business Profile</div>
@@ -377,212 +332,308 @@
         <a href="upgrade.html" class="banner-btn gold">Subscribe</a>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
-        <a href="transactions.html?view=sales" class="neon-card">
-          <p class="kpi-label">Total Sales (Today)</p>
-          <h3 class="kpi-value" id="val-today-sales">—</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+      <!-- 4 KPI Cards -->
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <!-- Today's Sales -->
+        <a href="transactions.html?view=sales" class="glow-card-green rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-gray-300">Today's Sales</span>
+            <div class="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <i class="fa-solid fa-wallet text-xs"></i>
+            </div>
+          </div>
+          <h3 class="text-white text-lg font-bold tracking-tight mb-1" id="val-today-sales">—</h3>
+          <div class="flex items-center space-x-1 text-emerald-400 text-[11px] font-semibold">
+            <i class="fa-solid fa-arrow-up text-[9px]"></i>
+            <span>Live</span>
+          </div>
         </a>
-        <a href="transactions.html?view=profit" class="neon-card">
-          <p class="kpi-label">Gross Profit (Today)</p>
-          <h3 class="kpi-value" id="val-today-profit">—</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+
+        <!-- Today's Profit -->
+        <a href="transactions.html?view=profit" class="glow-card-purple rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-gray-300">Today's Profit</span>
+            <div class="w-7 h-7 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+              <i class="fa-solid fa-chart-line text-xs"></i>
+            </div>
+          </div>
+          <h3 class="text-white text-lg font-bold tracking-tight mb-1" id="val-today-profit">—</h3>
+          <div class="flex items-center space-x-1 text-emerald-400 text-[11px] font-semibold">
+            <i class="fa-solid fa-arrow-up text-[9px]"></i>
+            <span>Live</span>
+          </div>
         </a>
-        <a href="transactions.html?view=transactions" class="neon-card">
-          <p class="kpi-label">Transactions</p>
-          <h3 class="kpi-value" id="val-transactions">0</h3>
-          <div class="kpi-live"><i class="fa-solid fa-arrow-trend-up" style="font-size:8px;"></i> Live</div>
+
+        <!-- Today's Expenses -->
+        <a href="expenses.html" id="card-expenses" class="glow-card-amber rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-gray-300">Today's Expenses</span>
+            <div class="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+              <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
+            </div>
+          </div>
+          <h3 class="text-white text-lg font-bold tracking-tight mb-1" id="val-today-expenses">—</h3>
+          <div class="flex items-center space-x-1 text-emerald-400 text-[11px] font-semibold">
+            <span class="text-gray-400 font-normal text-[10px]">Operating costs</span>
+          </div>
+        </a>
+
+        <!-- Outstanding Debt -->
+        <a href="debtors.html" id="card-outstanding-debt" class="glow-card-pink rounded-2xl p-3.5 relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition duration-200 block">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-medium text-gray-300">Outstanding Debt</span>
+            <div class="w-7 h-7 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center">
+              <i class="fa-solid fa-user-group text-xs"></i>
+            </div>
+          </div>
+          <h3 class="text-white text-lg font-bold tracking-tight mb-1" id="val-outstanding-debt">—</h3>
+          <div class="flex items-center space-x-1 text-red-400 text-[11px] font-semibold">
+            <span class="text-gray-400 font-normal text-[10px]" id="val-debt-customers">0 Customers</span>
+          </div>
         </a>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-        <a href="expenses.html" id="card-expenses" class="neon-card">
-          <p class="kpi-label">Expenses (Today)</p>
-          <h3 class="kpi-value text-loss" id="val-today-expenses">—</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Operating costs</p>
-        </a>
-        <div class="neon-card">
-          <p class="kpi-label">Net Profit (Today)</p>
-          <h3 class="kpi-value text-success" id="val-net-profit">—</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">After expenses</p>
+      <!-- Quick Actions -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-white text-sm font-bold tracking-wide">Quick Actions</h3>
+          <button onclick="toggleActionSheet()" class="text-indigo-400 text-xs font-semibold hover:text-indigo-300 flex items-center space-x-1">
+            <span>See all</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2.5">
+          <a href="pos.html" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer hover:border-emerald-500/50 transition group">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+              <i class="fa-solid fa-plus text-sm font-bold"></i>
+            </div>
+            <span class="text-white text-xs font-semibold mb-0.5">New Sale</span>
+            <span class="text-[10px] text-gray-400 leading-tight">Process a sale</span>
+          </a>
+
+          <a href="inventory.html" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer hover:border-purple-500/50 transition group">
+            <div class="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+              <i class="fa-solid fa-box text-sm"></i>
+            </div>
+            <span class="text-white text-xs font-semibold mb-0.5">Add Product</span>
+            <span class="text-[10px] text-gray-400 leading-tight">New inventory</span>
+          </a>
+
+          <a href="expenses.html" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer hover:border-amber-500/50 transition group">
+            <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+              <i class="fa-solid fa-wallet text-sm"></i>
+            </div>
+            <span class="text-white text-xs font-semibold mb-0.5">Add Expense</span>
+            <span class="text-[10px] text-gray-400 leading-tight">Record expense</span>
+          </a>
+
+          <button type="button" onclick="openAddDebtModal()" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500/50 transition group" style="background:none;border:none;font-family:inherit;">
+            <div class="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+              <i class="fa-solid fa-file-lines text-sm"></i>
+            </div>
+            <span class="text-white text-xs font-semibold mb-0.5">Record Debt</span>
+            <span class="text-[10px] text-gray-400 leading-tight">Track debt</span>
+          </button>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
-        <a href="debtors.html" id="card-outstanding-debt" class="neon-card">
-          <p class="kpi-label">Outstanding Debt</p>
-          <h3 class="kpi-value text-loss" id="val-outstanding-debt">—</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;" id="val-debt-customers">0 Customers</p>
-        </a>
-        <a href="inventory.html" id="card-low-stock" class="neon-card">
-          <p class="kpi-label">Low Stock Alerts</p>
-          <h3 class="kpi-value text-warn" id="val-low-stock">0 Items</h3>
-          <p class="text-muted" style="margin:4px 0 0;font-size:9px;">Need attention</p>
-        </a>
-        <div class="neon-card">
-          <p class="kpi-label">Business Health</p>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
-            <i class="fa-solid fa-shield-halved text-cyan" style="font-size:14px;"></i>
-            <span class="kpi-value text-cyan" id="val-business-health" style="font-size:13px;">100%</span>
+      <!-- Business Alerts -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-2">
+            <h3 class="text-white text-sm font-bold tracking-wide">Business Alerts</h3>
+            <span class="w-5 h-5 bg-red-500/20 text-red-400 text-[10px] font-bold rounded-full flex items-center justify-center border border-red-500/30" id="alert-count">0</span>
+          </div>
+          <a href="notifications.html" class="text-indigo-400 text-xs font-semibold hover:text-indigo-300 flex items-center space-x-1">
+            <span>View all</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </a>
+        </div>
+
+        <div class="glow-card rounded-2xl p-2 divide-y divide-[#23294E]/60 space-y-1">
+          <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition" onclick="window.location.href='inventory.html'">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-box text-xs"></i>
+              </div>
+              <div>
+                <h4 class="text-white text-xs font-semibold mb-0.5">Low Stock Alert</h4>
+                <p class="text-[11px] text-gray-400 leading-snug" id="alert-low-stock">—</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition pt-3" onclick="window.location.href='debtors.html'">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-user-group text-xs"></i>
+              </div>
+              <div>
+                <h4 class="text-white text-xs font-semibold mb-0.5">Outstanding Debts</h4>
+                <p class="text-[11px] text-gray-400 leading-snug" id="alert-debt">—</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition pt-3" onclick="window.location.href='notifications.html'">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-circle-info text-xs"></i>
+              </div>
+              <div>
+                <h4 class="text-white text-xs font-semibold mb-0.5">New Notification</h4>
+                <p class="text-[11px] text-gray-400 leading-snug" id="alert-notif">You have 0 unread messages</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
           </div>
         </div>
       </div>
 
-      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <!-- Bottom Stats -->
+      <div class="glow-card rounded-2xl p-3.5 mb-4 grid grid-cols-4 gap-1 text-center divide-x divide-[#23294E]">
+        <div>
+          <div class="flex justify-center mb-1 text-blue-400">
+            <i class="fa-solid fa-users text-xs"></i>
+          </div>
+          <h4 class="text-white text-sm font-bold" id="val-customers">0</h4>
+          <span class="text-[10px] text-gray-400">Customers</span>
+        </div>
+        <div>
+          <div class="flex justify-center mb-1 text-amber-400">
+            <i class="fa-solid fa-cubes text-xs"></i>
+          </div>
+          <h4 class="text-white text-sm font-bold" id="val-low-stock">0</h4>
+          <span class="text-[10px] text-gray-400">Low Stock</span>
+        </div>
+        <div>
+          <div class="flex justify-center mb-1 text-emerald-400">
+            <i class="fa-solid fa-shield-halved text-xs"></i>
+          </div>
+          <h4 class="text-white text-sm font-bold" id="val-business-health">100%</h4>
+          <span class="text-[10px] text-gray-400">Health</span>
+        </div>
+        <div>
+          <div class="flex justify-center mb-1 text-purple-400">
+            <i class="fa-solid fa-crown text-xs"></i>
+          </div>
+          <h4 class="text-white text-sm font-bold" id="val-plan">Elite</h4>
+          <span class="text-[10px] text-gray-400">Active Plan</span>
+        </div>
+      </div>
+
+      <!-- Sales Overview Chart -->
+      <div class="glow-card rounded-2xl p-4 mb-4">
+        <div class="flex justify-between items-center mb-3">
           <div>
-            <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Sales Overview</h4>
-            <h3 class="text-main" style="margin:4px 0 0;font-size:14px;font-weight:800;" id="val-weekly-total">—</h3>
+            <h4 class="text-gray-400 text-xs font-semibold">Sales Overview</h4>
+            <h3 class="text-white text-sm font-bold mt-1" id="val-weekly-total">—</h3>
           </div>
-          <span style="font-size:10px;background:rgba(139,92,255,0.2);color:#B07CFF;padding:4px 10px;border-radius:999px;border:1px solid rgba(139,92,255,0.35);font-weight:600;">All Time</span>
+          <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2.5 py-1 rounded-full border border-purple-500/30 font-semibold">Last 7 Days</span>
         </div>
         <div style="height:140px;width:100%;position:relative;">
           <canvas id="salesOverviewChart"></canvas>
         </div>
       </div>
 
-      <!-- INSTANT CACHE PAINT #1: KPIs + branch name (elements already in DOM) -->
-      <script>
-      (function () {
-        try {
-          var raw = localStorage.getItem("quantum_dash_cache_v4");
-          if (!raw) return;
-          var cache = JSON.parse(raw);
-          window.__quantumDashCacheBoot = cache;
-          var sym = cache.symbol || "₦";
-          function fmt(n) {
-            n = Number(n || 0);
-            try {
-              if (cache.currency && cache.currency.length === 3) {
-                return new Intl.NumberFormat(undefined, {
-                  style: "currency",
-                  currency: cache.currency,
-                  maximumFractionDigits: 0,
-                  minimumFractionDigits: 0
-                }).format(n);
-              }
-            } catch (e) {}
-            return sym + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
-          }
-          function set(id, v) {
-            var el = document.getElementById(id);
-            if (el) el.textContent = v;
-          }
-          if (cache.companyName) set("current-branch-name", cache.companyName);
-          if (cache.todaySales != null) set("val-today-sales", fmt(cache.todaySales));
-          if (cache.todayProfit != null) set("val-today-profit", fmt(cache.todayProfit));
-          if (cache.todayCount != null) set("val-transactions", String(cache.todayCount));
-          if (cache.todayExpenses != null) set("val-today-expenses", fmt(cache.todayExpenses));
-          if (cache.netProfit != null) {
-            var netEl = document.getElementById("val-net-profit");
-            if (netEl) {
-              netEl.textContent = fmt(cache.netProfit);
-              netEl.className = "kpi-value " + (cache.netProfit >= 0 ? "text-success" : "text-loss");
-            }
-          }
-          if (cache.outstandingDebt != null) set("val-outstanding-debt", fmt(cache.outstandingDebt));
-          if (cache.debtCustomers != null) set("val-debt-customers", cache.debtCustomers + " Customers");
-          if (cache.lowStock != null) set("val-low-stock", cache.lowStock + " Items");
-          if (cache.businessHealth != null) set("val-business-health", cache.businessHealth);
-          if (cache.weeklyTotal != null) set("val-weekly-total", fmt(cache.weeklyTotal));
-          var debtCard = document.getElementById("card-outstanding-debt");
-          if (debtCard) {
-            if (cache.outstandingDebt > 0) debtCard.classList.add("alert-breathing-red");
-            else debtCard.classList.remove("alert-breathing-red");
-          }
-          var lowCard = document.getElementById("card-low-stock");
-          if (lowCard) {
-            if (cache.lowStock > 0) lowCard.classList.add("alert-breathing-amber");
-            else lowCard.classList.remove("alert-breathing-amber");
-          }
-          var expCard = document.getElementById("card-expenses");
-          if (expCard && cache.todayExpenses != null) {
-            var tooHigh = cache.todayExpenses > 0 && (
-              cache.todayExpenses >= (cache.todayProfit || 0) ||
-              ((cache.todaySales || 0) > 0 && cache.todayExpenses > (cache.todaySales || 0) * 0.35)
-            );
-            if (tooHigh) expCard.classList.add("alert-breathing-red");
-            else expCard.classList.remove("alert-breathing-red");
-          }
-        } catch (e) {}
-      })();
-      </script>
-
-      <div class="neon-card neon-card-elevated" style="margin-bottom:12px;padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Top Selling Products</h4>
-          <a href="inventory.html" class="text-purple" style="font-size:10px;font-weight:600;text-decoration:none;">View all</a>
+      <!-- Top Products -->
+      <div class="glow-card rounded-2xl p-4 mb-4">
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="text-gray-400 text-xs font-semibold">Top Selling Products</h4>
+          <a href="inventory.html" class="text-purple-400 text-xs font-semibold">View all</a>
         </div>
-        <div id="top-products-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">—</div>
+        <div id="top-products-list" class="text-xs">
+          <div class="text-gray-500 text-center py-3">—</div>
         </div>
       </div>
 
-      <div class="neon-card neon-card-elevated" style="padding:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <h4 class="text-sec" style="margin:0;font-size:11px;font-weight:600;">Recent Activities</h4>
-          <span class="text-purple" style="font-size:10px;font-weight:600;">Live Feed</span>
+      <!-- Recent Activities -->
+      <div class="glow-card rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-3">
+          <h4 class="text-gray-400 text-xs font-semibold">Recent Activities</h4>
+          <span class="text-purple-400 text-xs font-semibold">Live Feed</span>
         </div>
-        <div id="recent-activities-list" style="font-size:11px;">
-          <div class="text-muted" style="text-align:center;padding:8px 0;">—</div>
+        <div id="recent-activities-list" class="text-xs">
+          <div class="text-gray-500 text-center py-3">—</div>
         </div>
       </div>
-
-      <!-- INSTANT CACHE PAINT #2: lists (elements now exist in DOM) -->
-      <script>
-      (function () {
-        try {
-          var cache = window.__quantumDashCacheBoot;
-          if (!cache) {
-            var raw = localStorage.getItem("quantum_dash_cache_v4");
-            if (!raw) return;
-            cache = JSON.parse(raw);
-            window.__quantumDashCacheBoot = cache;
-          }
-          if (cache.topProductsHtml) {
-            var tp = document.getElementById("top-products-list");
-            if (tp) tp.innerHTML = cache.topProductsHtml;
-          }
-          if (cache.recentHtml) {
-            var ra = document.getElementById("recent-activities-list");
-            if (ra) ra.innerHTML = cache.recentHtml;
-          }
-        } catch (e) {}
-      })();
-      </script>
     </div>
-
-    <nav class="bottom-nav">
-      <a href="dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
-      <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i>Inventory</a>
-      <button type="button" onclick="toggleActionSheet()" class="fab-plus" aria-label="Quick actions"><i class="fa-solid fa-plus"></i></button>
-      <a href="pos.html" class="nav-item"><i class="fa-solid fa-cash-register"></i>POS Sales</a>
-      <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i>Profile</a>
-    </nav>
   </div>
 
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="dashboard.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Dashboard</span>
+    </a>
+    <a href="transactions.html" class="nav-item">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span>Sales</span>
+    </a>
+    <a href="inventory.html" class="nav-item">
+      <i class="fa-solid fa-box-archive"></i>
+      <span>Inventory</span>
+    </a>
+    <a href="expenses.html" class="nav-item">
+      <i class="fa-solid fa-wallet"></i>
+      <span>Expenses</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <i class="fa-solid fa-grip"></i>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- Floating AI Button (draggable) -->
+  <div id="ai-float" title="AI CEO">
+    <i class="fa-solid fa-robot"></i>
+  </div>
+
+  <!-- Action Sheet -->
   <div id="action-sheet">
     <div id="action-sheet-content">
       <div style="width:40px;height:4px;background:#2A3050;border-radius:4px;margin:0 auto 16px;"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;">Quick Business Actions</h3>
+        <h3 class="text-white text-sm font-bold">Quick Business Actions</h3>
         <button type="button" onclick="toggleActionSheet()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-        <a href="pos.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(139,92,255,0.2);color:#B07CFF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-cash-register"></i></div><span style="font-size:11px;">New Sale</span></a>
-        <button type="button" onclick="openAddDebtModal()" class="action-tile" style="cursor:pointer;font-family:inherit;"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-invoice-dollar"></i></div><span style="font-size:11px;">Add Debt</span></button>
-        <a href="inventory.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(34,245,160,0.12);color:#22F5A0;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-boxes-stacked"></i></div><span style="font-size:11px;">Inventory</span></a>
-        <a href="expenses.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-money-bill-wave"></i></div><span style="font-size:11px;">Expenses</span></a>
-        <a href="ai-ceo.html" class="action-tile"><div style="width:40px;height:40px;border-radius:12px;background:rgba(46,168,255,0.15);color:#5CC8FF;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-robot"></i></div><span style="font-size:11px;">AI CEO</span></a>
-        <button type="button" onclick="handleLogout()" class="action-tile" style="cursor:pointer;font-family:inherit;"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,90,122,0.15);color:#FF5A7A;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-right-from-bracket"></i></div><span style="font-size:11px;color:#FF5A7A;">Log Out</span></button>
+        <a href="pos.html" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center" style="text-decoration:none;">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-2"><i class="fa-solid fa-cash-register"></i></div>
+          <span class="text-white text-xs font-semibold">New Sale</span>
+        </a>
+        <button type="button" onclick="openAddDebtModal()" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center" style="cursor:pointer;font-family:inherit;background:none;border:none;">
+          <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center mb-2"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          <span class="text-white text-xs font-semibold">Add Debt</span>
+        </button>
+        <a href="inventory.html" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center" style="text-decoration:none;">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2"><i class="fa-solid fa-boxes-stacked"></i></div>
+          <span class="text-white text-xs font-semibold">Inventory</span>
+        </a>
+        <a href="expenses.html" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center" style="text-decoration:none;">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-2"><i class="fa-solid fa-money-bill-wave"></i></div>
+          <span class="text-white text-xs font-semibold">Expenses</span>
+        </a>
+        <a href="ai-ceo.html" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center" style="text-decoration:none;">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-2"><i class="fa-solid fa-robot"></i></div>
+          <span class="text-white text-xs font-semibold">AI CEO</span>
+        </a>
+        <button type="button" onclick="handleLogout()" class="glow-card rounded-2xl p-3 flex flex-col items-center justify-center text-center" style="cursor:pointer;font-family:inherit;background:none;border:none;">
+          <div class="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center mb-2"><i class="fa-solid fa-right-from-bracket"></i></div>
+          <span class="text-red-400 text-xs font-semibold">Log Out</span>
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- Debt Modal -->
   <div id="debt-modal" class="hidden">
     <div class="modal-panel">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <h3 class="text-main" style="margin:0;font-size:13px;font-weight:800;"><i class="fa-solid fa-file-invoice-dollar text-loss" style="margin-right:8px;"></i>Record New Debt</h3>
+        <h3 class="text-white text-sm font-bold"><i class="fa-solid fa-file-invoice-dollar text-red-400" style="margin-right:8px;"></i>Record New Debt</h3>
         <button type="button" onclick="closeAddDebtModal()" style="background:none;border:none;color:#A8B3CF;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="field"><label>Customer Name *</label><input type="text" id="debt-customer" placeholder="e.g. John Doe"></div>
@@ -597,6 +648,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    // ==================== CONFIG ====================
     const SUPABASE_URL = "https://ptznejibslwmzlxzmsgh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_eVTCV7q1AFmD76R9XX5Esg_3QwAcr32";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -609,7 +661,9 @@
     const PRODUCTS_LIMIT = 100;
     const DEBTORS_LIMIT = 100;
     const EXPENSES_LIMIT = 60;
+    const AI_POS_KEY = "quantum_ai_float_y";
 
+    // ==================== STATE ====================
     let salesChartInstance = null;
     let userCompanyId = null;
     let isFetchingMetrics = false;
@@ -629,61 +683,11 @@
     let lastGoodExpenses = null;
     let metricsGeneration = 0;
     let lastKnownAllTimeTotal = 0;
-
     let companyCurrency = "NGN";
     let companySymbol = "₦";
     let companyLanguage = "en";
 
-    const I18N = { en: {} };
-    function t(key, fallback) {
-      const lang = companyLanguage || "en";
-      if (I18N[lang] && I18N[lang][key]) return I18N[lang][key];
-      return fallback != null ? fallback : key;
-    }
-
-    function formatCurrency(amount) {
-      const n = Number(amount || 0);
-      try {
-        if (companyCurrency && companyCurrency.length === 3) {
-          return new Intl.NumberFormat(undefined, {
-            style: "currency",
-            currency: companyCurrency,
-            maximumFractionDigits: 0,
-            minimumFractionDigits: 0
-          }).format(n);
-        }
-      } catch (e) {}
-      return (companySymbol || "₦") + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    }
-
-    function getSavedTheme() { return localStorage.getItem("quantum_theme") || "night"; }
-    function resolveTheme(pref) {
-      if (pref === "system") {
-        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night";
-      }
-      return pref === "day" ? "day" : "night";
-    }
-    function applyTheme(pref) {
-      const resolved = resolveTheme(pref || getSavedTheme());
-      document.body.classList.remove("theme-day", "theme-night");
-      document.body.classList.add(resolved === "day" ? "theme-day" : "theme-night");
-      try {
-        document.querySelector('meta[name="theme-color"]').setAttribute("content", resolved === "day" ? "#F4F6FB" : "#05060B");
-      } catch (e) {}
-      document.querySelectorAll(".brand-title").forEach(function (el) {
-        el.style.color = resolved === "day" ? "#0F172A" : "#FFFFFF";
-      });
-    }
-    function getSavedTextSize() { return localStorage.getItem("quantum_text_size") || "medium"; }
-    function applyTextSize(size) {
-      document.body.classList.remove("text-small", "text-medium", "text-large", "text-xlarge");
-      document.body.classList.add("text-" + (size || "medium"));
-    }
-    function applyUserPreferences() {
-      applyTheme(getSavedTheme());
-      applyTextSize(getSavedTextSize());
-    }
-
+    // ==================== HELPERS ====================
     function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
     function parseMoney(value) {
@@ -696,7 +700,6 @@
       const d = new Date(dateObj);
       return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     }
-    // Rolling last 7 days (today + previous 6) for chart only
     function startOfRolling7Date() {
       const d = new Date();
       d.setHours(0, 0, 0, 0);
@@ -735,7 +738,6 @@
         return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
       });
     }
-
     function withTimeout(promise, ms) {
       return Promise.race([
         promise,
@@ -744,11 +746,67 @@
         })
       ]);
     }
+    function formatCurrency(amount) {
+      const n = Number(amount || 0);
+      try {
+        if (companyCurrency && companyCurrency.length === 3) {
+          return new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: companyCurrency,
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0
+          }).format(n);
+        }
+      } catch (e) {}
+      return (companySymbol || "₦") + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
 
+    // ==================== THEME ====================
+    function getSavedTheme() { return localStorage.getItem("quantum_theme") || "night"; }
+    function resolveTheme(pref) {
+      if (pref === "system") {
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night";
+      }
+      return pref === "day" ? "day" : "night";
+    }
+    function applyTheme(pref) {
+      const resolved = resolveTheme(pref || getSavedTheme());
+      document.body.classList.remove("theme-day", "theme-night");
+      document.body.classList.add(resolved === "day" ? "theme-day" : "theme-night");
+      try {
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", resolved === "day" ? "#F4F6FB" : "#090A15");
+      } catch (e) {}
+    }
+    function applyUserPreferences() {
+      applyTheme(getSavedTheme());
+    }
+
+    // ==================== LED CLOCK ====================
+    function updateLedClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, "0");
+      const m = String(now.getMinutes()).padStart(2, "0");
+      const s = String(now.getSeconds()).padStart(2, "0");
+      const el = $("led-clock");
+      if (el) el.textContent = h + ":" + m + ":" + s;
+    }
+    setInterval(updateLedClock, 1000);
+    updateLedClock();
+
+    // ==================== DATE ====================
+    function updateDateDisplay() {
+      const now = new Date();
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+      setText("date-display", months[now.getMonth()] + " " + now.getDate() + ", " + now.getFullYear());
+      setText("day-display", days[now.getDay()]);
+    }
+    updateDateDisplay();
+
+    // ==================== CACHE ====================
     function saveDashboardCache(payload) {
       try {
         if (!userCompanyId) return;
-        // Never overwrite good cache with empty/incomplete snapshot
         var hasAnyData =
           (payload.todaySales != null && payload.todaySales > 0) ||
           (payload.todayCount != null && payload.todayCount > 0) ||
@@ -758,18 +816,14 @@
           (payload.topProductsHtml && payload.topProductsHtml.indexOf("No product") === -1) ||
           (payload.recentHtml && payload.recentHtml.indexOf("No recent") === -1);
         var existing = loadDashboardCache();
-        if (existing && existing.companyId === userCompanyId && !hasAnyData) {
-          // Keep previous good snapshot if this one is effectively empty
-          return;
-        }
-        // Protect all-time total from dropping when only recent rows were fetched
+        if (existing && existing.companyId === userCompanyId && !hasAnyData) return;
         if (payload.weeklyTotal != null && lastKnownAllTimeTotal > 0 && payload.weeklyTotal < lastKnownAllTimeTotal) {
           payload.weeklyTotal = lastKnownAllTimeTotal;
         }
         if (payload.weeklyTotal != null && payload.weeklyTotal > lastKnownAllTimeTotal) {
           lastKnownAllTimeTotal = payload.weeklyTotal;
         }
-        var branchEl = $("current-branch-name");
+        var branchEl = $("business-name");
         var companyName = (branchEl && branchEl.textContent) ? branchEl.textContent.trim() : "";
         localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(Object.assign({
           companyId: userCompanyId,
@@ -789,14 +843,13 @@
     }
 
     function paintFromCache() {
-      const cache = loadDashboardCache() || window.__quantumDashCacheBoot;
+      const cache = loadDashboardCache();
       if (!cache) return;
-      // Soft company match: allow paint when userCompanyId still null (boot path)
       if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
       if (cache.currency) companyCurrency = cache.currency;
       if (cache.symbol) companySymbol = cache.symbol;
       if (cache.language) companyLanguage = cache.language;
-      if (cache.companyName) setText("current-branch-name", cache.companyName);
+      if (cache.companyName) setText("business-name", cache.companyName);
 
       if (cache.todaySales != null) {
         setText("val-today-sales", formatCurrency(cache.todaySales));
@@ -806,18 +859,14 @@
         setText("val-today-profit", formatCurrency(cache.todayProfit));
         todayGrossProfit = cache.todayProfit;
       }
-      if (cache.todayCount != null) setText("val-transactions", String(cache.todayCount));
+      if (cache.todayCount != null) setText("val-customers", String(cache.todayCount)); // reuse for display
       if (cache.todayExpenses != null) setText("val-today-expenses", formatCurrency(cache.todayExpenses));
-      if (cache.netProfit != null) {
-        const netEl = $("val-net-profit");
-        if (netEl) {
-          netEl.textContent = formatCurrency(cache.netProfit);
-          netEl.className = "kpi-value " + (cache.netProfit >= 0 ? "text-success" : "text-loss");
-        }
-      }
       if (cache.outstandingDebt != null) setText("val-outstanding-debt", formatCurrency(cache.outstandingDebt));
       if (cache.debtCustomers != null) setText("val-debt-customers", cache.debtCustomers + " Customers");
-      if (cache.lowStock != null) setText("val-low-stock", cache.lowStock + " Items");
+      if (cache.lowStock != null) {
+        setText("val-low-stock", cache.lowStock);
+        setText("alert-low-stock", cache.lowStock + " products are running low on stock");
+      }
       if (cache.businessHealth != null) setText("val-business-health", cache.businessHealth);
       if (cache.weeklyTotal != null) {
         setText("val-weekly-total", formatCurrency(cache.weeklyTotal));
@@ -832,16 +881,18 @@
         const el = $("recent-activities-list");
         if (el) el.innerHTML = cache.recentHtml;
       }
+
+      // Alerts text
+      if (cache.outstandingDebt != null) {
+        setText("alert-debt", (cache.debtCustomers || 0) + " customers owe " + formatCurrency(cache.outstandingDebt));
+      }
+
       var debtCard = $("card-outstanding-debt");
       if (debtCard) {
         if (cache.outstandingDebt > 0) debtCard.classList.add("alert-breathing-red");
         else debtCard.classList.remove("alert-breathing-red");
       }
-      var lowCard = $("card-low-stock");
-      if (lowCard) {
-        if (cache.lowStock > 0) lowCard.classList.add("alert-breathing-amber");
-        else lowCard.classList.remove("alert-breathing-amber");
-      }
+      var lowCard = $("card-low-stock"); // not present, but low stock number is
       var expCard = $("card-expenses");
       if (expCard && cache.todayExpenses != null) {
         var tooHigh = cache.todayExpenses > 0 && (
@@ -862,6 +913,7 @@
       if (el) el.textContent = "Amount Owing (" + (companySymbol || "₦") + ") *";
     }
 
+    // ==================== UI ACTIONS ====================
     function toggleActionSheet() {
       const sheet = $("action-sheet");
       if (sheet) sheet.classList.toggle("open");
@@ -886,9 +938,7 @@
         if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch (e) {} liveChannel = null; }
         await supabaseClient.auth.signOut({ scope: "local" });
       } catch (e) {}
-      try {
-        localStorage.removeItem(DASH_CACHE_KEY);
-      } catch (e) {}
+      try { localStorage.removeItem(DASH_CACHE_KEY); } catch (e) {}
       window.location.replace("index.html");
     }
 
@@ -897,22 +947,17 @@
       if (liveRefreshTimer) clearTimeout(liveRefreshTimer);
       liveRefreshTimer = setTimeout(function () {
         fetchAllLiveMetrics();
-        // Badge deferred
         setTimeout(loadUnreadBadge, 400);
       }, 600);
     }
 
+    // ==================== PREMIUM / TRIAL ====================
     function updatePremiumBadge(status, daysLeft) {
-      let label = "Upgrade";
+      let label = "Elite";
       if (status === "active") label = "PREMIUM";
       else if (status === "expired") label = "EXPIRED";
-      else if (status === "trial" && daysLeft !== null && daysLeft >= 0) label = daysLeft + " days left";
-      setText("premium-label", label);
-      const badge = $("premium-badge");
-      if (badge) {
-        if (status === "expired") badge.classList.add("expired");
-        else badge.classList.remove("expired");
-      }
+      else if (status === "trial" && daysLeft !== null && daysLeft >= 0) label = daysLeft + "d left";
+      setText("val-plan", label);
     }
     function isProfileComplete(company) {
       if (!company) return false;
@@ -923,8 +968,7 @@
       const complete = isProfileComplete(company);
       const verify = $("profile-verify-banner");
       if (verify) { if (complete) verify.classList.add("hidden"); else verify.classList.remove("hidden"); }
-      const tick = $("profile-verified-tick");
-      if (tick) { if (complete) tick.classList.remove("hidden"); else tick.classList.add("hidden"); }
+
       const status = (company.subscription_status || "trial").toLowerCase();
       const trialEnds = company.trial_ends_at ? new Date(company.trial_ends_at) : null;
       const now = new Date();
@@ -980,7 +1024,7 @@
     }
     function applyCompanyProfile(c) {
       if (!c) return;
-      if (c.company_name) setText("current-branch-name", c.company_name);
+      if (c.company_name) setText("business-name", c.company_name);
       if (c.currency) companyCurrency = c.currency;
       if (c.currency_symbol) companySymbol = c.currency_symbol;
       else if (c.currency === "NGN") companySymbol = "₦";
@@ -997,6 +1041,7 @@
       checkAndApplySubscriptionLock(c);
     }
 
+    // ==================== NOTIFICATIONS BADGE ====================
     async function loadUnreadBadge() {
       if (!userCompanyId) return;
       try {
@@ -1004,19 +1049,21 @@
           supabaseClient.from("notifications").select("id", { count: "exact", head: true }).eq("company_id", userCompanyId).eq("is_read", false),
           REQUEST_TIMEOUT_MS
         );
-        const count = result.count;
+        const count = result.count || 0;
         const badge = $("notif-badge");
         if (!badge) return;
         if (!count) { badge.classList.add("hidden"); return; }
         badge.textContent = count > 99 ? "99+" : String(count);
         badge.classList.remove("hidden");
+        setText("alert-notif", "You have " + count + " unread messages");
+        setText("alert-count", String(Math.min(count + (parseInt(($("val-low-stock")||{}).textContent)||0, 10) + (parseInt(($("val-debt-customers")||{}).textContent)||0 > 0 ? 1 : 0), 9)));
       } catch (e) {}
     }
 
+    // ==================== INIT ====================
     async function initializeApp() {
       if (loggingOut) return;
       try {
-        // Paint from cache immediately, before any network/auth wait
         paintFromCache();
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session || !session.user) {
@@ -1029,7 +1076,7 @@
         const capitalizedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
         const hour = new Date().getHours();
         const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-        setText("greeting-title", greeting + ", " + capitalizedName + " 👋");
+        setText("greeting-label", greeting + ",");
         setText("user-avatar-initial", capitalizedName.charAt(0));
 
         userCompanyId = null;
@@ -1054,7 +1101,6 @@
           }
         }
 
-        // Re-paint after companyId is known (company match now enforced)
         paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
@@ -1077,8 +1123,8 @@
       }
     }
 
+    // ==================== METRICS ====================
     async function fetchAllLiveMetrics() {
-      // CRITICAL FIX: never treat missing companyId as zero data
       if (!userCompanyId) {
         paintFromCache();
         return;
@@ -1127,13 +1173,7 @@
 
         const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([salesP, productsP, debtorsP, expensesP]);
 
-        // Stale response guard
         if (thisGen !== metricsGeneration) return;
-
-        if (salesRes && salesRes.error) console.error("salesRes.error", salesRes.error);
-        if (productsRes && productsRes.error) console.error("productsRes.error", productsRes.error);
-        if (debtorsRes && debtorsRes.error) console.error("debtorsRes.error", debtorsRes.error);
-        if (expensesRes && expensesRes.error) console.error("expensesRes.error", expensesRes.error);
 
         let sales = lastGoodSales;
         let products = lastGoodProducts;
@@ -1172,13 +1212,11 @@
           if (p.name) productImageMap[String(p.name).toLowerCase()] = p.image_url || "";
         });
 
-        // PHASE 1: KPI cards only (immediate)
         processSalesMetrics(sales);
         processInventoryMetrics(products);
         processDebtorsMetrics(debtors);
         processExpensesMetrics(expenses);
 
-        // PHASE 2: secondary content deferred
         const salesSnapshot = sales;
         const imgMapSnapshot = productImageMap;
         setTimeout(function () {
@@ -1207,10 +1245,8 @@
               const pack = parseFloat(p.items_per_pack || 24) || 24;
               if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
             });
-            // Protect all-time total
             if (allTimeTotal < lastKnownAllTimeTotal) allTimeTotal = lastKnownAllTimeTotal;
             else if (allTimeTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = allTimeTotal;
-            // Also update the on-screen all-time label with protected value
             setText("val-weekly-total", formatCurrency(allTimeTotal));
 
             saveDashboardCache({
@@ -1233,7 +1269,6 @@
         }, 50);
       } catch (err) {
         console.error("metrics", err);
-        // On total failure keep whatever is on screen (cache or previous good)
         paintFromCache();
       } finally {
         isFetchingMetrics = false;
@@ -1255,14 +1290,13 @@
           todaySales += amount; todayProfit += profit; todayCount++;
         }
       });
-      // Protect all-time total from partial recent-only fetch
       if (allTimeTotal < lastKnownAllTimeTotal) allTimeTotal = lastKnownAllTimeTotal;
       else if (allTimeTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = allTimeTotal;
       todayGrossProfit = todayProfit;
       todaySalesAmount = todaySales;
       setText("val-today-sales", formatCurrency(todaySales));
       setText("val-today-profit", formatCurrency(todayProfit));
-      setText("val-transactions", String(todayCount));
+      setText("val-customers", String(todayCount));
       setText("val-weekly-total", formatCurrency(allTimeTotal));
     }
     function processExpensesMetrics(expenses) {
@@ -1272,12 +1306,6 @@
         if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
       });
       setText("val-today-expenses", formatCurrency(todayExp));
-      const net = todayGrossProfit - todayExp;
-      const netEl = $("val-net-profit");
-      if (netEl) {
-        netEl.textContent = formatCurrency(net);
-        netEl.className = "kpi-value " + (net >= 0 ? "text-success" : "text-loss");
-      }
       var expCard = $("card-expenses");
       if (expCard) {
         var tooHigh = todayExp > 0 && (todayExp >= todayGrossProfit || (todaySalesAmount > 0 && todayExp > todaySalesAmount * 0.35));
@@ -1292,29 +1320,25 @@
         const pack = parseFloat(p.items_per_pack || 24) || 24;
         if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
       });
-      setText("val-low-stock", low + " Items");
+      setText("val-low-stock", low);
+      setText("alert-low-stock", low + " products are running low on stock");
       setText("val-business-health", Math.max(100 - low * 5, 40) + "%");
-      var lowCard = $("card-low-stock");
-      if (lowCard) {
-        if (low > 0) lowCard.classList.add("alert-breathing-amber");
-        else lowCard.classList.remove("alert-breathing-amber");
-      }
     }
     function processDebtorsMetrics(debtors) {
       let total = 0;
       (debtors || []).forEach(function (d) { total += parseMoney(d.amount_owing); });
       setText("val-outstanding-debt", formatCurrency(total));
       setText("val-debt-customers", (debtors || []).length + " Customers");
+      setText("alert-debt", (debtors || []).length + " customers owe " + formatCurrency(total));
       var debtCard = $("card-outstanding-debt");
       if (debtCard) {
         if (total > 0) debtCard.classList.add("alert-breathing-red");
         else debtCard.classList.remove("alert-breathing-red");
       }
     }
+
     function renderSalesChart(sales, forcedTotals) {
-      if (chartBusy) {
-        chartBusy = false;
-      }
+      if (chartBusy) chartBusy = false;
       chartBusy = true;
       let totals = forcedTotals;
       try {
@@ -1332,9 +1356,7 @@
           });
         }
         const chartKey = totals.join(",") + "|" + dayLabels.join(",") + "|" + companySymbol;
-        if (chartKey === lastChartKey && salesChartInstance) {
-          return totals;
-        }
+        if (chartKey === lastChartKey && salesChartInstance) return totals;
         lastChartKey = chartKey;
         const canvas = $("salesOverviewChart");
         if (canvas) {
@@ -1369,12 +1391,6 @@
             }
           } catch (e) {
             console.error("chart", e);
-            // Do NOT destroy a good chart on error; leave last good instance
-            try {
-              if (salesChartInstance) {
-                // keep existing instance
-              }
-            } catch (e2) {}
           }
         }
         return totals;
@@ -1403,14 +1419,14 @@
       const container = $("top-products-list");
       let html = "";
       if (!sorted.length) {
-        html = '<div class="text-muted" style="text-align:center;padding:8px 0;">No product sales recorded yet.</div>';
+        html = '<div class="text-gray-500 text-center py-3">No product sales recorded yet.</div>';
       } else {
         html = sorted.map(function (entry) {
           const name = entry[0];
           const img = imgMap[String(name).toLowerCase()] || "";
           const thumb = img
-            ? '<img class="prod-thumb" src="' + esc(img) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="prod-thumb-ph" style="display:none"><i class="fa-solid fa-box"></i></div>'
-            : '<div class="prod-thumb-ph"><i class="fa-solid fa-box"></i></div>';
+            ? '<img style="width:36px;height:36px;border-radius:10px;object-fit:cover;background:#1a1f38;border:1px solid rgba(139,92,255,0.25);flex-shrink:0;" src="' + esc(img) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+            : '<div style="width:36px;height:36px;border-radius:10px;background:rgba(139,92,255,0.15);color:#B07CFF;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;border:1px solid rgba(139,92,255,0.25);"><i class="fa-solid fa-box"></i></div>';
           return (
             '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(46,168,255,0.08);gap:10px;">' +
             '<div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">' +
@@ -1429,7 +1445,7 @@
       const container = $("recent-activities-list");
       let html = "";
       if (!sales || !sales.length) {
-        html = '<div class="text-muted" style="text-align:center;padding:8px 0;">No recent activity recorded yet.</div>';
+        html = '<div class="text-gray-500 text-center py-3">No recent activity recorded yet.</div>';
       } else {
         const sorted = sales.slice().sort(function (a, b) { return new Date(b.created_at) - new Date(a.created_at); }).slice(0, 5);
         html = sorted.map(function (s) {
@@ -1464,6 +1480,7 @@
       return getLocalDateString(new Date(dateString));
     }
 
+    // ==================== DEBT SUBMIT ====================
     async function submitNewDebt() {
       const customer = ($("debt-customer") || {}).value;
       const phone = ($("debt-phone") || {}).value;
@@ -1507,55 +1524,60 @@
       if (btn) { btn.disabled = false; btn.textContent = "Save Debt Record"; }
     }
 
-    async function enableNotifications() {
-      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-        alert("Push notifications are not supported on this browser");
-        return;
-      }
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== "granted") {
-          alert("Please allow notifications to receive alerts");
-          return;
-        }
-        const reg = await navigator.serviceWorker.ready;
-        let subscription = await reg.pushManager.getSubscription();
-        if (!subscription) {
-          subscription = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array("BGz7w7rQE8ah-bfjhTDXYiorWegqvomnB27oOQcwOLYOYXEUwflSACTcF58A-P8XDJf014BNpuh9dLuV4iQWW5U")
-          });
-        }
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
-        let companyId = userCompanyId;
-        if (!companyId) {
-          const { data: member } = await supabaseClient.from("company_users").select("company_id").eq("user_id", user.id).maybeSingle();
-          companyId = member && member.company_id ? member.company_id : null;
-        }
-        if (!companyId) return;
-        const subJson = subscription.toJSON ? subscription.toJSON() : subscription;
-        await supabaseClient.from("push_subscriptions").upsert({
-          company_id: companyId,
-          endpoint: subscription.endpoint,
-          subscription: subJson,
-          updated_at: new Date().toISOString()
-        }, { onConflict: "endpoint" });
-        alert("Notifications enabled successfully!");
-      } catch (err) {
-        console.error(err);
-        alert("Failed to enable notifications.");
-      }
-    }
-    function urlBase64ToUint8Array(base64String) {
-      const padding = "=".repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-      const rawData = window.atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-      for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-      return outputArray;
-    }
+    // ==================== FLOATING AI DRAG ====================
+    (function setupAiFloat() {
+      const ai = $("ai-float");
+      if (!ai) return;
+      let startY = 0, startTop = 0, dragging = false;
 
+      // Restore saved position
+      const saved = localStorage.getItem(AI_POS_KEY);
+      if (saved) {
+        const y = parseInt(saved, 10);
+        if (!isNaN(y)) ai.style.top = y + "px";
+      } else {
+        ai.style.top = "120px";
+      }
+
+      function onStart(e) {
+        dragging = true;
+        ai.classList.add("dragging");
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        startY = clientY;
+        startTop = ai.offsetTop;
+        e.preventDefault();
+      }
+      function onMove(e) {
+        if (!dragging) return;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let newTop = startTop + (clientY - startY);
+        const maxTop = window.innerHeight - ai.offsetHeight - 80;
+        newTop = Math.max(60, Math.min(newTop, maxTop));
+        ai.style.top = newTop + "px";
+      }
+      function onEnd() {
+        if (!dragging) return;
+        dragging = false;
+        ai.classList.remove("dragging");
+        localStorage.setItem(AI_POS_KEY, String(ai.offsetTop));
+      }
+
+      ai.addEventListener("mousedown", onStart);
+      ai.addEventListener("touchstart", onStart, { passive: false });
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("touchmove", onMove, { passive: false });
+      window.addEventListener("mouseup", onEnd);
+      window.addEventListener("touchend", onEnd);
+
+      // Tap to go to AI CEO
+      let tapStart = 0;
+      ai.addEventListener("touchstart", function () { tapStart = Date.now(); });
+      ai.addEventListener("click", function () {
+        if (Date.now() - tapStart < 300) window.location.href = "ai-ceo.html";
+      });
+    })();
+
+    // ==================== AUTH + EVENTS ====================
     supabaseClient.auth.onAuthStateChange(function (event) {
       if (loggingOut) return;
       if (event === "SIGNED_OUT") window.location.replace("index.html");
@@ -1569,9 +1591,7 @@
     window.addEventListener("pageshow", function (e) {
       applyUserPreferences();
       paintFromCache();
-      if (appReady && userCompanyId) {
-        scheduleLiveRefresh();
-      }
+      if (appReady && userCompanyId) scheduleLiveRefresh();
     });
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible" && appReady && userCompanyId) {
