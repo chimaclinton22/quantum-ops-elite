@@ -355,7 +355,8 @@
             <span id="current-branch-name">My Business</span>
             <i id="profile-verified-tick" class="fa-solid fa-circle-check hidden" style="color:#3B82F6;font-size:11px;"></i>
           </div>
-          <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">            <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
+          <div class="premium-badge" id="premium-badge" onclick="window.location.href='upgrade.html'">
+            <i class="fa-solid fa-crown"></i><span id="premium-label">Upgrade</span>
           </div>
         </div>
       </div>
@@ -604,6 +605,10 @@
     const LOW_STOCK_UNITS = 3;
     const DASH_CACHE_KEY = "quantum_dash_cache_v4";
     const REQUEST_TIMEOUT_MS = 12000;
+    const SALES_LIMIT = 180;
+    const PRODUCTS_LIMIT = 100;
+    const DEBTORS_LIMIT = 100;
+    const EXPENSES_LIMIT = 60;
 
     let salesChartInstance = null;
     let userCompanyId = null;
@@ -622,6 +627,8 @@
     let lastGoodProducts = null;
     let lastGoodDebtors = null;
     let lastGoodExpenses = null;
+    let metricsGeneration = 0;
+    let lastKnownAllTimeTotal = 0;
 
     let companyCurrency = "NGN";
     let companySymbol = "₦";
@@ -676,7 +683,8 @@
       applyTheme(getSavedTheme());
       applyTextSize(getSavedTextSize());
     }
-   function $(id) { return document.getElementById(id); }
+
+    function $(id) { return document.getElementById(id); }
     function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
     function parseMoney(value) {
       if (value == null || value === "") return 0;
@@ -740,6 +748,27 @@
     function saveDashboardCache(payload) {
       try {
         if (!userCompanyId) return;
+        // Never overwrite good cache with empty/incomplete snapshot
+        var hasAnyData =
+          (payload.todaySales != null && payload.todaySales > 0) ||
+          (payload.todayCount != null && payload.todayCount > 0) ||
+          (payload.outstandingDebt != null && payload.outstandingDebt > 0) ||
+          (payload.lowStock != null && payload.lowStock > 0) ||
+          (payload.weeklyTotal != null && payload.weeklyTotal > 0) ||
+          (payload.topProductsHtml && payload.topProductsHtml.indexOf("No product") === -1) ||
+          (payload.recentHtml && payload.recentHtml.indexOf("No recent") === -1);
+        var existing = loadDashboardCache();
+        if (existing && existing.companyId === userCompanyId && !hasAnyData) {
+          // Keep previous good snapshot if this one is effectively empty
+          return;
+        }
+        // Protect all-time total from dropping when only recent rows were fetched
+        if (payload.weeklyTotal != null && lastKnownAllTimeTotal > 0 && payload.weeklyTotal < lastKnownAllTimeTotal) {
+          payload.weeklyTotal = lastKnownAllTimeTotal;
+        }
+        if (payload.weeklyTotal != null && payload.weeklyTotal > lastKnownAllTimeTotal) {
+          lastKnownAllTimeTotal = payload.weeklyTotal;
+        }
         var branchEl = $("current-branch-name");
         var companyName = (branchEl && branchEl.textContent) ? branchEl.textContent.trim() : "";
         localStorage.setItem(DASH_CACHE_KEY, JSON.stringify(Object.assign({
@@ -762,7 +791,7 @@
     function paintFromCache() {
       const cache = loadDashboardCache() || window.__quantumDashCacheBoot;
       if (!cache) return;
-      // Never block when userCompanyId is still null — allow paint from boot/cache
+      // Soft company match: allow paint when userCompanyId still null (boot path)
       if (userCompanyId && cache.companyId && cache.companyId !== userCompanyId) return;
       if (cache.currency) companyCurrency = cache.currency;
       if (cache.symbol) companySymbol = cache.symbol;
@@ -790,7 +819,10 @@
       if (cache.debtCustomers != null) setText("val-debt-customers", cache.debtCustomers + " Customers");
       if (cache.lowStock != null) setText("val-low-stock", cache.lowStock + " Items");
       if (cache.businessHealth != null) setText("val-business-health", cache.businessHealth);
-      if (cache.weeklyTotal != null) setText("val-weekly-total", formatCurrency(cache.weeklyTotal));
+      if (cache.weeklyTotal != null) {
+        setText("val-weekly-total", formatCurrency(cache.weeklyTotal));
+        if (cache.weeklyTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = cache.weeklyTotal;
+      }
       if (cache.productImageMap) productImageMap = cache.productImageMap;
       if (cache.topProductsHtml) {
         const el = $("top-products-list");
@@ -865,7 +897,8 @@
       if (liveRefreshTimer) clearTimeout(liveRefreshTimer);
       liveRefreshTimer = setTimeout(function () {
         fetchAllLiveMetrics();
-        loadUnreadBadge();
+        // Badge deferred
+        setTimeout(loadUnreadBadge, 400);
       }, 600);
     }
 
@@ -1021,11 +1054,11 @@
           }
         }
 
+        // Re-paint after companyId is known (company match now enforced)
         paintFromCache();
         appReady = true;
         fetchAllLiveMetrics();
-        // Badge + realtime after first metrics (don't block KPIs)
-        setTimeout(function () { try { loadUnreadBadge(); } catch (e) {} }, 400);
+        setTimeout(loadUnreadBadge, 400);
 
         if (userCompanyId) {
           if (liveChannel) { try { await supabaseClient.removeChannel(liveChannel); } catch (e) {} }
@@ -1034,7 +1067,7 @@
             .on("postgres_changes", { event: "*", schema: "public", table: "products", filter: "company_id=eq." + userCompanyId }, scheduleLiveRefresh)
             .on("postgres_changes", { event: "*", schema: "public", table: "debtors", filter: "company_id=eq." + userCompanyId }, scheduleLiveRefresh)
             .on("postgres_changes", { event: "*", schema: "public", table: "expenses", filter: "company_id=eq." + userCompanyId }, scheduleLiveRefresh)
-            .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: "company_id=eq." + userCompanyId }, loadUnreadBadge)
+            .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: "company_id=eq." + userCompanyId }, function () { setTimeout(loadUnreadBadge, 400); })
             .subscribe();
         }
       } catch (err) {
@@ -1045,9 +1078,9 @@
     }
 
     async function fetchAllLiveMetrics() {
-      // CRITICAL: never wipe UI to empty while company is still loading
+      // CRITICAL FIX: never treat missing companyId as zero data
       if (!userCompanyId) {
-        try { paintFromCache(); } catch (e) {}
+        paintFromCache();
         return;
       }
       if (isFetchingMetrics) {
@@ -1056,31 +1089,50 @@
       }
       isFetchingMetrics = true;
       pendingRefresh = false;
+      const thisGen = ++metricsGeneration;
       try {
         const salesP = withTimeout(
-          supabaseClient.from("sales").select("id, total_amount, total, profit, total_profit, created_at, payment_method, items").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(180),
+          supabaseClient.from("sales")
+            .select("id, total_amount, total, profit, total_profit, created_at, payment_method, items")
+            .eq("company_id", userCompanyId)
+            .order("created_at", { ascending: false })
+            .limit(SALES_LIMIT),
           REQUEST_TIMEOUT_MS
         ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
 
         const productsP = withTimeout(
-          supabaseClient.from("products").select("id, name, stock, items_per_pack, image_url").eq("company_id", userCompanyId).limit(100),
+          supabaseClient.from("products")
+            .select("id, name, stock, items_per_pack, image_url, selling_price")
+            .eq("company_id", userCompanyId)
+            .limit(PRODUCTS_LIMIT),
           REQUEST_TIMEOUT_MS
         ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
 
         const debtorsP = withTimeout(
-          supabaseClient.from("debtors").select("id, customer_name, amount_owing, status").eq("company_id", userCompanyId).limit(100),
+          supabaseClient.from("debtors")
+            .select("id, customer_name, amount_owing, status")
+            .eq("company_id", userCompanyId)
+            .limit(DEBTORS_LIMIT),
           REQUEST_TIMEOUT_MS
         ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
 
         const expensesP = withTimeout(
-          supabaseClient.from("expenses").select("id, amount, created_at").eq("company_id", userCompanyId).order("created_at", { ascending: false }).limit(60),
+          supabaseClient.from("expenses")
+            .select("id, amount, created_at")
+            .eq("company_id", userCompanyId)
+            .order("created_at", { ascending: false })
+            .limit(EXPENSES_LIMIT),
           REQUEST_TIMEOUT_MS
         ).then(function (r) { return r; }).catch(function (e) { return { data: null, error: e }; });
 
         const [salesRes, productsRes, debtorsRes, expensesRes] = await Promise.all([salesP, productsP, debtorsP, expensesP]);
 
+        // Stale response guard
+        if (thisGen !== metricsGeneration) return;
+
         if (salesRes && salesRes.error) console.error("salesRes.error", salesRes.error);
-        if (productsRes && productsRes.error) console.error("productsRes.error", productsRes.error);        if (debtorsRes && debtorsRes.error) console.error("debtorsRes.error", debtorsRes.error);
+        if (productsRes && productsRes.error) console.error("productsRes.error", productsRes.error);
+        if (debtorsRes && debtorsRes.error) console.error("debtorsRes.error", debtorsRes.error);
         if (expensesRes && expensesRes.error) console.error("expensesRes.error", expensesRes.error);
 
         let sales = lastGoodSales;
@@ -1120,74 +1172,69 @@
           if (p.name) productImageMap[String(p.name).toLowerCase()] = p.image_url || "";
         });
 
-        // PHASE 1 — KPIs first (instant feel)
+        // PHASE 1: KPI cards only (immediate)
         processSalesMetrics(sales);
         processInventoryMetrics(products);
         processDebtorsMetrics(debtors);
         processExpensesMetrics(expenses);
 
-        // PHASE 2 — chart / top products / recent after paint (non-blocking)
-        var salesForSecondary = sales;
-        var productsForSecondary = products;
-        var debtorsForSecondary = debtors;
-        var expensesForSecondary = expenses;
-        var anySuccessSecondary = anySuccess;
+        // PHASE 2: secondary content deferred
+        const salesSnapshot = sales;
+        const imgMapSnapshot = productImageMap;
         setTimeout(function () {
-          try {
-            productImageMap = {};
-            (productsForSecondary || []).forEach(function (p) {
-              if (p.name) productImageMap[String(p.name).toLowerCase()] = p.image_url || "";
+          if (thisGen !== metricsGeneration) return;
+          const chartTotals = renderSalesChart(salesSnapshot);
+          const topHtml = renderTopProducts(salesSnapshot, imgMapSnapshot);
+          const recentHtml = renderRecentActivities(salesSnapshot);
+
+          if (anySuccess && thisGen === metricsGeneration) {
+            const todayStr = getLocalDateString(new Date());
+            let todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
+            salesSnapshot.forEach(function (s) {
+              const amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
+              const profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
+              allTimeTotal += amount;
+              if (getLocalDateString(new Date(s.created_at)) === todayStr) {
+                todaySales += amount; todayProfit += profit; todayCount++;
+              }
             });
-            var chartTotals = renderSalesChart(salesForSecondary);
-            var topHtml = renderTopProducts(salesForSecondary, productImageMap);
-            var recentHtml = renderRecentActivities(salesForSecondary);
-            if (anySuccessSecondary) {
-              var todayStr = getLocalDateString(new Date());
-              var todaySales = 0, todayProfit = 0, todayCount = 0, allTimeTotal = 0, todayExp = 0, debtTotal = 0, low = 0;
-              (salesForSecondary || []).forEach(function (s) {
-                var amount = parseMoney(s.total_amount != null ? s.total_amount : s.total);
-                var profit = parseMoney(s.profit != null ? s.profit : s.total_profit);
-                allTimeTotal += amount;
-                if (getLocalDateString(new Date(s.created_at)) === todayStr) {
-                  todaySales += amount; todayProfit += profit; todayCount++;
-                }
-              });
-              try {
-                var cachedAt = loadDashboardCache();
-                if (cachedAt && cachedAt.weeklyTotal != null && Number(cachedAt.weeklyTotal) > allTimeTotal) {
-                  allTimeTotal = Number(cachedAt.weeklyTotal);
-                }
-              } catch (e3) {}
-              (expensesForSecondary || []).forEach(function (e) {
-                if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
-              });
-              (debtorsForSecondary || []).forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
-              (productsForSecondary || []).forEach(function (p) {
-                var pieces = parseFloat(p.stock || 0);
-                var pack = parseFloat(p.items_per_pack || 24) || 24;
-                if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
-              });
-              saveDashboardCache({
-                todaySales: todaySales,
-                todayProfit: todayProfit,
-                todayCount: todayCount,
-                todayExpenses: todayExp,
-                netProfit: todayProfit - todayExp,
-                outstandingDebt: debtTotal,
-                debtCustomers: (debtorsForSecondary || []).length,
-                lowStock: low,
-                businessHealth: Math.max(100 - low * 5, 40) + "%",
-                weeklyTotal: allTimeTotal,
-                chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
-                topProductsHtml: topHtml,
-                recentHtml: recentHtml,
-                productImageMap: productImageMap
-              });
-            }
-          } catch (e2) { console.error("secondary metrics", e2); }
+            expenses.forEach(function (e) {
+              if (getLocalDateString(new Date(e.created_at)) === todayStr) todayExp += parseMoney(e.amount);
+            });
+            debtors.forEach(function (d) { debtTotal += parseMoney(d.amount_owing); });
+            products.forEach(function (p) {
+              const pieces = parseFloat(p.stock || 0);
+              const pack = parseFloat(p.items_per_pack || 24) || 24;
+              if (pieces > 0 && (pieces / pack) <= LOW_STOCK_UNITS) low++;
+            });
+            // Protect all-time total
+            if (allTimeTotal < lastKnownAllTimeTotal) allTimeTotal = lastKnownAllTimeTotal;
+            else if (allTimeTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = allTimeTotal;
+            // Also update the on-screen all-time label with protected value
+            setText("val-weekly-total", formatCurrency(allTimeTotal));
+
+            saveDashboardCache({
+              todaySales: todaySales,
+              todayProfit: todayProfit,
+              todayCount: todayCount,
+              todayExpenses: todayExp,
+              netProfit: todayProfit - todayExp,
+              outstandingDebt: debtTotal,
+              debtCustomers: debtors.length,
+              lowStock: low,
+              businessHealth: Math.max(100 - low * 5, 40) + "%",
+              weeklyTotal: allTimeTotal,
+              chartTotals: chartTotals || [0, 0, 0, 0, 0, 0, 0],
+              topProductsHtml: topHtml,
+              recentHtml: recentHtml,
+              productImageMap: productImageMap
+            });
+          }
         }, 50);
       } catch (err) {
         console.error("metrics", err);
+        // On total failure keep whatever is on screen (cache or previous good)
+        paintFromCache();
       } finally {
         isFetchingMetrics = false;
         if (pendingRefresh) {
@@ -1208,13 +1255,9 @@
           todaySales += amount; todayProfit += profit; todayCount++;
         }
       });
-      // All-time may be undercounted if we only fetched recent rows — never show less than cache
-      try {
-        var cached = loadDashboardCache();
-        if (cached && cached.weeklyTotal != null && Number(cached.weeklyTotal) > allTimeTotal) {
-          allTimeTotal = Number(cached.weeklyTotal);
-        }
-      } catch (e) {}
+      // Protect all-time total from partial recent-only fetch
+      if (allTimeTotal < lastKnownAllTimeTotal) allTimeTotal = lastKnownAllTimeTotal;
+      else if (allTimeTotal > lastKnownAllTimeTotal) lastKnownAllTimeTotal = allTimeTotal;
       todayGrossProfit = todayProfit;
       todaySalesAmount = todaySales;
       setText("val-today-sales", formatCurrency(todaySales));
@@ -1319,16 +1362,19 @@
                   plugins: { legend: { display: false } },
                   scales: {
                     x: { grid: { display: false }, ticks: { color: "#7C88A5", font: { size: 9 } } },
-                    y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } }
+                    y: { grid: { color: "rgba(46,168,255,0.06)" }, ticks: { color: "#7C88A5", font: { size: 9 }, callback: function (v) { return sym + (v / 1000).toFixed(0) + "k"; } } }
                   }
                 }
               });
             }
           } catch (e) {
             console.error("chart", e);
-            try { if (salesChartInstance) { salesChartInstance.destroy(); } } catch (e2) {}
-            salesChartInstance = null;
-            lastChartKey = "";
+            // Do NOT destroy a good chart on error; leave last good instance
+            try {
+              if (salesChartInstance) {
+                // keep existing instance
+              }
+            } catch (e2) {}
           }
         }
         return totals;
@@ -1536,6 +1582,3 @@
   </script>
 </body>
 </html>
-
-
-
