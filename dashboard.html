@@ -7,6 +7,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Quantum OPS">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png">
   <title>Quantum OPS Elite</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -573,7 +578,7 @@
       <i class="fa-solid fa-house"></i>
       <span>Dashboard</span>
     </a>
-    <a href="transactions.html" class="nav-item">
+    <a href="pos.html" class="nav-item">
       <i class="fa-solid fa-cart-shopping"></i>
       <span>Sales</span>
     </a>
@@ -1296,6 +1301,8 @@
       const ai = $("ai-float");
       if (!ai) return;
       let startY = 0, startTop = 0, dragging = false;
+      let moved = false;
+      const MOVE_THRESHOLD = 8;
 
       const saved = localStorage.getItem(AI_POS_KEY);
       if (saved) {
@@ -1307,6 +1314,7 @@
 
       function onStart(e) {
         dragging = true;
+        moved = false;
         ai.classList.add("dragging");
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         startY = clientY;
@@ -1316,6 +1324,8 @@
       function onMove(e) {
         if (!dragging) return;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const delta = Math.abs(clientY - startY);
+        if (delta > MOVE_THRESHOLD) moved = true;
         let newTop = startTop + (clientY - startY);
         const maxTop = window.innerHeight - ai.offsetHeight - 80;
         newTop = Math.max(60, Math.min(newTop, maxTop));
@@ -1326,6 +1336,10 @@
         dragging = false;
         ai.classList.remove("dragging");
         localStorage.setItem(AI_POS_KEY, String(ai.offsetTop));
+        // short tap (no real drag) → open AI CEO
+        if (!moved) {
+          window.location.href = "ai-ceo.html";
+        }
       }
 
       ai.addEventListener("mousedown", onStart);
@@ -1334,12 +1348,6 @@
       window.addEventListener("touchmove", onMove, { passive: false });
       window.addEventListener("mouseup", onEnd);
       window.addEventListener("touchend", onEnd);
-
-      let tapStart = 0;
-      ai.addEventListener("touchstart", function () { tapStart = Date.now(); });
-      ai.addEventListener("click", function () {
-        if (Date.now() - tapStart < 300) window.location.href = "ai-ceo.html";
-      });
     })();
 
     // ==================== AUTH + EVENTS ====================
