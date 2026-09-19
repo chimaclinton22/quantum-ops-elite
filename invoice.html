@@ -212,6 +212,12 @@
         return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
       });
     }
+    function setStatus(msg, isError) {
+      const el = $("form-status");
+      if (!el) return;
+      el.textContent = msg || "";
+      el.style.color = isError ? "#FF4F67" : "#31D17C";
+    }
 
     /* Theme */
     function getTheme() { return localStorage.getItem("quantum_theme") || "night"; }
@@ -308,20 +314,107 @@
       renderLines();
     }
 
+    function getProductPrice(p) {
+      if (!p) return 0;
+      const v = p.selling_price != null ? p.selling_price
+        : (p.unit_selling_price != null ? p.unit_selling_price
+        : (p.price != null ? p.price : 0));
+      return Number(v) || 0;
+    }
+
     function addProductFromPicker() {
       const sel = $("product-picker");
       const id = sel.value;
       if (!id) return;
-      const p = products.find(function (x) { return x.id === id; });
+      const p = products.find(function (x) { return String(x.id) === String(id); });
       if (!p) return;
       lines.push({
         name: p.name || "Product",
         qty: 1,
-        price: Number(p.selling_price || p.unit_selling_price || 0),
+        price: getProductPrice(p),
         product_id: p.id
       });
       sel.value = "";
       renderLines();
+    }
+
+    function fillProductPicker(list) {
+      const sel = $("product-picker");
+      if (!sel) return;
+      products = list || [];
+      if (!products.length) {
+        sel.innerHTML = '<option value="">Add from inventory…</option>';
+        return;
+      }
+      sel.innerHTML = '<option value="">Add from inventory…</option>' + products.map(function (p) {
+        const price = getProductPrice(p);
+        const label = (p.name || "Unnamed") + (p.sku ? " (" + p.sku + ")" : "") + " — " + money(price);
+        return '<option value="' + esc(String(p.id)) + '">' + esc(label) + "</option>";
+      }).join("");
+    }
+
+    async function loadProducts() {
+      if (!userCompanyId) {
+        setStatus("No business linked — cannot load inventory.", true);
+        return;
+      }
+      setStatus("Loading inventory…", false);
+
+      // Primary: products table
+      try {
+        const { data, error } = await supabaseClient
+          .from("products")
+          .select("id, name, sku, stock, price, selling_price, unit_selling_price, stock_units")
+          .eq("company_id", userCompanyId)
+          .order("name")
+          .limit(500);
+
+        if (error) {
+          console.error("products query error:", error);
+          setStatus("Inventory error: " + (error.message || "query failed"), true);
+          // Optional fallback to inventory table
+          await tryInventoryFallback();
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          // try fallback once
+          const fallbackOk = await tryInventoryFallback();
+          if (!fallbackOk) {
+            fillProductPicker([]);
+            setStatus("No products in inventory for this business yet.", true);
+          }
+          return;
+        }
+
+        fillProductPicker(data);
+        setStatus(data.length + " products loaded", false);
+      } catch (err) {
+        console.error("loadProducts exception:", err);
+        setStatus("Could not load inventory: " + (err.message || "network error"), true);
+        await tryInventoryFallback();
+      }
+    }
+
+    async function tryInventoryFallback() {
+      try {
+        const { data, error } = await supabaseClient
+          .from("inventory")
+          .select("id, name, sku, stock, price, selling_price, unit_selling_price, stock_units")
+          .eq("company_id", userCompanyId)
+          .order("name")
+          .limit(500);
+
+        if (error || !data || !data.length) {
+          return false;
+        }
+        fillProductPicker(data);
+        setStatus(data.length + " products loaded (from inventory)", false);
+        return true;
+      } catch (e) {
+        // table may not exist — ignore silently
+        return false;
+      }
     }
 
     function renderPreview() {
@@ -365,7 +458,7 @@
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
         '<div>' +
         (c.logo ? '<img src="' + esc(c.logo) + '" alt="" style="height:36px;object-fit:contain;margin-bottom:6px;">' : "") +
-        '<div style="font-size:15px;font-weight:800;color:#5b3dff;letter-spacing:0.02em;">' + esc(c.company_name || "Your Business") + "</div>" +
+        '<div style="font-size:15px;font-weight:800;color:#5b3dff;letter-spacing:0.02em;">' + esc(c.company_name || c.name || "Your Business") + "</div>" +
         '<div style="font-size:10px;color:#64748b;margin-top:2px;line-height:1.4;">' +
         esc(c.address || "") + (c.phone ? "<br>" + esc(c.phone) : "") + (c.email ? "<br>" + esc(c.email) : "") +
         "</div></div>" +
@@ -416,54 +509,54 @@
           return;
         }
         const user = session.user;
-        const { data: member } = await supabaseClient
+
+        // Resolve company_id
+        const { data: member, error: memberErr } = await supabaseClient
           .from("company_users")
           .select("company_id, companies(*)")
           .eq("user_id", user.id)
           .maybeSingle();
 
+        if (memberErr) {
+          console.error("company_users error:", memberErr);
+        }
+
         if (member && member.company_id) {
           userCompanyId = member.company_id;
           company = member.companies || {};
         } else {
-          const { data: owned } = await supabaseClient
+          const { data: owned, error: ownedErr } = await supabaseClient
             .from("companies")
             .select("*")
             .eq("owner_id", user.id)
             .maybeSingle();
+          if (ownedErr) console.error("companies owner error:", ownedErr);
           if (owned) {
             userCompanyId = owned.id;
             company = owned;
           }
         }
+
         if (!userCompanyId) {
-          $("form-status").textContent = "No business linked. Complete profile first.";
+          setStatus("No business linked. Complete your profile first.", true);
+          $("company-badge").textContent = "No business";
           return;
         }
 
-        $("company-badge").textContent = company.company_name || "Your business";
+        const bizName = company.company_name || company.name || "Your business";
+        $("company-badge").textContent = bizName;
         lastInvoiceNumber = generateInvoiceNumber();
         $("preview-number").textContent = lastInvoiceNumber;
 
-        const { data: prods } = await supabaseClient
-          .from("products")
-          .select("id, name, selling_price, unit_selling_price, stock, sku")
-          .eq("company_id", userCompanyId)
-          .order("name")
-          .limit(300);
-        products = prods || [];
-        const sel = $("product-picker");
-        sel.innerHTML = '<option value="">Add from inventory…</option>' + products.map(function (p) {
-          const price = Number(p.selling_price || p.unit_selling_price || 0);
-          return '<option value="' + p.id + '">' + esc(p.name) + " — " + money(price) + "</option>";
-        }).join("");
+        // Load inventory (main fix)
+        await loadProducts();
 
         lines = [];
         renderLines();
         loadRecent();
       } catch (err) {
         console.error(err);
-        $("form-status").textContent = "Could not load. Check connection.";
+        setStatus("Could not load. Check connection. " + (err.message || ""), true);
       }
     }
 
@@ -518,7 +611,7 @@
       const btn = $("btn-save");
       btn.disabled = true;
       btn.textContent = "Saving…";
-      $("form-status").textContent = "";
+      setStatus("", false);
 
       const payload = {
         company_id: userCompanyId,
@@ -543,15 +636,13 @@
         const { data, error } = await supabaseClient.from("invoices").insert([payload]).select("id").maybeSingle();
         if (error) throw error;
         lastSavedId = data && data.id;
-        $("form-status").textContent = "Invoice saved · " + invNo;
-        $("form-status").style.color = "#31D17C";
+        setStatus("Invoice saved · " + invNo, false);
         loadRecent();
         lastInvoiceNumber = generateInvoiceNumber();
         $("preview-number").textContent = lastInvoiceNumber;
       } catch (err) {
         console.error(err);
-        $("form-status").textContent = err.message || "Save failed. Create invoices table (SQL above).";
-        $("form-status").style.color = "#FF4F67";
+        setStatus(err.message || "Save failed. Create invoices table (SQL above).", true);
       }
       btn.disabled = false;
       btn.textContent = "Save invoice";
@@ -579,7 +670,7 @@
       const cust = ($("cust-name").value || "Customer").trim();
       const invNo = lastInvoiceNumber || $("preview-number").textContent;
       let msg = "Hello " + cust + ",\n\n";
-      msg += "Invoice *" + invNo + "* from *" + (c.company_name || "our shop") + "*\n\n";
+      msg += "Invoice *" + invNo + "* from *" + (c.company_name || c.name || "our shop") + "*\n\n";
       lines.forEach(function (l) {
         if (!l.name) return;
         msg += "• " + l.name + " × " + l.qty + " — " + money((l.qty || 0) * (l.price || 0)) + "\n";
@@ -591,7 +682,7 @@
         if (c.account_name) msg += "Name: " + c.account_name + "\n";
         if (c.account_number) msg += "Account: " + c.account_number + "\n";
       }
-      msg += "\nThank you for your business.\n— " + (c.company_name || "Quantum OPS Elite");
+      msg += "\nThank you for your business.\n— " + (c.company_name || c.name || "Quantum OPS Elite");
       return msg;
     }
 
@@ -611,7 +702,7 @@
       const email = ($("cust-email").value || "").trim();
       const invNo = lastInvoiceNumber || "Invoice";
       const c = company || {};
-      const subject = encodeURIComponent("Invoice " + invNo + " — " + (c.company_name || "Quantum OPS"));
+      const subject = encodeURIComponent("Invoice " + invNo + " — " + (c.company_name || c.name || "Quantum OPS"));
       const body = encodeURIComponent(buildMessage());
       window.location.href = "mailto:" + (email || "") + "?subject=" + subject + "&body=" + body;
     }
@@ -626,7 +717,7 @@
       $("due-date").value = "";
       lastInvoiceNumber = generateInvoiceNumber();
       $("preview-number").textContent = lastInvoiceNumber;
-      $("form-status").textContent = "";
+      setStatus("", false);
       renderLines();
     }
 
